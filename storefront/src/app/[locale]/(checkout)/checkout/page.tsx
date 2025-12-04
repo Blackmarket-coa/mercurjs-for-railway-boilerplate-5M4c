@@ -14,7 +14,7 @@ import { Suspense } from "react"
 
 export const metadata: Metadata = {
   title: "Checkout",
-  description: "My cart page - Checkout",
+  description: "My cart",
 }
 
 export default async function CheckoutPage({}) {
