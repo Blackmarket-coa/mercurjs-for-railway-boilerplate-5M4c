@@ -45,6 +45,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "s3.eu-central-1.amazonaws.com",
       },
+      {
+        protocol: "https",
+        hostname: "bucket-production-20af.up.railway.app",
+        pathname: "/medusa-media/**",
+      },
     ],
   },
 }
