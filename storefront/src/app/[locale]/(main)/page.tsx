@@ -50,8 +50,7 @@ export async function generateMetadata({
 
   const title = "Home"
   const description =
-    "Shop directly from makers and small businesses. No middleman markup, just quality products. 
-    Vendors enjoy 1.5% commission or join our coalition for commission-free sales."
+    "Shop directly from makers and small businesses. No middleman markup, just quality products. Vendors enjoy 1.5% commission or join our coalition for commission-free sales."
   const ogImage = "/B2C_Storefront_Open_Graph.png"
   const canonical = `${baseUrl}/${locale}`
 
