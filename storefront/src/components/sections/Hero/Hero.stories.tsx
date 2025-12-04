@@ -17,7 +17,7 @@ export const FirstStory: Story = {
     image: "/images/hero/Image.jpg",
     buttons: [
       { label: "Provide for your community", path: "#" },
-      { label: "Get what you need from your neighbor.", path: "3" },
+      { label: "Get what you need.", path: "3" },
     ],
   },
 }
