@@ -12,12 +12,12 @@ type Story = StoryObj<typeof Hero>
 
 export const FirstStory: Story = {
   args: {
-    heading: "Snag your style in a flash",
-    paragraph: "Buy, sell, and discover pre-loved from the trendiest brands.",
+    heading: "Get anything you need",
+    paragraph: "Get anything you need from the community market, or sign up to provide for your community.",
     image: "/images/hero/Image.jpg",
     buttons: [
-      { label: "Buy now", path: "#" },
-      { label: "Sell now", path: "3" },
+      { label: "Provide for your community", path: "#" },
+      { label: "Get what you need from your neighbor.", path: "3" },
     ],
   },
 }
