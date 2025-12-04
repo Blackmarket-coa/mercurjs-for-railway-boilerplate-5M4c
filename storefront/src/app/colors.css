@@ -14,18 +14,19 @@
     --neutral-900: 22, 22, 22;
     --neutral-1000: 9, 9, 9;
 
-    /* Brand colors are used across all interactive elements such as buttons, links, inputs, etc. This color can define the overall feel and can elicit emotion. */
-    --brand-25: 247, 247, 247;
-    --brand-50: 238, 238, 238;
-    --brand-100: 226, 226, 226;
-    --brand-200: 198, 198, 198;
-    --brand-300: 163, 163, 163;
-    --brand-400: 115, 115, 115;
-    --brand-500: 82, 82, 82;
-    --brand-600: 64, 64, 64;
-    --brand-700: 27, 27, 27;
-    --brand-800: 22, 22, 22;
-    --brand-900: 9, 9, 9;
+    /* Brand colors - Black Market Coalition Theme */
+    /* Dark Forest Green (#0B3D2C) to Light Teal (#5FD4C4) scale */
+    --brand-25: 239, 252, 249;    /* Very light teal tint */
+    --brand-50: 223, 249, 243;    /* Light teal tint */
+    --brand-100: 191, 243, 231;   /* Lighter teal */
+    --brand-200: 159, 237, 219;   /* Light teal */
+    --brand-300: 127, 230, 207;   /* Medium-light teal */
+    --brand-400: 95, 212, 196;    /* Primary teal (#5FD4C4) */
+    --brand-500: 76, 169, 157;    /* Medium teal */
+    --brand-600: 57, 127, 118;    /* Dark teal */
+    --brand-700: 38, 84, 79;      /* Darker teal */
+    --brand-800: 19, 61, 54;      /* Forest green-teal */
+    --brand-900: 11, 61, 44;      /* Dark forest green (#0B3D2C) */
     
     /* Red colors are used across error states and in "destructive" actions. */
     --red-25: 254, 243, 242;
@@ -83,7 +84,7 @@
 :root {
     --bg-primary: var(--neutral-0);
     --bg-secondary: var(--neutral-25);
-    --bg-tertiary: var(--neutral-1000);
+    --bg-tertiary: var(--brand-900);        /* Dark forest green for tertiary backgrounds */
 
     --bg-component-primary: var(--neutral-0);
     --bg-component-primary-hover: var(--neutral-25);
@@ -92,15 +93,15 @@
     --bg-component-secondary-hover: var(--neutral-50);
     --bg-component-secondary-pressed: var(--neutral-100);
 
-    --bg-action-primary: var(--brand-900);
-    --bg-action-primary-hover: var(--brand-800);
-    --bg-action-primary-pressed: var(--brand-700);
-    --bg-action-secondary: rgba(var(--neutral-1000), 0.05);
-    --bg-action-secondary-hover: rgba(var(--neutral-1000), 0.1);
-    --bg-action-secondary-pressed: rgba(var(--neutral-1000), 0.2);
-    --bg-action-tertiary: rgba(var(--neutral-1000), 0.05);
-    --bg-action-tertiary-hover: rgba(var(--neutral-1000), 0.1);
-    --bg-action-tertiary-pressed: rgba(var(--neutral-1000), 0.2);
+    --bg-action-primary: var(--brand-400);           /* Teal primary action */
+    --bg-action-primary-hover: var(--brand-500);     /* Darker teal on hover */
+    --bg-action-primary-pressed: var(--brand-600);   /* Even darker on press */
+    --bg-action-secondary: rgba(var(--brand-400), 0.1);
+    --bg-action-secondary-hover: rgba(var(--brand-400), 0.15);
+    --bg-action-secondary-pressed: rgba(var(--brand-400), 0.25);
+    --bg-action-tertiary: rgba(var(--brand-400), 0.05);
+    --bg-action-tertiary-hover: rgba(var(--brand-400), 0.1);
+    --bg-action-tertiary-pressed: rgba(var(--brand-400), 0.2);
 
     --bg-negative-primary: var(--red-600);
     --bg-negative-primary-hover: var(--red-700);
@@ -129,11 +130,11 @@
     --content-secondary: var(--neutral-500);
     --content-tertiary: var(--neutral-0);
 
-    --content-action-primary: var(--brand-900);
-    --content-action-primary-hover: var(--brand-800);
-    --content-action-primary-pressed: var(--brand-700);
-    --content-action-on-primary: var(--brand-25);
-    --content-action-on-secondary: var(--neutral-1000);
+    --content-action-primary: var(--brand-400);           /* Teal text for primary actions */
+    --content-action-primary-hover: var(--brand-500);     /* Darker teal on hover */
+    --content-action-primary-pressed: var(--brand-600);   /* Even darker on press */
+    --content-action-on-primary: var(--neutral-1000);     /* Black text on teal buttons */
+    --content-action-on-secondary: var(--brand-400);      /* Teal text for secondary actions */
     --content-action-on-tertiary: var(--neutral-0);
 
     --content-positive-primary: var(--green-800);
@@ -152,7 +153,7 @@
 
     --border-primary: var(--neutral-50);
     --border-secondary: var(--neutral-800);
-    --border-action: var(--brand-900);
+    --border-action: var(--brand-400);                    /* Teal border for actions */
     --border-negative-primary: var(--red-700);
     --border-negative-secondary: var(--red-200);
     --border-positive-primary: var(--green-800);
