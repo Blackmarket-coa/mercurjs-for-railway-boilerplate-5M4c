@@ -9,13 +9,10 @@ const links = {
   about: [
     { label: 'About us', path: '#' },
     { label: 'Blog', path: '#' },
-    { label: 'Privacy Policy', path: '#' },
-    { label: 'Terms & Conditions', path: '#' },
   ],
   connect: [
-    { label: 'Facebook', path: 'https://facebook.com' },
-    { label: 'Instagram', path: 'https://instagram.com' },
-    { label: 'LinekdIn', path: 'https://linkedin.com' },
+    { label: 'Tik Tok', path: 'https://www.tiktok.com/@blackmarketcoa' },
+    { label: 'Instagram', path: 'https://www.instagram.com/blackmarket_coalition' },
   ],
 };
 
