@@ -4,27 +4,28 @@ import { BlogCard } from '@/components/organisms';
 export const blogPosts: BlogPost[] = [
   {
     id: 1,
-    title: "Summer's Most Elegant Accessories",
+    title: "Find something for the occasion",
     excerpt:
-      "Discover this season's most sophisticated accessories that blend timeless elegance with modern design.",
+      "If you can ship it, you can sell it. Your money funds real farmers, restaurants, and skilled workers. NOT venture capital. We continually find new points of sale for coalition members.",
     image: '/images/blog/post-1.jpg',
     category: 'ACCESSORIES',
     href: '#',
   },
   {
     id: 2,
-    title: 'The Season’s Hottest Trends',
+    title: 'Every storefront belongs to an actual person or small team',
     excerpt:
-      'From bold colors to nostalgic silhouettes, explore the must-have looks defining this season’s fashion narrative.',
+      'Working as a coalition means community growth. When we build with each other, we build community.
+    ',
     image: '/images/blog/post-2.jpg',
     category: 'STYLE GUIDE',
     href: '#',
   },
   {
     id: 3,
-    title: 'Minimalist Outerwear Trends',
+    title: 'Find local producers',
     excerpt:
-      'Explore the latest minimalist outerwear pieces that combine functionality with clean aesthetics.',
+      'Local pickup hosting options are available for FREE.',
     image: '/images/blog/post-3.jpg',
     category: 'TRENDS',
     href: '#',
