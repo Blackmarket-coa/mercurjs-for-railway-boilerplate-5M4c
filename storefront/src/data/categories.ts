@@ -1,13 +1,13 @@
 export const primeCategories = {
-  menswear: 'Menswear',
-  womenswear: 'Womenswear',
+  electronics: 'Electronics',
+  components: 'Components',
 };
 
 export const categories = {
-  clothing: 'Clothing',
+  3d: '3D Printed items',
   footwear: 'Footwear',
-  bags: 'Bags',
-  accessories: 'Accessories',
+  crafted: 'Hand Crafted Items',
+  soap: 'Essentials',
   brands: 'Brands',
   'new-in': 'New in',
   sale: 'Sale',
