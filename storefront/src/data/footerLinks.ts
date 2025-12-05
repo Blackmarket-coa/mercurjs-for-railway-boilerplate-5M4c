@@ -3,7 +3,6 @@ const links = {
     { label: 'FAQs', path: '#' },
     { label: 'Track Order', path: '#' },
     { label: 'Returns', path: '#' },
-    { label: 'Delivery', path: '#' },
     { label: 'Payment', path: '#' },
   ],
   about: [
