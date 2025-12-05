@@ -14,9 +14,7 @@ export const blogPosts: BlogPost[] = [
   {
     id: 2,
     title: 'Every storefront belongs to an actual person or small team',
-    excerpt:
-      'Working as a coalition means community growth. When we build with each other, we build community.
-    ',
+    excerpt: 'Working as a coalition means community growth. When we build with each other, we build community.',
     image: '/images/blog/post-2.jpg',
     category: 'STYLE GUIDE',
     href: '#',
@@ -24,8 +22,7 @@ export const blogPosts: BlogPost[] = [
   {
     id: 3,
     title: 'Find local producers',
-    excerpt:
-      'Local pickup hosting options are available for FREE.',
+    excerpt: 'Local pickup hosting options are available for FREE.',
     image: '/images/blog/post-3.jpg',
     category: 'TRENDS',
     href: '#',
