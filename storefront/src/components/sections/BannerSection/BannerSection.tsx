@@ -9,14 +9,13 @@ export const BannerSection = () => {
         <div className="py-6 px-6 flex flex-col h-full justify-between border border-secondary rounded-sm">
           <div className="mb-8 lg:mb-48">
             <span className="text-sm inline-block px-4 py-1 border border-secondary rounded-sm">
-              #COLLECTION
+                BLK MRKT
             </span>
             <h2 className="display-sm">
-              BOHO VIBES: WHERE COMFORT MEETS CREATIVITY
+              Black Market products. Black Market prices
             </h2>
             <p className="text-lg text-tertiary max-w-lg">
-              Discover boho styles that inspire adventure and embrace the beauty
-              of the unconventional.
+              From handcrafted goods to small-batch manufacturing, find products you won't see in big-box stores. Each maker brings their own perspective, skills, and creative vision.              .
             </p>
           </div>
           <LocalizedClientLink href="/collections/boho">
@@ -30,7 +29,7 @@ export const BannerSection = () => {
             loading="lazy"
             fetchPriority="high"
             src="/images/banner-section/Image.jpg"
-            alt="Boho fashion collection - Model wearing a floral dress with yellow boots"
+            alt="Marketplace"
             width={700}
             height={600}
             className="object-cover object-top rounded-sm"
