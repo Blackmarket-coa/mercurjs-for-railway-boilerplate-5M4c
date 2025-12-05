@@ -4,7 +4,7 @@ export const primeCategories = {
 };
 
 export const categories = {
-  3d: '3D Printed items',
+  '3d': '3D Printed items',
   footwear: 'Footwear',
   crafted: 'Hand Crafted Items',
   soap: 'Essentials',
