@@ -50,7 +50,7 @@ export async function generateMetadata({
 
   const title = "Home"
   const description =
-    "Shop directly from makers and small businesses. No middleman markup, just quality products. Vendors enjoy 1.5% commission or join our coalition for commission-free sales."
+    "The BMC Community Market"
   const ogImage = "/B2C_Storefront_Open_Graph.png"
   const canonical = `${baseUrl}/${locale}`
 
@@ -163,7 +163,7 @@ export default async function Home({
       <Hero
         image="/images/hero/Image.jpg"
         heading="Where you put your money matters!"
-        paragraph="Everything you need in one place. We do business ethically."
+        paragraph="Shop directly from makers and small businesses. No middleman markup, just quality products. Vendors enjoy 1.5% commission or join our coalition for commission-free sales. Everything you need in one place. We do business ethically."
         buttons={[
           { label: "Purchase Product", path: "/categories" },
           {
