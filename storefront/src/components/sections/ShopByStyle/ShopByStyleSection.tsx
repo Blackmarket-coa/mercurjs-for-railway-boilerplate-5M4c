@@ -1,33 +1,33 @@
 import Image from "next/image"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { ArrowRightIcon } from "@/icons"
-import { Style } from "@/categories"
+import { Style } from "@type/categories"
 
 export const styles: Style[] = [
   {
     id: 1,
     name: "FOOD & BEVERAGE",
-    href: "/categories/Food-beverage",
+    href: "/categories/food-beverage",
   },
   {
     id: 2,
     name: "ELECTRONICS",
-    href: "/categories/Electronics",
+    href: "/categories/electronics",
   },
   {
     id: 3,
     name: "DIGITAL PRODUCTS",
-    href: "/categories/Digital-products",
+    href: "/categories/digital-products",
   },
   {
     id: 4,
     name: "SERVICES",
-    href: "/categories/Services",
+    href: "/categories/services",
   },
   {
     id: 5,
     name: "BULK & WHOLESALE",
-    href: "/categories/Bulk",
+    href: "/categories/bulk",
   },
 ]
 
