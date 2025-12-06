@@ -1,65 +1,50 @@
-import Image from "next/image"
-import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
-import { ArrowRightIcon } from "@/icons"
-import { Style } from "@/types/styles"
-
-export const styles: Style[] = [
-  {
-    id: 1,
-    name: "FOOD & BEVERAGE",
-    href: "/categories/food-beverage",
-  },
-  {
-    id: 2,
-    name: "ELECTRONICS",
-    href: "/categories/electronics",
-  },
-  {
-    id: 3,
-    name: "DIGITAL PRODUCTS",
-    href: "/categories/digital-products",
-  },
-  {
-    id: 4,
-    name: "SERVICES",
-    href: "/categories/services",
-  },
-  {
-    id: 5,
-    name: "BULK",
-    href: "/categories/bulk",
-  },
-]
-
-export function ShopByStyleSection() {
-  return (
-    <section className="bg-primary container">
-      <h2 className="heading-lg text-primary mb-12">SHOP BY TYPE</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
-        <div className="py-[52px] px-[58px] h-full border rounded-sm">
-          {styles.map((style) => (
-            <LocalizedClientLink
-              key={style.id}
-              href={style.href}
-              className="group flex items-center gap-4 text-primary hover:text-action transition-colors border-b border-transparent hover:border-primary w-fit pb-2 mb-8"
-            >
-              <span className="heading-lg">{style.name}</span>
-              <ArrowRightIcon className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-            </LocalizedClientLink>
-          ))}
-        </div>
-        <div className="relative hidden lg:block">
-          <Image
-            loading="lazy"
-            fetchPriority="high"
-            src="/images/shop-by-styles/Image.jpg"
-            alt="Browse products by type"
-            width={700}
-            height={600}
-            className="object-cover rounded-sm w-full h-auto"
-          />
-        </div>
-      </div>
-    </section>
-  )
+"use server"
+import { HttpTypes } from "@medusajs/types"
+import { getCacheOptions } from "./cookies"
+import { sdk } from "../config"
+export const retrieveCollection = async (id: string) => {
+  const next = {
+    ...(await getCacheOptions("collections")),
+  }
+  return sdk.client
+    .fetch<{ collection: HttpTypes.StoreCollection }>(
+      /store/collections/${id},
+      {
+        next,
+        cache: "force-cache",
+      }
+    )
+    .then(({ collection }) => collection)
 }
+export const listCollections = async (
+  queryParams: Record<string, string> = {}
+): Promise<{ collections: HttpTypes.StoreCollection[]; count: number }> => {
+  const next = {
+    ...(await getCacheOptions("collections")),
+  }
+  queryParams.limit = queryParams.limit || "100"
+  queryParams.offset = queryParams.offset || "0"
+  return sdk.client
+    .fetch<{ collections: HttpTypes.StoreCollection[]; count: number }>(
+      "/store/collections",
+      {
+        query: queryParams,
+        next,
+        cache: "force-cache",
+      }
+    )
+    .then(({ collections }) => ({ collections, count: collections.length }))
+}
+export const getCollectionByHandle = async (
+  handle: string
+): Promise<HttpTypes.StoreCollection> => {
+  const next = {
+    ...(await getCacheOptions("collections")),
+  }
+  return sdk.client
+    .fetch<HttpTypes.StoreCollectionListResponse>/store/collections, {
+      query: { handle, fields: "*products" },
+      next,
+      cache: "force-cache",
+    })
+    .then(({ collections }) => collections[0])
