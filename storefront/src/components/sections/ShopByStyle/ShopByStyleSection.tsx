@@ -6,28 +6,28 @@ import { Style } from "@/types/styles"
 export const styles: Style[] = [
   {
     id: 1,
-    name: "LUXURY",
-    href: "/collections/luxury",
+    name: "FOOD & BEVERAGE",
+    href: "/collections/food-beverage",
   },
   {
     id: 2,
-    name: "VINTAGE",
-    href: "/collections/vintage",
+    name: "PHYSICAL PRODUCTS",
+    href: "/collections/physical-products",
   },
   {
     id: 3,
-    name: "CASUAL",
-    href: "/collections/casual",
+    name: "DIGITAL PRODUCTS",
+    href: "/collections/digital-products",
   },
   {
     id: 4,
-    name: "STREETWEAR",
-    href: "/collections/streetwear",
+    name: "SERVICES",
+    href: "/collections/services",
   },
   {
     id: 5,
-    name: "Y2K",
-    href: "/collections/y2k",
+    name: "BULK",
+    href: "/collections/bulk",
   },
 ]
 
