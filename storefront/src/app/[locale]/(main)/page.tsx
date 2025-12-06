@@ -163,7 +163,7 @@ export default async function Home({
       <Hero
         image="/images/hero/Image.jpg"
         heading="Where you put your money matters!"
-        paragraph="Shop directly from makers and small businesses. At 2% commision we pay service providers and invest in the Black Market ecosystem. Join Black Market Coalition Vendor $9 or Bulk/Wholesale $20, and commission (service provider fee) falls to below 1%. The market is designed to maximize your profit while you scale. Everything you need in one place."
+        paragraph="Our goal is to bring abundance to the community by making it easy to do business ethically. A 3% service fee covers payment providers, web service providers, and Black Market ecosystem investments. This service fee allows the coalition to invest in our community members and bring additional points of sale to our customers. Join Black Market Coalition (Vendor $9 or Bulk/Wholesale $20) and the service fee falls to below 1%. The market is designed to maximize your profit while you scale. It's on us to build the parallel systems we need."
         buttons={[
           { label: "Purchase Product", path: "/categories" },
           {
