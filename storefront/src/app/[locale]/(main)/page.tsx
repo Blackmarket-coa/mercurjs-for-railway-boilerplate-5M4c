@@ -163,7 +163,7 @@ export default async function Home({
       <Hero
         image="/images/hero/Image.jpg"
         heading="Where you put your money matters!"
-        paragraph="Shop directly from makers and small businesses. No middleman markup, just quality products. Vendors enjoy 1.5% commission or join our coalition for commission-free sales. Everything you need in one place. We do business ethically."
+        paragraph="Shop directly from makers and small businesses. At 2% commision we pay service providers and invest in the Black Market ecosystem. Join Black Market Coalition Vendor $9 or Bulk/Wholesale $20, and commission (service provider fee) falls to below 1%. The market is designed to maximize your profit while you scale. Everything you need in one place."
         buttons={[
           { label: "Purchase Product", path: "/categories" },
           {
