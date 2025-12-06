@@ -139,10 +139,10 @@
 
     /* ==========================================
        BLACK THEME - Text Colors
-       Inverted: white text on black backgrounds
+       Light teal text on black backgrounds
        ========================================== */
-    --content-primary: var(--neutral-0);            /* WHITE text instead of black */
-    --content-secondary: var(--neutral-400);        /* Light gray text instead of dark */
+    --content-primary: var(--brand-300);            /* LIGHT TEAL text (127, 230, 207) */
+    --content-secondary: var(--brand-200);          /* Even lighter teal (159, 237, 219) */
     --content-tertiary: var(--neutral-1000);        /* Black for text on light (reversed) */
 
     /* ==========================================
@@ -157,17 +157,17 @@
     --content-action-on-tertiary: var(--neutral-0);       /* White text on tertiary */
 
     /* ==========================================
-       Status Text - Adjusted for visibility
+       Status Text - Teal variations for consistency
        ========================================== */
-    --content-positive-primary: var(--green-400);   /* Brighter green for dark bg */
-    --content-positive-on-primary: var(--neutral-0);
-    --content-positive-on-secondary: var(--green-400);
+    --content-positive-primary: var(--brand-400);   /* Teal for positive */
+    --content-positive-on-primary: var(--neutral-1000);
+    --content-positive-on-secondary: var(--brand-400);
 
-    --content-negative-primary: var(--red-400);     /* Brighter red for dark bg */
+    --content-negative-primary: var(--red-400);     /* Keep red for errors */
     --content-negative-on-primary: var(--neutral-0);
     --content-negative-on-secondary: var(--red-400);
 
-    --content-warning-primary: var(--yellow-400);   /* Brighter yellow for dark bg */
+    --content-warning-primary: var(--yellow-400);   /* Keep yellow for warnings */
     --content-warning-on-primary: var(--neutral-1000);
     --content-warning-on-secondary: var(--yellow-400);
 
