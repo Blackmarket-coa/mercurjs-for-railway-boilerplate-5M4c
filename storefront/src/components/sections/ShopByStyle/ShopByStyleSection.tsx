@@ -1,7 +1,7 @@
 import Image from "next/image"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { ArrowRightIcon } from "@/icons"
-import { Style } from "@/types/styles"
+import { Style } from "@/categories"
 
 export const styles: Style[] = [
   {
