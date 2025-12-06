@@ -7,27 +7,27 @@ export const styles: Style[] = [
   {
     id: 1,
     name: "FOOD & BEVERAGE",
-    href: "/store?type=food-beverage",
+    href: "/store?type=Food-beverage",
   },
   {
     id: 2,
     name: "PHYSICAL PRODUCTS",
-    href: "/store?type=physical-products",
+    href: "/store?type=Physical-products",
   },
   {
     id: 3,
     name: "DIGITAL PRODUCTS",
-    href: "/store?type=digital-products",
+    href: "/store?type=Digital-products",
   },
   {
     id: 4,
     name: "SERVICES",
-    href: "/store?type=services",
+    href: "/store?type=Services",
   },
   {
     id: 5,
-    name: "BULK",
-    href: "/store?type=bulk",
+    name: "BULK & WHOLESALE",
+    href: "/store?type=Bulk",
   },
 ]
 
