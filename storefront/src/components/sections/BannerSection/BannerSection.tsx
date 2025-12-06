@@ -1,7 +1,6 @@
 import { Button } from "@/components/atoms"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import Image from "next/image"
-
 export const BannerSection = () => {
   return (
     <section className="bg-tertiary container text-tertiary">
@@ -15,10 +14,10 @@ export const BannerSection = () => {
               Black Market products. Black Market prices
             </h2>
             <p className="text-lg text-tertiary max-w-lg">
-              From handcrafted goods to small-batch manufacturing, find products you won't see in big-box stores. Each maker brings their own perspective, skills, and creative vision.              .
+              From handcrafted goods to small-batch manufacturing, find products you won't see in big-box stores. Each maker brings their own perspective, skills, and creative vision.
             </p>
           </div>
-          <LocalizedClientLink href="/collections/boho">
+          <LocalizedClientLink href="/categories/crafted">
             <Button size="large" className="w-fit bg-secondary/10">
               EXPLORE
             </Button>
