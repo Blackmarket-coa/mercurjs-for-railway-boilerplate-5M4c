@@ -7,34 +7,34 @@ export const styles: Style[] = [
   {
     id: 1,
     name: "FOOD & BEVERAGE",
-    href: "/collections/food-beverage",
+    href: "/store?type=food-beverage",
   },
   {
     id: 2,
     name: "PHYSICAL PRODUCTS",
-    href: "/collections/physical-products",
+    href: "/store?type=physical-products",
   },
   {
     id: 3,
     name: "DIGITAL PRODUCTS",
-    href: "/collections/digital-products",
+    href: "/store?type=digital-products",
   },
   {
     id: 4,
     name: "SERVICES",
-    href: "/collections/services",
+    href: "/store?type=services",
   },
   {
     id: 5,
     name: "BULK",
-    href: "/collections/bulk",
+    href: "/store?type=bulk",
   },
 ]
 
 export function ShopByStyleSection() {
   return (
     <section className="bg-primary container">
-      <h2 className="heading-lg text-primary mb-12">SHOP BY STYLE</h2>
+      <h2 className="heading-lg text-primary mb-12">SHOP BY TYPE</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
         <div className="py-[52px] px-[58px] h-full border rounded-sm">
           {styles.map((style) => (
@@ -53,7 +53,7 @@ export function ShopByStyleSection() {
             loading="lazy"
             fetchPriority="high"
             src="/images/shop-by-styles/Image.jpg"
-            alt="Models showcasing luxury fashion styles"
+            alt="Browse products by type"
             width={700}
             height={600}
             className="object-cover rounded-sm w-full h-auto"
