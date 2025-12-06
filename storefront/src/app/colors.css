@@ -82,20 +82,28 @@
 }
 
 :root {
-    --bg-primary: var(--neutral-0);
-    --bg-secondary: var(--neutral-25);
-    --bg-tertiary: var(--brand-900);        /* Dark forest green for tertiary backgrounds */
+    /* ==========================================
+       BLACK THEME - Main Backgrounds
+       Inverted from white theme to black
+       ========================================== */
+    --bg-primary: var(--neutral-1000);              /* Pure black (9,9,9) instead of white */
+    --bg-secondary: var(--neutral-900);             /* Very dark gray (22,22,22) instead of light gray */
+    --bg-tertiary: var(--brand-900);                /* KEPT: Dark forest green for tertiary backgrounds */
 
-    --bg-component-primary: var(--neutral-0);
-    --bg-component-primary-hover: var(--neutral-25);
-    --bg-component-primary-pressed: var(--neutral-50);
-    --bg-component-secondary: var(--neutral-25);
-    --bg-component-secondary-hover: var(--neutral-50);
-    --bg-component-secondary-pressed: var(--neutral-100);
+    --bg-component-primary: var(--neutral-1000);    /* Black instead of white */
+    --bg-component-primary-hover: var(--neutral-900);   /* Dark gray hover */
+    --bg-component-primary-pressed: var(--neutral-800); /* Slightly lighter press */
+    --bg-component-secondary: var(--neutral-900);   /* Dark gray instead of light */
+    --bg-component-secondary-hover: var(--neutral-800); /* Lighter hover */
+    --bg-component-secondary-pressed: var(--neutral-700); /* Even lighter press */
 
-    --bg-action-primary: var(--brand-400);           /* Teal primary action */
-    --bg-action-primary-hover: var(--brand-500);     /* Darker teal on hover */
-    --bg-action-primary-pressed: var(--brand-600);   /* Even darker on press */
+    /* ==========================================
+       BRAND ACTIONS - KEPT UNCHANGED
+       Teal colors preserved for buttons/links
+       ========================================== */
+    --bg-action-primary: var(--brand-400);           /* KEPT: Teal primary action */
+    --bg-action-primary-hover: var(--brand-500);     /* KEPT: Darker teal on hover */
+    --bg-action-primary-pressed: var(--brand-600);   /* KEPT: Even darker on press */
     --bg-action-secondary: rgba(var(--brand-400), 0.1);
     --bg-action-secondary-hover: rgba(var(--brand-400), 0.15);
     --bg-action-secondary-pressed: rgba(var(--brand-400), 0.25);
@@ -103,62 +111,80 @@
     --bg-action-tertiary-hover: rgba(var(--brand-400), 0.1);
     --bg-action-tertiary-pressed: rgba(var(--brand-400), 0.2);
 
+    /* ==========================================
+       Status Colors - Adjusted for dark theme
+       ========================================== */
     --bg-negative-primary: var(--red-600);
     --bg-negative-primary-hover: var(--red-700);
     --bg-negative-primary-pressed: var(--red-800);
-    --bg-negative-secondary: var(--red-50);
-    --bg-negative-secondary-hover: var(--red-100);
-    --bg-negative-secondary-pressed: var(--red-200);
+    --bg-negative-secondary: var(--red-900);        /* Dark red instead of light red-50 */
+    --bg-negative-secondary-hover: var(--red-800);
+    --bg-negative-secondary-pressed: var(--red-700);
 
     --bg-positive-primary: var(--green-700);
     --bg-positive-primary-hover: var(--green-800);
     --bg-positive-primary-pressed: var(--green-900);
-    --bg-positive-secondary: var(--green-50);
-    --bg-positive-secondary-hover: var(--green-100);
-    --bg-positive-secondary-pressed: var(--green-200);
+    --bg-positive-secondary: var(--green-900);      /* Dark green instead of light green-50 */
+    --bg-positive-secondary-hover: var(--green-800);
+    --bg-positive-secondary-pressed: var(--green-700);
 
     --bg-warning-primary: var(--yellow-700);
     --bg-warning-primary-hover: var(--yellow-800);
     --bg-warning-primary-pressed: var(--yellow-900);
-    --bg-warning-secondary: var(--yellow-50);
-    --bg-warning-secondary-hover: var(--yellow-100);
-    --bg-warning-secondary-pressed: var(--yellow-200);
+    --bg-warning-secondary: var(--yellow-900);      /* Dark yellow instead of light yellow-50 */
+    --bg-warning-secondary-hover: var(--yellow-800);
+    --bg-warning-secondary-pressed: var(--yellow-700);
 
-    --bg-disabled: var(--neutral-200);
+    --bg-disabled: var(--neutral-700);              /* Dark gray disabled instead of light */
 
-    --content-primary: var(--neutral-1000);
-    --content-secondary: var(--neutral-500);
-    --content-tertiary: var(--neutral-0);
+    /* ==========================================
+       BLACK THEME - Text Colors
+       Inverted: white text on black backgrounds
+       ========================================== */
+    --content-primary: var(--neutral-0);            /* WHITE text instead of black */
+    --content-secondary: var(--neutral-400);        /* Light gray text instead of dark */
+    --content-tertiary: var(--neutral-1000);        /* Black for text on light (reversed) */
 
-    --content-action-primary: var(--brand-400);           /* Teal text for primary actions */
-    --content-action-primary-hover: var(--brand-500);     /* Darker teal on hover */
-    --content-action-primary-pressed: var(--brand-600);   /* Even darker on press */
-    --content-action-on-primary: var(--neutral-1000);     /* Black text on teal buttons */
-    --content-action-on-secondary: var(--brand-400);      /* Teal text for secondary actions */
-    --content-action-on-tertiary: var(--neutral-0);
+    /* ==========================================
+       BRAND TEXT - KEPT UNCHANGED
+       Teal text colors preserved
+       ========================================== */
+    --content-action-primary: var(--brand-400);           /* KEPT: Teal text for primary actions */
+    --content-action-primary-hover: var(--brand-300);     /* Lighter teal on hover for visibility */
+    --content-action-primary-pressed: var(--brand-500);   /* Darker teal on press */
+    --content-action-on-primary: var(--neutral-1000);     /* KEPT: Black text on teal buttons */
+    --content-action-on-secondary: var(--brand-400);      /* KEPT: Teal text for secondary actions */
+    --content-action-on-tertiary: var(--neutral-0);       /* White text on tertiary */
 
-    --content-positive-primary: var(--green-800);
+    /* ==========================================
+       Status Text - Adjusted for visibility
+       ========================================== */
+    --content-positive-primary: var(--green-400);   /* Brighter green for dark bg */
     --content-positive-on-primary: var(--neutral-0);
-    --content-positive-on-secondary: var(--green-800);
+    --content-positive-on-secondary: var(--green-400);
 
-    --content-negative-primary: var(--red-700);
+    --content-negative-primary: var(--red-400);     /* Brighter red for dark bg */
     --content-negative-on-primary: var(--neutral-0);
-    --content-negative-on-secondary: var(--red-800);
+    --content-negative-on-secondary: var(--red-400);
 
-    --content-warning-primary: var(--yellow-800);
-    --content-warning-on-primary: var(--neutral-0);
-    --content-warning-on-secondary: var(--yellow-800);
+    --content-warning-primary: var(--yellow-400);   /* Brighter yellow for dark bg */
+    --content-warning-on-primary: var(--neutral-1000);
+    --content-warning-on-secondary: var(--yellow-400);
 
-    --content-disabled: var(--neutral-400);
+    --content-disabled: var(--neutral-500);         /* Medium gray for disabled */
 
-    --border-primary: var(--neutral-50);
-    --border-secondary: var(--neutral-800);
-    --border-action: var(--brand-400);                    /* Teal border for actions */
-    --border-negative-primary: var(--red-700);
-    --border-negative-secondary: var(--red-200);
-    --border-positive-primary: var(--green-800);
-    --border-positive-secondary: var(--green-200);
-    --border-warning-primary: var(--yellow-800);
-    --border-warning-secondary: var(--yellow-50);
-    --border-disabled: var(--neutral-400);
+    /* ==========================================
+       BLACK THEME - Borders
+       Lighter borders for visibility on dark
+       ========================================== */
+    --border-primary: var(--neutral-700);           /* Lighter border instead of neutral-50 */
+    --border-secondary: var(--neutral-600);         /* Medium border instead of neutral-800 */
+    --border-action: var(--brand-400);              /* KEPT: Teal border for actions */
+    --border-negative-primary: var(--red-600);
+    --border-negative-secondary: var(--red-700);
+    --border-positive-primary: var(--green-600);
+    --border-positive-secondary: var(--green-700);
+    --border-warning-primary: var(--yellow-600);
+    --border-warning-secondary: var(--yellow-700);
+    --border-disabled: var(--neutral-600);
 }
