@@ -6,7 +6,7 @@ const links = {
     { label: 'Payment', path: '#' },
   ],
   about: [
-    { label: 'About us', path: '#' },
+    { label: 'About us', path: 'https://www.blackmarketcoa.com' },
     { label: 'Blog', path: '#' },
   ],
   connect: [
