@@ -2,7 +2,14 @@ const { execSync } = require('child_process');
 const https = require('https');
 const http = require('http');
 
-const BACKEND_URL = process.env.VITE_MEDUSA_BACKEND_URL || '';
+// Remove the localhost fallback - require the environment variable
+const BACKEND_URL = process.env.MEDUSA_BACKEND_URL || process.env.VITE_MEDUSA_BACKEND_URL;
+
+if (!BACKEND_URL) {
+  console.error('❌ Error: MEDUSA_BACKEND_URL or VITE_MEDUSA_BACKEND_URL environment variable is required');
+  console.error('Please set one of these variables to your backend URL');
+  process.exit(1);
+}
 
 async function fetchPublishableKey() {
   return new Promise((resolve, reject) => {
@@ -42,6 +49,7 @@ async function fetchPublishableKey() {
 
 async function launch() {
   console.log('🚀 Launching vendor panel...\n');
+  console.log('Using backend URL:', BACKEND_URL, '\n');
   
   // Fetch the publishable API key
   const apiKey = await fetchPublishableKey();
