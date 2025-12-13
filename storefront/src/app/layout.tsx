@@ -1,147 +1,39 @@
-import type { Metadata } from "next"
-import localFont from "next/font/local"
+// src/app/layout.tsx
 import "./globals.css"
-import { Toaster } from "@medusajs/ui"
-import { retrieveCart } from "@/lib/data/cart"
-import { Providers } from "./providers"
+import { Funnel_Display } from "next/font/google"
+import Head from "next/head"
 
-/* ------------------------------
-   Local font (Railway-safe)
--------------------------------- */
-const funnelDisplay = localFont({
-  src: [
-    {
-      path: "../fonts/FunnelDisplay/FunnelDisplay-Light.woff2",
-      weight: "300",
-      style: "normal",
-    },
-    {
-      path: "../fonts/FunnelDisplay/FunnelDisplay-Regular.woff2",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../fonts/FunnelDisplay/FunnelDisplay-Medium.woff2",
-      weight: "500",
-      style: "normal",
-    },
-    {
-      path: "../fonts/FunnelDisplay/FunnelDisplay-SemiBold.woff2",
-      weight: "600",
-      style: "normal",
-    },
-  ],
+// Google Font setup
+const funnelDisplay = Funnel_Display({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
   variable: "--font-funnel-sans",
   display: "swap",
 })
 
-/* ------------------------------
-   Metadata
--------------------------------- */
-export const metadata: Metadata = {
-  title: {
-    template: `%s | ${
-      process.env.NEXT_PUBLIC_SITE_NAME || "Black Market Coalition"
-    }`,
-    default:
-      process.env.NEXT_PUBLIC_SITE_NAME || "Black Market Coalition",
-  },
-  description:
-    process.env.NEXT_PUBLIC_SITE_DESCRIPTION ||
-    "Black Market Coalition",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
-  ),
-  alternates: {
-    languages: {
-      "x-default":
-        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
-    },
-  },
+export const metadata = {
+  title: "Black Market Coalition Storefront",
+  description: "Secure and reliable B2C marketplace",
 }
 
-/* ------------------------------
-   Root layout
--------------------------------- */
-export default async function RootLayout({
+export default function RootLayout({
   children,
-  params,
-}: Readonly<{
-  children: React.ReactNode;
-  params: Promise<{ locale: string }>;
-}>) {
-  const { locale } = await params
-  const cart = await retrieveCart()
-
-  const ALGOLIA_APP = process.env.NEXT_PUBLIC_ALGOLIA_ID
+  locale,
+}: {
+  children: React.ReactNode
+  locale?: string
+}) {
   const htmlLang = locale || "en"
 
   return (
     <html lang={htmlLang} className={funnelDisplay.variable}>
-      <head>
+      <Head>
         {/* Image & API origins */}
-        <link
-          rel="preconnect"
-          href="https://i.imgur.com"
-          crossOrigin="anonymous"
-        />
-        <link rel="dns-prefetch" href="https://i.imgur.com" />
-
-        {ALGOLIA_APP && (
-          <>
-            <link
-              rel="preconnect"
-              href="https://algolia.net"
-              crossOrigin="anonymous"
-            />
-            <link
-              rel="preconnect"
-              href="https://algolianet.com"
-              crossOrigin="anonymous"
-            />
-            <link rel="dns-prefetch" href="https://algolia.net" />
-            <link rel="dns-prefetch" href="https://algolianet.com" />
-          </>
-        )}
-
-        <link
-          rel="preconnect"
-          href="https://medusa-public-images.s3.eu-west-1.amazonaws.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="dns-prefetch"
-          href="https://medusa-public-images.s3.eu-west-1.amazonaws.com"
-        />
-
-        <link
-          rel="preconnect"
-          href="https://mercur-connect.s3.eu-central-1.amazonaws.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="dns-prefetch"
-          href="https://mercur-connect.s3.eu-central-1.amazonaws.com"
-        />
-
-        <link
-          rel="preconnect"
-          href="https://s3.eu-central-1.amazonaws.com"
-          crossOrigin="anonymous"
-        />
-        <link rel="dns-prefetch" href="https://s3.eu-central-1.amazonaws.com" />
-
-        <link
-          rel="preconnect"
-          href="https://api.mercurjs.com"
-          crossOrigin="anonymous"
-        />
-        <link rel="dns-prefetch" href="https://api.mercurjs.com" />
-      </head>
-
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </Head>
       <body className="antialiased bg-primary text-secondary relative">
-        <Providers cart={cart}>{children}</Providers>
-        <Toaster position="top-right" />
+        {children}
       </body>
     </html>
   )
