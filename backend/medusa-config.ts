@@ -68,7 +68,7 @@ module.exports = defineConfig({
             id: 'local',
             options: {
               upload_dir: 'static',
-              backend_url: `${process.env.BACKEND_URL || 'http://localhost:9000'}/static`
+              backend_url: `${process.env.BACKEND_URL || ''}/static`
             }
           }])
         ]
