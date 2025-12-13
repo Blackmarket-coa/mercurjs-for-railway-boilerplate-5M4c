@@ -10,9 +10,9 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
 
   const BASE = env.VITE_MEDUSA_BASE || "/";
-  const BACKEND_URL = env.VITE_MEDUSA_BACKEND_URL || "http://localhost:9000";
+  const BACKEND_URL = env.VITE_MEDUSA_BACKEND_URL || "";
   const STOREFRONT_URL =
-    env.VITE_MEDUSA_STOREFRONT_URL || "http://localhost:8000";
+    env.VITE_MEDUSA_STOREFRONT_URL || "";
   const B2B_PANEL = env.VITE_MEDUSA_B2B_PANEL || "false";
   const PORT = parseInt(env.PORT || env.VITE_PORT || "5173", 10);
   const PUBLIC_BASE_URL = env.VITE_PUBLIC_BASE_URL || "";
