@@ -16,8 +16,8 @@ const funnelDisplay = Funnel_Display({
 // Metadata for Next.js
 export const metadata = {
   title: "Black Market Coalition Storefront",
-  description: "Secure and reliable B2C marketplace",
-  metadataBase: new URL("https://yourdomain.com"), // Replace with your live URL
+  description: "The Community Black Market",
+  metadataBase: new URL("https://freeblackmarket.com"), // Replace with your live URL
 }
 
 export default function RootLayout({
