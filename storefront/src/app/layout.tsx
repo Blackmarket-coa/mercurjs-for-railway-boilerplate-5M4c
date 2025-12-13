@@ -2,7 +2,6 @@ import type { Metadata } from "next"
 import localFont from "next/font/local"
 import "./globals.css"
 import { Toaster } from "@medusajs/ui"
-import Head from "next/head"
 import { retrieveCart } from "@/lib/data/cart"
 import { Providers } from "./providers"
 
@@ -68,8 +67,8 @@ export default async function RootLayout({
   children,
   params,
 }: Readonly<{
-  children: React.ReactNode
-  params: Promise<{ locale: string }>
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }>) {
   const { locale } = await params
   const cart = await retrieveCart()
@@ -79,7 +78,7 @@ export default async function RootLayout({
 
   return (
     <html lang={htmlLang} className={funnelDisplay.variable}>
-      <Head>
+      <head>
         {/* Image & API origins */}
         <link
           rel="preconnect"
@@ -138,6 +137,12 @@ export default async function RootLayout({
           crossOrigin="anonymous"
         />
         <link rel="dns-prefetch" href="https://api.mercurjs.com" />
-      </Head>
+      </head>
 
       <body className="antialiased bg-primary text-secondary relative">
+        <Providers cart={cart}>{children}</Providers>
+        <Toaster position="top-right" />
+      </body>
+    </html>
+  )
+}
