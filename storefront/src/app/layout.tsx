@@ -12,25 +12,21 @@ const funnelDisplay = Funnel_Display({
   weight: ["300", "400", "500", "600"],
 })
 
+// Ensure metadataBase is always a valid URL
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://www.freeblackmarket.com"
+
 export const metadata: Metadata = {
   title: {
     template: `%s | ${
-      process.env.NEXT_PUBLIC_SITE_NAME ||
-      "Black Market Coalition"
+      process.env.NEXT_PUBLIC_SITE_NAME || "Black Market Coalition"
     }`,
-    default:
-      process.env.NEXT_PUBLIC_SITE_NAME ||
-      "Black Market Coalition",
+    default: process.env.NEXT_PUBLIC_SITE_NAME || "Black Market Coalition",
   },
-  description:
-    process.env.NEXT_PUBLIC_SITE_DESCRIPTION ||
-    "Black Market Coalition",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_BASE_URL || ""
-  ),
+  description: process.env.NEXT_PUBLIC_SITE_DESCRIPTION || "Black Market Coalition",
+  metadataBase: new URL(BASE_URL),
   alternates: {
     languages: {
-      "x-default": process.env.NEXT_PUBLIC_BASE_URL || "",
+      "x-default": BASE_URL,
     },
   },
 }
@@ -40,9 +36,9 @@ export default async function RootLayout({
   params,
 }: Readonly<{
   children: React.ReactNode
-  params: Promise<{ locale: string }>
+  params: { locale: string }
 }>) {
-  const { locale } = await params
+  const { locale } = params
   const cart = await retrieveCart()
 
   const ALGOLIA_APP = process.env.NEXT_PUBLIC_ALGOLIA_ID
@@ -85,7 +81,6 @@ export default async function RootLayout({
             <link rel="dns-prefetch" href="https://algolianet.com" />
           </>
         )}
-        {/* Image origins for faster LCP */}
         <link
           rel="preconnect"
           href="https://medusa-public-images.s3.eu-west-1.amazonaws.com"
