@@ -1,4 +1,3 @@
-
 import { defineConfig, loadEnv } from '@medusajs/framework/utils'
 
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
@@ -14,7 +13,13 @@ module.exports = defineConfig({
       vendorCors: process.env.VENDOR_CORS!,
       authCors: process.env.AUTH_CORS!,
       jwtSecret: process.env.JWT_SECRET || 'supersecret',
-      cookieSecret: process.env.COOKIE_SECRET || 'supersecret'
+      cookieSecret: process.env.COOKIE_SECRET || 'supersecret',
+      cookie: {
+        sameSite: 'none',
+        secure: true,
+        httpOnly: true,
+        domain: '.freeblackmarket.com'
+      }
     }
   },
   admin: {
