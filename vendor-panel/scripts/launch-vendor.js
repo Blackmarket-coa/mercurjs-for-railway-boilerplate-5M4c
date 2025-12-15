@@ -2,12 +2,12 @@ const { execSync } = require('child_process');
 const https = require('https');
 const http = require('http');
 
-// Remove the localhost fallback - require the environment variable
-const BACKEND_URL = process.env.MEDUSA_BACKEND_URL || process.env.VITE_MEDUSA_BACKEND_URL;
+// Check for the environment variable that Railway sets
+const BACKEND_URL = process.env. VITE_MEDUSA_BACKEND_URL || process.env. MEDUSA_BACKEND_URL;
 
-if (!BACKEND_URL) {
-  console.error('❌ Error: MEDUSA_BACKEND_URL or VITE_MEDUSA_BACKEND_URL environment variable is required');
-  console.error('Please set one of these variables to your backend URL');
+if (! BACKEND_URL) {
+  console.error('❌ Error: VITE_MEDUSA_BACKEND_URL environment variable is required');
+  console.error('Please ensure VITE_MEDUSA_BACKEND_URL is set in your Railway variables');
   process.exit(1);
 }
 
@@ -60,7 +60,7 @@ async function launch() {
   }
   
   // Run vite
-  console.log('Starting Vite dev server...\n');
+  console. log('Starting Vite dev server...\n');
   try {
     execSync('vite', { stdio: 'inherit', env: process.env });
   } catch (error) {
