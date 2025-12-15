@@ -51,7 +51,7 @@ importers:
         specifier: ^3.8.3
         version: 3.13.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@uiw/react-json-view':
-        specifier: ^2.0.0-alpha.17
+        specifier: 2.0.0-alpha.39
         version: 2.0.0-alpha.39(@babel/runtime@7.28.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       cmdk:
         specifier: ^0.2.0
