@@ -53,6 +53,17 @@ class ShipStationProviderService extends AbstractFulfillmentProviderService {
     return fulfillmentOptions
   }
 }
+}// other imports...
+import {
+  // ...
+  CreateShippingOptionDTO,
+} from "@medusajs/framework/types"
+
+class ShipStationProviderService extends AbstractFulfillmentProviderService {
+  // ...
+  async canCalculate(data: CreateShippingOptionDTO): Promise<boolean> {
+    return true
+  }
 }
 }
 
