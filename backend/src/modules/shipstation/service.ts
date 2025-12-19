@@ -14,7 +14,20 @@ class ShipStationProviderService extends AbstractFulfillmentProviderService {
     this.options_ = options
   }
 
-  // TODO add methods
+  // imports...
+import { ShipStationClient } from "./client"
+
+// ...
+
+class ShipStationProviderService extends AbstractFulfillmentProviderService {
+  // properties...
+  protected client: ShipStationClient
+
+  constructor({}, options: ShipStationOptions) {
+    // ...
+    this.client = new ShipStationClient(options)
+  }
+}
 }
 
 export default ShipStationProviderService
