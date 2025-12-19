@@ -47,5 +47,38 @@ export class ShipStationClient {
   async getCarriers(): Promise<CarriersResponse> {
     return await this.sendRequest("/carriers") 
   }
+}// other imports...
+import { 
+  // ...
+  GetShippingRatesRequest,
+  GetShippingRatesResponse,
+  RateResponse,
+} from "./types"
+
+export class ShipStationClient {
+  // ...
+  async getShippingRates(
+    data: GetShippingRatesRequest
+  ): Promise<GetShippingRatesResponse> {
+    return await this.sendRequest("/rates", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }).then((resp) => {
+      if (resp.rate_response.errors?.length) {
+        throw new MedusaError(
+          MedusaError.Types.INVALID_DATA,
+          `An error occurred while retrieving rates from ShipStation: ${
+            resp.rate_response.errors.map((error) => error.message)
+          }`
+        )
+      }
+
+      return resp
+    })
+  }
+
+  async getShipmentRates(id: string): Promise<RateResponse[]> {
+    return await this.sendRequest(`/shipments/${id}/rates`)
+  }
 }
 }
