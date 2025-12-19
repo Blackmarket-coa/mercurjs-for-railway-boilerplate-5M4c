@@ -263,6 +263,71 @@ class ShipStationProviderService extends AbstractFulfillmentProviderService {
       shipment_id,
     }
   }
+}class ShipStationProviderService extends AbstractFulfillmentProviderService {
+  // ...
+  async createFulfillment(
+    data: object, 
+    items: object[], 
+    order: object | undefined, 
+    fulfillment: Record<string, unknown>
+  ): Promise<any> {
+    const { shipment_id } = data as {
+      shipment_id: string
+    }
+
+    const originalShipment = await this.client.getShipment(shipment_id)
+
+    const orderItemsToFulfill = []
+
+    items.map((item) => {
+      // @ts-ignore
+      const orderItem = order.items.find((i) => i.id === item.line_item_id)
+
+      if (!orderItem) {
+        return
+      }
+
+      // @ts-ignore
+      orderItemsToFulfill.push({
+        ...orderItem,
+        // @ts-ignore
+        quantity: item.quantity,
+      })
+    })
+
+    const newShipment = await this.createShipment({
+      carrier_id: originalShipment.carrier_id,
+      carrier_service_code: originalShipment.service_code,
+      from_address: {
+        name: originalShipment.ship_from.name,
+        address: {
+          ...originalShipment.ship_from,
+          address_1: originalShipment.ship_from.address_line1,
+          city: originalShipment.ship_from.city_locality,
+          province: originalShipment.ship_from.state_province,
+        },
+      },
+      to_address: {
+        ...originalShipment.ship_to,
+        address_1: originalShipment.ship_to.address_line1,
+        city: originalShipment.ship_to.city_locality,
+        province: originalShipment.ship_to.state_province,
+      },
+      items: orderItemsToFulfill as OrderLineItemDTO[],
+      // @ts-ignore
+      currency_code: order.currency_code,
+    })
+
+    const label = await this.client.purchaseLabelForShipment(newShipment.shipment_id)
+
+    return {
+      data: {
+        ...(fulfillment.data as object || {}),
+        label_id: label.label_id,
+        shipment_id: label.shipment_id,
+      },
+    }
+  }
 }
 }
 
