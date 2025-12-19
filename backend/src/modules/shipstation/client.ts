@@ -80,5 +80,25 @@ export class ShipStationClient {
   async getShipmentRates(id: string): Promise<RateResponse[]> {
     return await this.sendRequest(`/shipments/${id}/rates`)
   }
+}// other imports...
+import { 
+  // ...
+  Label,
+  Shipment,
+} from "./types"
+
+export class ShipStationClient {
+  // ...
+
+  async getShipment(id: string): Promise<Shipment> {
+    return await this.sendRequest(`/shipments/${id}`)
+  }
+
+  async purchaseLabelForShipment(id: string): Promise<Label> {
+    return await this.sendRequest(`/labels/shipment/${id}`, {
+      method: "POST",
+      body: JSON.stringify({}),
+    })
+  }
 }
 }
