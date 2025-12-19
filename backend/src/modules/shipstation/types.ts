@@ -100,3 +100,33 @@ export type Shipment = {
   shipment_status: "pending" | "processing" | "label_purchased" | "cancelled"
   [k: string]: unknown
 }
+export type Label = {
+  label_id: string
+  status: "processing" | "completed" | "error" | "voided"
+  shipment_id: string
+  ship_date: Date
+  shipment_cost: {
+    currency: string
+    amount: number
+  }
+  insurance_cost: {
+    currency: string
+    amount: number
+  }
+  confirmation_amount: {
+    currency: string
+    amount: number
+  }
+  tracking_number: string
+  is_return_label: boolean
+  carrier_id: string
+  service_code: string
+  trackable: string
+  tracking_status: "unknown" | "in_transit" | "error" | "delivered"
+  label_download: {
+    href: string
+    pdf: string
+    png: string
+    zpl: string
+  }
+}
