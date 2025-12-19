@@ -26,7 +26,33 @@ class ShipStationProviderService extends AbstractFulfillmentProviderService {
   constructor({}, options: ShipStationOptions) {
     // ...
     this.client = new ShipStationClient(options)
+  }// other imports...
+import { 
+  FulfillmentOption,
+} from "@medusajs/framework/types"
+
+class ShipStationProviderService extends AbstractFulfillmentProviderService {
+  // ...
+  async getFulfillmentOptions(): Promise<FulfillmentOption[]> {
+    const { carriers } = await this.client.getCarriers() 
+    const fulfillmentOptions: FulfillmentOption[] = []
+
+    carriers
+      .filter((carrier) => !carrier.disabled_by_billing_plan)
+      .forEach((carrier) => {
+        carrier.services.forEach((service) => {
+          fulfillmentOptions.push({
+            id: `${carrier.carrier_id}__${service.service_code}`,
+            name: service.name,
+            carrier_id: carrier.carrier_id,
+            carrier_service_code: service.service_code,
+          })
+        })
+      })
+
+    return fulfillmentOptions
   }
+}
 }
 }
 
