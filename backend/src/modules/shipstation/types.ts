@@ -15,6 +15,7 @@ export type Carrier = {
 export type CarriersResponse = {
   carriers: Carrier[]
 }
+
 export type ShipStationAddress = {
   name: string
   phone: string
@@ -100,6 +101,7 @@ export type Shipment = {
   shipment_status: "pending" | "processing" | "label_purchased" | "cancelled"
   [k: string]: unknown
 }
+
 export type Label = {
   label_id: string
   status: "processing" | "completed" | "error" | "voided"
@@ -129,7 +131,9 @@ export type Label = {
     png: string
     zpl: string
   }
-}export type VoidLabelResponse = {
+}
+
+export type VoidLabelResponse = {
   approved: boolean
   message: string
   reason_code?: string
