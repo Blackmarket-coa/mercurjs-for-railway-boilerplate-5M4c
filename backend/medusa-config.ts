@@ -66,7 +66,7 @@ module.exports = defineConfig({
               endPoint: process.env.MINIO_ENDPOINT,
               accessKey: process.env.MINIO_ACCESS_KEY,
               secretKey: process.env.MINIO_SECRET_KEY,
-              bucket: process.env.MINIO_BUCKET // Optional, defaults to 'medusa-media'
+              bucket: process.env.MINIO_BUCKET
             }
           }] : [{
             resolve: '@medusajs/medusa/file-local',
@@ -100,8 +100,7 @@ module.exports = defineConfig({
       options: {
         providers: [
           {
-            resolve:
-              '@mercurjs/payment-stripe-connect/providers/stripe-connect',
+            resolve: '@mercurjs/payment-stripe-connect/providers/stripe-connect',
             id: 'stripe-connect',
             options: {
               apiKey: process.env.STRIPE_SECRET_API_KEY,
@@ -133,6 +132,24 @@ module.exports = defineConfig({
           }
         ]
       }
+    },
+    {
+      resolve: "@medusajs/medusa/fulfillment",
+      options: {
+        providers: [
+          {
+            resolve: "@medusajs/medusa/fulfillment-manual",
+            id: "manual",
+          },
+          ...(process.env.SHIPSTATION_API_KEY ? [{
+            resolve: "./src/modules/shipstation",
+            id: "shipstation",
+            options: {
+              api_key: process.env.SHIPSTATION_API_KEY,
+            },
+          }] : [])
+        ],
+      },
     }
   ]
 })
