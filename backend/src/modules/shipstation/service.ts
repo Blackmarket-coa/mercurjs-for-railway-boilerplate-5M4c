@@ -327,7 +327,18 @@ class ShipStationProviderService extends AbstractFulfillmentProviderService {
         shipment_id: label.shipment_id,
       },
     }
+  }class ShipStationProviderService extends AbstractFulfillmentProviderService {
+  // ...
+  async cancelFulfillment(data: Record<string, unknown>): Promise<any> {
+    const { label_id, shipment_id } = data as {
+      label_id: string
+      shipment_id: string
+    }
+
+    await this.client.voidLabel(label_id)
+    await this.client.cancelShipment(shipment_id)
   }
+}
 }
 }
 
