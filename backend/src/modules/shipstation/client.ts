@@ -37,4 +37,15 @@ export class ShipStationClient {
       return resp
     })
   }
+  // other imports...
+import { 
+  CarriersResponse,
+} from "./types"
+
+export class ShipStationClient {
+  // ...
+  async getCarriers(): Promise<CarriersResponse> {
+    return await this.sendRequest("/carriers") 
+  }
+}
 }
