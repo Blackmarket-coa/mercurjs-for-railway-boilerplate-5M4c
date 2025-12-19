@@ -223,6 +223,46 @@ class ShipStationProviderService extends AbstractFulfillmentProviderService {
       is_calculated_price_tax_inclusive: !!rate?.tax_amount,
     }
   }
+}class ShipStationProviderService extends AbstractFulfillmentProviderService {
+  // ...
+  async validateFulfillmentData(
+    optionData: Record<string, unknown>, 
+    data: Record<string, unknown>, 
+    context: Record<string, unknown>
+  ): Promise<any> {
+    let { shipment_id } = data as {
+      shipment_id?: string
+    }
+
+    if (!shipment_id) {
+      const { carrier_id, carrier_service_code } = optionData as {
+        carrier_id: string
+        carrier_service_code: string
+      }
+      const shipment = await this.createShipment({
+        carrier_id,
+        carrier_service_code,
+        from_address: {
+          // @ts-ignore
+          name: context.from_location?.name,
+          // @ts-ignore
+          address: context.from_location?.address,
+        },
+        // @ts-ignore
+        to_address: context.shipping_address,
+        // @ts-ignore
+        items: context.items || [],
+        // @ts-ignore
+        currency_code: context.currency_code,
+      })
+      shipment_id = shipment.shipment_id
+    }
+
+    return {
+      ...data,
+      shipment_id,
+    }
+  }
 }
 }
 
