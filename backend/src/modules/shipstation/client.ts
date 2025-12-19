@@ -1,5 +1,14 @@
 import { ShipStationOptions } from "./service"
 import { MedusaError } from "@medusajs/framework/utils"
+import {
+  CarriersResponse,
+  GetShippingRatesRequest,
+  GetShippingRatesResponse,
+  RateResponse,
+  Label,
+  Shipment,
+  VoidLabelResponse,
+} from "./types"
 
 export class ShipStationClient {
   options: ShipStationOptions
@@ -21,7 +30,6 @@ export class ShipStationClient {
       if (!contentType?.includes("application/json")) {
         return resp.text()
       }
-
       return resp.json()
     })
     .then((resp) => {
@@ -33,33 +41,15 @@ export class ShipStationClient {
           }`
         )
       }
-
       return resp
     })
   }
-  // other imports...
-import { 
-  CarriersResponse,
-} from "./types"
 
-export class ShipStationClient {
-  // ...
   async getCarriers(): Promise<CarriersResponse> {
-    return await this.sendRequest("/carriers") 
+    return await this.sendRequest("/carriers")
   }
-}// other imports...
-import { 
-  // ...
-  GetShippingRatesRequest,
-  GetShippingRatesResponse,
-  RateResponse,
-} from "./types"
 
-export class ShipStationClient {
-  // ...
-  async getShippingRates(
-    data: GetShippingRatesRequest
-  ): Promise<GetShippingRatesResponse> {
+  async getShippingRates(data: GetShippingRatesRequest): Promise<GetShippingRatesResponse> {
     return await this.sendRequest("/rates", {
       method: "POST",
       body: JSON.stringify(data),
@@ -72,7 +62,6 @@ export class ShipStationClient {
           }`
         )
       }
-
       return resp
     })
   }
@@ -80,44 +69,3 @@ export class ShipStationClient {
   async getShipmentRates(id: string): Promise<RateResponse[]> {
     return await this.sendRequest(`/shipments/${id}/rates`)
   }
-}// other imports...
-import { 
-  // ...
-  Label,
-  Shipment,
-} from "./types"
-
-export class ShipStationClient {
-  // ...
-
-  async getShipment(id: string): Promise<Shipment> {
-    return await this.sendRequest(`/shipments/${id}`)
-  }
-
-  async purchaseLabelForShipment(id: string): Promise<Label> {
-    return await this.sendRequest(`/labels/shipment/${id}`, {
-      method: "POST",
-      body: JSON.stringify({}),
-    })
-  }// other imports...
-import { 
-  // ...
-  VoidLabelResponse,
-} from "./types"
-
-export class ShipStationClient {
-  // ...
-  async voidLabel(id: string): Promise<VoidLabelResponse> {
-    return await this.sendRequest(`/labels/${id}/void`, {
-      method: "PUT",
-    })
-  }
-
-  async cancelShipment(id: string): Promise<void> {
-    return await this.sendRequest(`/shipments/${id}/cancel`, {
-      method: "PUT",
-    })
-  }
-}
-}
-}
