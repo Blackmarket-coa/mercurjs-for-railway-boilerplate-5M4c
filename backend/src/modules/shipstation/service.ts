@@ -174,7 +174,56 @@ return await this.client.getShippingRates({
     preferred_currency: currency_code as string,
   },
 })
+  }// other imports...
+import { 
+  // ...
+  CalculatedShippingOptionPrice,
+} from "@medusajs/framework/types"
+
+class ShipStationProviderService extends AbstractFulfillmentProviderService {
+  // ...
+  async calculatePrice(
+    optionData: CalculateShippingOptionPriceDTO["optionData"], 
+    data: CalculateShippingOptionPriceDTO["data"], 
+    context: CalculateShippingOptionPriceDTO["context"]
+  ): Promise<CalculatedShippingOptionPrice> {
+    const { shipment_id } = data as {
+      shipment_id?: string
+    } || {}
+    const { carrier_id, carrier_service_code } = optionData as {
+      carrier_id: string
+      carrier_service_code: string
+    }
+    let rate: Rate | undefined
+
+    if (!shipment_id) {
+      const shipment = await this.createShipment({
+        carrier_id,
+        carrier_service_code,
+        from_address: {
+          name: context.from_location?.name,
+          address: context.from_location?.address,
+        },
+        to_address: context.shipping_address,
+        items: context.items || [],
+        currency_code: context.currency_code as string,
+      })
+      rate = shipment.rate_response.rates[0]
+    } else {
+      const rateResponse = await this.client.getShipmentRates(shipment_id)
+      rate = rateResponse[0].rates[0]
+    }
+
+    const calculatedPrice = !rate ? 0 : rate.shipping_amount.amount + rate.insurance_amount.amount + 
+      rate.confirmation_amount.amount + rate.other_amount.amount + 
+      (rate.tax_amount?.amount || 0)
+
+    return {
+      calculated_amount: calculatedPrice,
+      is_calculated_price_tax_inclusive: !!rate?.tax_amount,
+    }
   }
+}
 }
 
 export default ShipStationProviderService
