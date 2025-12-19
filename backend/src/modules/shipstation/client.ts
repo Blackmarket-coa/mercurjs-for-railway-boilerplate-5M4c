@@ -99,6 +99,25 @@ export class ShipStationClient {
       method: "POST",
       body: JSON.stringify({}),
     })
+  }// other imports...
+import { 
+  // ...
+  VoidLabelResponse,
+} from "./types"
+
+export class ShipStationClient {
+  // ...
+  async voidLabel(id: string): Promise<VoidLabelResponse> {
+    return await this.sendRequest(`/labels/${id}/void`, {
+      method: "PUT",
+    })
   }
+
+  async cancelShipment(id: string): Promise<void> {
+    return await this.sendRequest(`/shipments/${id}/cancel`, {
+      method: "PUT",
+    })
+  }
+}
 }
 }
