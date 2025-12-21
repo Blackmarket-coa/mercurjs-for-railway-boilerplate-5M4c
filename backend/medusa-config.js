@@ -1,4 +1,5 @@
-import { defineConfig, loadEnv } from '@medusajs/framework/utils'
+// backend/medusa-config.js
+const { defineConfig, loadEnv } = require('@medusajs/framework/utils')
 
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
@@ -7,11 +8,10 @@ module.exports = defineConfig({
     databaseUrl: process.env.DATABASE_URL,
     ...(process.env.REDIS_URL ? { redisUrl: process.env.REDIS_URL } : {}),
     http: {
-      storeCors: process.env.STORE_CORS!,
-      adminCors: process.env.ADMIN_CORS!,
-      // @ts-expect-error: vendorCors is not a valid config
-      vendorCors: process.env.VENDOR_CORS!,
-      authCors: process.env.AUTH_CORS!,
+      storeCors: process.env.STORE_CORS,
+      adminCors: process.env.ADMIN_CORS,
+      vendorCors: process.env.VENDOR_CORS, // removed @ts-expect-error
+      authCors: process.env.AUTH_CORS,
       jwtSecret: process.env.JWT_SECRET || 'supersecret',
       cookieSecret: process.env.COOKIE_SECRET || 'supersecret',
       cookie: {
@@ -26,14 +26,8 @@ module.exports = defineConfig({
     disable: true,
   },
   plugins: [
-    {
-      resolve: '@mercurjs/b2c-core',
-      options: {}
-    },
-    {
-      resolve: '@mercurjs/commission',
-      options: {}
-    },
+    { resolve: '@mercurjs/b2c-core', options: {} },
+    { resolve: '@mercurjs/commission', options: {} },
     ...(process.env.ALGOLIA_API_KEY && process.env.ALGOLIA_APP_ID
       ? [{
           resolve: '@mercurjs/algolia',
@@ -43,18 +37,9 @@ module.exports = defineConfig({
           }
         }]
       : []),
-    {
-      resolve: '@mercurjs/reviews',
-      options: {}
-    },
-    {
-      resolve: '@mercurjs/requests',
-      options: {}
-    },
-    {
-      resolve: '@mercurjs/resend',
-      options: {}
-    }
+    { resolve: '@mercurjs/reviews', options: {} },
+    { resolve: '@mercurjs/requests', options: {} },
+    { resolve: '@mercurjs/resend', options: {} }
   ],
   modules: [
     {
@@ -85,20 +70,8 @@ module.exports = defineConfig({
     },
     ...(process.env.REDIS_URL
       ? [
-          {
-            resolve: '@medusajs/medusa/event-bus-redis',
-            options: {
-              redisUrl: process.env.REDIS_URL
-            }
-          },
-          {
-            resolve: '@medusajs/medusa/workflow-engine-redis',
-            options: {
-              redis: {
-                url: process.env.REDIS_URL
-              }
-            }
-          }
+          { resolve: '@medusajs/medusa/event-bus-redis', options: { redisUrl: process.env.REDIS_URL } },
+          { resolve: '@medusajs/medusa/workflow-engine-redis', options: { redis: { url: process.env.REDIS_URL } } }
         ]
       : []),
     ...(process.env.STRIPE_SECRET_API_KEY && process.env.STRIPE_WEBHOOK_SECRET
@@ -133,13 +106,7 @@ module.exports = defineConfig({
                 }
               }]
             : []),
-          {
-            resolve: '@medusajs/medusa/notification-local',
-            id: 'local',
-            options: {
-              channels: ['feed', 'seller_feed']
-            }
-          }
+          { resolve: '@medusajs/medusa/notification-local', id: 'local', options: { channels: ['feed', 'seller_feed'] } }
         ]
       }
     },
@@ -147,24 +114,17 @@ module.exports = defineConfig({
       resolve: "@medusajs/medusa/fulfillment",
       options: {
         providers: [
-          {
-            resolve: "@medusajs/medusa/fulfillment-manual",
-            id: "manual",
-          },
+          { resolve: "@medusajs/medusa/fulfillment-manual", id: "manual" },
           ...(process.env.SHIPSTATION_API_KEY
             ? [{
                 resolve: "./src/modules/shipstation",
                 id: "shipstation",
-                options: {
-                  api_key: process.env.SHIPSTATION_API_KEY,
-                },
+                options: { api_key: process.env.SHIPSTATION_API_KEY },
               }]
             : [])
         ],
       }
     },
-    {
-      resolve: "./src/modules/digital-product",
-    }
+    { resolve: "./src/modules/digital-product" }
   ]
 })
