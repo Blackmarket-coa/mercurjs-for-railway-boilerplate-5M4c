@@ -1,5 +1,6 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { TICKET_BOOKING_MODULE } from "../../modules/ticket-booking"
+import type { TicketBookingModuleService } from "../../modules/ticket-booking/types"
 
 export type CreateTicketProductsStepInput = {
   ticket_products: {
@@ -12,9 +13,8 @@ export type CreateTicketProductsStepInput = {
 export const createTicketProductsStep = createStep(
   "create-ticket-products",
   async (input: CreateTicketProductsStepInput, { container }) => {
-    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingModuleService: TicketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
 
-    // Create the main ticket product
     const ticketProducts = await ticketBookingModuleService.createTicketProducts(
       input.ticket_products
     )
@@ -31,9 +31,8 @@ export const createTicketProductsStep = createStep(
   async (compensationData, { container }) => {
     if (!compensationData?.ticket_products) return
 
-    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingModuleService: TicketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
     
-    // Delete the ticket product
     await ticketBookingModuleService.deleteTicketProducts(
       compensationData.ticket_products.map(tp => tp.id)
     )
