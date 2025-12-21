@@ -1,8 +1,7 @@
-import { Migration } from "@medusajs/framework/mikro-orm/migrations";
+import { Migration } from "@mikro-orm/migrations";
 
 export class Migration20250908072519 extends Migration {
-
-  override async up(): Promise<void> {
+  async up(): Promise<void> {
     this.addSql(`alter table if exists "ticket_purchase" drop constraint if exists "ticket_purchase_ticket_product_id_venue_row_id_seat_number_show_date_unique";`);
     this.addSql(`alter table if exists "ticket_product_variant" drop constraint if exists "ticket_product_variant_product_variant_id_unique";`);
     this.addSql(`alter table if exists "venue_row" drop constraint if exists "venue_row_venue_id_row_number_unique";`);
@@ -48,7 +47,7 @@ export class Migration20250908072519 extends Migration {
     this.addSql(`alter table if exists "ticket_purchase" add constraint "ticket_purchase_venue_row_id_foreign" foreign key ("venue_row_id") references "venue_row" ("id") on update cascade;`);
   }
 
-  override async down(): Promise<void> {
+  async down(): Promise<void> {
     this.addSql(`alter table if exists "ticket_product" drop constraint if exists "ticket_product_venue_id_foreign";`);
 
     this.addSql(`alter table if exists "venue_row" drop constraint if exists "venue_row_venue_id_foreign";`);
@@ -73,5 +72,4 @@ export class Migration20250908072519 extends Migration {
 
     this.addSql(`drop table if exists "ticket_purchase" cascade;`);
   }
-
 }
