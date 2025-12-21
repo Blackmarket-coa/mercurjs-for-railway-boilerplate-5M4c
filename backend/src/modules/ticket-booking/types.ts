@@ -1,3 +1,7 @@
+import TicketBookingModuleService from "./service"
+
+export { TicketBookingModuleService }
+
 export enum RowType {
   PREMIUM = "premium",
   BALCONY = "balcony",
