@@ -48,7 +48,7 @@
     "pg": "^8.13.0",
     "qrcode": "^1.5.4",
     "ulid": "^2.3.0",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
     "@medusajs/draft-order": "2.11.3"
   },
   "devDependencies": {
