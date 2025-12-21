@@ -16,7 +16,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "medusa build",
+    "build": "DATABASE_URL=postgresql://placeholder:placeholder@localhost:5432/placeholder medusa build",
     "dev": "medusa develop",
     "start": "init-backend && npm run init-algolia && cd .medusa/server && medusa start",
     "seed": "medusa exec ./src/scripts/seed.ts",
