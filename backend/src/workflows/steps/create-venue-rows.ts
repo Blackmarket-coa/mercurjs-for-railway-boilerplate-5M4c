@@ -1,5 +1,6 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { TICKET_BOOKING_MODULE } from "../../modules/ticket-booking"
+import type { TicketBookingModuleService } from "../../modules/ticket-booking/types"
 import { RowType } from "../../modules/ticket-booking/models/venue-row"
 
 export type CreateVenueRowsStepInput = {
@@ -14,7 +15,7 @@ export type CreateVenueRowsStepInput = {
 export const createVenueRowsStep = createStep(
   "create-venue-rows",
   async (input: CreateVenueRowsStepInput, { container }) => {
-    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingModuleService: TicketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
 
     const venueRows = await ticketBookingModuleService.createVenueRows(input.rows)
 
@@ -23,7 +24,7 @@ export const createVenueRowsStep = createStep(
   async (venueRows, { container }) => {
     if (!venueRows) return
 
-    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingModuleService: TicketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
     
     await ticketBookingModuleService.deleteVenueRows(venueRows.map((row) => row.id))
   }
