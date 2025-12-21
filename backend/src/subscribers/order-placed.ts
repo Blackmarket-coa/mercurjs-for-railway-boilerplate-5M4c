@@ -1,5 +1,6 @@
 import { SubscriberArgs, type SubscriberConfig } from "@medusajs/medusa"
 import { TICKET_BOOKING_MODULE } from "../modules/ticket-booking"
+import type { TicketBookingModuleService } from "../modules/ticket-booking/types"
 
 export default async function handleOrderPlaced({
   event: { data },
@@ -7,7 +8,7 @@ export default async function handleOrderPlaced({
 }: SubscriberArgs<{ id: string }>) {
   const query = container.resolve("query")
   const notificationModuleService = container.resolve("notification")
-  const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
+  const ticketBookingModuleService: TicketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
 
   const { data: [order] } = await query.graph({
     entity: "order",
@@ -38,7 +39,6 @@ export default async function handleOrderPlaced({
   await notificationModuleService.createNotifications({
     to: order.email || "",
     channel: "feed",
-    // TODO replace with a proper template
     template: "order.placed",
     data: {
       customer: {
