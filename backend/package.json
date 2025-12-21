@@ -63,6 +63,27 @@
   "overrides": {
     "@mercurjs/b2c-core": {
       "@medusajs/ui": "4.0.27"
+    },
+    "@mercurjs/algolia": {
+      "@medusajs/ui": "4.0.27"
+    },
+    "@mercurjs/commission": {
+      "@medusajs/ui": "4.0.27"
+    },
+    "@mercurjs/payment-stripe-connect": {
+      "@medusajs/ui": "4.0.27"
+    },
+    "@mercurjs/requests": {
+      "@medusajs/ui": "4.0.27"
+    },
+    "@mercurjs/resend": {
+      "@medusajs/ui": "4.0.27"
+    },
+    "@mercurjs/reviews": {
+      "@medusajs/ui": "4.0.27"
+    },
+    "@mercurjs/framework": {
+      "@medusajs/ui": "4.0.27"
     }
   }
 }
