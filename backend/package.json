@@ -26,6 +26,7 @@
   "dependencies": {
     "@medusajs/admin-sdk": "2.10.2",
     "@medusajs/cli": "2.10.2",
+    "@medusajs/core-flows": "2.10.2",
     "@medusajs/framework": "2.10.2",
     "@medusajs/medusa": "2.10.2",
     "@mercurjs/algolia": "^1.4.3",
@@ -45,7 +46,9 @@
     "medusajs-launch-utils": "^0.0.18",
     "minio": "^8.0.3",
     "pg": "^8.13.0",
-    "ulid": "^2.3.0"
+    "qrcode": "^1.5.4",
+    "ulid": "^2.3.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@medusajs/test-utils": "2.10.2",
@@ -54,6 +57,7 @@
     "@swc/jest": "^0.2.36",
     "@types/jest": "^29.5.13",
     "@types/node": "^20.0.0",
+    "@types/qrcode": "^1.5.5",
     "@types/react": "^18.3.2",
     "@types/react-dom": "^18.2.25",
     "jest": "^29.7.0",
