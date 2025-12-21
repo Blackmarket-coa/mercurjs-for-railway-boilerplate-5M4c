@@ -6,14 +6,14 @@ const DigitalProduct = model.define("digital_product", {
   id: model.id().primaryKey(),
   name: model.text(),
   medias: model.hasMany(() => DigitalProductMedia, {
-    mappedBy: "digitalProduct",
+    mappedBy: "digitalProduct"
   }),
   orders: model.manyToMany(() => DigitalProductOrder, {
-    mappedBy: "products",
-  }),
+    mappedBy: "products"
+  })
 })
 .cascades({
-  delete: ["medias"],
+  delete: ["medias"]
 })
 
 export default DigitalProduct
