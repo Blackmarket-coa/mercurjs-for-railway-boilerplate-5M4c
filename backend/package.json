@@ -16,7 +16,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "init-backend",
+    "build": "medusa build",
     "dev": "medusa develop",
     "start": "init-backend && npm run init-algolia && cd .medusa/server && medusa start",
     "seed": "medusa exec ./src/scripts/seed.ts",
