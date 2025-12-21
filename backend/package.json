@@ -31,7 +31,6 @@
     "@medusajs/medusa": "2.11.3",
     "@medusajs/draft-order": "2.11.3",
     "@medusajs/ui": "4.0.27",
-
     "@mercurjs/framework": "^1.4.3",
     "@mercurjs/b2c-core": "^1.4.3",
     "@mercurjs/algolia": "^1.4.3",
@@ -40,12 +39,10 @@
     "@mercurjs/requests": "^1.4.3",
     "@mercurjs/resend": "^1.4.3",
     "@mercurjs/reviews": "^1.4.3",
-
     "@mikro-orm/core": "6.4.3",
     "@mikro-orm/knex": "6.4.3",
     "@mikro-orm/migrations": "6.4.3",
     "@mikro-orm/postgresql": "6.4.3",
-
     "algoliasearch": "^5.44.0",
     "awilix": "^8.0.1",
     "medusajs-launch-utils": "^0.0.18",
@@ -62,5 +59,10 @@
     "typescript": "^5.6.2",
     "ts-node": "^10.9.2",
     "jest": "^29.7.0"
+  },
+  "overrides": {
+    "@mercurjs/b2c-core": {
+      "@medusajs/ui": "4.0.27"
+    }
   }
 }
