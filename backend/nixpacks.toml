@@ -1,5 +1,0 @@
-[phases.install]
-cmds = [
-  "pnpm add -g node-gyp",
-  "pnpm install --no-frozen-lockfile"
-]
