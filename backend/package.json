@@ -1,27 +1,34 @@
-"dependencies": {
-  "@medusajs/admin-sdk": "2.11.3",
-  "@medusajs/cli": "2.11.3",
-  "@medusajs/framework": "2.11.3",
-  "@medusajs/medusa": "2.11.3",
-
-  "@mercurjs/algolia": "1.4.5",
-  "@mercurjs/b2c-core": "1.4.5",
-  "@mercurjs/commission": "1.4.5",
-  "@mercurjs/framework": "1.4.5",
-  "@mercurjs/payment-stripe-connect": "1.4.5",
-  "@mercurjs/requests": "1.4.5",
-  "@mercurjs/resend": "1.4.5",
-  "@mercurjs/reviews": "1.4.5",
-
-  "@mikro-orm/core": "6.4.3",
-  "@mikro-orm/knex": "6.4.3",
-  "@mikro-orm/migrations": "6.4.3",
-  "@mikro-orm/postgresql": "6.4.3",
-
-  "algoliasearch": "^5.44.0",
-  "awilix": "^8.0.1",
-  "medusajs-launch-utils": "^0.0.18",
-  "minio": "^8.0.3",
-  "pg": "^8.13.0",
-  "ulid": "^2.3.0"
+{
+  "name": "medusa-starter-default",
+  "version": "0.0.1",
+  "description": "A starter for Medusa projects.",
+  "author": "Medusa (https://medusajs.com)",
+  "license": "MIT",
+  "scripts": {
+    "build": "medusa build",
+    "start": "medusa start",
+    "dev": "medusa develop"
+  },
+  "dependencies": {
+    "@medusajs/admin-sdk": "2.10.2",
+    "@medusajs/cli": "2.10.2",
+    "@medusajs/framework": "2.10.2",
+    "@medusajs/medusa": "2.10.2",
+    "@mercurjs/algolia": "^1.4.3",
+    "@mercurjs/b2c-core": "^1.4.3",
+    "@mercurjs/commission": "^1.4.3",
+    "@mercurjs/framework": "^1.4.3",
+    "@mercurjs/payment-stripe-connect": "^1.4.3",
+    "@mercurjs/requests": "^1.4.3",
+    "@mercurjs/resend": "^1.4.3",
+    "@mercurjs/reviews": "^1.4.3",
+    "@mikro-orm/core": "6.4.3",
+    "@mikro-orm/knex": "6.4.3",
+    "@mikro-orm/migrations": "6.4.3",
+    "@mikro-orm/postgresql": "6.4.3",
+    "pg": "^8.13.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
 }
