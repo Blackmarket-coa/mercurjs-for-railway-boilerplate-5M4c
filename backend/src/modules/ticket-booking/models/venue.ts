@@ -6,11 +6,11 @@ export const Venue = model.define("venue", {
   name: model.text(),
   address: model.text().nullable(),
   rows: model.hasMany(() => VenueRow, {
-    mappedBy: "venue"
-  })
+    mappedBy: "venue",
+  }),
 })
 .cascades({
-  delete: ["rows"]
+  delete: ["rows"],
 })
 
 export default Venue
