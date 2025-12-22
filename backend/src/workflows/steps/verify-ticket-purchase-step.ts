@@ -1,6 +1,5 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { TICKET_BOOKING_MODULE } from "../../modules/ticket-booking"
-import type { TicketBookingModuleService } from "../../modules/ticket-booking/types"
 import { MedusaError } from "@medusajs/framework/utils"
 
 export type VerifyTicketPurchaseStepInput = {
@@ -10,7 +9,7 @@ export type VerifyTicketPurchaseStepInput = {
 export const verifyTicketPurchaseStep = createStep(
   "verify-ticket-purchase",
   async (input: VerifyTicketPurchaseStepInput, { container }) => {
-    const ticketBookingService: TicketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingService = container.resolve(TICKET_BOOKING_MODULE)
     
     const ticketPurchase = await ticketBookingService.retrieveTicketPurchase(input.ticket_purchase_id)
 

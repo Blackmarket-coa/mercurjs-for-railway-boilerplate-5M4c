@@ -16,7 +16,7 @@ export const createVenueStep = createStep(
     return new StepResponse(venue, venue)
   },
   async (venue, { container }) => {
-    if (!venue) {return}
+    if (!venue) return
 
     const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
     

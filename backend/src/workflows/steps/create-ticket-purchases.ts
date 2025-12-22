@@ -6,7 +6,6 @@ import {
   InferTypeOf
 } from "@medusajs/framework/types"
 import { TICKET_BOOKING_MODULE } from "../../modules/ticket-booking"
-import type { TicketBookingModuleService } from "../../modules/ticket-booking/types"
 import TicketProductVariant from "../../modules/ticket-booking/models/ticket-product-variant"
 
 export type CreateTicketPurchasesStepInput = {
@@ -24,7 +23,7 @@ export const createTicketPurchasesStep = createStep(
   "create-ticket-purchases",
   async (input: CreateTicketPurchasesStepInput, { container }) => {
     const { order_id, cart } = input
-    const ticketBookingModuleService: TicketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
 
     const ticketPurchasesToCreate: {
       order_id: string
@@ -35,6 +34,7 @@ export const createTicketPurchasesStep = createStep(
       show_date: Date
     }[] = []
 
+    // Process each item in the cart
     for (const item of cart.items) {
       if (
         !item?.variant?.ticket_product_variant || 
@@ -68,8 +68,9 @@ export const createTicketPurchasesStep = createStep(
   async (ticketPurchases, { container }) => {
     if (!ticketPurchases) return
 
-    const ticketBookingModuleService: TicketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
 
+    // Delete the created ticket purchases
     await ticketBookingModuleService.deleteTicketPurchases(
       ticketPurchases.map((ticketPurchase) => ticketPurchase.id)
     )
