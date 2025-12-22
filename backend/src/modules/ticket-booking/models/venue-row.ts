@@ -14,14 +14,14 @@ export const VenueRow = model.define("venue_row", {
   row_type: model.enum(RowType),
   seat_count: model.number(),
   venue: model.belongsTo(() => Venue, {
-    mappedBy: "rows"
-  })
+    mappedBy: "rows",
+  }),
 })
 .indexes([
   {
     on: ["venue_id", "row_number"],
-    unique: true
-  }
+    unique: true,
+  },
 ])
 
 export default VenueRow
