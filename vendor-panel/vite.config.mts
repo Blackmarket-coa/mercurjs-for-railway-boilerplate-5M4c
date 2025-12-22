@@ -8,14 +8,14 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd())
 
   const BASE = env.VITE_MEDUSA_BASE || "/"
-  const BACKEND_URL = env.VITE_MEDUSA_BACKEND_URL || ""
+  const BACKEND_URL = env.VITE_MEDUSA_BACKEND_URL || {Backend.RAILWAY_PUBLIC_DOMAIN_VALUE}
   const STOREFRONT_URL =
-    env.VITE_MEDUSA_STOREFRONT_URL || ""
-  const PUBLISHABLE_API_KEY = env.VITE_PUBLISHABLE_API_KEY || ""
+    env.VITE_MEDUSA_STOREFRONT_URL || {Marketplace.NEXT_PUBLIC_BASE_URL}
+  const PUBLISHABLE_API_KEY = env.VITE_PUBLISHABLE_API_KEY || {Backend.PUBLIC_MEDUSA_PUBLISHABLE_KEY}
   const TALK_JS_APP_ID = env.VITE_TALK_JS_APP_ID || ""
   const DISABLE_SELLERS_REGISTRATION =
     env.VITE_DISABLE_SELLERS_REGISTRATION || "false"
-  const PUBLIC_BASE_URL = env.VITE_PUBLIC_BASE_URL || ""
+  const PUBLIC_BASE_URL = env.VITE_PUBLIC_BASE_URL || ${env.VITE_PUBLIC_BASE_URL}
 
   /**
    * Add this to your .env file to specify the project to load admin extensions from.
