@@ -10,6 +10,9 @@
     "start": "pnpm run launcher start",
     "lint": "next lint"
   },
+  "resolutions": {
+    "glob": ">=10.5.0"
+  },
   "dependencies": {
     "@headlessui/react": "^2.2.1",
     "@hookform/resolvers": "^3.10.0",
@@ -28,11 +31,11 @@
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",
     "medusajs-launch-utils": "^0.0.18",
-    "next": "^15.3.8",
+    "next": "^15.1.6",
     "next-intl": "^3.26.3",
-    "react": "^19.0.1",
+    "react": "^19.0.0",
     "react-country-flag": "^3.1.0",
-    "react-dom": "^19.0.1",
+    "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",
     "react-i18next": "^15.5.2",
     "react-instantsearch": "^7.15.3",
