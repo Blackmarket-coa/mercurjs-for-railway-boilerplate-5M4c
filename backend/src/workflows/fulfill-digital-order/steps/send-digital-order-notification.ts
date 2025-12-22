@@ -1,35 +1,29 @@
-import { createWorkflow, StepResponse, workflowRegistry } from "@medusajs/framework/workflows-sdk"
-import { sendDigitalOrderNotificationStep } from "./steps/send-digital-order-notification"
+import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { MedusaError } from "@medusajs/framework/utils"
+import { TICKET_BOOKING_MODULE } from "../../modules/ticket-booking"
+import type TicketBookingModuleService from "../../modules/ticket-booking/service"
 
-// Define the input type for the workflow
-export type DigitalOrderWorkflowInput = {
-  digital_product_order: any // Replace `any` with `DigitalProductOrder` if imported
+export type VerifyTicketPurchaseStepInput = {
+  ticket_purchase_id: string
 }
 
-// Create the workflow
-export const digitalOrderFulfillmentWorkflow = createWorkflow(
-  "digital-order-fulfillment-v1", // ✅ Unique workflow ID
-  async (input: DigitalOrderWorkflowInput, { container }) => {
-    try {
-      // Execute the notification step
-      const notificationResponse: StepResponse = await sendDigitalOrderNotificationStep.run(input, { container })
+export const verifyTicketPurchaseStep = createStep(
+  "verify-ticket-purchase",
+  async (input: VerifyTicketPurchaseStepInput, { container }) => {
+    const ticketBookingService = container.resolve(
+      TICKET_BOOKING_MODULE
+    ) as TicketBookingModuleService
 
-      // You could add more steps here, e.g., mark order as fulfilled, log activity, etc.
+    const ticketPurchase = await ticketBookingService.retrieveTicketPurchase(input.ticket_purchase_id)
 
-      return notificationResponse
-    } catch (error) {
-      // Handle workflow errors gracefully
-      if (error instanceof MedusaError) {
-        throw error
-      }
-      throw new MedusaError(MedusaError.Types.INTERNAL, `Workflow failed: ${error}`)
+    if (ticketPurchase.status !== "pending") {
+      throw new MedusaError(MedusaError.Types.NOT_ALLOWED, "Ticket has already been scanned")
     }
+
+    if (ticketPurchase.show_date < new Date()) {
+      throw new MedusaError(MedusaError.Types.NOT_ALLOWED, "Ticket is expired or show date has passed")
+    }
+
+    return new StepResponse(true)
   }
 )
-
-// Register the workflow safely
-if (!workflowRegistry.has("digital-order-fulfillment-v1")) {
-  workflowRegistry.register(digitalOrderFulfillmentWorkflow)
-}
-
