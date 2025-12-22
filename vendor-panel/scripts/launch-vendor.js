@@ -2,7 +2,7 @@ const { execSync } = require('child_process');
 const https = require('https');
 const http = require('http');
 
-const BACKEND_URL = process.env.VITE_MEDUSA_BACKEND_URL ||;
+const BACKEND_URL = process.env.VITE_MEDUSA_BACKEND_URL || process.env.MEDUSA_BACKEND_URL;;
 
 async function fetchPublishableKey() {
   return new Promise((resolve, reject) => {
