@@ -7,17 +7,17 @@ export const TicketProductVariant = model.define("ticket_product_variant", {
   id: model.id().primaryKey(),
   product_variant_id: model.text().unique(),
   ticket_product: model.belongsTo(() => TicketProduct, {
-    mappedBy: "variants"
+    mappedBy: "variants",
   }),
   row_type: model.enum(RowType),
   purchases: model.hasMany(() => TicketPurchase, {
-    mappedBy: "ticket_variant"
-  })
+    mappedBy: "ticket_variant",
+  }),
 })
 .indexes([
   {
-    on: ["ticket_product_id", "row_type"]
-  }
+    on: ["ticket_product_id", "row_type"],
+  },
 ])
 
 export default TicketProductVariant
