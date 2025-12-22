@@ -23,7 +23,7 @@ export const createTicketPurchasesStep = createStep(
   "create-ticket-purchases",
   async (input: CreateTicketPurchasesStepInput, { container }) => {
     const { order_id, cart } = input
-    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE) as any
 
     const ticketPurchasesToCreate: {
       order_id: string
@@ -68,11 +68,11 @@ export const createTicketPurchasesStep = createStep(
   async (ticketPurchases, { container }) => {
     if (!ticketPurchases) return
 
-    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE) as any
 
     // Delete the created ticket purchases
     await ticketBookingModuleService.deleteTicketPurchases(
-      ticketPurchases.map((ticketPurchase) => ticketPurchase.id)
+      ticketPurchases.map((ticketPurchase: any) => ticketPurchase.id)
     )
   }
 )
