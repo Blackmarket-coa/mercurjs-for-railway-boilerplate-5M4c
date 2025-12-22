@@ -16,8 +16,9 @@ type FulfillDigitalOrderWorkflowInput = {
   id: string
 }
 
+// Renamed workflow ID to avoid conflicts
 export const fulfillDigitalOrderWorkflow = createWorkflow(
-  "fulfill-digital-order",
+  "fulfill-digital-order-v2", // NEW UNIQUE ID
   ({ id }: FulfillDigitalOrderWorkflowInput) => {
     const { data: digitalProductOrders } = useQueryGraphStep({
       entity: "digital_product_order",
