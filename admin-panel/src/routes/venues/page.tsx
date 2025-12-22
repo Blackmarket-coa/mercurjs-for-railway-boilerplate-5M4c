@@ -7,14 +7,22 @@ import {
   useDataTable, 
   Heading, 
   DataTablePaginationState,
-  Button,
 } from "@medusajs/ui"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useState, useMemo } from "react"
 import { sdk } from "../../lib/sdk"
 import { Venue, CreateVenueRequest } from "../../types"
-import { CreateVenueModal } from "../../components/create-venue-modal"
 
+const VenuesPage = () => {
+  // TODO implement component
+}
+
+export const config = defineRouteConfig({
+  label: "Venues",
+  icon: Buildings,
+})
+
+export default VenuesPage
 const columnHelper = createDataTableColumnHelper<Venue>()
 
 const columns = [
@@ -44,17 +52,14 @@ const columns = [
     cell: ({ row }) => (
       <span>{row.original.address || "-"}</span>
     ),
-  })
+  }),
 ]
-
-
 const VenuesPage = () => {
   const limit = 15
   const [pagination, setPagination] = useState<DataTablePaginationState>({
     pageSize: limit,
-    pageIndex: 0
+    pageIndex: 0,
   })
-  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const queryClient = useQueryClient()
 
@@ -73,9 +78,9 @@ const VenuesPage = () => {
       query: {
         offset: pagination.pageIndex * pagination.pageSize,
         limit: pagination.pageSize,
-        order: "-created_at"
-      }
-    })
+        order: "-created_at",
+      },
+    }),
   })
 
   const table = useDataTable({
@@ -85,27 +90,10 @@ const VenuesPage = () => {
     isLoading,
     pagination: {
       state: pagination,
-      onPaginationChange: setPagination
+      onPaginationChange: setPagination,
     },
-    getRowId: (row) => row.id
+    getRowId: (row) => row.id,
   })
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false)
-  }
-
-  const handleCreateVenue = async (data: CreateVenueRequest) => {
-    try {
-      await sdk.client.fetch("/admin/venues", {
-        method: "POST",
-        body: data,
-      })
-      queryClient.invalidateQueries({ queryKey: ["venues"] })
-      handleCloseModal()
-    } catch (error: any) {
-      throw new Error(`Failed to create venue: ${error.message}`)
-    }
-  }
 
   return (
     <Container className="divide-y p-0">
@@ -114,28 +102,10 @@ const VenuesPage = () => {
           <Heading>
             Venues
           </Heading>
-          <Button
-            variant="secondary"
-            onClick={() => setIsModalOpen(true)}
-          >
-            Create Venue
-          </Button>
         </DataTable.Toolbar>
         <DataTable.Table />
         <DataTable.Pagination />
       </DataTable>
-      <CreateVenueModal
-        open={isModalOpen}
-        onOpenChange={handleCloseModal}
-        onSubmit={handleCreateVenue}
-      />
     </Container>
   )
 }
-
-export const config = defineRouteConfig({
-  label: "Venues",
-  icon: Buildings
-})
-
-export default VenuesPage
