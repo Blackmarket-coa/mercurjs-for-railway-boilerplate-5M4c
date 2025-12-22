@@ -7,7 +7,7 @@
     "wait": "await-backend",
     "launcher": "launch-storefront",
     "dev": "pnpm run wait && pnpm run launcher dev",
-    "build": "pnpm run wait && pnpm run launcher build",
+    "build": "pnpm run launcher build",
     "start": "pnpm run launcher start",
     "lint": "next lint"
   },
