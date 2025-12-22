@@ -15,12 +15,12 @@ export const TicketPurchase = model.define("ticket_purchase", {
 })
 .indexes([
   {
-    on: ["order_id"]
+    on: ["order_id"],
   },
   {
     on: ["ticket_product_id", "venue_row_id", "seat_number", "show_date"],
-    unique: true
-  }
+    unique: true,
+  },
 ])
 
 export default TicketPurchase
