@@ -1,8 +1,5 @@
-import DigitalProductModuleService from "./service"
-import { Module } from "@medusajs/framework/utils"
+// src/modules/digital-product/index.ts
+import { DigitalProductService } from "./services/digital-product.service"
+import { DigitalProductModule } from "./digital-product.module"
 
-export const DIGITAL_PRODUCT_MODULE = "digitalProduct"
-
-export default Module(DIGITAL_PRODUCT_MODULE, {
-  service: DigitalProductModuleService,
-})
+export { DigitalProductService, DigitalProductModule }
