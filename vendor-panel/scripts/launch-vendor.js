@@ -2,14 +2,7 @@ const { execSync } = require('child_process');
 const https = require('https');
 const http = require('http');
 
-// Check for the environment variable that Railway sets
-const BACKEND_URL = process.env. VITE_MEDUSA_BACKEND_URL || process.env. MEDUSA_BACKEND_URL;
-
-if (! BACKEND_URL) {
-  console.error('❌ Error: VITE_MEDUSA_BACKEND_URL environment variable is required');
-  console.error('Please ensure VITE_MEDUSA_BACKEND_URL is set in your Railway variables');
-  process.exit(1);
-}
+const BACKEND_URL = process.env.VITE_MEDUSA_BACKEND_URL ||;
 
 async function fetchPublishableKey() {
   return new Promise((resolve, reject) => {
@@ -49,7 +42,6 @@ async function fetchPublishableKey() {
 
 async function launch() {
   console.log('🚀 Launching vendor panel...\n');
-  console.log('Using backend URL:', BACKEND_URL, '\n');
   
   // Fetch the publishable API key
   const apiKey = await fetchPublishableKey();
@@ -60,7 +52,7 @@ async function launch() {
   }
   
   // Run vite
-  console. log('Starting Vite dev server...\n');
+  console.log('Starting Vite dev server...\n');
   try {
     execSync('vite', { stdio: 'inherit', env: process.env });
   } catch (error) {
