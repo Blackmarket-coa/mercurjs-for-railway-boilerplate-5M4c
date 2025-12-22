@@ -29,17 +29,27 @@ export default defineMiddlewares({
           defaults: ["id", "name", "address", "rows.*"],
         }),
       ],
-    },export default defineMiddlewares({
+    },
+   export default defineMiddlewares({
   routes: [
     // ...
     {
       matcher: "/admin/ticket-products",
-      methods: ["POST"],
+      methods: ["GET"],
       middlewares: [
-        validateAndTransformBody(CreateTicketProductSchema),
+        validateAndTransformQuery(createFindParams(), {
+          isList: true,
+          defaults: [
+            "id", 
+            "product_id", 
+            "venue_id", 
+            "dates", 
+            "venue.*", 
+            "variants.*", 
+            "product.*",
+          ],
+        }),
       ],
     },
-  ],
-})
   ],
 })
