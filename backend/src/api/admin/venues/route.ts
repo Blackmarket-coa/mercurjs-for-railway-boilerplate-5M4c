@@ -25,3 +25,24 @@ export async function POST(
 
   res.json(result)
 }
+export async function GET(
+  req: MedusaRequest,
+  res: MedusaResponse
+) {
+  const query = req.scope.resolve("query")
+
+  const { 
+    data: venues,
+    metadata,
+  } = await query.graph({
+    entity: "venue",
+    ...req.queryConfig,
+  })
+
+  res.json({ 
+    venues,
+    count: metadata?.count,
+    limit: metadata?.take,
+    offset: metadata?.skip,
+  })
+}
