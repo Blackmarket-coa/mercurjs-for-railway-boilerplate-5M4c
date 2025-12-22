@@ -23,3 +23,89 @@ export const config = defineRouteConfig({
 })
 
 export default VenuesPage
+const columnHelper = createDataTableColumnHelper<Venue>()
+
+const columns = [
+  columnHelper.accessor("name", {
+    header: "Name",
+    cell: ({ row }) => (
+      <div>
+        <div className="txt-small-plus">{row.original.name}</div>
+        {row.original.address && (
+          <div className="txt-small text-gray-500">{row.original.address}</div>
+        )}
+      </div>
+    ),
+  }),
+  columnHelper.accessor("rows", {
+    header: "Total Capacity",
+    cell: ({ row }) => {
+      const totalCapacity = row.original.rows.reduce(
+        (sum, rowItem) => sum + rowItem.seat_count,
+        0
+      )
+      return <span className="txt-small-plus">{totalCapacity} seats</span>
+    },
+  }),
+  columnHelper.accessor("address", {
+    header: "Address",
+    cell: ({ row }) => (
+      <span>{row.original.address || "-"}</span>
+    ),
+  }),
+]
+const VenuesPage = () => {
+  const limit = 15
+  const [pagination, setPagination] = useState<DataTablePaginationState>({
+    pageSize: limit,
+    pageIndex: 0,
+  })
+
+  const queryClient = useQueryClient()
+
+  const offset = useMemo(() => {
+    return pagination.pageIndex * limit
+  }, [pagination])
+
+  const { data, isLoading } = useQuery<{
+    venues: Venue[]
+    count: number
+    limit: number
+    offset: number
+  }>({
+    queryKey: ["venues", offset, limit],
+    queryFn: () => sdk.client.fetch("/admin/venues", {
+      query: {
+        offset: pagination.pageIndex * pagination.pageSize,
+        limit: pagination.pageSize,
+        order: "-created_at",
+      },
+    }),
+  })
+
+  const table = useDataTable({
+    columns,
+    data: data?.venues || [],
+    rowCount: data?.count || 0,
+    isLoading,
+    pagination: {
+      state: pagination,
+      onPaginationChange: setPagination,
+    },
+    getRowId: (row) => row.id,
+  })
+
+  return (
+    <Container className="divide-y p-0">
+      <DataTable instance={table}>
+        <DataTable.Toolbar className="flex flex-col items-start justify-between gap-2 md:flex-row md:items-center">
+          <Heading>
+            Venues
+          </Heading>
+        </DataTable.Toolbar>
+        <DataTable.Table />
+        <DataTable.Pagination />
+      </DataTable>
+    </Container>
+  )
+}
