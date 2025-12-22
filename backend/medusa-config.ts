@@ -1,3 +1,4 @@
+
 import { defineConfig, loadEnv } from '@medusajs/framework/utils'
 
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
@@ -9,6 +10,7 @@ module.exports = defineConfig({
     http: {
       storeCors: process.env.STORE_CORS!,
       adminCors: process.env.ADMIN_CORS!,
+      // @ts-expect-error: vendorCors is not a valid config
       vendorCors: process.env.VENDOR_CORS!,
       authCors: process.env.AUTH_CORS!,
       jwtSecret: process.env.JWT_SECRET || 'supersecret',
@@ -19,36 +21,48 @@ module.exports = defineConfig({
     disable: true,
   },
   plugins: [
-    { resolve: '@mercurjs/b2c-core', options: {} },
-    { resolve: '@mercurjs/commission', options: {} },
-    ...(process.env.ALGOLIA_API_KEY && process.env.ALGOLIA_APP_ID
-      ? [{
-          resolve: '@mercurjs/algolia',
-          options: {
-            apiKey: process.env.ALGOLIA_API_KEY,
-            appId: process.env.ALGOLIA_APP_ID
-          }
-        }]
-      : []),
-    { resolve: '@mercurjs/reviews', options: {} },
-    { resolve: '@mercurjs/requests', options: {} },
-    { resolve: '@mercurjs/resend', options: {} }
+    {
+      resolve: '@mercurjs/b2c-core',
+      options: {}
+    },
+    {
+      resolve: '@mercurjs/commission',
+      options: {}
+    },
+    ...(process.env.ALGOLIA_API_KEY && process.env.ALGOLIA_APP_ID ? [{
+      resolve: '@mercurjs/algolia',
+      options: {
+        apiKey: process.env.ALGOLIA_API_KEY,
+        appId: process.env.ALGOLIA_APP_ID
+      }
+    }] : []),
+    {
+      resolve: '@mercurjs/reviews',
+      options: {}
+    },
+    {
+      resolve: '@mercurjs/requests',
+      options: {}
+    },
+    {
+      resolve: '@mercurjs/resend',
+      options: {}
+    }
   ],
   modules: [
     {
       resolve: '@medusajs/medusa/file',
       options: {
-        providers: process.env.MINIO_ENDPOINT
-          ? [{
-              resolve: './src/modules/minio-file',
-              id: 'minio',
-              options: {
-                endPoint: process.env.MINIO_ENDPOINT,
-                accessKey: process.env.MINIO_ACCESS_KEY,
-                secretKey: process.env.MINIO_SECRET_KEY,
-                bucket: process.env.MINIO_BUCKET
-              }
-            }]
+        providers: [
+          ...(process.env.MINIO_ENDPOINT && process.env.MINIO_ACCESS_KEY && process.env.MINIO_SECRET_KEY ? [{
+            resolve: './src/modules/minio-file',
+            id: 'minio',
+            options: {
+              endPoint: process.env.MINIO_ENDPOINT,
+              accessKey: process.env.MINIO_ACCESS_KEY,
+              secretKey: process.env.MINIO_SECRET_KEY,
+              bucket: process.env.MINIO_BUCKET // Optional, defaults to 'medusa-media'
+            }
           : [{
               resolve: '@medusajs/medusa/file-local',
               id: 'local',
