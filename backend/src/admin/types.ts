@@ -40,3 +40,24 @@ export interface VenuesResponse {
   limit: number
   offset: number
 }
+export interface TicketProduct {
+  id: string
+  product_id: string
+  venue_id: string
+  dates: string[]
+  venue: {
+    id: string
+    name: string
+    address?: string
+  }
+  product: {
+    id: string
+    title: string
+  }
+  variants: Array<{
+    id: string
+    row_type: string
+  }>
+  created_at: string
+  updated_at: string
+}
