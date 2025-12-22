@@ -1,6 +1,5 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { TICKET_BOOKING_MODULE } from "../../modules/ticket-booking"
-import type { TicketBookingModuleService } from "../../modules/ticket-booking/types"
 import { MedusaError } from "@medusajs/framework/utils"
 
 export type ValidateVenueAvailabilityStepInput = {
@@ -11,14 +10,16 @@ export type ValidateVenueAvailabilityStepInput = {
 export const validateVenueAvailabilityStep = createStep(
   "validate-venue-availability",
   async (input: ValidateVenueAvailabilityStepInput, { container }) => {
-    const ticketBookingModuleService: TicketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
 
-    const existingTicketProducts = await ticketBookingModuleService.listTicketProducts({
-      venue_id: input.venue_id
-    })
+    // Get all existing ticket products for this venue
+    const existingTicketProducts = await ticketBookingModuleService
+      .listTicketProducts({
+        venue_id: input.venue_id,
+      })
 
-    const hasConflict = existingTicketProducts.some(ticketProduct => 
-      ticketProduct.dates.some(date => input.dates.includes(date))
+    const hasConflict = existingTicketProducts.some((ticketProduct) => 
+      ticketProduct.dates.some((date) => input.dates.includes(date))
     )
 
     if (hasConflict) {
@@ -29,5 +30,5 @@ export const validateVenueAvailabilityStep = createStep(
     }
 
     return new StepResponse({ valid: true })
-  },
+  }
 )
