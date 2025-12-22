@@ -24,13 +24,13 @@
     "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit"
   },
   "dependencies": {
-    "@medusajs/admin-sdk": "2.10.2",
-    "@medusajs/cli": "2.10.2",
+    "@medusajs/admin-sdk": "2.12.3",
+    "@medusajs/cli": "2.12.3",
     "@medusajs/core-flows": "^2.12.3",
     "@medusajs/framework": "2.12.3",
-    "@medusajs/icons": "2.11.3",
+    "@medusajs/icons": "2.12.3",
     "@medusajs/medusa": "2.12.3",
-    "@medusajs/ui": "4.0.25",
+    "@medusajs/ui": "4.0.31",
     "@mercurjs/algolia": "^1.4.3",
     "@mercurjs/b2c-core": "^1.4.3",
     "@mercurjs/commission": "^1.4.3",
@@ -52,7 +52,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@medusajs/test-utils": "2.10.2",
+    "@medusajs/test-utils": "2.12.3",
     "@mikro-orm/cli": "6.4.3",
     "@mikro-orm/core": "6.4.3",
     "@mikro-orm/migrations": "6.4.3",
