@@ -12,7 +12,7 @@ export type CreateTicketProductsStepInput = {
 export const createTicketProductsStep = createStep(
   "create-ticket-products",
   async (input: CreateTicketProductsStepInput, { container }) => {
-    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE) as any
 
     // Create the main ticket product
     const ticketProducts = await ticketBookingModuleService.createTicketProducts(
@@ -31,11 +31,11 @@ export const createTicketProductsStep = createStep(
   async (compensationData, { container }) => {
     if (!compensationData?.ticket_products) return
 
-    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE) as any
     
     // Delete the ticket product
     await ticketBookingModuleService.deleteTicketProducts(
-      compensationData.ticket_products.map(tp => tp.id)
+      compensationData.ticket_products.map((tp: any) => tp.id)
     )
   }
 )

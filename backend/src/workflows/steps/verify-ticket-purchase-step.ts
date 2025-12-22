@@ -9,7 +9,7 @@ export type VerifyTicketPurchaseStepInput = {
 export const verifyTicketPurchaseStep = createStep(
   "verify-ticket-purchase",
   async (input: VerifyTicketPurchaseStepInput, { container }) => {
-    const ticketBookingService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingService = container.resolve(TICKET_BOOKING_MODULE) as any
     
     const ticketPurchase = await ticketBookingService.retrieveTicketPurchase(input.ticket_purchase_id)
 

@@ -9,7 +9,7 @@ export type CreateVenueStepInput = {
 export const createVenueStep = createStep(
   "create-venue",
   async (input: CreateVenueStepInput, { container }) => {
-    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE) as any
 
     const venue = await ticketBookingModuleService.createVenues(input)
 
@@ -18,7 +18,7 @@ export const createVenueStep = createStep(
   async (venue, { container }) => {
     if (!venue) return
 
-    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE) as any
     
     await ticketBookingModuleService.deleteVenues(venue.id)
   }

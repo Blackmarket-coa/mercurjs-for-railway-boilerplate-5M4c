@@ -10,15 +10,15 @@ export type ValidateVenueAvailabilityStepInput = {
 export const validateVenueAvailabilityStep = createStep(
   "validate-venue-availability",
   async (input: ValidateVenueAvailabilityStepInput, { container }) => {
-    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE) as any
 
     // Get all existing ticket products for this venue
     const existingTicketProducts = await ticketBookingModuleService.listTicketProducts({
       venue_id: input.venue_id
     })
 
-    const hasConflict = existingTicketProducts.some(ticketProduct => 
-      ticketProduct.dates.some(date => input.dates.includes(date))
+    const hasConflict = existingTicketProducts.some((ticketProduct: any) => 
+      ticketProduct.dates.some((date: string) => input.dates.includes(date))
     )
 
     if (hasConflict) {
