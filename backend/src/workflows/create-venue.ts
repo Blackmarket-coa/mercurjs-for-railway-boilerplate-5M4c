@@ -1,53 +1,28 @@
-import { createWorkflow, transform, WorkflowResponse } from "@medusajs/framework/workflows-sdk"
-import { createVenueStep } from "./steps/create-venue"
-import { createVenueRowsStep } from "./steps/create-venue-rows"
-import { RowType } from "../modules/ticket-booking/models/venue-row"
-import { useQueryGraphStep } from "@medusajs/core-flows"
+import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+import { TICKET_BOOKING_MODULE } from "../../modules/ticket-booking"
+import TicketBookingModuleService from "../../modules/ticket-booking/service"
 
-export type CreateVenueWorkflowInput = {
+export type CreateVenueStepInput = {
   name: string
   address?: string
-  rows: Array<{
-    row_number: string
-    row_type: RowType
-    seat_count: number
-  }>
 }
 
-export const createVenueWorkflow = createWorkflow(
+export const createVenueStep = createStep(
   "create-venue",
-  (input: CreateVenueWorkflowInput) => {
-    const venue = createVenueStep({
-      name: input.name,
-      address: input.address
-    })
+  async (input: CreateVenueStepInput, { container }) => {
+    const ticketBookingModuleService: TicketBookingModuleService = 
+      container.resolve(TICKET_BOOKING_MODULE)
 
-    const venueRowsData = transform({
-      venue,
-      input
-    }, (data) => {
-      return data.input.rows.map((row) => ({
-        venue_id: data.venue.id,
-        row_number: row.row_number,
-        row_type: row.row_type,
-        seat_count: row.seat_count
-      }))
-    })
+    const venue = await ticketBookingModuleService.createVenues(input)
 
-    createVenueRowsStep({
-      rows: venueRowsData
-    })
+    return new StepResponse(venue, venue)
+  },
+  async (venue, { container }) => {
+    if (!venue) return
 
-    const { data: venues } = useQueryGraphStep({
-      entity: "venue",
-      fields: ["id", "name", "address", "rows.*"],
-      filters: {
-        id: venue.id,
-      },
-    })
-
-    return new WorkflowResponse({
-      venue: venues[0],
-    })
+    const ticketBookingModuleService: TicketBookingModuleService = 
+      container.resolve(TICKET_BOOKING_MODULE)
+    
+    await ticketBookingModuleService.deleteVenues(venue.id)
   }
 )
