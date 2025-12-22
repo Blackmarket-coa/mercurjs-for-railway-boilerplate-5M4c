@@ -8,7 +8,6 @@ import {
   completeCartWorkflow,
   useQueryGraphStep,
   createRemoteLinkStep,
-  createOrderFulfillmentWorkflow,
   emitEventStep,
   acquireLockStep,
   releaseLockStep
@@ -100,19 +99,9 @@ const createDigitalProductOrderWorkflow = createWorkflow(
         }
       }])
 
-      createOrderFulfillmentWorkflow.runAsStep({
-        input: {
-          order_id: id,
-          items: transform({
-            itemsWithDigitalProducts
-          }, (data) => {
-            return data.itemsWithDigitalProducts!.map((item) => ({
-              id: item!.id,
-              quantity: item!.quantity
-            }))
-          })
-        }
-      })
+      // NOTE: Removed createOrderFulfillmentWorkflow.runAsStep call
+      // Digital products don't require physical fulfillment
+      // The fulfill-digital-order workflow handles digital delivery via notification
   
       emitEventStep({
         eventName: "digital_product_order.created",
