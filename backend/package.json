@@ -1,8 +1,8 @@
 {
   "name": "medusa-2.0-boilerplate-backend",
   "version": "0.0.2",
-  "description": "A Prebaked Medusa 2.0 backend",
-  "author": "Rasmus Puls",
+  "description": "BMC",
+  "author": "Marlon Roerson",
   "license": "MIT",
   "keywords": [
     "sqlite",
@@ -58,7 +58,7 @@
   },
   "packageManager": "pnpm@9.10.0",
   "engines": {
-    "node": "22.x",
+    "node": "20.x",
     "npm": "10.x"
   }
 }
