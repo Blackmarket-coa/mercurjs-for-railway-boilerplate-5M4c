@@ -9,16 +9,16 @@ export const TicketProduct = model.define("ticket_product", {
   venue: model.belongsTo(() => Venue),
   dates: model.array(),
   variants: model.hasMany(() => TicketProductVariant, {
-    mappedBy: "ticket_product"
+    mappedBy: "ticket_product",
   }),
   purchases: model.hasMany(() => TicketPurchase, {
-    mappedBy: "ticket_product"
-  })
+    mappedBy: "ticket_product",
+  }),
 })
 .indexes([
   {
-    on: ["venue_id", "dates"]
-  }
+    on: ["venue_id", "dates"],
+  },
 ])
 
 export default TicketProduct
