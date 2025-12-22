@@ -68,7 +68,7 @@ module.exports = defineConfig({
             id: 'local',
             options: {
               upload_dir: 'static',
-              const backend_url = `${(process.env.BACKEND_URL || process.env.RAILWAY_STATIC_URL).replace(/\/$/, '')}/static`;
+              backend_url: `${(process.env.BACKEND_URL || process.env.RAILWAY_STATIC_URL || '').replace(/\/$/, '')}/static`
             }
           }])
         ]
