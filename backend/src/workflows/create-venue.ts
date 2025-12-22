@@ -19,23 +19,23 @@ export const createVenueWorkflow = createWorkflow(
   (input: CreateVenueWorkflowInput) => {
     const venue = createVenueStep({
       name: input.name,
-      address: input.address
+      address: input.address,
     })
 
     const venueRowsData = transform({
       venue,
-      input
+      input,
     }, (data) => {
       return data.input.rows.map((row) => ({
         venue_id: data.venue.id,
         row_number: row.row_number,
         row_type: row.row_type,
-        seat_count: row.seat_count
+        seat_count: row.seat_count,
       }))
     })
 
     createVenueRowsStep({
-      rows: venueRowsData
+      rows: venueRowsData,
     })
 
     const { data: venues } = useQueryGraphStep({
