@@ -1,3 +1,4 @@
+import { CreateTicketProductSchema } from "./admin/ticket-products/route"
 import { validateAndTransformQuery } from "@medusajs/framework/http"
 import { createFindParams } from "@medusajs/medusa/api/utils/validators"import { 
   defineMiddlewares, 
@@ -28,6 +29,17 @@ export default defineMiddlewares({
           defaults: ["id", "name", "address", "rows.*"],
         }),
       ],
+    },export default defineMiddlewares({
+  routes: [
+    // ...
+    {
+      matcher: "/admin/ticket-products",
+      methods: ["POST"],
+      middlewares: [
+        validateAndTransformBody(CreateTicketProductSchema),
+      ],
     },
+  ],
+})
   ],
 })
