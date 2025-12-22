@@ -128,4 +128,11 @@ module.exports = defineConfig({
       definition: { isQueryable: true },
     },
   ],
+})module.exports = defineConfig({
+  // ...
+  modules: [
+    {
+      resolve: "./src/modules/ticket-booking",
+    },
+  ]
 })
