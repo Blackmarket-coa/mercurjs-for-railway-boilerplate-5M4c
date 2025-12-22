@@ -1,14 +1,16 @@
 import { AbstractFileProviderService, MedusaError } from '@medusajs/framework/utils';
 import { Logger } from '@medusajs/framework/types';
-import { 
+import {
   ProviderUploadFileDTO,
   ProviderDeleteFileDTO,
   ProviderFileResultDTO,
-  ProviderGetFileDTO
+  ProviderGetFileDTO,
+  ProviderGetPresignedUploadUrlDTO
 } from '@medusajs/framework/types';
 import { Client } from 'minio';
 import path from 'path';
 import { ulid } from 'ulid';
+import { Readable } from 'stream';
 
 type InjectedDependencies = {
   logger: Logger
@@ -39,12 +41,40 @@ class MinioFileProviderService extends AbstractFileProviderService {
   protected readonly logger_: Logger
   protected client: Client
   protected readonly bucket: string
+  protected readonly useSSL: boolean
 
   constructor({ logger }: InjectedDependencies, options: MinioFileProviderOptions) {
     super()
     this.logger_ = logger
+    
+    // Parse endpoint to extract hostname and protocol
+    let endPoint = options.endPoint
+    let useSSL = true
+    let port = 443
+    
+    // Strip protocol if present (MinIO client v8+ requires hostname only)
+    if (endPoint.startsWith('https://')) {
+      endPoint = endPoint.replace('https://', '')
+      useSSL = true
+      port = 443
+    } else if (endPoint.startsWith('http://')) {
+      endPoint = endPoint.replace('http://', '')
+      useSSL = false
+      port = 80
+    }
+    
+    // Remove trailing slash if present
+    endPoint = endPoint.replace(/\/$/, '')
+    
+    // Extract port from endpoint if specified (e.g., "minio.example.com:9000")
+    const portMatch = endPoint.match(/:(\d+)$/)
+    if (portMatch) {
+      port = parseInt(portMatch[1], 10)
+      endPoint = endPoint.replace(/:(\d+)$/, '')
+    }
+    
     this.config_ = {
-      endPoint: options.endPoint,
+      endPoint: endPoint,
       accessKey: options.accessKey,
       secretKey: options.secretKey,
       bucket: options.bucket
@@ -52,13 +82,14 @@ class MinioFileProviderService extends AbstractFileProviderService {
 
     // Use provided bucket or default
     this.bucket = this.config_.bucket || DEFAULT_BUCKET
-    this.logger_.info(`MinIO service initialized with bucket: ${this.bucket}`)
+    this.useSSL = useSSL
+    this.logger_.info(`MinIO service initialized with bucket: ${this.bucket}, endpoint: ${endPoint}, port: ${port}, SSL: ${useSSL}`)
 
-    // Initialize Minio client with hardcoded SSL settings
+    // Initialize Minio client with parsed settings
     this.client = new Client({
-      endPoint: this.config_.endPoint,
-      port: 443,
-      useSSL: true,
+      endPoint: endPoint,
+      port: port,
+      useSSL: useSSL,
       accessKey: this.config_.accessKey,
       secretKey: this.config_.secretKey
     })
@@ -161,7 +192,22 @@ class MinioFileProviderService extends AbstractFileProviderService {
     try {
       const parsedFilename = path.parse(file.filename)
       const fileKey = `${parsedFilename.name}-${ulid()}${parsedFilename.ext}`
-      const content = Buffer.from(file.content, 'binary')
+      
+      // Handle different content types properly
+      let content: Buffer
+      if (Buffer.isBuffer(file.content)) {
+        content = file.content
+      } else if (typeof file.content === 'string') {
+        // If it's a base64 string, decode it
+        if (file.content.match(/^[A-Za-z0-9+/]+=*$/)) {
+          content = Buffer.from(file.content, 'base64')
+        } else {
+          content = Buffer.from(file.content, 'binary')
+        }
+      } else {
+        // Handle ArrayBuffer, Uint8Array, or any other buffer-like type
+        content = Buffer.from(file.content as any)
+      }
 
       // Upload file with public-read access
       await this.client.putObject(
@@ -176,8 +222,9 @@ class MinioFileProviderService extends AbstractFileProviderService {
         }
       )
 
-      // Generate URL using the endpoint and bucket
-      const url = `https://${this.config_.endPoint}/${this.bucket}/${fileKey}`
+      // Generate URL using the endpoint and bucket with correct protocol
+      const protocol = this.useSSL ? 'https' : 'http'
+      const url = `${protocol}://${this.config_.endPoint}/${this.bucket}/${fileKey}`
 
       this.logger_.info(`Successfully uploaded file ${fileKey} to MinIO bucket ${this.bucket}`)
 
@@ -195,21 +242,24 @@ class MinioFileProviderService extends AbstractFileProviderService {
   }
 
   async delete(
-    fileData: ProviderDeleteFileDTO
+    fileData: ProviderDeleteFileDTO | ProviderDeleteFileDTO[]
   ): Promise<void> {
-    if (!fileData?.fileKey) {
-      throw new MedusaError(
-        MedusaError.Types.INVALID_DATA,
-        'No file key provided'
-      )
-    }
+    const files = Array.isArray(fileData) ? fileData : [fileData];
 
-    try {
-      await this.client.removeObject(this.bucket, fileData.fileKey)
-      this.logger_.info(`Successfully deleted file ${fileData.fileKey} from MinIO bucket ${this.bucket}`)
-    } catch (error) {
-      // Log error but don't throw if file doesn't exist
-      this.logger_.warn(`Failed to delete file ${fileData.fileKey}: ${error.message}`)
+    for (const file of files) {
+      if (!file?.fileKey) {
+        throw new MedusaError(
+          MedusaError.Types.INVALID_DATA,
+          'No file key provided'
+        );
+      }
+
+      try {
+        await this.client.removeObject(this.bucket, file.fileKey);
+        this.logger_.info(`Successfully deleted file ${file.fileKey} from MinIO bucket ${this.bucket}`);
+      } catch (error) {
+        this.logger_.warn(`Failed to delete file ${file.fileKey}: ${error.message}`);
+      }
     }
   }
 
@@ -236,6 +286,92 @@ class MinioFileProviderService extends AbstractFileProviderService {
       throw new MedusaError(
         MedusaError.Types.UNEXPECTED_STATE,
         `Failed to generate presigned URL: ${error.message}`
+      )
+    }
+  }
+
+  async getPresignedUploadUrl(
+    fileData: ProviderGetPresignedUploadUrlDTO
+  ): Promise<ProviderFileResultDTO> {
+    if (!fileData?.filename) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        'No filename provided'
+      )
+    }
+
+    try {
+      // Use the filename directly as the key (matches S3 provider behavior for presigned uploads)
+      const fileKey = fileData.filename
+
+      // Generate presigned PUT URL that expires in 15 minutes
+      const url = await this.client.presignedPutObject(
+        this.bucket,
+        fileKey,
+        15 * 60 // URL expires in 15 minutes
+      )
+
+      return {
+        url,
+        key: fileKey
+      }
+    } catch (error) {
+      this.logger_.error(`Failed to generate presigned upload URL: ${error.message}`)
+      throw new MedusaError(
+        MedusaError.Types.UNEXPECTED_STATE,
+        `Failed to generate presigned upload URL: ${error.message}`
+      )
+    }
+  }
+
+  async getAsBuffer(fileData: ProviderGetFileDTO): Promise<Buffer> {
+    if (!fileData?.fileKey) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        'No file key provided'
+      )
+    }
+
+    try {
+      const stream = await this.client.getObject(this.bucket, fileData.fileKey)
+      const buffer = await new Promise<Buffer>((resolve, reject) => {
+        const chunks: Buffer[] = []
+
+        stream.on('data', (chunk: Buffer) => chunks.push(chunk))
+        stream.on('end', () => resolve(Buffer.concat(chunks)))
+        stream.on('error', reject)
+      })
+
+      this.logger_.info(`Retrieved buffer for file ${fileData.fileKey}`)
+      return buffer
+    } catch (error) {
+      this.logger_.error(`Failed to get buffer: ${error.message}`)
+      throw new MedusaError(
+        MedusaError.Types.UNEXPECTED_STATE,
+        `Failed to get buffer: ${error.message}`
+      )
+    }
+  }
+
+  async getDownloadStream(fileData: ProviderGetFileDTO): Promise<Readable> {
+    if (!fileData?.fileKey) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        'No file key provided'
+      )
+    }
+
+    try {
+      // Get the MinIO stream directly
+      const minioStream = await this.client.getObject(this.bucket, fileData.fileKey)
+
+      this.logger_.info(`Retrieved download stream for file ${fileData.fileKey}`)
+      return minioStream
+    } catch (error) {
+      this.logger_.error(`Failed to get download stream: ${error.message}`)
+      throw new MedusaError(
+        MedusaError.Types.UNEXPECTED_STATE,
+        `Failed to get download stream: ${error.message}`
       )
     }
   }
