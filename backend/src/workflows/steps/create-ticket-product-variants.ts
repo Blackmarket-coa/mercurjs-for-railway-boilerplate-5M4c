@@ -1,6 +1,5 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { TICKET_BOOKING_MODULE } from "../../modules/ticket-booking"
-import type { TicketBookingModuleService } from "../../modules/ticket-booking/types"
 import { RowType } from "../../modules/ticket-booking/models/venue-row"
 
 export type CreateTicketProductVariantsStepInput = {
@@ -14,28 +13,30 @@ export type CreateTicketProductVariantsStepInput = {
 export const createTicketProductVariantsStep = createStep(
   "create-ticket-product-variants",
   async (input: CreateTicketProductVariantsStepInput, { container }) => {
-    const ticketBookingModuleService: TicketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
 
-    const ticketVariants = await ticketBookingModuleService.createTicketProductVariants(
-      input.variants
-    )
+    // Create ticket product variants for each Medusa variant
+    const ticketVariants = await ticketBookingModuleService
+      .createTicketProductVariants(
+        input.variants
+      )
 
     return new StepResponse(
       {
-        ticket_product_variants: ticketVariants
+        ticket_product_variants: ticketVariants,
       },
       {
-        ticket_product_variants: ticketVariants
-      },
+        ticket_product_variants: ticketVariants,
+      }
     )
   },
   async (compensationData, { container }) => {
-    if (!compensationData?.ticket_product_variants) return
+    if (!compensationData?.ticket_product_variants) {return}
 
-    const ticketBookingModuleService: TicketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
     
     await ticketBookingModuleService.deleteTicketProductVariants(
-      compensationData.ticket_product_variants.map(v => v.id)
+      compensationData.ticket_product_variants.map((v) => v.id)
     )
   }
 )
