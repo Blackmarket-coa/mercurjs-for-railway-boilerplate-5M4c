@@ -1,74 +1,35 @@
-import {
-  createStep,
-  StepResponse
-} from "@medusajs/framework/workflows-sdk"
-import { 
-  INotificationModuleService,
-  IFileModuleService
-} from "@medusajs/framework/types"
-import { MedusaError, ModuleRegistrationName, promiseAll } from "@medusajs/framework/utils"
-import { DigitalProductOrder, MediaType } from "../../../modules/digital-product/types"
+import { createWorkflow, StepResponse, workflowRegistry } from "@medusajs/framework/workflows-sdk"
+import { sendDigitalOrderNotificationStep } from "./steps/send-digital-order-notification"
+import { MedusaError } from "@medusajs/framework/utils"
 
-export type SendDigitalOrderNotificationStepInput = {
-  digital_product_order: DigitalProductOrder
+// Define the input type for the workflow
+export type DigitalOrderWorkflowInput = {
+  digital_product_order: any // Replace `any` with `DigitalProductOrder` if imported
 }
 
-export const sendDigitalOrderNotificationStep = createStep(
-  "send-digital-order-notification",
-  async ({ 
-    digital_product_order: digitalProductOrder 
-  }: SendDigitalOrderNotificationStepInput, 
-  { container }) => {
-    const notificationModuleService: INotificationModuleService = container
-    .resolve(ModuleRegistrationName.NOTIFICATION)
-    const fileModuleService: IFileModuleService = container.resolve(
-      ModuleRegistrationName.FILE
-    )
+// Create the workflow
+export const digitalOrderFulfillmentWorkflow = createWorkflow(
+  "digital-order-fulfillment-v1", // ✅ Unique workflow ID
+  async (input: DigitalOrderWorkflowInput, { container }) => {
+    try {
+      // Execute the notification step
+      const notificationResponse: StepResponse = await sendDigitalOrderNotificationStep.run(input, { container })
 
-    if (!digitalProductOrder.order) {
-      throw new MedusaError(
-        MedusaError.Types.INVALID_DATA,
-        "Digital product order is missing associated order."
-      )
-    }
+      // You could add more steps here, e.g., mark order as fulfilled, log activity, etc.
 
-    if (!digitalProductOrder.order.email) {
-      throw new MedusaError(
-        MedusaError.Types.INVALID_DATA,
-        "Order is missing email."
-      )
-    }
-
-    const notificationData = await promiseAll(
-      digitalProductOrder.products.map(async (product) => {
-        const medias: string[] = []
-  
-        await promiseAll(
-          product.medias
-          .filter((media) => media.type === MediaType.MAIN)
-          .map(async (media) => {
-            medias.push(
-              (await fileModuleService.retrieveFile(media.fileId)).url
-            )
-          })
-        )
-  
-        return {
-          name: product.name,
-          medias
-        }
-      })
-    )
-  
-    const notification = await notificationModuleService.createNotifications({
-      to: digitalProductOrder.order.email,
-      template: "digital-order-template",
-      channel: "email",
-      data: {
-        products: notificationData
+      return notificationResponse
+    } catch (error) {
+      // Handle workflow errors gracefully
+      if (error instanceof MedusaError) {
+        throw error
       }
-    })
-
-    return new StepResponse(notification)
+      throw new MedusaError(MedusaError.Types.INTERNAL, `Workflow failed: ${error}`)
+    }
   }
 )
+
+// Register the workflow safely
+if (!workflowRegistry.has("digital-order-fulfillment-v1")) {
+  workflowRegistry.register(digitalOrderFulfillmentWorkflow)
+}
+
