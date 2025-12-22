@@ -1,4 +1,5 @@
-import { 
+import { validateAndTransformQuery } from "@medusajs/framework/http"
+import { createFindParams } from "@medusajs/medusa/api/utils/validators"import { 
   defineMiddlewares, 
   validateAndTransformBody,
 } from "@medusajs/framework/http"
@@ -11,6 +12,21 @@ export default defineMiddlewares({
       methods: ["POST"],
       middlewares: [
         validateAndTransformBody(CreateVenueSchema),
+      ],
+    },
+  ],
+})
+export default defineMiddlewares({
+  routes: [
+    // ...
+    {
+      matcher: "/admin/venues",
+      methods: ["GET"],
+      middlewares: [
+        validateAndTransformQuery(createFindParams(), {
+          isList: true,
+          defaults: ["id", "name", "address", "rows.*"],
+        }),
       ],
     },
   ],
