@@ -1,5 +1,6 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { TICKET_BOOKING_MODULE } from "../../modules/ticket-booking"
+import TicketBookingModuleService from "../../modules/ticket-booking/service"
 
 export type UpdateTicketPurchaseStatusStepInput = {
   ticket_purchase_id: string
@@ -9,7 +10,8 @@ export type UpdateTicketPurchaseStatusStepInput = {
 export const updateTicketPurchaseStatusStep = createStep(
   "update-ticket-purchase-status",
   async (input: UpdateTicketPurchaseStatusStepInput, { container }) => {
-    const ticketBookingService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingService: TicketBookingModuleService = 
+      container.resolve(TICKET_BOOKING_MODULE)
     
     const currentTicket = await ticketBookingService.retrieveTicketPurchase(input.ticket_purchase_id)
     
@@ -26,7 +28,9 @@ export const updateTicketPurchaseStatusStep = createStep(
   async (compensationData, { container }) => {
     if (!compensationData) return
     
-    const ticketBookingService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingService: TicketBookingModuleService = 
+      container.resolve(TICKET_BOOKING_MODULE)
+    
     await ticketBookingService.updateTicketPurchases({
       id: compensationData.id,
       status: compensationData.previousStatus
