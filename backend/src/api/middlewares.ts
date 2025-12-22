@@ -1,10 +1,7 @@
 import { CreateTicketProductSchema } from "./admin/ticket-products/route"
-import { validateAndTransformQuery } from "@medusajs/framework/http"
-import { createFindParams } from "@medusajs/medusa/api/utils/validators"import { 
-  defineMiddlewares, 
-  validateAndTransformBody,
-} from "@medusajs/framework/http"
-import { CreateTicketProductSchema } from "./admin/ticket-products/route"
+import { CreateVenueSchema } from "./admin/venues/route"
+import { validateAndTransformQuery, validateAndTransformBody, defineMiddlewares } from "@medusajs/framework/http"
+import { createFindParams } from "@medusajs/medusa/api/utils/validators"
 
 export default defineMiddlewares({
   routes: [
@@ -15,11 +12,6 @@ export default defineMiddlewares({
         validateAndTransformBody(CreateVenueSchema),
       ],
     },
-  ],
-})
-export default defineMiddlewares({
-  routes: [
-    // ...
     {
       matcher: "/admin/venues",
       methods: ["GET"],
@@ -30,9 +22,6 @@ export default defineMiddlewares({
         }),
       ],
     },
-   export default defineMiddlewares({
-  routes: [
-    // ...
     {
       matcher: "/admin/ticket-products",
       methods: ["GET"],
