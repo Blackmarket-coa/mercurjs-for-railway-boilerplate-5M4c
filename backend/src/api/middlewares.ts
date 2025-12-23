@@ -1,16 +1,21 @@
 import { defineMiddlewares, validateAndTransformBody, validateAndTransformQuery } from "@medusajs/framework/http"
 import { createFindParams } from "@medusajs/medusa/api/utils/validators"
+import multer from "multer"
+
+// Zod schemas
+import { createDigitalProductsSchema } from "./validation-schemas"
 import { CreateVenueSchema } from "./admin/venues/route"
 import { CreateTicketProductSchema } from "./admin/ticket-products/route"
 import { GetTicketProductSeatsSchema } from "./store/ticket-products/[id]/seats/route"
-import { createDigitalProductsSchema } from "./validation-schemas"
-import multer from "multer"
 
+// Memory storage for file uploads
 const upload = multer({ storage: multer.memoryStorage() })
 
 export default defineMiddlewares({
   routes: [
-    // Digital Products routes
+    // --------------------
+    // Digital Products
+    // --------------------
     {
       matcher: "/admin/digital-products",
       method: "POST",
@@ -22,11 +27,13 @@ export default defineMiddlewares({
       matcher: "/admin/digital-products/upload**",
       method: "POST",
       middlewares: [
-        upload.array("files"),
+        upload.array("files"), // "files" field in multipart/form-data
       ],
     },
 
-    // Venue routes
+    // --------------------
+    // Venues
+    // --------------------
     {
       matcher: "/admin/venues",
       methods: ["GET"],
@@ -45,7 +52,9 @@ export default defineMiddlewares({
       ],
     },
 
-    // Ticket product routes
+    // --------------------
+    // Ticket Products
+    // --------------------
     {
       matcher: "/admin/ticket-products",
       methods: ["GET"],
@@ -64,12 +73,14 @@ export default defineMiddlewares({
       ],
     },
 
-    // Store ticket product seats
+    // --------------------
+    // Store Ticket Product Seats
+    // --------------------
     {
       matcher: "/store/ticket-products/:id/seats",
       methods: ["GET"],
       middlewares: [
-        validateAndTransformQuery(GetTicketProductSeatsSchema, {}),
+        validateAndTransformQuery(GetTicketProductSeatsSchema),
       ],
     },
   ],
