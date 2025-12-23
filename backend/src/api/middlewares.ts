@@ -1,87 +1,53 @@
-import { defineMiddlewares, validateAndTransformBody, validateAndTransformQuery } from "@medusajs/framework/http"
-import { createFindParams } from "@medusajs/medusa/api/utils/validators"
-import multer from "multer"
+import { Request, Response, NextFunction } from "express"
+import { z, ZodSchema } from "zod"
+import { MedusaError } from "@medusajs/utils"
 
-// Zod schemas
-import { createDigitalProductsSchema } from "./validation-schemas"
-import { CreateVenueSchema } from "./admin/venues/route"
-import { CreateTicketProductSchema } from "./admin/ticket-products/route"
-import { GetTicketProductSeatsSchema } from "./store/ticket-products/[id]/seats/route"
+/**
+ * Middleware to validate and transform request body
+ * @param schema - Zod schema to validate against
+ */
+export const validateAndTransformBody = <T>(schema: ZodSchema<T>) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // Parse the body using Zod; this returns plain JS object
+      const validated = schema.parse(req.body)
+      req.validatedBody = validated
+      next()
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        res.status(400).json({
+          type: "validation_error",
+          details: err.format(),
+        })
+      } else {
+        next(err)
+      }
+    }
+  }
+}
 
-// Memory storage for file uploads
-const upload = multer({ storage: multer.memoryStorage() })
-
-export default defineMiddlewares({
-  routes: [
-    // --------------------
-    // Digital Products
-    // --------------------
-    {
-      matcher: "/admin/digital-products",
-      method: "POST",
-      middlewares: [
-        validateAndTransformBody(createDigitalProductsSchema),
-      ],
-    },
-    {
-      matcher: "/admin/digital-products/upload**",
-      method: "POST",
-      middlewares: [
-        upload.array("files"), // "files" field in multipart/form-data
-      ],
-    },
-
-    // --------------------
-    // Venues
-    // --------------------
-    {
-      matcher: "/admin/venues",
-      methods: ["GET"],
-      middlewares: [
-        validateAndTransformQuery(createFindParams(), {
-          isList: true,
-          defaults: ["id", "name", "address", "rows.*"],
-        }),
-      ],
-    },
-    {
-      matcher: "/admin/venues",
-      methods: ["POST"],
-      middlewares: [
-        validateAndTransformBody(CreateVenueSchema),
-      ],
-    },
-
-    // --------------------
-    // Ticket Products
-    // --------------------
-    {
-      matcher: "/admin/ticket-products",
-      methods: ["GET"],
-      middlewares: [
-        validateAndTransformQuery(createFindParams(), {
-          isList: true,
-          defaults: ["id", "product_id", "venue_id", "dates", "venue.*", "variants.*", "product.*"],
-        }),
-      ],
-    },
-    {
-      matcher: "/admin/ticket-products",
-      methods: ["POST"],
-      middlewares: [
-        validateAndTransformBody(CreateTicketProductSchema),
-      ],
-    },
-
-    // --------------------
-    // Store Ticket Product Seats
-    // --------------------
-    {
-      matcher: "/store/ticket-products/:id/seats",
-      methods: ["GET"],
-      middlewares: [
-        validateAndTransformQuery(GetTicketProductSeatsSchema),
-      ],
-    },
-  ],
-})
+/**
+ * Middleware to validate and transform query params
+ * @param schema - Zod schema to validate against
+ * @param queryConfig - optional: Medusa QueryConfig
+ */
+export const validateAndTransformQuery = <T>(
+  schema: ZodSchema<T>
+) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const validated = schema.parse(req.query)
+      req.validatedQuery = validated
+      next()
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        res.status(400).json({
+          type: "validation_error",
+          details: err.format(),
+        })
+      } else {
+        next(err)
+      }
+    }
+  }
+}
