@@ -2,8 +2,8 @@ import {
   createStep,
   StepResponse
 } from "@medusajs/framework/workflows-sdk"
-import DigitalProductModuleService from "../../../modules/digital-product/service"
-import { DIGITAL_PRODUCT_MODULE } from "../../../modules/digital-product"
+import DigitalProductModuleService from "../../modules/digital-product/service"
+import { DIGITAL_PRODUCT_MODULE } from "../../modules/digital-product"
 
 export type CreateDigitalProductStepInput = {
   name: string
