@@ -45,6 +45,7 @@
     "medusajs-launch-utils": "^0.0.18",
     "minio": "^8.0.3",
     "pg": "^8.13.0",
+    "qrcode": "^1.5.4",
     "ulid": "^2.3.0"
   },
   "devDependencies": {
