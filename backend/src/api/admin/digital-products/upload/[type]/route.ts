@@ -9,25 +9,29 @@ export const POST = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
-  const access = req.params.type === "main" ? "private" : "public"
-  const input = req.files as Express.Multer.File[]
+  // Determine access type based on route param
+  const access: "public" | "private" = req.params.type === "main" ? "private" : "public"
 
-  if (!input?.length) {
+  // Ensure files are present
+  const files = req.files as Express.Multer.File[] | undefined
+  if (!files || files.length === 0) {
     throw new MedusaError(
       MedusaError.Types.INVALID_DATA,
       "No files were uploaded"
     )
   }
 
+  // Map uploaded files into workflow input format
+  const mappedFiles = files.map(f => ({
+    filename: f.originalname,
+    mimeType: f.mimetype,
+    content: f.buffer.toString("binary"),
+    access,
+  }))
+
+  // Run the upload workflow
   const { result } = await uploadFilesWorkflow(req.scope).run({
-    input: {
-      files: input?.map((f) => ({
-        filename: f.originalname,
-        mimeType: f.mimetype,
-        content: f.buffer.toString("binary"),
-        access,
-      })),
-    },
+    input: { files: mappedFiles },
   })
 
   res.status(200).json({ files: result })
