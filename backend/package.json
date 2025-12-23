@@ -44,9 +44,11 @@
     "awilix": "^8.0.1",
     "medusajs-launch-utils": "^0.0.18",
     "minio": "^8.0.3",
+    "multer": "^2.0.2",
     "pg": "^8.13.0",
     "qrcode": "^1.5.4",
-    "ulid": "^2.3.0"
+    "ulid": "^2.3.0",
+    "zod": "^4.2.1"
   },
   "devDependencies": {
     "@medusajs/test-utils": "2.10.2",
@@ -54,6 +56,7 @@
     "@swc/core": "1.5.7",
     "@swc/jest": "^0.2.36",
     "@types/jest": "^29.5.13",
+    "@types/multer": "^2.0.0",
     "@types/node": "^20.0.0",
     "@types/react": "^18.3.2",
     "@types/react-dom": "^18.2.25",
