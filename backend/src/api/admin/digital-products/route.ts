@@ -1,6 +1,6 @@
 import { 
   AuthenticatedMedusaRequest, 
-  MedusaResponse
+  MedusaResponse 
 } from "@medusajs/framework"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { z } from "zod"
@@ -15,13 +15,14 @@ export const GET = async (
   const { 
     fields, 
     limit = 20, 
-    offset = 0,
+    offset = 0 
   } = req.validatedQuery || {}
+
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { 
     data: digitalProducts,
-    metadata: { count, take, skip } = {},
+    metadata: { count, take, skip } = {} 
   } = await query.graph({
     entity: "digital_product",
     fields: [
@@ -44,39 +45,45 @@ export const GET = async (
   })
 }
 
-type CreateRequestBody = z.infer<
-  typeof createDigitalProductsSchema
->
+// Extract TypeScript type from Zod schema
+type CreateRequestBody = z.infer<typeof createDigitalProductsSchema>
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<CreateRequestBody>,
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  // Get default shipping profile
   const { data: [shippingProfile] } = await query.graph({
     entity: "shipping_profile",
     fields: ["id"],
   })
-  const { result } = await createDigitalProductWorkflow(
-    req.scope
-  ).run({
+
+  const { name, medias, product } = req.validatedBody
+
+  // Map medias for workflow input
+  const mediaInputs: Omit<CreateDigitalProductMediaInput, "digital_product_id">[] = medias.map(m => ({
+    fileId: m.file_id,
+    mimeType: m.mime_type,
+    type: m.type,
+  }))
+
+  // Run the workflow
+  const { result } = await createDigitalProductWorkflow(req.scope).run({
     input: {
       digital_product: {
-        name: req.validatedBody.name,
-        medias: req.validatedBody.medias.map((media) => ({
-          fileId: media.file_id,
-          mimeType: media.mime_type,
-          ...media
-        })) as Omit<CreateDigitalProductMediaInput, "digital_product_id">[]
+        name,
+        medias: mediaInputs,
       },
       product: {
-        ...req.validatedBody.product,
+        ...product,
         shipping_profile_id: shippingProfile.id,
-      }
-    }
+      },
+    },
   })
 
   res.json({
-    digital_product: result.digital_product
+    digital_product: result.digital_product,
   })
 }
