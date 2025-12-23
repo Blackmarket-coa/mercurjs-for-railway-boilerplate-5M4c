@@ -53,8 +53,6 @@ export const POST = async (
     fields: ["id"],
   })
   
-  const productData = req.validatedBody.product as Record<string, unknown>
-  
   const { result } = await createDigitalProductWorkflow(
     req.scope
   ).run({
@@ -67,10 +65,11 @@ export const POST = async (
           ...media
         })) as Omit<CreateDigitalProductMediaInput, "digital_product_id">[]
       },
-      product: {
-        ...productData,
-        shipping_profile_id: shippingProfile.id,
-      }
+      product: Object.assign(
+        {},
+        req.validatedBody.product,
+        { shipping_profile_id: shippingProfile.id }
+      ) as any
     }
   })
 
