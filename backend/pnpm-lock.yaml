@@ -8,14 +8,26 @@ importers:
 
   .:
     dependencies:
+      '@medusajs/admin-bundler':
+        specifier: 2.12.3
+        version: 2.12.3(@types/node@20.19.25)(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(picomatch@4.0.3)(terser@5.44.1)(typescript@5.9.3)(yaml@2.8.0)
       '@medusajs/admin-sdk':
         specifier: 2.12.3
         version: 2.12.3
+      '@medusajs/admin-vite-plugin':
+        specifier: 2.12.3
+        version: 2.12.3(picomatch@4.0.3)(vite@5.4.21(@types/node@20.19.25)(terser@5.44.1))
+      '@medusajs/analytics-posthog':
+        specifier: 2.12.3
+        version: 2.12.3(@medusajs/framework@2.12.3(@medusajs/cli@2.12.3(@types/node@20.19.25))(@types/node@20.19.25)(ioredis@5.8.2)(vite@5.4.21(@types/node@20.19.25)(terser@5.44.1)))(posthog-node@4.18.0)
       '@medusajs/cli':
         specifier: 2.12.3
         version: 2.12.3(@types/node@20.19.25)
       '@medusajs/core-flows':
         specifier: ^2.12.3
+        version: 2.12.3(@medusajs/framework@2.12.3(@medusajs/cli@2.12.3(@types/node@20.19.25))(@types/node@20.19.25)(ioredis@5.8.2)(vite@5.4.21(@types/node@20.19.25)(terser@5.44.1)))
+      '@medusajs/file-s3':
+        specifier: 2.12.3
         version: 2.12.3(@medusajs/framework@2.12.3(@medusajs/cli@2.12.3(@types/node@20.19.25))(@types/node@20.19.25)(ioredis@5.8.2)(vite@5.4.21(@types/node@20.19.25)(terser@5.44.1)))
       '@medusajs/framework':
         specifier: 2.12.3
@@ -30,28 +42,28 @@ importers:
         specifier: 4.0.31
         version: 4.0.31(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
       '@mercurjs/algolia':
-        specifier: ^1.4.3
+        specifier: 1.4.5
         version: 1.4.5(@medusajs/admin-sdk@2.12.3)(@medusajs/cli@2.12.3(@types/node@20.19.25))(@medusajs/framework@2.12.3(@medusajs/cli@2.12.3(@types/node@20.19.25))(@types/node@20.19.25)(ioredis@5.8.2)(vite@5.4.21(@types/node@20.19.25)(terser@5.44.1)))(@medusajs/icons@2.12.3(react@18.3.1))(@medusajs/medusa@2.12.3)(@medusajs/test-utils@2.12.3)(@medusajs/ui@4.0.31(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@mercurjs/framework@1.4.5(@medusajs/framework@2.12.3(@medusajs/cli@2.12.3(@types/node@20.19.25))(@types/node@20.19.25)(ioredis@5.8.2)(vite@5.4.21(@types/node@20.19.25)(terser@5.44.1))))
       '@mercurjs/b2c-core':
-        specifier: ^1.4.3
+        specifier: 1.4.5
         version: 1.4.5(@medusajs/admin-sdk@2.12.3)(@medusajs/cli@2.12.3(@types/node@20.19.25))(@medusajs/framework@2.12.3(@medusajs/cli@2.12.3(@types/node@20.19.25))(@types/node@20.19.25)(ioredis@5.8.2)(vite@5.4.21(@types/node@20.19.25)(terser@5.44.1)))(@medusajs/icons@2.12.3(react@18.3.1))(@medusajs/medusa@2.12.3)(@medusajs/test-utils@2.12.3)(@medusajs/ui@4.0.31(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@mercurjs/framework@1.4.5(@medusajs/framework@2.12.3(@medusajs/cli@2.12.3(@types/node@20.19.25))(@types/node@20.19.25)(ioredis@5.8.2)(vite@5.4.21(@types/node@20.19.25)(terser@5.44.1))))
       '@mercurjs/commission':
-        specifier: ^1.4.3
+        specifier: 1.4.5
         version: 1.4.5(@medusajs/admin-sdk@2.12.3)(@medusajs/cli@2.12.3(@types/node@20.19.25))(@medusajs/framework@2.12.3(@medusajs/cli@2.12.3(@types/node@20.19.25))(@types/node@20.19.25)(ioredis@5.8.2)(vite@5.4.21(@types/node@20.19.25)(terser@5.44.1)))(@medusajs/icons@2.12.3(react@18.3.1))(@medusajs/medusa@2.12.3)(@medusajs/test-utils@2.12.3)(@medusajs/ui@4.0.31(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@mercurjs/framework@1.4.5(@medusajs/framework@2.12.3(@medusajs/cli@2.12.3(@types/node@20.19.25))(@types/node@20.19.25)(ioredis@5.8.2)(vite@5.4.21(@types/node@20.19.25)(terser@5.44.1))))
       '@mercurjs/framework':
-        specifier: ^1.4.3
+        specifier: 1.4.5
         version: 1.4.5(@medusajs/framework@2.12.3(@medusajs/cli@2.12.3(@types/node@20.19.25))(@types/node@20.19.25)(ioredis@5.8.2)(vite@5.4.21(@types/node@20.19.25)(terser@5.44.1)))
       '@mercurjs/payment-stripe-connect':
-        specifier: ^1.4.3
+        specifier: 1.4.5
         version: 1.4.5(@medusajs/admin-sdk@2.12.3)(@medusajs/cli@2.12.3(@types/node@20.19.25))(@medusajs/framework@2.12.3(@medusajs/cli@2.12.3(@types/node@20.19.25))(@types/node@20.19.25)(ioredis@5.8.2)(vite@5.4.21(@types/node@20.19.25)(terser@5.44.1)))(@medusajs/icons@2.12.3(react@18.3.1))(@medusajs/medusa@2.12.3)(@medusajs/test-utils@2.12.3)(@medusajs/ui@4.0.31(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@mercurjs/framework@1.4.5(@medusajs/framework@2.12.3(@medusajs/cli@2.12.3(@types/node@20.19.25))(@types/node@20.19.25)(ioredis@5.8.2)(vite@5.4.21(@types/node@20.19.25)(terser@5.44.1))))(stripe@19.1.0(@types/node@20.19.25))
       '@mercurjs/requests':
-        specifier: ^1.4.3
+        specifier: 1.4.5
         version: 1.4.5(@medusajs/admin-sdk@2.12.3)(@medusajs/cli@2.12.3(@types/node@20.19.25))(@medusajs/framework@2.12.3(@medusajs/cli@2.12.3(@types/node@20.19.25))(@types/node@20.19.25)(ioredis@5.8.2)(vite@5.4.21(@types/node@20.19.25)(terser@5.44.1)))(@medusajs/icons@2.12.3(react@18.3.1))(@medusajs/medusa@2.12.3)(@medusajs/test-utils@2.12.3)(@medusajs/ui@4.0.31(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@mercurjs/framework@1.4.5(@medusajs/framework@2.12.3(@medusajs/cli@2.12.3(@types/node@20.19.25))(@types/node@20.19.25)(ioredis@5.8.2)(vite@5.4.21(@types/node@20.19.25)(terser@5.44.1))))
       '@mercurjs/resend':
-        specifier: ^1.4.3
+        specifier: 1.4.5
         version: 1.4.5(@medusajs/admin-sdk@2.12.3)(@medusajs/cli@2.12.3(@types/node@20.19.25))(@medusajs/framework@2.12.3(@medusajs/cli@2.12.3(@types/node@20.19.25))(@types/node@20.19.25)(ioredis@5.8.2)(vite@5.4.21(@types/node@20.19.25)(terser@5.44.1)))(@medusajs/icons@2.12.3(react@18.3.1))(@medusajs/medusa@2.12.3)(@medusajs/test-utils@2.12.3)(@medusajs/ui@4.0.31(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@mercurjs/framework@1.4.5(@medusajs/framework@2.12.3(@medusajs/cli@2.12.3(@types/node@20.19.25))(@types/node@20.19.25)(ioredis@5.8.2)(vite@5.4.21(@types/node@20.19.25)(terser@5.44.1))))(resend@4.8.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@mercurjs/reviews':
-        specifier: ^1.4.3
+        specifier: 1.4.5
         version: 1.4.5(@medusajs/admin-sdk@2.12.3)(@medusajs/cli@2.12.3(@types/node@20.19.25))(@medusajs/framework@2.12.3(@medusajs/cli@2.12.3(@types/node@20.19.25))(@types/node@20.19.25)(ioredis@5.8.2)(vite@5.4.21(@types/node@20.19.25)(terser@5.44.1)))(@medusajs/icons@2.12.3(react@18.3.1))(@medusajs/medusa@2.12.3)(@medusajs/test-utils@2.12.3)(@medusajs/ui@4.0.31(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@mercurjs/framework@1.4.5(@medusajs/framework@2.12.3(@medusajs/cli@2.12.3(@types/node@20.19.25))(@types/node@20.19.25)(ioredis@5.8.2)(vite@5.4.21(@types/node@20.19.25)(terser@5.44.1))))
       '@mikro-orm/knex':
         specifier: 6.4.16
