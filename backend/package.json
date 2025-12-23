@@ -28,6 +28,7 @@
     "@medusajs/cli": "2.10.2",
     "@medusajs/framework": "2.10.2",
     "@medusajs/medusa": "2.10.2",
+    "@medusajs/ui": "4.0.25",
     "@mercurjs/algolia": "^1.4.3",
     "@mercurjs/b2c-core": "^1.4.3",
     "@mercurjs/commission": "^1.4.3",
@@ -47,10 +48,12 @@
     "multer": "^2.0.2",
     "pg": "^8.13.0",
     "qrcode": "^1.5.4",
+    "stripe": "^17.7.0",
     "ulid": "^2.3.0",
     "zod": "^4.2.1"
   },
   "devDependencies": {
+    "@graphql-codegen/visitor-plugin-common": "^6.2.2",
     "@medusajs/test-utils": "2.10.2",
     "@mikro-orm/cli": "6.4.3",
     "@swc/core": "1.5.7",
