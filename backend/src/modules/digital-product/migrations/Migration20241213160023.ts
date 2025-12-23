@@ -1,27 +1,53 @@
-import { Migration } from "@medusajs/framework/mikro-orm/migrations";
+import { MigrationInterface, QueryRunner } from "@medusajs/medusa/dist/utils/migration";
 
-export class Migration20241213160023 extends Migration {
+export class Migration20241213160023 implements MigrationInterface {
+  name = "Migration20241213160023";
 
-  async up(): Promise<void> {
-    this.addSql('CREATE INDEX IF NOT EXISTS "IDX_digital_product_deleted_at" ON "digital_product" (deleted_at) WHERE deleted_at IS NULL;');
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
+      CREATE INDEX IF NOT EXISTS "IDX_digital_product_deleted_at" 
+      ON "digital_product" (deleted_at) 
+      WHERE deleted_at IS NULL;
+    `);
 
-    this.addSql('CREATE INDEX IF NOT EXISTS "IDX_digital_product_media_deleted_at" ON "digital_product_media" (deleted_at) WHERE deleted_at IS NULL;');
+    await queryRunner.query(`
+      CREATE INDEX IF NOT EXISTS "IDX_digital_product_media_deleted_at" 
+      ON "digital_product_media" (deleted_at) 
+      WHERE deleted_at IS NULL;
+    `);
 
-    this.addSql('CREATE INDEX IF NOT EXISTS "IDX_digital_product_order_deleted_at" ON "digital_product_order" (deleted_at) WHERE deleted_at IS NULL;');
+    await queryRunner.query(`
+      CREATE INDEX IF NOT EXISTS "IDX_digital_product_order_deleted_at" 
+      ON "digital_product_order" (deleted_at) 
+      WHERE deleted_at IS NULL;
+    `);
 
-    this.addSql('alter table if exists "digitalproduct_digitalproductorders" drop constraint if exists "digitalproduct_digitalproductorders_pkey";');
-    this.addSql('alter table if exists "digitalproduct_digitalproductorders" add constraint "digitalproduct_digitalproductorders_pkey" primary key ("digital_product_order_id", "digital_product_id");');
+    await queryRunner.query(`
+      ALTER TABLE IF EXISTS "digitalproduct_digitalproductorders" 
+      DROP CONSTRAINT IF EXISTS "digitalproduct_digitalproductorders_pkey";
+    `);
+
+    await queryRunner.query(`
+      ALTER TABLE IF EXISTS "digitalproduct_digitalproductorders" 
+      ADD CONSTRAINT "digitalproduct_digitalproductorders_pkey" 
+      PRIMARY KEY ("digital_product_order_id", "digital_product_id");
+    `);
   }
 
-  async down(): Promise<void> {
-    this.addSql('drop index if exists "IDX_digital_product_deleted_at";');
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`DROP INDEX IF EXISTS "IDX_digital_product_deleted_at";`);
+    await queryRunner.query(`DROP INDEX IF EXISTS "IDX_digital_product_media_deleted_at";`);
+    await queryRunner.query(`DROP INDEX IF EXISTS "IDX_digital_product_order_deleted_at";`);
 
-    this.addSql('drop index if exists "IDX_digital_product_media_deleted_at";');
+    await queryRunner.query(`
+      ALTER TABLE IF EXISTS "digitalproduct_digitalproductorders" 
+      DROP CONSTRAINT IF EXISTS "digitalproduct_digitalproductorders_pkey";
+    `);
 
-    this.addSql('drop index if exists "IDX_digital_product_order_deleted_at";');
-
-    this.addSql('alter table if exists "digitalproduct_digitalproductorders" drop constraint if exists "digitalproduct_digitalproductorders_pkey";');
-    this.addSql('alter table if exists "digitalproduct_digitalproductorders" add constraint "digitalproduct_digitalproductorders_pkey" primary key ("digital_product_id", "digital_product_order_id");');
+    await queryRunner.query(`
+      ALTER TABLE IF EXISTS "digitalproduct_digitalproductorders" 
+      ADD CONSTRAINT "digitalproduct_digitalproductorders_pkey" 
+      PRIMARY KEY ("digital_product_id", "digital_product_order_id");
+    `);
   }
-
 }
