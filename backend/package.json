@@ -29,7 +29,6 @@
     "@medusajs/core-flows": "^2.11.3",
     "@medusajs/framework": "2.11.3",
     "@medusajs/icons": "2.11.3",
-    "@medusajs/medusa": "2.11.3",
     "@medusajs/ui": "4.0.27",
     "@medusajs/utils": "^2.11.3",
     "@mercurjs/algolia": "^1.4.5",
@@ -58,6 +57,7 @@
   },
   "devDependencies": {
     "@graphql-codegen/visitor-plugin-common": "^6.2.2",
+    "@medusajs/medusa": "2.11.3",
     "@medusajs/test-utils": "2.11.3",
     "@mikro-orm/cli": "6.4.16",
     "@swc/core": "1.15.7",
