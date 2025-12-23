@@ -3,10 +3,9 @@ import {
   MedusaResponse
 } from "@medusajs/framework"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { z } from "zod"
 import createDigitalProductWorkflow from "../../../workflows/create-digital-product"
 import { CreateDigitalProductMediaInput } from "../../../workflows/create-digital-product/steps/create-digital-product-medias"
-import { createDigitalProductsSchema } from "../../validation-schemas"
+import { CreateDigitalProductsInput } from "../../validation-schemas"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -44,12 +43,8 @@ export const GET = async (
   })
 }
 
-type CreateRequestBody = z.infer<
-  typeof createDigitalProductsSchema
->
-
 export const POST = async (
-  req: AuthenticatedMedusaRequest<CreateRequestBody>,
+  req: AuthenticatedMedusaRequest<CreateDigitalProductsInput>,
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
@@ -57,6 +52,9 @@ export const POST = async (
     entity: "shipping_profile",
     fields: ["id"],
   })
+  
+  const productData = req.validatedBody.product as Record<string, unknown>
+  
   const { result } = await createDigitalProductWorkflow(
     req.scope
   ).run({
@@ -70,7 +68,7 @@ export const POST = async (
         })) as Omit<CreateDigitalProductMediaInput, "digital_product_id">[]
       },
       product: {
-        ...req.validatedBody.product,
+        ...productData,
         shipping_profile_id: shippingProfile.id,
       }
     }
