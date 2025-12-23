@@ -1,19 +1,27 @@
-import { Request, Response, NextFunction } from "express";
-import { ZodSchema, ZodError } from "zod";
-import { RequestQueryFields } from "@medusajs/types";
+import { 
+  validateAndTransformBody,
+  defineMiddlewares, 
+} from "@medusajs/framework/http"
+import { createDigitalProductsSchema } from "./validation-schemas"
+import multer from "multer"
 
-// Extend T to ensure it satisfies Medusa's RequestQueryFields
-export const validateAndTransformQuery =
-  <T extends RequestQueryFields & Record<string, unknown>>(schema: ZodSchema<T>) =>
-  (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const validated = schema.parse(req.query);
-      req.validatedQuery = validated; // now TypeScript knows it's correct
-      next();
-    } catch (err) {
-      if (err instanceof ZodError) {
-        return res.status(400).json({ errors: err.errors });
-      }
-      next(err);
+const upload = multer({ storage: multer.memoryStorage() })
+
+export default defineMiddlewares({
+  routes: [
+    {
+      matcher: "/admin/digital-products",
+      method: "POST",
+      middlewares: [
+        validateAndTransformBody(createDigitalProductsSchema),
+      ],
+    },
+    {
+      matcher: "/admin/digital-products/upload**",
+      method: "POST",
+      middlewares: [
+        upload.array("files"),
+      ]
     }
-  };
+  ],
+})
