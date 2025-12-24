@@ -46,6 +46,7 @@
     "algoliasearch": "^5.44.0",
     "awilix": "^8.0.1",
     "express": "^4.21.2",
+    "json-rpc-2.0": "^1.7.1",
     "medusajs-launch-utils": "^0.0.18",
     "minio": "^8.0.3",
     "multer": "^2.0.2",
