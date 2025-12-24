@@ -13,6 +13,7 @@ import {
   CreateProductWorkflowInputDTO,
   UpdateProductWorkflowInputDTO,
 } from "@medusajs/framework/types"
+import type OdooModuleService from "../modules/odoo/service"
 
 type Input = {
   offset: number
@@ -22,7 +23,7 @@ type Input = {
 const getProductsFromErp = createStep(
   "get-products-from-erp",
   async (input: Input, { container }) => {
-    const odooModuleService = container.resolve("odoo")
+    const odooModuleService = container.resolve<OdooModuleService>("odoo")
 
     const products = await odooModuleService.listProducts(undefined, input)
 
