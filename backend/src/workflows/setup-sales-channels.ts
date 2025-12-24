@@ -1,4 +1,3 @@
-// src/workflows/setup-sales-channels.ts
 import { createWorkflow, WorkflowResponse, createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { Modules } from "@medusajs/framework/utils"
 
