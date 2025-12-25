@@ -1,130 +1,81 @@
-import { defineConfig, loadEnv } from "@medusajs/framework/utils"
+import { defineConfig, loadEnv } from '@medusajs/framework/utils'
 
-loadEnv(process.env.NODE_ENV || "development", process.cwd())
-
-// Build Redis modules array conditionally
-const redisModules = process.env.REDIS_URL
-  ? [
-      {
-        resolve: "@medusajs/medusa/event-bus-redis",
-        options: { redisUrl: process.env.REDIS_URL },
-      },
-      {
-        resolve: "@medusajs/medusa/workflow-engine-redis",
-        options: { redis: { url: process.env.REDIS_URL } },
-      },
-    ]
-  : []
-
-// Build file storage module conditionally
-const fileModule = process.env.S3_FILE_URL
-  ? [
-      {
-        resolve: "@medusajs/medusa/file",
-        options: {
-          providers: [
-            {
-              resolve: "@medusajs/medusa/file-s3",
-              id: "s3",
-              options: {
-                file_url: process.env.S3_FILE_URL,
-                access_key_id: process.env.S3_ACCESS_KEY_ID,
-                secret_access_key: process.env.S3_SECRET_ACCESS_KEY,
-                region: process.env.S3_REGION,
-                bucket: process.env.S3_BUCKET,
-                endpoint: process.env.S3_ENDPOINT,
-                additional_client_config: {
-                  forcePathStyle: true,
-                },
-              },
-            },
-          ],
-        },
-      },
-    ]
-  : []
+loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
+    ...(process.env.REDIS_URL ? { redisUrl: process.env.REDIS_URL } : {}),
     http: {
       storeCors: process.env.STORE_CORS!,
       adminCors: process.env.ADMIN_CORS!,
       // @ts-expect-error: vendorCors is not a valid config
       vendorCors: process.env.VENDOR_CORS!,
       authCors: process.env.AUTH_CORS!,
-      jwtSecret: process.env.JWT_SECRET || "supersecret",
-      cookieSecret: process.env.COOKIE_SECRET || "supersecret",
+      jwtSecret: process.env.JWT_SECRET || 'supersecret',
+      cookieSecret: process.env.COOKIE_SECRET || 'supersecret',
     },
-    redisUrl: process.env.REDIS_URL,
   },
   admin: {
-    disable: process.env.DISABLE_MEDUSA_ADMIN === "true",
-    backendUrl: process.env.MEDUSA_BACKEND_URL,
+    disable: true,
   },
-  // MercurJS packages go in plugins, not modules!
   plugins: [
-    {
-      resolve: "@mercurjs/b2c-core",
-      options: {},
-    },
-    {
-      resolve: "@mercurjs/commission",
-      options: {},
-    },
-    {
-      resolve: "@mercurjs/requests",
-      options: {},
-    },
-    {
-      resolve: "@mercurjs/reviews",
-      options: {},
-    },
-    {
-      resolve: "@mercurjs/framework",
-      options: {},
-    },
-    // Algolia search (if configured)
-    ...(process.env.ALGOLIA_APP_ID && process.env.ALGOLIA_API_KEY
+    { resolve: '@mercurjs/b2c-core', options: {} },
+    { resolve: '@mercurjs/commission', options: {} },
+    ...(process.env.ALGOLIA_API_KEY && process.env.ALGOLIA_APP_ID
       ? [
           {
-            resolve: "@mercurjs/algolia",
+            resolve: '@mercurjs/algolia',
             options: {
-              appId: process.env.ALGOLIA_APP_ID,
               apiKey: process.env.ALGOLIA_API_KEY,
+              appId: process.env.ALGOLIA_APP_ID,
             },
           },
         ]
       : []),
-    // Stripe Connect payments (if configured)
-    ...(process.env.STRIPE_API_KEY
-      ? [
-          {
-            resolve: "@mercurjs/payment-stripe-connect",
-            options: {
-              apiKey: process.env.STRIPE_API_KEY,
-            },
-          },
-        ]
-      : []),
-    // Resend emails (if configured)
-    ...(process.env.RESEND_API_KEY
-      ? [
-          {
-            resolve: "@mercurjs/resend",
-            options: {
-              apiKey: process.env.RESEND_API_KEY,
-              fromEmail: process.env.RESEND_FROM_EMAIL || "noreply@example.com",
-            },
-          },
-        ]
-      : []),
+    { resolve: '@mercurjs/reviews', options: {} },
+    { resolve: '@mercurjs/requests', options: {} },
+    { resolve: '@mercurjs/resend', options: {} },
   ],
-  // Standard Medusa modules
   modules: [
-    // Redis modules (if REDIS_URL is set)
-    ...redisModules,
-    // File storage module (if S3 is configured)
-    ...fileModule,
-  ],
-})
+    // File module
+    {
+      resolve: '@medusajs/medusa/file',
+      options: {
+        providers: [
+          ...(process.env.MINIO_ENDPOINT &&
+          process.env.MINIO_ACCESS_KEY &&
+          process.env.MINIO_SECRET_KEY
+            ? [
+                {
+                  resolve: './src/modules/minio-file',
+                  id: 'minio',
+                  options: {
+                    endPoint: process.env.MINIO_ENDPOINT,
+                    accessKey: process.env.MINIO_ACCESS_KEY,
+                    secretKey: process.env.MINIO_SECRET_KEY,
+                    bucket: process.env.MINIO_BUCKET,
+                  },
+                },
+              ]
+            : [
+                {
+                  resolve: '@medusajs/medusa/file-local',
+                  id: 'local',
+                  options: {
+                    upload_dir: 'static',
+                    backend_url: `${(process.env.BACKEND_URL || process.env.RAILWAY_STATIC_URL || '').replace(
+                      /\/$/,
+                      ''
+                    )}/static`,
+                  },
+                },
+              ]),
+        ],
+      },
+    },
+    // Redis modules
+    ...(process.env.REDIS_URL
+      ? [
+          { resolve: '@medusajs/medusa/event-bus-redis', options: { redisUrl: process.env.REDIS_URL } },
+          { resolve: '@medusajs/medusa/workflow-engine-redis', options: { redis: { url: process.env.REDIS_URL } } },
