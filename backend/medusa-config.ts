@@ -1,5 +1,4 @@
 import { defineConfig, loadEnv } from '@medusajs/framework/utils'
-
 // Load environment variables
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
@@ -71,11 +70,10 @@ module.exports = defineConfig({
                     )}/static`,
                   },
                 },
-              ])
+              ]),
         ],
       },
     },
-
     // Redis modules
     ...(process.env.REDIS_URL
       ? [
@@ -89,10 +87,17 @@ module.exports = defineConfig({
           },
         ]
       : []),
-
     // Digital Product module
     {
       resolve: './src/modules/digital-product',
+      options: {},
+      definition: {
+        isQueryable: true,
+      },
+    },
+    // Ticket Booking module
+    {
+      resolve: './src/modules/ticket-booking',
       options: {},
       definition: {
         isQueryable: true,
