@@ -1,4 +1,4 @@
-import { loadEnv, defineConfig } from "@medusajs/framework/utils"
+import { defineConfig, loadEnv } from "@medusajs/framework/utils"
 
 loadEnv(process.env.NODE_ENV || "development", process.cwd())
 
@@ -44,50 +44,14 @@ const fileModule = process.env.S3_FILE_URL
     ]
   : []
 
-// Algolia module (conditional)
-const algoliaModule = process.env.ALGOLIA_APP_ID && process.env.ALGOLIA_API_KEY
-  ? [
-      {
-        resolve: "@mercurjs/algolia",
-        options: {
-          appId: process.env.ALGOLIA_APP_ID,
-          apiKey: process.env.ALGOLIA_API_KEY,
-        },
-      },
-    ]
-  : []
-
-// Stripe Connect module (conditional)
-const stripeModule = process.env.STRIPE_API_KEY
-  ? [
-      {
-        resolve: "@mercurjs/payment-stripe-connect",
-        options: {
-          apiKey: process.env.STRIPE_API_KEY,
-        },
-      },
-    ]
-  : []
-
-// Resend email module (conditional)
-const resendModule = process.env.RESEND_API_KEY
-  ? [
-      {
-        resolve: "@mercurjs/resend",
-        options: {
-          apiKey: process.env.RESEND_API_KEY,
-          fromEmail: process.env.RESEND_FROM_EMAIL || "noreply@example.com",
-        },
-      },
-    ]
-  : []
-
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     http: {
       storeCors: process.env.STORE_CORS!,
       adminCors: process.env.ADMIN_CORS!,
+      // @ts-expect-error: vendorCors is not a valid config
+      vendorCors: process.env.VENDOR_CORS!,
       authCors: process.env.AUTH_CORS!,
       jwtSecret: process.env.JWT_SECRET || "supersecret",
       cookieSecret: process.env.COOKIE_SECRET || "supersecret",
@@ -98,33 +62,66 @@ module.exports = defineConfig({
     disable: process.env.DISABLE_MEDUSA_ADMIN === "true",
     backendUrl: process.env.MEDUSA_BACKEND_URL,
   },
-  modules: [
-    // MercurJS B2C Core (vendors, marketplace features)
+  // MercurJS packages go in plugins, not modules!
+  plugins: [
     {
       resolve: "@mercurjs/b2c-core",
+      options: {},
     },
-    // MercurJS Commission module
     {
       resolve: "@mercurjs/commission",
+      options: {},
     },
-    // MercurJS Requests module
     {
       resolve: "@mercurjs/requests",
+      options: {},
     },
-    // MercurJS Reviews module
     {
       resolve: "@mercurjs/reviews",
+      options: {},
     },
-    // MercurJS Framework utilities
     {
       resolve: "@mercurjs/framework",
+      options: {},
     },
     // Algolia search (if configured)
-    ...algoliaModule,
+    ...(process.env.ALGOLIA_APP_ID && process.env.ALGOLIA_API_KEY
+      ? [
+          {
+            resolve: "@mercurjs/algolia",
+            options: {
+              appId: process.env.ALGOLIA_APP_ID,
+              apiKey: process.env.ALGOLIA_API_KEY,
+            },
+          },
+        ]
+      : []),
     // Stripe Connect payments (if configured)
-    ...stripeModule,
+    ...(process.env.STRIPE_API_KEY
+      ? [
+          {
+            resolve: "@mercurjs/payment-stripe-connect",
+            options: {
+              apiKey: process.env.STRIPE_API_KEY,
+            },
+          },
+        ]
+      : []),
     // Resend emails (if configured)
-    ...resendModule,
+    ...(process.env.RESEND_API_KEY
+      ? [
+          {
+            resolve: "@mercurjs/resend",
+            options: {
+              apiKey: process.env.RESEND_API_KEY,
+              fromEmail: process.env.RESEND_FROM_EMAIL || "noreply@example.com",
+            },
+          },
+        ]
+      : []),
+  ],
+  // Standard Medusa modules
+  modules: [
     // Redis modules (if REDIS_URL is set)
     ...redisModules,
     // File storage module (if S3 is configured)
