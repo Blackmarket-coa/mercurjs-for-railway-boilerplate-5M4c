@@ -25,10 +25,13 @@
   },
   "dependencies": {
     "@medusajs/admin-sdk": "2.11.3",
+    "@medusajs/cart": "^2.12.3",
     "@medusajs/cli": "2.11.3",
     "@medusajs/core-flows": "^2.11.3",
     "@medusajs/framework": "2.11.3",
     "@medusajs/icons": "2.11.3",
+    "@medusajs/order": "^2.12.3",
+    "@medusajs/product": "^2.12.3",
     "@medusajs/ui": "4.0.27",
     "@medusajs/utils": "^2.11.3",
     "@mercurjs/algolia": "^1.4.5",
