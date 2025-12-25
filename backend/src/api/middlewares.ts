@@ -1,14 +1,20 @@
 import { authenticate } from "@medusajs/medusa"
-import { validateAndTransformBody, defineMiddlewares } from "@medusajs/framework/http"
+import { defineMiddlewares, validateAndTransformBody, validateAndTransformQuery } from "@medusajs/framework/http"
 import deliveriesMiddlewares from "./deliveries/[id]/middlewares"
 import { createDigitalProductsSchema } from "./validation-schemas"
 import multer from "multer"
+
+// Ticket/Venue Schemas
+import { createFindParams } from "@medusajs/medusa/api/utils/validators"
+import { CreateVenueSchema } from "./admin/venues/route"
+import { CreateTicketProductSchema } from "./admin/ticket-products/route"
+import { GetTicketProductSeatsSchema } from "./store/ticket-products/[id]/seats/route"
 
 const upload = multer({ storage: multer.memoryStorage() })
 
 export default defineMiddlewares({
   routes: [
-    // Users route with authentication
+    // Users route
     {
       method: ["POST"],
       matcher: "/users",
@@ -19,7 +25,7 @@ export default defineMiddlewares({
       ],
     },
 
-    // Restaurants routes with authentication
+    // Restaurants routes
     {
       method: ["POST", "DELETE"],
       matcher: "/restaurants/:id/**",
@@ -28,7 +34,7 @@ export default defineMiddlewares({
       ],
     },
 
-    // Digital products creation route with validation
+    // Digital products creation route
     {
       matcher: "/admin/digital-products",
       method: "POST",
@@ -37,7 +43,7 @@ export default defineMiddlewares({
       ],
     },
 
-    // Digital products upload route with multer
+    // Digital products upload route
     {
       matcher: "/admin/digital-products/upload**",
       method: "POST",
@@ -46,7 +52,60 @@ export default defineMiddlewares({
       ],
     },
 
-    // Spread deliveries middlewares
+    // Ticket/Venue Admin & Store Routes
+
+    // Admin: list venues
+    {
+      matcher: "/admin/venues",
+      methods: ["GET"],
+      middlewares: [
+        validateAndTransformQuery(createFindParams(), {
+          isList: true,
+          defaults: ["id", "name", "address", "rows.*"],
+        }),
+      ],
+    },
+
+    // Admin: create venue
+    {
+      matcher: "/admin/venues",
+      methods: ["POST"],
+      middlewares: [
+        validateAndTransformBody(CreateVenueSchema),
+      ],
+    },
+
+    // Admin: list ticket products
+    {
+      matcher: "/admin/ticket-products",
+      methods: ["GET"],
+      middlewares: [
+        validateAndTransformQuery(createFindParams(), {
+          isList: true,
+          defaults: ["id", "product_id", "venue_id", "dates", "venue.*", "variants.*", "product.*"],
+        }),
+      ],
+    },
+
+    // Admin: create ticket product
+    {
+      matcher: "/admin/ticket-products",
+      methods: ["POST"],
+      middlewares: [
+        validateAndTransformBody(CreateTicketProductSchema),
+      ],
+    },
+
+    // Store: get ticket product seats
+    {
+      matcher: "/store/ticket-products/:id/seats",
+      methods: ["GET"],
+      middlewares: [
+        validateAndTransformQuery(GetTicketProductSeatsSchema, {}),
+      ],
+    },
+
+    // Deliveries middleware
     ...deliveriesMiddlewares.routes!,
   ],
 })
