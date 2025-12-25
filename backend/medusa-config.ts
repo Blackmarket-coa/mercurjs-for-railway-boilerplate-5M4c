@@ -44,6 +44,44 @@ const fileModule = process.env.S3_FILE_URL
     ]
   : []
 
+// Algolia module (conditional)
+const algoliaModule = process.env.ALGOLIA_APP_ID && process.env.ALGOLIA_API_KEY
+  ? [
+      {
+        resolve: "@mercurjs/algolia",
+        options: {
+          appId: process.env.ALGOLIA_APP_ID,
+          apiKey: process.env.ALGOLIA_API_KEY,
+        },
+      },
+    ]
+  : []
+
+// Stripe Connect module (conditional)
+const stripeModule = process.env.STRIPE_API_KEY
+  ? [
+      {
+        resolve: "@mercurjs/payment-stripe-connect",
+        options: {
+          apiKey: process.env.STRIPE_API_KEY,
+        },
+      },
+    ]
+  : []
+
+// Resend email module (conditional)
+const resendModule = process.env.RESEND_API_KEY
+  ? [
+      {
+        resolve: "@mercurjs/resend",
+        options: {
+          apiKey: process.env.RESEND_API_KEY,
+          fromEmail: process.env.RESEND_FROM_EMAIL || "noreply@example.com",
+        },
+      },
+    ]
+  : []
+
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
@@ -61,31 +99,32 @@ module.exports = defineConfig({
     backendUrl: process.env.MEDUSA_BACKEND_URL,
   },
   modules: [
-    // MercurJS modules
+    // MercurJS B2C Core (vendors, marketplace features)
     {
-      resolve: "@mercurjs/mercur-vendor",
+      resolve: "@mercurjs/b2c-core",
     },
+    // MercurJS Commission module
     {
-      resolve: "@mercurjs/mercur-fulfillment",
+      resolve: "@mercurjs/commission",
     },
+    // MercurJS Requests module
     {
-      resolve: "@mercurjs/mercur-payment-stripe",
-      options: {
-        apiKey: process.env.STRIPE_API_KEY,
-      },
+      resolve: "@mercurjs/requests",
     },
-    // Restaurant/Producer Module (for local food delivery)
+    // MercurJS Reviews module
     {
-      resolve: "./src/modules/restaurant",
+      resolve: "@mercurjs/reviews",
     },
-    // Delivery Module (drivers and delivery tracking)
+    // MercurJS Framework utilities
     {
-      resolve: "./src/modules/delivery",
+      resolve: "@mercurjs/framework",
     },
-    // Odoo ERP integration
-    {
-      resolve: "./src/modules/odoo",
-    },
+    // Algolia search (if configured)
+    ...algoliaModule,
+    // Stripe Connect payments (if configured)
+    ...stripeModule,
+    // Resend emails (if configured)
+    ...resendModule,
     // Redis modules (if REDIS_URL is set)
     ...redisModules,
     // File storage module (if S3 is configured)
