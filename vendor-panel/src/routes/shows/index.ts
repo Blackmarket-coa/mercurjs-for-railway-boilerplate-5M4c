@@ -1,1 +1,1 @@
-export { Shows as Component } from "./shows"
+export { default as Component, config } from "./shows"
