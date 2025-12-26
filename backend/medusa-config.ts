@@ -5,13 +5,37 @@ loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
-    // ... rest of projectConfig
+    ...(process.env.REDIS_URL ? { redisUrl: process.env.REDIS_URL } : {}),
+    http: {
+      storeCors: process.env.STORE_CORS!,
+      adminCors: process.env.ADMIN_CORS!,
+      // @ts-expect-error: vendorCors is not a valid config
+      vendorCors: process.env.VENDOR_CORS!,
+      authCors: process.env.AUTH_CORS!,
+      jwtSecret: process.env.JWT_SECRET || 'supersecret',
+      cookieSecret: process.env.COOKIE_SECRET || 'supersecret',
+    },
   },
   admin: {
     disable: true,
   },
   plugins: [
-    // ... your plugins
+    { resolve: '@mercurjs/b2c-core', options: {} },
+    { resolve: '@mercurjs/commission', options: {} },
+    ...(process.env.ALGOLIA_API_KEY && process.env.ALGOLIA_APP_ID
+      ? [
+          {
+            resolve: '@mercurjs/algolia',
+            options: {
+              apiKey: process.env.ALGOLIA_API_KEY,
+              appId: process.env.ALGOLIA_APP_ID,
+            },
+          },
+        ]
+      : []),
+    { resolve: '@mercurjs/reviews', options: {} },
+    { resolve: '@mercurjs/requests', options: {} },
+    { resolve: '@mercurjs/resend', options: {} },
   ],
   modules: [
     // Ticket Booking module
@@ -25,7 +49,7 @@ module.exports = defineConfig({
     {
       resolve: './src/modules/delivery',
     },
-    // Digital Product module - ADD THIS HERE
+    // Digital Product module
     {
       resolve: './src/modules/digital-product',
     },
@@ -33,11 +57,50 @@ module.exports = defineConfig({
     {
       resolve: '@medusajs/medusa/file',
       options: {
-        // ... your file options
+        providers: [
+          ...(process.env.MINIO_ENDPOINT &&
+          process.env.MINIO_ACCESS_KEY &&
+          process.env.MINIO_SECRET_KEY
+            ? [
+                {
+                  resolve: './src/modules/minio-file',
+                  id: 'minio',
+                  options: {
+                    endPoint: process.env.MINIO_ENDPOINT,
+                    accessKey: process.env.MINIO_ACCESS_KEY,
+                    secretKey: process.env.MINIO_SECRET_KEY,
+                    bucket: process.env.MINIO_BUCKET,
+                  },
+                },
+              ]
+            : [
+                {
+                  resolve: '@medusajs/medusa/file-local',
+                  id: 'local',
+                  options: {
+                    upload_dir: 'static',
+                    backend_url: `${(process.env.BACKEND_URL || process.env.RAILWAY_STATIC_URL || '').replace(
+                      /\/$/,
+                      ''
+                    )}/static`,
+                  },
+                },
+              ]),
+        ],
       },
     },
     // Redis modules
-    // ... rest of modules
+    ...(process.env.REDIS_URL
+      ? [
+          {
+            resolve: '@medusajs/medusa/event-bus-redis',
+            options: { redisUrl: process.env.REDIS_URL },
+          },
+          {
+            resolve: '@medusajs/medusa/workflow-engine-redis',
+            options: { redis: { url: process.env.REDIS_URL } },
+          },
+        ]
+      : []),
   ],
 })
-// REMOVE THE DUPLICATE module.exports below!
