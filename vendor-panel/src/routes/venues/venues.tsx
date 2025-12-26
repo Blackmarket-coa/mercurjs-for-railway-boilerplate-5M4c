@@ -13,7 +13,7 @@ import {
 } from "@medusajs/ui"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useState, useMemo } from "react"
-import { sdk } from "../../lib/sdk"
+import { sdk } from "src/lib/sdk."
 import { Venue, CreateVenueRequest } from "../../types"
 import { CreateVenueModal } from "./components/create-venue-modal"
 
