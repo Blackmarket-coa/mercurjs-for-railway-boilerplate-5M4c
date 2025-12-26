@@ -1,16 +1,15 @@
 {
-  "name": "Food-aid-marketplace",
-  "version": "0.0.1",
-  "description": "A Medusa-based marketplace for Food Aid.",
-  "author": "Medusa (https://medusajs.com)",
+  "name": "@bmc/restaurant-marketplace",
+  "version": "1.0.0",
+  "description": "Restaurant and delivery marketplace plugin for MedusaJS",
+  "author": "Black Market Coalition",
   "license": "MIT",
   "keywords": [
-    "sqlite",
-    "postgres",
-    "typescript",
-    "ecommerce",
-    "headless",
-    "medusa"
+    "medusa",
+    "medusa-plugin",
+    "restaurant",
+    "delivery",
+    "marketplace"
   ],
   "scripts": {
     "build": "medusa build",
@@ -43,6 +42,10 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2",
     "vite": "^5.2.11"
+  },
+  "peerDependencies": {
+    "@medusajs/framework": "^2.0.0",
+    "@medusajs/medusa": "^2.0.0"
   },
   "engines": {
     "node": ">=20"
