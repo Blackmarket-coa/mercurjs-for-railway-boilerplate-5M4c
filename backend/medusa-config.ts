@@ -89,14 +89,6 @@ module.exports = defineConfig({
           },
         ]
       : []),
-    // Digital Product module
-    {
-      resolve: './src/modules/digital-product',
-      options: {},
-      definition: {
-        isQueryable: true,
-      },
-    },
     // Ticket Booking module
     {
       resolve: './src/modules/ticket-booking',
