@@ -1,4 +1,4 @@
-import { defineConfig, loadEnv } from '@medusajs/framework/utils'
+﻿import { defineConfig, loadEnv } from '@medusajs/framework/utils'
 // Load environment variables
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
@@ -98,6 +98,22 @@ module.exports = defineConfig({
     // Ticket Booking module
     {
       resolve: './src/modules/ticket-booking',
+      options: {},
+      definition: {
+        isQueryable: true,
+      },
+    },
+    // Delivery module
+    {
+      resolve: './src/modules/delivery',
+      options: {},
+      definition: {
+        isQueryable: true,
+      },
+    },
+    // Restaurant module
+    {
+      resolve: './src/modules/restaurant',
       options: {},
       definition: {
         isQueryable: true,
