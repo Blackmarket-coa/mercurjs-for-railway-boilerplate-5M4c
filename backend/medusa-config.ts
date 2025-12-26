@@ -38,6 +38,8 @@ module.exports = defineConfig({
     { resolve: '@mercurjs/requests', options: {} },
     { resolve: '@mercurjs/resend', options: {} },
     { resolve: 'my-plugin', options: {} },
+    // Restaurant marketplace plugin
+    { resolve: '@bmc/restaurant-marketplace', options: {} },
   ],
   modules: [
     // File module
@@ -89,13 +91,5 @@ module.exports = defineConfig({
           },
         ]
       : []),
-    // Restaurant module
-    {
-      resolve: "./modules/restaurant",
-    },
-    // Delivery module
-    {
-      resolve: "./modules/delivery",
-    },
   ],
 })
