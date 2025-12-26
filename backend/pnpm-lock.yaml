@@ -5821,13 +5821,13 @@ packages:
     resolution: {directory: .yalc/my-plugin, type: directory}
     engines: {node: '>=20'}
     peerDependencies:
-      '@medusajs/admin-sdk': 2.12.3
-      '@medusajs/cli': 2.12.3
-      '@medusajs/framework': 2.12.3
-      '@medusajs/icons': 2.12.3
-      '@medusajs/medusa': 2.12.3
-      '@medusajs/test-utils': 2.12.3
-      '@medusajs/ui': ^4.0.31
+      '@medusajs/admin-sdk': 2.11.3
+      '@medusajs/cli': 2.11.3
+      '@medusajs/framework': 2.11.3
+      '@medusajs/icons': 2.11.3
+      '@medusajs/medusa': 2.11.3
+      '@medusajs/test-utils': 2.11.3
+      '@medusajs/ui': 4.0.27
 
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
