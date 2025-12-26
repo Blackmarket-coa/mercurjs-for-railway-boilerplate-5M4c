@@ -1,18 +1,8 @@
-import { defineMiddlewares, validateAndTransformBody, validateAndTransformQuery } from "@medusajs/framework/http"
+﻿import { defineMiddlewares, validateAndTransformBody, validateAndTransformQuery } from "@medusajs/framework/http"
 import { createFindParams } from "@medusajs/medusa/api/utils/validators"
-import { CreateVenueSchema } from "../../admin/venues/route"
-import { CreateTicketProductSchema } from "../../admin/ticket-products/route"
-import { GetTicketProductSeatsSchema } from "../../store/ticket-products/[id]/seats/route"
-
-// Corrected paths to utils
-import { isDeliveryRestaurant } from "../../../utils/is-delivery-restaurant"
-import { isDeliveryDriver } from "../../../utils/is-delivery-driver"
-
-// Medusa modules: make sure these are installed via pnpm
-// pnpm add @medusajs/cart @medusajs/order @medusajs/product
-import CartModule from "@medusajs/cart"
-import OrderModule from "@medusajs/order"
-import ProductModule from "@medusajs/product"
+import { CreateVenueSchema } from "./admin/venues/route"
+import { CreateTicketProductSchema } from "./admin/ticket-products/route"
+import { GetTicketProductSeatsSchema } from "./store/ticket-products/[id]/seats/route"
 
 export default defineMiddlewares({
   routes: [

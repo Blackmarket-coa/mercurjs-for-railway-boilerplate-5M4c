@@ -1,9 +1,9 @@
-import { 
+﻿import { 
   authenticate, 
   defineMiddlewares, 
 } from "@medusajs/medusa";
-import { isDeliveryRestaurant } from "../../utils/is-delivery-restaurant";
-import { isDeliveryDriver } from "../../utils/is-delivery-driver";
+import { isDeliveryRestaurant } from "../../../utils/is-delivery-restaurant";
+import { isDeliveryDriver } from "../../../utils/is-delivery-driver";
 
 export default defineMiddlewares({
   routes: [
