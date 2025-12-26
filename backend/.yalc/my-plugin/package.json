@@ -33,13 +33,13 @@
     "prepublishOnly": "medusa plugin:build"
   },
   "peerDependencies": {
-    "@medusajs/admin-sdk": "2.12.3",
-    "@medusajs/cli": "2.12.3",
-    "@medusajs/framework": "2.12.3",
-    "@medusajs/icons": "2.12.3",
-    "@medusajs/medusa": "2.12.3",
-    "@medusajs/test-utils": "2.12.3",
-    "@medusajs/ui": "^4.0.31"
+    "@medusajs/admin-sdk": "2.11.3",
+    "@medusajs/cli": "2.11.3",
+    "@medusajs/framework": "2.11.3",
+    "@medusajs/icons": "2.11.3",
+    "@medusajs/medusa": "2.11.3",
+    "@medusajs/test-utils": "2.11.3",
+    "@medusajs/ui": "4.0.27"
   },
   "engines": {
     "node": ">=20"
@@ -47,5 +47,5 @@
   "dependencies": {
     "qrcode": "^1.5.4"
   },
-  "yalcSig": "dbfc4e447b473b756127170be64c3f5b"
+  "yalcSig": "9e698342a1e11a9931ef6a898a108810"
 }

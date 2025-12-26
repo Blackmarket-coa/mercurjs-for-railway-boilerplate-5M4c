@@ -2,7 +2,7 @@
   "version": "v1",
   "packages": {
     "my-plugin": {
-      "signature": "dbfc4e447b473b756127170be64c3f5b",
+      "signature": "9e698342a1e11a9931ef6a898a108810",
       "file": true
     }
   }

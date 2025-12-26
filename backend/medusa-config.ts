@@ -36,6 +36,7 @@ module.exports = defineConfig({
     { resolve: '@mercurjs/reviews', options: {} },
     { resolve: '@mercurjs/requests', options: {} },
     { resolve: '@mercurjs/resend', options: {} },
+    { resolve: 'my-plugin', options: {} },
   ],
   modules: [
     // File module
@@ -95,7 +96,7 @@ module.exports = defineConfig({
         isQueryable: true,
       },
     },
-    // Ticket Booking module
+    // Ticket Booking module (from plugin, but also registered for queryability)
     {
       resolve: './src/modules/ticket-booking',
       options: {},
