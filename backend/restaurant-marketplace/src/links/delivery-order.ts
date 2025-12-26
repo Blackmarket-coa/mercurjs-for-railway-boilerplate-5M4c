@@ -1,5 +1,5 @@
 import DeliveryModule from "../modules/delivery";
-import OrderModule from "@medusajs/order";
+import OrderModule from "@medusajs/medusa/order";
 import { defineLink } from "@medusajs/framework/utils";
 
 export default defineLink(
