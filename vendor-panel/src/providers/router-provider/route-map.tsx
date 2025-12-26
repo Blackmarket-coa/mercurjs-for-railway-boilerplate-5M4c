@@ -1004,6 +1004,31 @@ export const RouteMap: RouteObject[] = [
                 ],
               },
             ],
+          },{
+            path: "/venues",
+            errorElement: <ErrorBoundary />,
+            handle: {
+              breadcrumb: () => "Venues",
+            },
+            children: [
+              {
+                path: "",
+                lazy: () => import("../../routes/venues"),
+              },
+            ],
+          },
+          {
+            path: "/shows",
+            errorElement: <ErrorBoundary />,
+            handle: {
+              breadcrumb: () => "Shows",
+            },
+            children: [
+              {
+                path: "",
+                lazy: () => import("../../routes/shows"),
+              },
+            ],
           },
           ...RouteExtensions,
         ],
