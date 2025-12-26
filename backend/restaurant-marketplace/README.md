@@ -1,64 +1,76 @@
-<p align="center">
-  <a href="https://www.medusajs.com">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/59018053/229103275-b5e482bb-4601-46e6-8142-244f531cebdb.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://user-images.githubusercontent.com/59018053/229103726-e5b529a3-9b3f-4970-8a1f-c6af37f087bf.svg">
-    <img alt="Medusa logo" src="https://user-images.githubusercontent.com/59018053/229103726-e5b529a3-9b3f-4970-8a1f-c6af37f087bf.svg">
-    </picture>
-  </a>
-</p>
-<h1 align="center">
-  Medusa Plugin Starter
-</h1>
+# Medusa v2 Example: Restaurant Marketplace
 
-<h4 align="center">
-  <a href="https://docs.medusajs.com">Documentation</a> |
-  <a href="https://www.medusajs.com">Website</a>
-</h4>
+This directory holds the code for the [Restaurant-Delivery Marketplace recipe example](https://docs.medusajs.com/resources/recipes/marketplace/examples/restaurant-delivery).
 
-<p align="center">
-  Building blocks for digital commerce
-</p>
-<p align="center">
-  <a href="https://github.com/medusajs/medusa/blob/master/CONTRIBUTING.md">
-    <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat" alt="PRs welcome!" />
-  </a>
-    <a href="https://www.producthunt.com/posts/medusa"><img src="https://img.shields.io/badge/Product%20Hunt-%231%20Product%20of%20the%20Day-%23DA552E" alt="Product Hunt"></a>
-  <a href="https://discord.gg/xpCwq3Kfn8">
-    <img src="https://img.shields.io/badge/chat-on%20discord-7289DA.svg" alt="Discord Chat" />
-  </a>
-  <a href="https://twitter.com/intent/follow?screen_name=medusajs">
-    <img src="https://img.shields.io/twitter/follow/medusajs.svg?label=Follow%20@medusajs" alt="Follow @medusajs" />
-  </a>
-</p>
+You can either:
 
-## Compatibility
+- [install and use it as a Medusa application](#installation);
+- or [copy its source files into an existing Medusa application](#copy-into-existing-medusa-application).
 
-This starter is compatible with versions >= 2.4.0 of `@medusajs/medusa`. 
+## Installation
 
-## Getting Started
+1. Clone the repository and change to the `restaurant-marketplace` directory:
 
-Visit the [Quickstart Guide](https://docs.medusajs.com/learn/installation) to set up a server.
+```bash
+git clone https://github.com/medusajs/examples.git
+cd examples/restaurant-marketplace
+```
 
-Visit the [Plugins documentation](https://docs.medusajs.com/learn/fundamentals/plugins) to learn more about plugins and how to create them.
+2\. Rename the `.env.template` file to `.env`.
 
-Visit the [Docs](https://docs.medusajs.com/learn/installation#get-started) to learn more about our system requirements.
+3\. If necessary, change the PostgreSQL username, password, and host in the `DATABASE_URL` environment variable.
 
-## What is Medusa
+4\. Install dependencies:
 
-Medusa is a set of commerce modules and tools that allow you to build rich, reliable, and performant commerce applications without reinventing core commerce logic. The modules can be customized and used to build advanced ecommerce stores, marketplaces, or any product that needs foundational commerce primitives. All modules are open-source and freely available on npm.
+```bash
+yarn # or npm install
+```
 
-Learn more about [Medusa’s architecture](https://docs.medusajs.com/learn/introduction/architecture) and [commerce modules](https://docs.medusajs.com/learn/fundamentals/modules/commerce-modules) in the Docs.
+5\. Setup and seed the database:
 
-## Community & Contributions
+```bash
+npx medusa db:setup
+yarn seed # or npm run seed
+```
 
-The community and core team are available in [GitHub Discussions](https://github.com/medusajs/medusa/discussions), where you can ask for support, discuss roadmap, and share ideas.
+6\. Start the Medusa application:
 
-Join our [Discord server](https://discord.com/invite/medusajs) to meet other community members.
+```bash
+yarn dev # or npm run dev
+```
 
-## Other channels
+## Copy into Existing Medusa Application
 
-- [GitHub Issues](https://github.com/medusajs/medusa/issues)
-- [Twitter](https://twitter.com/medusajs)
-- [LinkedIn](https://www.linkedin.com/company/medusajs)
-- [Medusa Blog](https://medusajs.com/blog/)
+If you have an existing Medusa application, copy the content of the following directories:
+
+1. `src/modules/delivery` and `src/modules/restaurant`
+2. `src/links`
+3. `src/workflows`
+4. `src/api`
+
+Then, add the Restaurant and Delivery Modules to `medusa-config.js`:
+
+```ts
+module.exports = defineConfig({
+  // ...
+  modules: [
+    {
+      resolve: "./modules/restaurant",
+    },
+    {
+      resolve: "./modules/delivery"
+    },
+  ]
+})
+```
+
+Finally, run the migrations and sync links before starting the Medusa application:
+
+```bash
+npx medusa db:migrate
+```
+
+## More Resources
+
+- [OpenAPI Spec file](https://res.cloudinary.com/dza7lstvk/raw/upload/v1724757329/OpenApi/Restaurant-Delivery-Marketplace_vxao2l.yml): Can be imported into tools like Postman to view and send requests to this project's API routes.
+- [Medusa Documentation](https://docs.medusajs.com)
