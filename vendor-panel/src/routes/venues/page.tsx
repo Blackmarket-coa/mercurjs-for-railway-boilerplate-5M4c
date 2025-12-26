@@ -1,19 +1,21 @@
+// src/routes/venues/venues.tsx
 import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { Buildings } from "@medusajs/icons"
-import { 
-  createDataTableColumnHelper, 
-  Container, 
-  DataTable, 
-  useDataTable, 
-  Heading, 
+import {
+  createDataTableColumnHelper,
+  Container,
+  DataTable,
+  useDataTable,
+  Heading,
   DataTablePaginationState,
   Button,
+  Text,
 } from "@medusajs/ui"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useState, useMemo } from "react"
 import { sdk } from "../../lib/sdk"
-import { Venue, CreateVenueRequest } from "../../types"
-import { CreateVenueModal } from "../../components/create-venue-modal"
+import { Venue, CreateVenueRequest } from "./types"
+import { CreateVenueModal } from "./components/create-venue-modal"
 
 const columnHelper = createDataTableColumnHelper<Venue>()
 
@@ -24,7 +26,7 @@ const columns = [
       <div>
         <div className="txt-small-plus">{row.original.name}</div>
         {row.original.address && (
-          <div className="txt-small text-gray-500">{row.original.address}</div>
+          <div className="txt-small text-ui-fg-subtle">{row.original.address}</div>
         )}
       </div>
     ),
@@ -32,50 +34,33 @@ const columns = [
   columnHelper.accessor("rows", {
     header: "Total Capacity",
     cell: ({ row }) => {
-      const totalCapacity = row.original.rows.reduce(
-        (sum, rowItem) => sum + rowItem.seat_count,
-        0
-      )
-      return <span className="txt-small-plus">{totalCapacity} seats</span>
+      const totalSeats = row.original.rows.reduce((sum, r) => sum + r.seat_count, 0)
+      return <span>{totalSeats} seats</span>
     },
   }),
   columnHelper.accessor("address", {
     header: "Address",
-    cell: ({ row }) => (
-      <span>{row.original.address || "-"}</span>
-    ),
-  })
+    cell: ({ row }) => row.original.address || "-",
+  }),
 ]
-
 
 const VenuesPage = () => {
   const limit = 15
   const [pagination, setPagination] = useState<DataTablePaginationState>({
+    pageIndex: 0,
     pageSize: limit,
-    pageIndex: 0
   })
   const [isModalOpen, setIsModalOpen] = useState(false)
-
   const queryClient = useQueryClient()
 
-  const offset = useMemo(() => {
-    return pagination.pageIndex * limit
-  }, [pagination])
+  const offset = useMemo(() => pagination.pageIndex * limit, [pagination])
 
-  const { data, isLoading } = useQuery<{
-    venues: Venue[]
-    count: number
-    limit: number
-    offset: number
-  }>({
+  const { data, isLoading } = useQuery({
     queryKey: ["venues", offset, limit],
-    queryFn: () => sdk.client.fetch("/admin/venues", {
-      query: {
-        offset: pagination.pageIndex * pagination.pageSize,
-        limit: pagination.pageSize,
-        order: "-created_at"
-      }
-    })
+    queryFn: () =>
+      sdk.client.fetch("/admin/venues", {
+        query: { offset, limit, order: "-created_at" },
+      }),
   })
 
   const table = useDataTable({
@@ -85,48 +70,53 @@ const VenuesPage = () => {
     isLoading,
     pagination: {
       state: pagination,
-      onPaginationChange: setPagination
+      onPaginationChange: setPagination,
     },
-    getRowId: (row) => row.id
+    getRowId: (row) => row.id,
   })
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false)
-  }
-
-  const handleCreateVenue = async (data: CreateVenueRequest) => {
+  const handleCreateVenue = async (payload: CreateVenueRequest) => {
     try {
       await sdk.client.fetch("/admin/venues", {
         method: "POST",
-        body: data,
+        body: payload,
       })
       queryClient.invalidateQueries({ queryKey: ["venues"] })
-      handleCloseModal()
+      setIsModalOpen(false)
     } catch (error: any) {
-      throw new Error(`Failed to create venue: ${error.message}`)
+      console.error("Failed to create venue:", error.message)
     }
   }
 
   return (
     <Container className="divide-y p-0">
       <DataTable instance={table}>
-        <DataTable.Toolbar className="flex flex-col items-start justify-between gap-2 md:flex-row md:items-center">
-          <Heading>
-            Venues
-          </Heading>
-          <Button
-            variant="secondary"
-            onClick={() => setIsModalOpen(true)}
-          >
+        <DataTable.Toolbar className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
+          <Heading>Venues</Heading>
+          <Button variant="secondary" onClick={() => setIsModalOpen(true)}>
             Create Venue
           </Button>
         </DataTable.Toolbar>
-        <DataTable.Table />
-        <DataTable.Pagination />
+
+        {data?.venues.length === 0 && !isLoading ? (
+          <div className="text-center py-8">
+            <Buildings className="mx-auto h-12 w-12 text-ui-fg-subtle mb-4" />
+            <Heading level="h3">No venues yet</Heading>
+            <Text className="text-ui-fg-subtle">
+              Click "Create Venue" to add your first venue
+            </Text>
+          </div>
+        ) : (
+          <>
+            <DataTable.Table />
+            <DataTable.Pagination />
+          </>
+        )}
       </DataTable>
+
       <CreateVenueModal
         open={isModalOpen}
-        onOpenChange={handleCloseModal}
+        onOpenChange={setIsModalOpen}
         onSubmit={handleCreateVenue}
       />
     </Container>
@@ -135,7 +125,7 @@ const VenuesPage = () => {
 
 export const config = defineRouteConfig({
   label: "Venues",
-  icon: Buildings
+  icon: Buildings,
 })
 
 export default VenuesPage
