@@ -6,7 +6,7 @@ import {
   toast,
 } from "@medusajs/ui"
 import { useQuery } from "@tanstack/react-query"
-import { sdk } from "../lib/sdk"
+import { sdk } from "../../../lib/sdk"
 import { RowType, Venue } from "../types"
 import { ProductDetailsStep } from "./product-details-step"
 import { CurrencyRegionCombination, PricingStep } from "./pricing-step"
