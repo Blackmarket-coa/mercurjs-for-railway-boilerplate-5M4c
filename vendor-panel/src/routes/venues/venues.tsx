@@ -15,7 +15,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useState, useMemo } from "react"
 import { sdk } from "../../lib/sdk"
 import { Venue, CreateVenueRequest } from "../../types"
-import { CreateVenueModal } from "../../components/create-venue-modal"
+import { CreateVenueModal } from "./components/create-venue-modal"
 
 const columnHelper = createDataTableColumnHelper<Venue>()
 
