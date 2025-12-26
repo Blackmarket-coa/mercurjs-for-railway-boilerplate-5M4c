@@ -106,18 +106,10 @@ module.exports = defineConfig({
     },
     // Delivery module
     {
-      resolve: './src/modules/delivery',
-      options: {},
-      definition: {
-        isQueryable: true,
-      },
+       resolve: "./modules/restaurant",
     },
-    // Restaurant module
     {
-      resolve: './src/modules/restaurant',
-      options: {},
-      definition: {
-        isQueryable: true,
+      resolve: "./modules/delivery"
       },
     },
   ],
