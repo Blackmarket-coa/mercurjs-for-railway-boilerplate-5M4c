@@ -1,42 +1,72 @@
-import type {
-  SubscriberArgs,
-  SubscriberConfig,
-} from "@medusajs/framework"
+﻿import { SubscriberArgs, type SubscriberConfig } from "@medusajs/medusa"
 import { TICKET_BOOKING_MODULE } from "../modules/ticket-booking"
 import TicketBookingModuleService from "../modules/ticket-booking/service"
-import { Modules } from "@medusajs/framework/utils"
 
-export default async function orderPlacedHandler({
+export default async function handleOrderPlaced({
   event: { data },
   container,
 }: SubscriberArgs<{ id: string }>) {
-  const orderId = data.id
-  
   const query = container.resolve("query")
+  const notificationModuleService = container.resolve("notification") as any
   const ticketBookingModuleService = container.resolve(
     TICKET_BOOKING_MODULE
   ) as TicketBookingModuleService
 
-  // Get ticket purchases for this order
-  const { data: ticketPurchases } = await query.graph({
-    entity: "ticket_purchase",
-    fields: ["id", "order_id"],
+  const { data: [order] } = await query.graph({
+    entity: "order",
+    fields: [
+      "id",
+      "email",
+      "created_at",
+      "items.*",
+      "ticket_purchases.*",
+      "ticket_purchases.ticket_product.*",
+      "ticket_purchases.ticket_product.product.*",
+      "ticket_purchases.ticket_product.venue.*",
+      "ticket_purchases.venue_row.*",
+      "customer.*",
+      "billing_address.*",
+    ],
     filters: {
-      order_id: orderId,
+      id: data.id,
     },
   })
 
-  if (!ticketPurchases || ticketPurchases.length === 0) {
-    return
-  }
+  const ticketPurchaseIds: string[] = order.ticket_purchases?.
+    map((purchase: any) => purchase?.id).filter(Boolean) as string[] || []
 
-  const ticketPurchaseIds = ticketPurchases.map((tp: any) => tp.id)
-  
-  // Generate QR codes for the tickets
   const qrCodes = await ticketBookingModuleService.generateTicketQRCodes(ticketPurchaseIds)
 
-  // You can send these QR codes via email or store them
-  console.log(`Generated ${Object.keys(qrCodes).length} QR codes for order ${orderId}`)
+  const firstTicketPurchase = order.ticket_purchases?.[0]
+
+  await notificationModuleService.createNotifications({
+    to: order.email || "",
+    channel: "feed",
+    template: "order.placed",
+    data: {
+      customer: {
+        first_name: order.customer?.first_name || order.billing_address?.first_name,
+        last_name: order.customer?.last_name || order.billing_address?.last_name,
+      },
+      order: {
+        display_id: order.id,
+        created_at: order.created_at,
+        email: order.email,
+      },
+      show: {
+        name: firstTicketPurchase?.ticket_product?.product?.title || "Your Event",
+        date: firstTicketPurchase?.show_date.toLocaleString(),
+        venue: firstTicketPurchase?.ticket_product?.venue?.name || "Venue Name",
+      },
+      tickets: order.ticket_purchases?.map((purchase: any) => ({
+        label: purchase?.venue_row.row_type.toUpperCase(),
+        seat: purchase?.seat_number,
+        row: purchase?.venue_row.row_number,
+        qr: qrCodes[purchase?.id || ""] || "",
+      })),
+      billing_address: order.billing_address
+    },
+  })
 }
 
 export const config: SubscriberConfig = {

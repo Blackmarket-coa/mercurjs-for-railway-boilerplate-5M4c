@@ -1,11 +1,12 @@
-import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
-import { 
-  CartDTO, 
-  CartLineItemDTO, 
+﻿import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+import {
+  CartDTO,
+  CartLineItemDTO,
   ProductVariantDTO,
   InferTypeOf
 } from "@medusajs/framework/types"
 import { TICKET_BOOKING_MODULE } from "../../modules/ticket-booking"
+import TicketBookingModuleService from "../../modules/ticket-booking/service"
 import TicketProductVariant from "../../modules/ticket-booking/models/ticket-product-variant"
 
 export type CreateTicketPurchasesStepInput = {
@@ -23,7 +24,9 @@ export const createTicketPurchasesStep = createStep(
   "create-ticket-purchases",
   async (input: CreateTicketPurchasesStepInput, { container }) => {
     const { order_id, cart } = input
-    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingModuleService = container.resolve(
+      TICKET_BOOKING_MODULE
+    ) as TicketBookingModuleService
 
     const ticketPurchasesToCreate: {
       order_id: string
@@ -37,8 +40,8 @@ export const createTicketPurchasesStep = createStep(
     // Process each item in the cart
     for (const item of cart.items) {
       if (
-        !item?.variant?.ticket_product_variant || 
-        !item?.metadata?.venue_row_id || 
+        !item?.variant?.ticket_product_variant ||
+        !item?.metadata?.venue_row_id ||
         !item?.metadata?.seat_number
       ) continue
 
@@ -59,20 +62,18 @@ export const createTicketPurchasesStep = createStep(
     const ticketPurchases = await ticketBookingModuleService.createTicketPurchases(
       ticketPurchasesToCreate
     )
-    
-    return new StepResponse(
-      ticketPurchases,
-      ticketPurchases
-    )
+
+    return new StepResponse(ticketPurchases, ticketPurchases)
   },
   async (ticketPurchases, { container }) => {
     if (!ticketPurchases) return
 
-    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingModuleService = container.resolve(
+      TICKET_BOOKING_MODULE
+    ) as TicketBookingModuleService
 
-    // Delete the created ticket purchases
     await ticketBookingModuleService.deleteTicketPurchases(
-      ticketPurchases.map((ticketPurchase) => ticketPurchase.id)
+      ticketPurchases.map((ticketPurchase: any) => ticketPurchase.id)
     )
   }
 )

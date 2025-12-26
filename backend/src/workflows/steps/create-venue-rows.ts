@@ -1,12 +1,12 @@
-import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+﻿import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { TICKET_BOOKING_MODULE } from "../../modules/ticket-booking"
-import { RowType } from "../../modules/ticket-booking/models/venue-row"
+import TicketBookingModuleService from "../../modules/ticket-booking/service"
 
 export type CreateVenueRowsStepInput = {
   rows: {
     venue_id: string
     row_number: string
-    row_type: RowType
+    row_type: string
     seat_count: number
   }[]
 }
@@ -14,7 +14,9 @@ export type CreateVenueRowsStepInput = {
 export const createVenueRowsStep = createStep(
   "create-venue-rows",
   async (input: CreateVenueRowsStepInput, { container }) => {
-    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
+    const ticketBookingModuleService = container.resolve(
+      TICKET_BOOKING_MODULE
+    ) as TicketBookingModuleService
 
     const venueRows = await ticketBookingModuleService.createVenueRows(input.rows)
 
@@ -23,8 +25,10 @@ export const createVenueRowsStep = createStep(
   async (venueRows, { container }) => {
     if (!venueRows) return
 
-    const ticketBookingModuleService = container.resolve(TICKET_BOOKING_MODULE)
-    
-    await ticketBookingModuleService.deleteVenueRows(venueRows.map((row) => row.id))
+    const ticketBookingModuleService = container.resolve(
+      TICKET_BOOKING_MODULE
+    ) as TicketBookingModuleService
+
+    await ticketBookingModuleService.deleteVenueRows(venueRows.map((row: any) => row.id))
   }
 )
