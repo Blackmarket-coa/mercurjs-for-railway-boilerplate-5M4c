@@ -53,6 +53,7 @@
     "medusajs-launch-utils": "^0.0.18",
     "minio": "^8.0.3",
     "multer": "^2.0.2",
+    "my-plugin": "file:.yalc/my-plugin",
     "pg": "^8.13.0",
     "qrcode": "^1.5.4",
     "stripe": "^17.7.0",

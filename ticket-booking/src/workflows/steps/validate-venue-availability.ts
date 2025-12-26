@@ -1,0 +1,33 @@
+﻿import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+import { TICKET_BOOKING_MODULE } from "../../modules/ticket-booking"
+import type TicketBookingModuleService from "../../modules/ticket-booking/service"
+import { MedusaError } from "@medusajs/framework/utils"
+
+export type ValidateVenueAvailabilityStepInput = {
+  venue_id: string
+  dates: string[]
+}
+
+export const validateVenueAvailabilityStep = createStep(
+  "validate-venue-availability",
+  async (input: ValidateVenueAvailabilityStepInput, { container }) => {
+    const ticketBookingModuleService = container.resolve<TicketBookingModuleService>(TICKET_BOOKING_MODULE)
+
+    const existingTicketProducts = await ticketBookingModuleService.listTicketProducts({
+      venue_id: input.venue_id
+    })
+
+    const hasConflict = existingTicketProducts.some(ticketProduct =>
+      ticketProduct.dates.some(date => input.dates.includes(date))
+    )
+
+    if (hasConflict) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "Venue has conflicting shows on dates: " + input.dates.join(", ")
+      )
+    }
+
+    return new StepResponse({ valid: true })
+  }
+)
