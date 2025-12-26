@@ -24,6 +24,7 @@
     "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit"
   },
   "dependencies": {
+    "@bmc/restaurant-marketplace": "file:.yalc/@bmc/restaurant-marketplace",
     "@medusajs/admin-sdk": "2.11.3",
     "@medusajs/cart": "^2.12.3",
     "@medusajs/cli": "2.11.3",

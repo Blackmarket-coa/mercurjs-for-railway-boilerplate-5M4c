@@ -1,0 +1,38 @@
+{
+  "name": "@bmc/restaurant-marketplace",
+  "version": "1.0.0",
+  "description": "Restaurant and delivery marketplace plugin for MedusaJS",
+  "author": "Black Market Coalition",
+  "license": "MIT",
+  "keywords": [
+    "medusa",
+    "medusa-plugin",
+    "restaurant",
+    "delivery",
+    "marketplace"
+  ],
+  "scripts": {
+    "build": "medusa build",
+    "seed": "medusa exec ./src/scripts/seed.ts",
+    "start": "medusa start",
+    "dev": "medusa develop",
+    "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
+    "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
+    "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit"
+  },
+  "dependencies": {
+    "@medusajs/admin-sdk": "2.12.3",
+    "@medusajs/cli": "2.12.3",
+    "@medusajs/framework": "2.12.3",
+    "@medusajs/medusa": "2.12.3",
+    "@types/express": "^5.0.0"
+  },
+  "peerDependencies": {
+    "@medusajs/framework": "^2.0.0",
+    "@medusajs/medusa": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "yalcSig": "da292ffb2bda16f67c585cee42624f59"
+}
