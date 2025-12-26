@@ -1,4 +1,4 @@
-import {
+﻿import {
   Buildings,
   ChevronDownMini,
   CogSixTooth,
@@ -221,9 +221,18 @@ const useExtensionRoutes = (): Omit<INavItem, "pathname">[] => {
       label: "Stripe Connect",
       to: "/stripe-connect",
     },
+    {
+      icon: <Buildings />,
+      label: "Venues",
+      to: "/venues",
+    },
+    {
+      icon: <ReceiptPercent />,
+      label: "Shows",
+      to: "/shows",
+    },
   ]
 }
-
 const Searchbar = () => {
   const { t } = useTranslation()
   const { toggleSearch } = useSearch()
@@ -245,7 +254,7 @@ const Searchbar = () => {
           </Text>
         </div>
         <Text size="small" leading="compact" className="text-ui-fg-muted">
-          ⌘K
+          âŒ˜K
         </Text>
       </button>
     </div>
