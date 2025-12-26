@@ -1,12 +1,13 @@
 ﻿import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { TICKET_BOOKING_MODULE } from "../../modules/ticket-booking"
 import TicketBookingModuleService from "../../modules/ticket-booking/service"
+import { RowType } from "../../modules/ticket-booking/models/venue-row"
 
 export type CreateVenueRowsStepInput = {
   rows: {
     venue_id: string
     row_number: string
-    row_type: string
+    row_type: RowType
     seat_count: number
   }[]
 }
