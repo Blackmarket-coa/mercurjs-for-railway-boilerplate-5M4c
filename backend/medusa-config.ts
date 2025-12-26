@@ -89,14 +89,6 @@ module.exports = defineConfig({
           },
         ]
       : []),
-    // Ticket Booking module
-    {
-      resolve: './src/modules/ticket-booking',
-      options: {},
-      definition: {
-        isQueryable: true,
-      },
-    },
     // Restaurant module
     {
       resolve: "./modules/restaurant",
