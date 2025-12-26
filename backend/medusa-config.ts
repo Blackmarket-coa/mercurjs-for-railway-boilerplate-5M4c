@@ -37,6 +37,10 @@ module.exports = defineConfig({
     { resolve: '@mercurjs/resend', options: {} },
   ],
   modules: [
+    // Ticket Booking module
+    {
+      resolve: './src/modules/ticket-booking',
+    },
     // Restaurant & Delivery modules
     {
       resolve: './src/modules/restaurant',
