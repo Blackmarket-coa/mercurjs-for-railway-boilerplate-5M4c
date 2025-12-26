@@ -1,1 +1,1 @@
-﻿export { Shows as Component } from "./shows"
+export { Shows as Component } from "./shows"
