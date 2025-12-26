@@ -1,4 +1,4 @@
-import { authenticate, defineMiddlewares } from "@medusajs/medusa";
+import { authenticate, defineMiddlewares } from "@medusajs/framework/http";
 import deliveriesMiddlewares from "./deliveries/[id]/middlewares"
 
 export default defineMiddlewares({
