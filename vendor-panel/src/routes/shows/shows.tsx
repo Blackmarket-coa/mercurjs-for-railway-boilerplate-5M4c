@@ -1,9 +1,11 @@
+import { useState } from "react"
 import { defineRouteConfig } from "@medusajs/admin-sdk"
-import { Container, Heading, Text, Table, Badge } from "@medusajs/ui"
+import { Container, Heading, Text, Table, Badge, Button } from "@medusajs/ui"
 import { ReceiptPercent } from "@medusajs/icons"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { sdk } from "../../lib/sdk"
 import { Link } from "react-router-dom"
+import { CreateTicketProductModal } from "../venues/components/create-ticket-product-modal"
 
 interface TicketProduct {
   id: string
@@ -22,12 +24,23 @@ interface TicketProduct {
 }
 
 const Shows = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const queryClient = useQueryClient()
+
   const { data, isLoading } = useQuery<{ ticket_products: TicketProduct[]; count: number }>({
     queryKey: ["ticket-products"],
     queryFn: () => sdk.client.fetch("/admin/ticket-products"),
   })
 
   const shows = data?.ticket_products || []
+
+  const handleCreateShow = async (payload: any) => {
+    await sdk.client.fetch("/admin/ticket-products", {
+      method: "POST",
+      body: payload,
+    })
+    queryClient.invalidateQueries({ queryKey: ["ticket-products"] })
+  }
 
   return (
     <Container className="divide-y p-0">
@@ -41,6 +54,9 @@ const Shows = () => {
             </Text>
           </div>
         </div>
+        <Button variant="secondary" onClick={() => setIsModalOpen(true)}>
+          Create Show
+        </Button>
       </div>
       <div className="px-6 py-4">
         {isLoading ? (
@@ -98,6 +114,12 @@ const Shows = () => {
           </Table>
         )}
       </div>
+
+      <CreateTicketProductModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        onSubmit={handleCreateShow}
+      />
     </Container>
   )
 }
