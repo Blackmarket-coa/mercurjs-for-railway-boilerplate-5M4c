@@ -1,8 +1,6 @@
 import { defineConfig, loadEnv } from '@medusajs/framework/utils'
-
 // Load environment variables
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
-
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
@@ -37,11 +35,15 @@ module.exports = defineConfig({
     { resolve: '@mercurjs/reviews', options: {} },
     { resolve: '@mercurjs/requests', options: {} },
     { resolve: '@mercurjs/resend', options: {} },
-    { resolve: 'my-plugin', options: {} },
-    // Restaurant marketplace plugin
-    { resolve: '@bmc/restaurant-marketplace', options: {} },
   ],
   modules: [
+    // Restaurant & Delivery modules
+    {
+      resolve: './src/modules/restaurant',
+    },
+    {
+      resolve: './src/modules/delivery',
+    },
     // File module
     {
       resolve: '@medusajs/medusa/file',
