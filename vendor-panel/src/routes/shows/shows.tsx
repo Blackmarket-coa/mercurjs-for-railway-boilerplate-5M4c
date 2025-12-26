@@ -1,4 +1,5 @@
-﻿import { Container, Heading, Text, Table, Badge } from "@medusajs/ui"
+import { defineRouteConfig } from "@medusajs/admin-sdk"
+import { Container, Heading, Text, Table, Badge } from "@medusajs/ui"
 import { ReceiptPercent } from "@medusajs/icons"
 import { useQuery } from "@tanstack/react-query"
 import { sdk } from "../../lib/sdk"
@@ -20,7 +21,7 @@ interface TicketProduct {
   created_at: string
 }
 
-export const Shows = () => {
+const Shows = () => {
   const { data, isLoading } = useQuery<{ ticket_products: TicketProduct[]; count: number }>({
     queryKey: ["ticket-products"],
     queryFn: () => sdk.client.fetch("/admin/ticket-products"),
@@ -100,3 +101,10 @@ export const Shows = () => {
     </Container>
   )
 }
+
+export const config = defineRouteConfig({
+  label: "Shows",
+  icon: ReceiptPercent,
+})
+
+export default Shows
