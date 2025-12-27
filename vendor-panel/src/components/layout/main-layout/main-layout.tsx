@@ -1,4 +1,4 @@
-﻿import {
+import {
   Buildings,
   ChevronDownMini,
   CogSixTooth,
@@ -13,6 +13,7 @@
   Star,
   ListCheckbox,
   ChatBubbleLeftRight,
+  CalendarMini,
 } from "@medusajs/icons"
 import { Divider, Text, clx } from "@medusajs/ui"
 import { Collapsible as RadixCollapsible } from "radix-ui"
@@ -140,6 +141,11 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
         // },
       ],
     },
+        {
+      icon: <CalendarMini />,
+      label: "Order Cycles",
+      to: "/order-cycles",
+    },
     {
       icon: <Buildings />,
       label: t("inventory.domain"),
@@ -221,6 +227,11 @@ const useExtensionRoutes = (): Omit<INavItem, "pathname">[] => {
       label: "Stripe Connect",
       to: "/stripe-connect",
     },
+        {
+      icon: <CalendarMini />,
+      label: "Order Cycles",
+      to: "/order-cycles",
+    },
     {
       icon: <Buildings />,
       label: "Venues",
@@ -254,7 +265,7 @@ const Searchbar = () => {
           </Text>
         </div>
         <Text size="small" leading="compact" className="text-ui-fg-muted">
-          âŒ˜K
+          ⌘K
         </Text>
       </button>
     </div>
@@ -339,3 +350,5 @@ const UserSection = () => {
     </div>
   )
 }
+
+
