@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv } from '@medusajs/framework/utils'
 
+// Load environment variables
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
 module.exports = defineConfig({
@@ -52,6 +53,10 @@ module.exports = defineConfig({
     // Digital Product module
     {
       resolve: './src/modules/digital-product',
+    },
+    // Order Cycle module (OFN-style food commerce)
+    {
+      resolve: './src/modules/order-cycle',
     },
     // File module
     {
