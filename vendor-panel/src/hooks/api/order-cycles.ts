@@ -92,7 +92,7 @@ export const useOrderCycles = (params?: {
   return useQuery({
     queryKey: orderCycleKeys.list(params || {}),
     queryFn: async () => {
-      const response = await sdk.client.fetch("/admin/order-cycles", {
+      const response = await sdk.client.fetch("/vendor/order-cycles", {
         query: params,
       })
       return response as { order_cycles: OrderCycle[]; count: number }
@@ -105,7 +105,7 @@ export const useOrderCycle = (id: string) => {
   return useQuery({
     queryKey: orderCycleKeys.detail(id),
     queryFn: async () => {
-      const response = await sdk.client.fetch("/admin/order-cycles/" + id)
+      const response = await sdk.client.fetch("/vendor/order-cycles/" + id)
       return response as { order_cycle: OrderCycle }
     },
     enabled: !!id,
@@ -118,7 +118,7 @@ export const useCreateOrderCycle = () => {
 
   return useMutation({
     mutationFn: async (input: CreateOrderCycleInput) => {
-      const response = await sdk.client.fetch("/admin/order-cycles", {
+      const response = await sdk.client.fetch("/vendor/order-cycles", {
         method: "POST",
         body: input,
       })
@@ -136,7 +136,7 @@ export const useUpdateOrderCycle = (id: string) => {
 
   return useMutation({
     mutationFn: async (input: UpdateOrderCycleInput) => {
-      const response = await sdk.client.fetch("/admin/order-cycles/" + id, {
+      const response = await sdk.client.fetch("/vendor/order-cycles/" + id, {
         method: "PUT",
         body: input,
       })
@@ -155,7 +155,7 @@ export const useDeleteOrderCycle = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      await sdk.client.fetch("/admin/order-cycles/" + id, {
+      await sdk.client.fetch("/vendor/order-cycles/" + id, {
         method: "DELETE",
       })
     },
@@ -172,7 +172,7 @@ export const useAddOrderCycleProduct = (orderCycleId: string) => {
   return useMutation({
     mutationFn: async (input: AddProductInput) => {
       const response = await sdk.client.fetch(
-        "/admin/order-cycles/" + orderCycleId + "/products",
+        "/vendor/order-cycles/" + orderCycleId + "/products",
         {
           method: "POST",
           body: input,
@@ -195,7 +195,7 @@ export const useRemoveOrderCycleProduct = (orderCycleId: string) => {
   return useMutation({
     mutationFn: async (productId: string) => {
       await sdk.client.fetch(
-        "/admin/order-cycles/" + orderCycleId + "/products/" + productId,
+        "/vendor/order-cycles/" + orderCycleId + "/products/" + productId,
         {
           method: "DELETE",
         }
