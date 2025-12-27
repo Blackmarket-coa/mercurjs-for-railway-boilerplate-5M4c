@@ -39,7 +39,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       variant_id: string
       effective_price: number | null
       available_quantity: number | null
-      has_price_override: boolean
+      has_override_price: boolean
       display_order: number
       variant: unknown
     }> = []
@@ -68,7 +68,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
         const variant = variants.find((v: { id: string }) => v.id === cp.variant_id)
         
         // Calculate effective price (cycle override or variant price)
-        let effectivePrice = cp.price_override
+        let effectivePrice = cp.override_price
         if (!effectivePrice && variant?.prices?.length > 0) {
           effectivePrice = (variant.prices as Array<{ amount: number }>)[0].amount
         }
@@ -83,7 +83,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
           variant_id: cp.variant_id,
           effective_price: effectivePrice,
           available_quantity: remainingQuantity,
-          has_price_override: cp.price_override !== null,
+          has_override_price: cp.override_price !== null,
           display_order: cp.display_order,
           variant,
         }
@@ -125,3 +125,4 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     res.status(404).json({ message: "Order cycle not found" })
   }
 }
+

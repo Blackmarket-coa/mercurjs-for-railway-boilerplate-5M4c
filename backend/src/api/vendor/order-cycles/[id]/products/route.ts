@@ -70,13 +70,13 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   const {
     variant_id,
     available_quantity,
-    price_override,
+    override_price,
     is_visible,
     display_order,
   } = req.body as {
     variant_id: string
     available_quantity?: number
-    price_override?: number
+    override_price?: number
     is_visible?: boolean
     display_order?: number
   }
@@ -115,7 +115,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
       sellerId,
       {
         available_quantity,
-        price_override,
+        override_price,
         is_visible: is_visible ?? true,
         display_order: display_order ?? 0,
       }
@@ -127,3 +127,4 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     res.status(400).json({ message })
   }
 }
+
