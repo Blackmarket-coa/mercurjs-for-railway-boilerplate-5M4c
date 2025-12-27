@@ -50,6 +50,13 @@ export async function POST(
   const orderCycleService = req.scope.resolve<OrderCycleModuleService>(ORDER_CYCLE_MODULE)
 
   try {
+    // Get seller ID from authenticated context
+    const sellerId = (req as any).auth_context?.actor_id
+    
+    if (!sellerId) {
+      return res.status(401).json({ message: "Unauthorized - seller ID not found" })
+    }
+
     const {
       name,
       description,
@@ -74,7 +81,7 @@ export async function POST(
 
     const openDate = new Date(opens_at)
     const closeDate = new Date(closes_at)
-    const dispatchDate = dispatch_at ? new Date(dispatch_at) : undefined
+    const dispatchDate = dispatch_at ? new Date(dispatch_at) : closeDate
 
     if (closeDate <= openDate) {
       return res.status(400).json({
@@ -97,6 +104,7 @@ export async function POST(
       closes_at: closeDate,
       dispatch_at: dispatchDate,
       status,
+      coordinator_seller_id: sellerId,
       pickup_instructions,
     })
 
