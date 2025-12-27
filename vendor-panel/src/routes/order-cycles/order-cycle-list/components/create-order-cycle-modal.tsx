@@ -17,6 +17,21 @@ interface CreateOrderCycleModalProps {
   onClose: () => void
 }
 
+// Get default dates (opens tomorrow, closes in 1 week)
+const getDefaultOpenDate = () => {
+  const date = new Date()
+  date.setDate(date.getDate() + 1)
+  date.setHours(9, 0, 0, 0)
+  return date.toISOString().slice(0, 16)
+}
+
+const getDefaultCloseDate = () => {
+  const date = new Date()
+  date.setDate(date.getDate() + 7)
+  date.setHours(17, 0, 0, 0)
+  return date.toISOString().slice(0, 16)
+}
+
 export const CreateOrderCycleModal = ({
   open,
   onClose,
@@ -27,8 +42,8 @@ export const CreateOrderCycleModal = ({
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    opens_at: "",
-    closes_at: "",
+    opens_at: getDefaultOpenDate(),
+    closes_at: getDefaultCloseDate(),
     dispatch_at: "",
     pickup_instructions: "",
   })
@@ -74,21 +89,6 @@ export const CreateOrderCycleModal = ({
   ) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  // Get default dates (opens tomorrow, closes in 1 week)
-  const getDefaultOpenDate = () => {
-    const date = new Date()
-    date.setDate(date.getDate() + 1)
-    date.setHours(9, 0, 0, 0)
-    return date.toISOString().slice(0, 16)
-  }
-
-  const getDefaultCloseDate = () => {
-    const date = new Date()
-    date.setDate(date.getDate() + 7)
-    date.setHours(17, 0, 0, 0)
-    return date.toISOString().slice(0, 16)
   }
 
   return (
@@ -146,7 +146,7 @@ export const CreateOrderCycleModal = ({
                     id="opens_at"
                     name="opens_at"
                     type="datetime-local"
-                    value={formData.opens_at || getDefaultOpenDate()}
+                    value={formData.opens_at}
                     onChange={handleChange}
                     required
                   />
@@ -161,7 +161,7 @@ export const CreateOrderCycleModal = ({
                     id="closes_at"
                     name="closes_at"
                     type="datetime-local"
-                    value={formData.closes_at || getDefaultCloseDate()}
+                    value={formData.closes_at}
                     onChange={handleChange}
                     required
                   />
