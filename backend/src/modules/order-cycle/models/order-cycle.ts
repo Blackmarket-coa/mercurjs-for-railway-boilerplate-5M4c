@@ -2,12 +2,12 @@ import { model } from "@medusajs/framework/utils"
 
 /**
  * Order Cycle - Core model for food commerce
- * 
+ *
  * An Order Cycle represents a time-bounded ordering window where:
  * - Customers can place orders during open period
  * - Vendors prepare products for dispatch date
  * - Orders are grouped for efficient fulfillment (e.g., weekly pickup)
- * 
+ *
  * This is modeled after Open Food Network's Order Cycle concept.
  */
 const OrderCycle = model.define("order_cycle", {
@@ -33,16 +33,18 @@ const OrderCycle = model.define("order_cycle", {
   ]).default("draft"),
   
   // Coordinator - the seller who manages this order cycle
-  // (will be linked via module link to MercurJS seller)
   coordinator_seller_id: model.text(),
   
   // Configuration
   is_recurring: model.boolean().default(false),
   recurrence_rule: model.text().nullable(), // iCal RRULE format for recurring cycles
   
-  // Pickup/delivery info
+  // Pickup/delivery info (default for the cycle)
   pickup_instructions: model.text().nullable(),
   pickup_location: model.text().nullable(),
+  
+  // "Ready for" text shown to customers
+  ready_for_text: model.text().nullable(),
   
   // Metadata for extensions
   metadata: model.json().nullable(),
@@ -57,7 +59,7 @@ const OrderCycle = model.define("order_cycle", {
     on: ["opens_at"],
   },
   {
-    name: "IDX_ORDER_CYCLE_CLOSES_AT", 
+    name: "IDX_ORDER_CYCLE_CLOSES_AT",
     on: ["closes_at"],
   },
   {

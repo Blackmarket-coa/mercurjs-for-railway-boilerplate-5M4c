@@ -1,28 +1,27 @@
 import { model } from "@medusajs/framework/utils"
-import OrderCycle from "./order-cycle"
 
 /**
  * Order Cycle Product - Links products to order cycles
- * 
+ *
  * Products can be added to an order cycle with:
  * - Optional quantity limits (available_quantity)
  * - Optional price overrides (for cycle-specific pricing)
  * - Stock tracking per cycle
- * 
- * This is similar to OFN's "Variant Override" concept.
+ * - Link to incoming/outgoing exchange
  */
 const OrderCycleProduct = model.define("order_cycle_product", {
   id: model.id().primaryKey(),
   
   // Reference to the order cycle
-  order_cycle: model.belongsTo(() => OrderCycle, {
-    mappedBy: "products",
-  }),
+  order_cycle_id: model.text(),
+  
+  // Reference to the exchange (incoming or outgoing)
+  exchange_id: model.text().nullable(),
   
   // Product variant ID (linked via module link to Medusa Product)
   variant_id: model.text(),
   
-  // Seller who added this product to the cycle
+  // Seller who owns/supplies this product
   seller_id: model.text(),
   
   // Quantity available in this cycle (null = unlimited)
@@ -33,7 +32,7 @@ const OrderCycleProduct = model.define("order_cycle_product", {
   
   // Price override for this cycle (null = use default variant price)
   // Stored in cents
-  price_override: model.bigNumber().nullable(),
+  override_price: model.bigNumber().nullable(),
   
   // Whether this product is visible in this cycle
   is_visible: model.boolean().default(true),
@@ -48,6 +47,10 @@ const OrderCycleProduct = model.define("order_cycle_product", {
   {
     name: "IDX_OCP_ORDER_CYCLE_ID",
     on: ["order_cycle_id"],
+  },
+  {
+    name: "IDX_OCP_EXCHANGE_ID",
+    on: ["exchange_id"],
   },
   {
     name: "IDX_OCP_VARIANT_ID",
