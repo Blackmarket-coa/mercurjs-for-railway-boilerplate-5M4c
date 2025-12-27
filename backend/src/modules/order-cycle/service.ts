@@ -3,6 +3,51 @@ import { OrderCycle, OrderCycleProduct, OrderCycleSeller } from "./models"
 
 type OrderCycleStatus = "draft" | "upcoming" | "open" | "closed" | "dispatched" | "cancelled"
 
+type InferredOrderCycle = {
+  id: string
+  name: string
+  description: string | null
+  opens_at: Date
+  closes_at: Date
+  dispatch_at: Date
+  status: OrderCycleStatus
+  coordinator_seller_id: string
+  is_recurring: boolean
+  recurrence_rule: string | null
+  pickup_instructions: string | null
+  pickup_location: string | null
+  metadata: Record<string, unknown> | null
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  products?: InferredOrderCycleProduct[]
+  sellers?: InferredOrderCycleSeller[]
+}
+
+type InferredOrderCycleProduct = {
+  id: string
+  order_cycle_id: string
+  variant_id: string
+  seller_id: string
+  available_quantity: number | null
+  sold_quantity: number
+  price_override: number | null
+  is_visible: boolean
+  display_order: number
+  metadata: Record<string, unknown> | null
+}
+
+type InferredOrderCycleSeller = {
+  id: string
+  order_cycle_id: string
+  seller_id: string
+  role: "coordinator" | "producer" | "hub"
+  commission_rate: number | null
+  is_active: boolean
+  joined_at: Date
+  metadata: Record<string, unknown> | null
+}
+
 class OrderCycleModuleService extends MedusaService({
   OrderCycle,
   OrderCycleProduct,
@@ -11,10 +56,10 @@ class OrderCycleModuleService extends MedusaService({
   /**
    * Get active order cycles (currently open for ordering)
    */
-  async getActiveOrderCycles(sellerId?: string) {
+  async getActiveOrderCycles(sellerId?: string): Promise<InferredOrderCycle[]> {
     const now = new Date()
     
-    const filters: any = {
+    const filters: Record<string, unknown> = {
       status: "open",
       opens_at: { $lte: now },
       closes_at: { $gte: now },
@@ -27,24 +72,22 @@ class OrderCycleModuleService extends MedusaService({
         is_active: true,
       })
       
-      const cycleIds = sellerCycles.map(sc => sc.order_cycle_id)
+      const cycleIds = sellerCycles.map((sc) => sc.id)
       if (cycleIds.length === 0) return []
       
       filters.id = cycleIds
     }
     
-    return this.listOrderCycles(filters, {
-      relations: ["products", "sellers"],
-    })
+    return this.listOrderCycles(filters) as Promise<InferredOrderCycle[]>
   }
 
   /**
    * Get upcoming order cycles (scheduled but not yet open)
    */
-  async getUpcomingOrderCycles(sellerId?: string, limit = 10) {
+  async getUpcomingOrderCycles(sellerId?: string, limit = 10): Promise<InferredOrderCycle[]> {
     const now = new Date()
     
-    const filters: any = {
+    const filters: Record<string, unknown> = {
       status: ["draft", "upcoming"],
       opens_at: { $gt: now },
     }
@@ -55,7 +98,7 @@ class OrderCycleModuleService extends MedusaService({
         is_active: true,
       })
       
-      const cycleIds = sellerCycles.map(sc => sc.order_cycle_id)
+      const cycleIds = sellerCycles.map((sc) => sc.id)
       if (cycleIds.length === 0) return []
       
       filters.id = cycleIds
@@ -64,15 +107,14 @@ class OrderCycleModuleService extends MedusaService({
     return this.listOrderCycles(filters, {
       order: { opens_at: "ASC" },
       take: limit,
-      relations: ["products", "sellers"],
-    })
+    }) as Promise<InferredOrderCycle[]>
   }
 
   /**
    * Automatically update order cycle statuses based on time
    * Call this from a scheduled job
    */
-  async updateOrderCycleStatuses() {
+  async updateOrderCycleStatuses(): Promise<{ opened: number; closed: number }> {
     const now = new Date()
     const results = {
       opened: 0,
@@ -87,7 +129,7 @@ class OrderCycleModuleService extends MedusaService({
     })
     
     for (const cycle of toOpen) {
-      await this.updateOrderCycles(cycle.id, { status: "open" })
+      await this.updateOrderCycles({ id: cycle.id, status: "open" })
       results.opened++
     }
     
@@ -98,7 +140,7 @@ class OrderCycleModuleService extends MedusaService({
     })
     
     for (const cycle of toClose) {
-      await this.updateOrderCycles(cycle.id, { status: "closed" })
+      await this.updateOrderCycles({ id: cycle.id, status: "closed" })
       results.closed++
     }
     
@@ -127,7 +169,10 @@ class OrderCycleModuleService extends MedusaService({
     
     if (existing.length > 0) {
       // Update existing
-      return this.updateOrderCycleProducts(existing[0].id, data || {})
+      return this.updateOrderCycleProducts({ 
+        id: existing[0].id, 
+        ...data 
+      })
     }
     
     // Create new
@@ -155,7 +200,8 @@ class OrderCycleModuleService extends MedusaService({
     })
     
     if (existing.length > 0) {
-      return this.updateOrderCycleSellers(existing[0].id, {
+      return this.updateOrderCycleSellers({ 
+        id: existing[0].id,
         role,
         commission_rate: commissionRate,
         is_active: true,
@@ -175,7 +221,7 @@ class OrderCycleModuleService extends MedusaService({
    * Returns products with their cycle-specific overrides
    */
   async getOrderCycleProducts(orderCycleId: string, onlyVisible = true) {
-    const filters: any = {
+    const filters: Record<string, unknown> = {
       order_cycle_id: orderCycleId,
     }
     
@@ -192,7 +238,7 @@ class OrderCycleModuleService extends MedusaService({
    * Get sellers participating in an order cycle
    */
   async getOrderCycleSellers(orderCycleId: string, onlyActive = true) {
-    const filters: any = {
+    const filters: Record<string, unknown> = {
       order_cycle_id: orderCycleId,
     }
     
@@ -284,7 +330,8 @@ class OrderCycleModuleService extends MedusaService({
     
     const product = products[0]
     
-    return this.updateOrderCycleProducts(product.id, {
+    return this.updateOrderCycleProducts({
+      id: product.id,
       sold_quantity: product.sold_quantity + quantity,
     })
   }
@@ -300,8 +347,15 @@ class OrderCycleModuleService extends MedusaService({
       dispatch_at: Date
     }
   ) {
-    const source = await this.retrieveOrderCycle(sourceOrderCycleId, {
-      relations: ["products", "sellers"],
+    const source = await this.retrieveOrderCycle(sourceOrderCycleId)
+    
+    // Get products and sellers separately
+    const sourceProducts = await this.listOrderCycleProducts({
+      order_cycle_id: sourceOrderCycleId,
+    })
+    
+    const sourceSellers = await this.listOrderCycleSellers({
+      order_cycle_id: sourceOrderCycleId,
     })
     
     // Create new cycle
@@ -320,32 +374,28 @@ class OrderCycleModuleService extends MedusaService({
     })
     
     // Clone products (reset sold quantities)
-    if (source.products) {
-      for (const product of source.products) {
-        await this.createOrderCycleProducts({
-          order_cycle_id: newCycle.id,
-          variant_id: product.variant_id,
-          seller_id: product.seller_id,
-          available_quantity: product.available_quantity,
-          price_override: product.price_override,
-          is_visible: product.is_visible,
-          display_order: product.display_order,
-          sold_quantity: 0, // Reset
-        })
-      }
+    for (const product of sourceProducts) {
+      await this.createOrderCycleProducts({
+        order_cycle_id: newCycle.id,
+        variant_id: product.variant_id,
+        seller_id: product.seller_id,
+        available_quantity: product.available_quantity,
+        price_override: product.price_override,
+        is_visible: product.is_visible,
+        display_order: product.display_order,
+        sold_quantity: 0, // Reset
+      })
     }
     
     // Clone sellers
-    if (source.sellers) {
-      for (const seller of source.sellers) {
-        await this.createOrderCycleSellers({
-          order_cycle_id: newCycle.id,
-          seller_id: seller.seller_id,
-          role: seller.role,
-          commission_rate: seller.commission_rate,
-          is_active: seller.is_active,
-        })
-      }
+    for (const seller of sourceSellers) {
+      await this.createOrderCycleSellers({
+        order_cycle_id: newCycle.id,
+        seller_id: seller.seller_id,
+        role: seller.role,
+        commission_rate: seller.commission_rate,
+        is_active: seller.is_active,
+      })
     }
     
     return newCycle

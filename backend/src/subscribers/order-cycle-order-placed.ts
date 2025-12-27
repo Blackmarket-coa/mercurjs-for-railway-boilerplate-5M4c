@@ -1,6 +1,7 @@
 import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { ORDER_CYCLE_MODULE } from "../../modules/order-cycle"
+import { ORDER_CYCLE_MODULE } from "../modules/order-cycle"
+import type OrderCycleModuleService from "../modules/order-cycle/service"
 
 /**
  * Subscriber: Track Order Cycle Sales
@@ -15,7 +16,7 @@ export default async function orderPlacedHandler({
   container,
 }: SubscriberArgs<{ id: string }>) {
   const orderId = event.data.id
-  const orderCycleService = container.resolve(ORDER_CYCLE_MODULE)
+  const orderCycleService = container.resolve<OrderCycleModuleService>(ORDER_CYCLE_MODULE)
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
   
@@ -23,7 +24,7 @@ export default async function orderPlacedHandler({
   
   try {
     // Get order with line items
-    const { data: [order] } = await query.graph({
+    const { data: orders } = await query.graph({
       entity: "order",
       fields: [
         "id",
@@ -35,13 +36,16 @@ export default async function orderPlacedHandler({
       },
     })
     
+    const order = orders[0]
+    
     if (!order) {
       console.log(`[Order Cycle Subscriber] Order ${orderId} not found`)
       return
     }
     
     // Check if order has an order_cycle_id in metadata
-    const orderCycleId = order.metadata?.order_cycle_id as string
+    const metadata = order.metadata as Record<string, unknown> | null
+    const orderCycleId = metadata?.order_cycle_id as string | undefined
     
     if (!orderCycleId) {
       // Order wasn't placed through an order cycle
@@ -60,7 +64,9 @@ export default async function orderPlacedHandler({
     }
     
     // Update sold quantities for each item
-    for (const item of order.items || []) {
+    const items = order.items as Array<{ variant_id: string; quantity: number }> | undefined
+    
+    for (const item of items || []) {
       const variantId = item.variant_id
       const quantity = item.quantity
       
@@ -73,10 +79,10 @@ export default async function orderPlacedHandler({
       }
     }
     
-    // Link order to order cycle
+    // Link order to order cycle using remote link
     try {
       await remoteLink.create({
-        [ContainerRegistrationKeys.ORDER]: {
+        "order": {
           order_id: orderId,
         },
         [ORDER_CYCLE_MODULE]: {

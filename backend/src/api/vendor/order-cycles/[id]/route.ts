@@ -1,5 +1,6 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ORDER_CYCLE_MODULE } from "../../../../modules/order-cycle"
+import type OrderCycleModuleService from "../../../../modules/order-cycle/service"
 
 /**
  * Vendor API Routes for Single Order Cycle
@@ -11,7 +12,7 @@ import { ORDER_CYCLE_MODULE } from "../../../../modules/order-cycle"
 
 // GET /vendor/order-cycles/:id
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
-  const orderCycleService = req.scope.resolve(ORDER_CYCLE_MODULE)
+  const orderCycleService = req.scope.resolve<OrderCycleModuleService>(ORDER_CYCLE_MODULE)
   const sellerId = (req as any).auth_context?.actor_id
   const { id } = req.params
   
@@ -20,20 +21,34 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   }
   
   try {
-    const orderCycle = await orderCycleService.retrieveOrderCycle(id, {
-      relations: ["products", "sellers"],
+    const orderCycle = await orderCycleService.retrieveOrderCycle(id)
+    
+    // Get sellers for access check
+    const sellers = await orderCycleService.listOrderCycleSellers({
+      order_cycle_id: id,
     })
     
     // Check seller has access
-    const hasAccess = orderCycle.sellers?.some(
-      (s: any) => s.seller_id === sellerId && s.is_active
+    const hasAccess = sellers.some(
+      (s) => s.seller_id === sellerId && s.is_active
     ) || orderCycle.coordinator_seller_id === sellerId
     
     if (!hasAccess) {
       return res.status(403).json({ message: "Access denied" })
     }
     
-    res.json({ order_cycle: orderCycle })
+    // Get products
+    const products = await orderCycleService.listOrderCycleProducts({
+      order_cycle_id: id,
+    })
+    
+    res.json({ 
+      order_cycle: {
+        ...orderCycle,
+        products,
+        sellers,
+      }
+    })
   } catch (error) {
     res.status(404).json({ message: "Order cycle not found" })
   }
@@ -41,7 +56,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
 // PUT /vendor/order-cycles/:id
 export const PUT = async (req: MedusaRequest, res: MedusaResponse) => {
-  const orderCycleService = req.scope.resolve(ORDER_CYCLE_MODULE)
+  const orderCycleService = req.scope.resolve<OrderCycleModuleService>(ORDER_CYCLE_MODULE)
   const sellerId = (req as any).auth_context?.actor_id
   const { id } = req.params
   
@@ -59,33 +74,22 @@ export const PUT = async (req: MedusaRequest, res: MedusaResponse) => {
       })
     }
     
-    const {
-      name,
-      description,
-      opens_at,
-      closes_at,
-      dispatch_at,
-      status,
-      pickup_instructions,
-      pickup_location,
-      is_recurring,
-      recurrence_rule,
-    } = req.body
+    const body = req.body as Record<string, unknown>
     
-    const updates: any = {}
+    const updates: Record<string, unknown> = { id }
     
-    if (name !== undefined) updates.name = name
-    if (description !== undefined) updates.description = description
-    if (opens_at !== undefined) updates.opens_at = new Date(opens_at)
-    if (closes_at !== undefined) updates.closes_at = new Date(closes_at)
-    if (dispatch_at !== undefined) updates.dispatch_at = new Date(dispatch_at)
-    if (status !== undefined) updates.status = status
-    if (pickup_instructions !== undefined) updates.pickup_instructions = pickup_instructions
-    if (pickup_location !== undefined) updates.pickup_location = pickup_location
-    if (is_recurring !== undefined) updates.is_recurring = is_recurring
-    if (recurrence_rule !== undefined) updates.recurrence_rule = recurrence_rule
+    if (body.name !== undefined) updates.name = body.name
+    if (body.description !== undefined) updates.description = body.description
+    if (body.opens_at !== undefined) updates.opens_at = new Date(body.opens_at as string)
+    if (body.closes_at !== undefined) updates.closes_at = new Date(body.closes_at as string)
+    if (body.dispatch_at !== undefined) updates.dispatch_at = new Date(body.dispatch_at as string)
+    if (body.status !== undefined) updates.status = body.status
+    if (body.pickup_instructions !== undefined) updates.pickup_instructions = body.pickup_instructions
+    if (body.pickup_location !== undefined) updates.pickup_location = body.pickup_location
+    if (body.is_recurring !== undefined) updates.is_recurring = body.is_recurring
+    if (body.recurrence_rule !== undefined) updates.recurrence_rule = body.recurrence_rule
     
-    const updated = await orderCycleService.updateOrderCycles(id, updates)
+    const updated = await orderCycleService.updateOrderCycles(updates)
     
     res.json({ order_cycle: updated })
   } catch (error) {
@@ -95,7 +99,7 @@ export const PUT = async (req: MedusaRequest, res: MedusaResponse) => {
 
 // DELETE /vendor/order-cycles/:id
 export const DELETE = async (req: MedusaRequest, res: MedusaResponse) => {
-  const orderCycleService = req.scope.resolve(ORDER_CYCLE_MODULE)
+  const orderCycleService = req.scope.resolve<OrderCycleModuleService>(ORDER_CYCLE_MODULE)
   const sellerId = (req as any).auth_context?.actor_id
   const { id } = req.params
   
@@ -116,7 +120,7 @@ export const DELETE = async (req: MedusaRequest, res: MedusaResponse) => {
     // Don't allow deletion of cycles with orders (soft delete instead)
     // For now, just mark as cancelled
     if (orderCycle.status === "open" || orderCycle.status === "closed") {
-      await orderCycleService.updateOrderCycles(id, { status: "cancelled" })
+      await orderCycleService.updateOrderCycles({ id, status: "cancelled" })
       res.json({ 
         message: "Order cycle cancelled (had active orders)",
         order_cycle: { ...orderCycle, status: "cancelled" },

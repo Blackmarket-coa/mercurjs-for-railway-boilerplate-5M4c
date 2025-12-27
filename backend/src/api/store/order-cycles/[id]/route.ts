@@ -1,6 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { ORDER_CYCLE_MODULE } from "../../../../modules/order-cycle"
+import type OrderCycleModuleService from "../../../../modules/order-cycle/service"
 
 /**
  * Store API Route for Single Order Cycle
@@ -10,7 +11,7 @@ import { ORDER_CYCLE_MODULE } from "../../../../modules/order-cycle"
 
 // GET /store/order-cycles/:id
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
-  const orderCycleService = req.scope.resolve(ORDER_CYCLE_MODULE)
+  const orderCycleService = req.scope.resolve<OrderCycleModuleService>(ORDER_CYCLE_MODULE)
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const { id } = req.params
   
@@ -31,9 +32,17 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     })
     
     // Fetch full product/variant details via Query
-    const variantIds = cycleProducts.map((cp: any) => cp.variant_id)
+    const variantIds = cycleProducts.map((cp) => cp.variant_id)
     
-    let productsWithDetails: any[] = []
+    let productsWithDetails: Array<{
+      id: string
+      variant_id: string
+      effective_price: number | null
+      available_quantity: number | null
+      has_price_override: boolean
+      display_order: number
+      variant: unknown
+    }> = []
     
     if (variantIds.length > 0) {
       const { data: variants } = await query.graph({
@@ -55,13 +64,13 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       })
       
       // Merge cycle product data with variant data
-      productsWithDetails = cycleProducts.map((cp: any) => {
-        const variant = variants.find((v: any) => v.id === cp.variant_id)
+      productsWithDetails = cycleProducts.map((cp) => {
+        const variant = variants.find((v: { id: string }) => v.id === cp.variant_id)
         
         // Calculate effective price (cycle override or variant price)
         let effectivePrice = cp.price_override
         if (!effectivePrice && variant?.prices?.length > 0) {
-          effectivePrice = variant.prices[0].amount
+          effectivePrice = (variant.prices as Array<{ amount: number }>)[0].amount
         }
         
         // Calculate remaining quantity
@@ -87,6 +96,8 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       is_active: true,
     })
     
+    const now = Date.now()
+    
     res.json({
       order_cycle: {
         id: orderCycle.id,
@@ -101,10 +112,10 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
         // Time helpers for frontend
         is_open: orderCycle.status === "open",
         time_until_close: orderCycle.status === "open" 
-          ? new Date(orderCycle.closes_at).getTime() - Date.now()
+          ? new Date(orderCycle.closes_at).getTime() - now
           : null,
         time_until_open: orderCycle.status === "upcoming"
-          ? new Date(orderCycle.opens_at).getTime() - Date.now()
+          ? new Date(orderCycle.opens_at).getTime() - now
           : null,
       },
       products: productsWithDetails,

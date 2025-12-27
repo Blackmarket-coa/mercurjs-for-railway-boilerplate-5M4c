@@ -1,5 +1,6 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ORDER_CYCLE_MODULE } from "../../../../../modules/order-cycle"
+import type OrderCycleModuleService from "../../../../../modules/order-cycle/service"
 
 /**
  * Vendor API Routes for Order Cycle Products
@@ -10,7 +11,7 @@ import { ORDER_CYCLE_MODULE } from "../../../../../modules/order-cycle"
 
 // GET /vendor/order-cycles/:id/products
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
-  const orderCycleService = req.scope.resolve(ORDER_CYCLE_MODULE)
+  const orderCycleService = req.scope.resolve<OrderCycleModuleService>(ORDER_CYCLE_MODULE)
   const sellerId = (req as any).auth_context?.actor_id
   const { id } = req.params
   
@@ -20,12 +21,14 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   
   try {
     // Check access
-    const orderCycle = await orderCycleService.retrieveOrderCycle(id, {
-      relations: ["sellers"],
+    const orderCycle = await orderCycleService.retrieveOrderCycle(id)
+    
+    const sellers = await orderCycleService.listOrderCycleSellers({
+      order_cycle_id: id,
     })
     
-    const hasAccess = orderCycle.sellers?.some(
-      (s: any) => s.seller_id === sellerId && s.is_active
+    const hasAccess = sellers.some(
+      (s) => s.seller_id === sellerId && s.is_active
     ) || orderCycle.coordinator_seller_id === sellerId
     
     if (!hasAccess) {
@@ -35,7 +38,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     // Get products - filter by seller unless coordinator
     const isCoordinator = orderCycle.coordinator_seller_id === sellerId
     
-    const filters: any = {
+    const filters: Record<string, unknown> = {
       order_cycle_id: id,
     }
     
@@ -56,7 +59,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
 // POST /vendor/order-cycles/:id/products
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
-  const orderCycleService = req.scope.resolve(ORDER_CYCLE_MODULE)
+  const orderCycleService = req.scope.resolve<OrderCycleModuleService>(ORDER_CYCLE_MODULE)
   const sellerId = (req as any).auth_context?.actor_id
   const { id } = req.params
   
@@ -84,12 +87,14 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   
   try {
     // Check access
-    const orderCycle = await orderCycleService.retrieveOrderCycle(id, {
-      relations: ["sellers"],
+    const orderCycle = await orderCycleService.retrieveOrderCycle(id)
+    
+    const sellers = await orderCycleService.listOrderCycleSellers({
+      order_cycle_id: id,
     })
     
-    const hasAccess = orderCycle.sellers?.some(
-      (s: any) => s.seller_id === sellerId && s.is_active
+    const hasAccess = sellers.some(
+      (s) => s.seller_id === sellerId && s.is_active
     ) || orderCycle.coordinator_seller_id === sellerId
     
     if (!hasAccess) {
@@ -117,7 +122,8 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     )
     
     res.status(201).json({ product })
-  } catch (error: any) {
-    res.status(400).json({ message: error.message })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error"
+    res.status(400).json({ message })
   }
 }

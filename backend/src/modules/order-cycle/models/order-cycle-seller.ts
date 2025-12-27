@@ -35,8 +35,7 @@ const OrderCycleSeller = model.define("order_cycle_seller", {
   // Whether seller is active in this cycle
   is_active: model.boolean().default(true),
   
-  // When seller was added to cycle
-  joined_at: model.dateTime().default("now()"),
+  // When seller was added to cycle - uses created_at automatically
   
   // Metadata for extensions
   metadata: model.json().nullable(),

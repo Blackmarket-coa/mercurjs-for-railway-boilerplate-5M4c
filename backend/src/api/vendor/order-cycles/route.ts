@@ -1,6 +1,6 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { ORDER_CYCLE_MODULE } from "../../../modules/order-cycle"
+import type OrderCycleModuleService from "../../../modules/order-cycle/service"
 
 /**
  * Vendor API Routes for Order Cycles
@@ -11,8 +11,7 @@ import { ORDER_CYCLE_MODULE } from "../../../modules/order-cycle"
 
 // GET /vendor/order-cycles - List order cycles for the current seller
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
-  const orderCycleService = req.scope.resolve(ORDER_CYCLE_MODULE)
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const orderCycleService = req.scope.resolve<OrderCycleModuleService>(ORDER_CYCLE_MODULE)
   
   // Get current seller from authenticated context
   // MercurJS uses req.auth_context.actor_id for the seller
@@ -23,14 +22,17 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   }
   
   // Parse query parameters
-  const { status, limit = 20, offset = 0 } = req.query as {
+  const { status, limit = "20", offset = "0" } = req.query as {
     status?: string
-    limit?: number
-    offset?: number
+    limit?: string
+    offset?: string
   }
   
+  const limitNum = parseInt(limit, 10)
+  const offsetNum = parseInt(offset, 10)
+  
   // Build filters
-  const filters: any = {}
+  const filters: Record<string, unknown> = {}
   
   if (status) {
     filters.status = status.split(",")
@@ -42,43 +44,39 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     is_active: true,
   })
   
-  const cycleIds = sellerCycles.map((sc: any) => sc.order_cycle_id)
+  const cycleIds = sellerCycles.map((sc) => sc.id)
   
   if (cycleIds.length === 0) {
     return res.json({
       order_cycles: [],
       count: 0,
-      limit,
-      offset,
+      limit: limitNum,
+      offset: offsetNum,
     })
   }
   
   filters.id = cycleIds
   
-  // Get order cycles with relations
-  const [orderCycles, count] = await Promise.all([
-    orderCycleService.listOrderCycles(filters, {
-      relations: ["products", "sellers"],
-      take: limit,
-      skip: offset,
-      order: { opens_at: "DESC" },
-    }),
-    orderCycleService.listOrderCycles(filters, { 
-      select: ["id"],
-    }).then((r: any[]) => r.length),
-  ])
+  // Get order cycles
+  const orderCycles = await orderCycleService.listOrderCycles(filters, {
+    take: limitNum,
+    skip: offsetNum,
+    order: { opens_at: "DESC" },
+  })
+  
+  const allCycles = await orderCycleService.listOrderCycles(filters)
   
   res.json({
     order_cycles: orderCycles,
-    count,
-    limit,
-    offset,
+    count: allCycles.length,
+    limit: limitNum,
+    offset: offsetNum,
   })
 }
 
 // POST /vendor/order-cycles - Create a new order cycle
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
-  const orderCycleService = req.scope.resolve(ORDER_CYCLE_MODULE)
+  const orderCycleService = req.scope.resolve<OrderCycleModuleService>(ORDER_CYCLE_MODULE)
   
   const sellerId = (req as any).auth_context?.actor_id
   

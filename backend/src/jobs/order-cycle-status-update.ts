@@ -1,29 +1,21 @@
 import { MedusaContainer } from "@medusajs/framework/types"
-import { ORDER_CYCLE_MODULE } from "../../modules/order-cycle"
+import { ORDER_CYCLE_MODULE } from "../modules/order-cycle"
+import type OrderCycleModuleService from "../modules/order-cycle/service"
 
 /**
  * Scheduled Job: Update Order Cycle Statuses
  * 
- * Runs every 5 minutes to automatically transition order cycles:
+ * Runs periodically to automatically transition order cycles:
  * - upcoming/draft → open (when opens_at is reached)
  * - open → closed (when closes_at is reached)
  * 
- * Register this in medusa-config.ts:
- * 
- * jobs: [
- *   {
- *     resolve: "./src/jobs/order-cycle-status-update",
- *     options: {
- *       schedule: "*/5 * * * *", // Every 5 minutes
- *     },
- *   },
- * ],
+ * Register this in medusa-config.ts under jobs array
  */
 
 export default async function orderCycleStatusUpdateJob(
   container: MedusaContainer
 ) {
-  const orderCycleService = container.resolve(ORDER_CYCLE_MODULE)
+  const orderCycleService = container.resolve<OrderCycleModuleService>(ORDER_CYCLE_MODULE)
   
   console.log("[Order Cycle Job] Checking for status updates...")
   
@@ -45,5 +37,6 @@ export default async function orderCycleStatusUpdateJob(
 
 export const config = {
   name: "order-cycle-status-update",
-  schedule: "*/5 * * * *", // Every 5 minutes
+  // Run every 5 minutes
+  schedule: "*/5 * * * *",
 }
