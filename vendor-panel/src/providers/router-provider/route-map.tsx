@@ -1,4 +1,4 @@
-﻿import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@medusajs/types"
 import { Outlet, RouteObject, UIMatch } from "react-router-dom"
 
 import { t } from "i18next"
@@ -523,6 +523,23 @@ export const RouteMap: RouteObject[] = [
                       import("../../routes/orders/order-create-shipment"),
                   },
                 ],
+              },
+            ],
+          },
+          {
+            path: "/order-cycles",
+            errorElement: <ErrorBoundary />,
+            handle: {
+              breadcrumb: () => "Order Cycles",
+            },
+            children: [
+              {
+                path: "",
+                lazy: () => import("../../routes/order-cycles/order-cycle-list"),
+              },
+              {
+                path: ":id",
+                lazy: () => import("../../routes/order-cycles/order-cycle-detail"),
               },
             ],
           },
