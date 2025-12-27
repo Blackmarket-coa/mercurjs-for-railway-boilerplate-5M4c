@@ -12,9 +12,10 @@ import {
   DropdownMenu,
   IconButton,
 } from "@medusajs/ui"
-import { PlusMini, EllipsisHorizontal, Trash, PencilSquare } from "@medusajs/icons"
+import { PlusMini, EllipsisHorizontal, Trash, PencilSquare, ArrowUpTray } from "@medusajs/icons"
 import { useOrderCycles, useDeleteOrderCycle, OrderCycle } from "../../../../hooks/api/order-cycles"
 import { CreateOrderCycleModal } from "./create-order-cycle-modal"
+import { ImportOFNModal } from "./import-ofn-modal"
 
 const statusColors: Record<string, "green" | "blue" | "orange" | "grey" | "red"> = {
   draft: "grey",
@@ -37,6 +38,7 @@ const formatDate = (dateString: string) => {
 export const OrderCycleListTable = () => {
   const navigate = useNavigate()
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showImportModal, setShowImportModal] = useState(false)
   const { data, isLoading, error } = useOrderCycles({ limit: 50 })
   const deleteOrderCycle = useDeleteOrderCycle()
   const prompt = usePrompt()
@@ -59,6 +61,11 @@ export const OrderCycleListTable = () => {
     }
   }
 
+  const handleImportComplete = (products: any[]) => {
+    console.log("Imported products:", products)
+    // TODO: Add products to order cycle or create them
+  }
+
   if (error) {
     return (
       <Container className="p-8">
@@ -77,10 +84,16 @@ export const OrderCycleListTable = () => {
               Manage time-bounded ordering windows for your products
             </Text>
           </div>
-          <Button variant="secondary" onClick={() => setShowCreateModal(true)}>
-            <PlusMini />
-            Create Order Cycle
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={() => setShowImportModal(true)}>
+              <ArrowUpTray />
+              Import OFN
+            </Button>
+            <Button variant="secondary" onClick={() => setShowCreateModal(true)}>
+              <PlusMini />
+              Create Order Cycle
+            </Button>
+          </div>
         </div>
 
         {isLoading ? (
@@ -90,9 +103,14 @@ export const OrderCycleListTable = () => {
         ) : !data?.order_cycles?.length ? (
           <div className="flex flex-col items-center justify-center py-12 gap-4">
             <Text className="text-ui-fg-subtle">No order cycles found</Text>
-            <Button variant="secondary" onClick={() => setShowCreateModal(true)}>
-              Create your first order cycle
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="secondary" onClick={() => setShowImportModal(true)}>
+                Import from OFN
+              </Button>
+              <Button variant="secondary" onClick={() => setShowCreateModal(true)}>
+                Create your first order cycle
+              </Button>
+            </div>
           </div>
         ) : (
           <Table>
@@ -175,6 +193,12 @@ export const OrderCycleListTable = () => {
       <CreateOrderCycleModal
         open={showCreateModal}
         onClose={() => setShowCreateModal(false)}
+      />
+
+      <ImportOFNModal
+        open={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImportComplete={handleImportComplete}
       />
     </>
   )
