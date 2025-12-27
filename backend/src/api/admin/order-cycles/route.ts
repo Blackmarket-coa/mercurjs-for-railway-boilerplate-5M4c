@@ -1,14 +1,11 @@
-import { 
-  AuthenticatedMedusaRequest,
-  MedusaResponse
-} from "@medusajs/framework"
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ORDER_CYCLE_MODULE } from "../../../modules/order-cycle"
 import type OrderCycleModuleService from "../../../modules/order-cycle/service"
 
-export const GET = async (
-  req: AuthenticatedMedusaRequest,
+export async function GET(
+  req: MedusaRequest,
   res: MedusaResponse
-) => {
+) {
   const orderCycleService = req.scope.resolve<OrderCycleModuleService>(ORDER_CYCLE_MODULE)
 
   try {
@@ -46,10 +43,10 @@ export const GET = async (
   }
 }
 
-export const POST = async (
-  req: AuthenticatedMedusaRequest,
+export async function POST(
+  req: MedusaRequest,
   res: MedusaResponse
-) => {
+) {
   const orderCycleService = req.scope.resolve<OrderCycleModuleService>(ORDER_CYCLE_MODULE)
 
   try {
