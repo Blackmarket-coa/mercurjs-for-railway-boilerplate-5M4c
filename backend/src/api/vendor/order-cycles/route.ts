@@ -81,7 +81,8 @@ export async function POST(
 
     const openDate = new Date(opens_at)
     const closeDate = new Date(closes_at)
-    const dispatchDate = dispatch_at ? new Date(dispatch_at) : closeDate
+    // Default dispatch_at to closes_at if not provided
+    const dispatchDate = dispatch_at ? new Date(dispatch_at) : new Date(closes_at)
 
     if (closeDate <= openDate) {
       return res.status(400).json({
@@ -99,13 +100,13 @@ export async function POST(
 
     const orderCycle = await orderCycleService.createOrderCycles({
       name,
-      description,
+      description: description || null,
       opens_at: openDate,
       closes_at: closeDate,
       dispatch_at: dispatchDate,
       status,
       coordinator_seller_id: sellerId,
-      pickup_instructions,
+      pickup_instructions: pickup_instructions || null,
     })
 
     res.status(201).json({ order_cycle: orderCycle })
