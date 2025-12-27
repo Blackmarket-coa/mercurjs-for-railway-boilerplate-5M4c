@@ -176,7 +176,7 @@ const AddProductModal = ({
   const [availableQuantity, setAvailableQuantity] = useState("")
 
   const addProduct = useAddOrderCycleProduct(orderCycleId)
-  const { data: productsData, isLoading } = useProducts({
+  const { products, isLoading } = useProducts({
     q: search,
     limit: 20,
   })
@@ -209,7 +209,7 @@ const AddProductModal = ({
 
   // Flatten products to variants
   const variants =
-    productsData?.products?.flatMap((product) =>
+    products?.flatMap((product) =>
       (product.variants || [])
         .filter((v: any) => !existingVariantIds.includes(v.id))
         .map((v: any) => ({
@@ -347,3 +347,4 @@ const AddProductModal = ({
     </FocusModal>
   )
 }
+
