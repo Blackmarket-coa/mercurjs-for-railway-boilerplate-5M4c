@@ -1,24 +1,34 @@
-import { authenticate, defineMiddlewares } from "@medusajs/framework/http";
-import deliveriesMiddlewares from "./deliveries/[id]/middlewares"
+import { defineMiddlewares, authenticate } from "@medusajs/framework/http"
+
+/**
+ * Middleware Configuration for Order Cycle Routes
+ * 
+ * - /vendor/order-cycles/* requires seller authentication
+ * - /store/order-cycles/* is public (no auth required)
+ * - /admin/order-cycles/* requires admin authentication
+ */
 
 export default defineMiddlewares({
   routes: [
+    // Vendor routes - require seller authentication
+    // MercurJS uses "seller" actor type
     {
-      method: ["POST"],
-      matcher: "/users",
+      matcher: "/vendor/order-cycles*",
       middlewares: [
-        authenticate(["driver", "restaurant"], "bearer", {
-          allowUnregistered: true,
-        }),
+        authenticate("seller", ["bearer", "session"]),
       ],
     },
+    // Store routes - public, no authentication
     {
-      method: ["POST", "DELETE"],
-      matcher: "/restaurants/:id/**",
+      matcher: "/store/order-cycles*",
+      middlewares: [],
+    },
+    // Admin routes - require admin authentication
+    {
+      matcher: "/admin/order-cycles*",
       middlewares: [
-        authenticate(["restaurant", "user"], "bearer"),
+        authenticate("user", ["bearer", "session"]),
       ],
     },
-    ...deliveriesMiddlewares.routes!
   ],
 })

@@ -1,0 +1,123 @@
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { ORDER_CYCLE_MODULE } from "../../../../../modules/order-cycle"
+
+/**
+ * Vendor API Routes for Order Cycle Products
+ * 
+ * GET /vendor/order-cycles/:id/products - List products in cycle
+ * POST /vendor/order-cycles/:id/products - Add product to cycle
+ */
+
+// GET /vendor/order-cycles/:id/products
+export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
+  const orderCycleService = req.scope.resolve(ORDER_CYCLE_MODULE)
+  const sellerId = (req as any).auth_context?.actor_id
+  const { id } = req.params
+  
+  if (!sellerId) {
+    return res.status(401).json({ message: "Unauthorized" })
+  }
+  
+  try {
+    // Check access
+    const orderCycle = await orderCycleService.retrieveOrderCycle(id, {
+      relations: ["sellers"],
+    })
+    
+    const hasAccess = orderCycle.sellers?.some(
+      (s: any) => s.seller_id === sellerId && s.is_active
+    ) || orderCycle.coordinator_seller_id === sellerId
+    
+    if (!hasAccess) {
+      return res.status(403).json({ message: "Access denied" })
+    }
+    
+    // Get products - filter by seller unless coordinator
+    const isCoordinator = orderCycle.coordinator_seller_id === sellerId
+    
+    const filters: any = {
+      order_cycle_id: id,
+    }
+    
+    if (!isCoordinator) {
+      // Non-coordinators only see their own products
+      filters.seller_id = sellerId
+    }
+    
+    const products = await orderCycleService.listOrderCycleProducts(filters, {
+      order: { display_order: "ASC" },
+    })
+    
+    res.json({ products })
+  } catch (error) {
+    res.status(404).json({ message: "Order cycle not found" })
+  }
+}
+
+// POST /vendor/order-cycles/:id/products
+export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
+  const orderCycleService = req.scope.resolve(ORDER_CYCLE_MODULE)
+  const sellerId = (req as any).auth_context?.actor_id
+  const { id } = req.params
+  
+  if (!sellerId) {
+    return res.status(401).json({ message: "Unauthorized" })
+  }
+  
+  const {
+    variant_id,
+    available_quantity,
+    price_override,
+    is_visible,
+    display_order,
+  } = req.body as {
+    variant_id: string
+    available_quantity?: number
+    price_override?: number
+    is_visible?: boolean
+    display_order?: number
+  }
+  
+  if (!variant_id) {
+    return res.status(400).json({ message: "variant_id is required" })
+  }
+  
+  try {
+    // Check access
+    const orderCycle = await orderCycleService.retrieveOrderCycle(id, {
+      relations: ["sellers"],
+    })
+    
+    const hasAccess = orderCycle.sellers?.some(
+      (s: any) => s.seller_id === sellerId && s.is_active
+    ) || orderCycle.coordinator_seller_id === sellerId
+    
+    if (!hasAccess) {
+      return res.status(403).json({ message: "Access denied" })
+    }
+    
+    // Check cycle is editable (not dispatched or cancelled)
+    if (["dispatched", "cancelled"].includes(orderCycle.status)) {
+      return res.status(400).json({ 
+        message: "Cannot add products to a dispatched or cancelled order cycle" 
+      })
+    }
+    
+    // Add product to cycle
+    const product = await orderCycleService.addProductToOrderCycle(
+      id,
+      variant_id,
+      sellerId,
+      {
+        available_quantity,
+        price_override,
+        is_visible: is_visible ?? true,
+        display_order: display_order ?? 0,
+      }
+    )
+    
+    res.status(201).json({ product })
+  } catch (error: any) {
+    res.status(400).json({ message: error.message })
+  }
+}

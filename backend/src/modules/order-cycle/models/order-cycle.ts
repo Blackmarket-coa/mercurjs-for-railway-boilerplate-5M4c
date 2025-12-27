@@ -1,0 +1,69 @@
+import { model } from "@medusajs/framework/utils"
+
+/**
+ * Order Cycle - Core model for food commerce
+ * 
+ * An Order Cycle represents a time-bounded ordering window where:
+ * - Customers can place orders during open period
+ * - Vendors prepare products for dispatch date
+ * - Orders are grouped for efficient fulfillment (e.g., weekly pickup)
+ * 
+ * This is modeled after Open Food Network's Order Cycle concept.
+ */
+const OrderCycle = model.define("order_cycle", {
+  id: model.id().primaryKey(),
+  
+  // Basic info
+  name: model.text().searchable(),
+  description: model.text().nullable(),
+  
+  // Timing - the core of order cycles
+  opens_at: model.dateTime(),      // When ordering opens
+  closes_at: model.dateTime(),     // When ordering closes
+  dispatch_at: model.dateTime(),   // When orders are fulfilled/dispatched
+  
+  // Status derived from timing but can be manually controlled
+  status: model.enum([
+    "draft",       // Being configured
+    "upcoming",    // Scheduled but not yet open
+    "open",        // Currently accepting orders
+    "closed",      // No longer accepting orders, awaiting dispatch
+    "dispatched",  // Orders have been fulfilled
+    "cancelled"    // Cancelled by admin
+  ]).default("draft"),
+  
+  // Coordinator - the seller who manages this order cycle
+  // (will be linked via module link to MercurJS seller)
+  coordinator_seller_id: model.text(),
+  
+  // Configuration
+  is_recurring: model.boolean().default(false),
+  recurrence_rule: model.text().nullable(), // iCal RRULE format for recurring cycles
+  
+  // Pickup/delivery info
+  pickup_instructions: model.text().nullable(),
+  pickup_location: model.text().nullable(),
+  
+  // Metadata for extensions
+  metadata: model.json().nullable(),
+})
+.indexes([
+  {
+    name: "IDX_ORDER_CYCLE_STATUS",
+    on: ["status"],
+  },
+  {
+    name: "IDX_ORDER_CYCLE_OPENS_AT",
+    on: ["opens_at"],
+  },
+  {
+    name: "IDX_ORDER_CYCLE_CLOSES_AT", 
+    on: ["closes_at"],
+  },
+  {
+    name: "IDX_ORDER_CYCLE_COORDINATOR",
+    on: ["coordinator_seller_id"],
+  },
+])
+
+export default OrderCycle
