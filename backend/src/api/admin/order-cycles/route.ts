@@ -1,26 +1,29 @@
-import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { 
+  AuthenticatedMedusaRequest,
+  MedusaResponse
+} from "@medusajs/framework"
 import { ORDER_CYCLE_MODULE } from "../../../modules/order-cycle"
 import type OrderCycleModuleService from "../../../modules/order-cycle/service"
 
-export async function GET(
-  req: MedusaRequest,
+export const GET = async (
+  req: AuthenticatedMedusaRequest,
   res: MedusaResponse
-) {
+) => {
   const orderCycleService = req.scope.resolve<OrderCycleModuleService>(ORDER_CYCLE_MODULE)
 
   try {
-    const { limit = "20", offset = "0", status } = req.query as {
+    const { limit = 20, offset = 0, status } = req.query as {
       status?: string
-      limit?: string
-      offset?: string
+      limit?: number
+      offset?: number
     }
 
-    const limitNum = parseInt(limit, 10)
-    const offsetNum = parseInt(offset, 10)
+    const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : limit
+    const offsetNum = typeof offset === 'string' ? parseInt(offset, 10) : offset
 
     const filters: Record<string, unknown> = {}
     if (status) {
-      filters.status = status.split(",")
+      filters.status = typeof status === 'string' ? status.split(",") : status
     }
 
     const orderCycles = await orderCycleService.listOrderCycles(filters, {
@@ -43,10 +46,10 @@ export async function GET(
   }
 }
 
-export async function POST(
-  req: MedusaRequest,
+export const POST = async (
+  req: AuthenticatedMedusaRequest,
   res: MedusaResponse
-) {
+) => {
   const orderCycleService = req.scope.resolve<OrderCycleModuleService>(ORDER_CYCLE_MODULE)
 
   try {
