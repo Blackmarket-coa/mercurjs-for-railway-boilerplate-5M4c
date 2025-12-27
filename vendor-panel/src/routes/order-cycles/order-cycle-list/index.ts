@@ -1,1 +1,1 @@
-export { OrderCycleList as Component } from "./order-cycle-list"
+export { default as Component, config } from "./order-cycle-list"

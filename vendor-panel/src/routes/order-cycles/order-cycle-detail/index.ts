@@ -1,1 +1,1 @@
-export { OrderCycleDetail as Component } from "./order-cycle-detail"
+export { default as Component } from "./order-cycle-detail"

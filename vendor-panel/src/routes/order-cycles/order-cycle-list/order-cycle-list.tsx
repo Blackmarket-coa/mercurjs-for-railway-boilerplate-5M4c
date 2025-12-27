@@ -1,18 +1,14 @@
-import { SingleColumnPage } from "../../../components/layout/pages"
-import { useDashboardExtension } from "../../../extensions"
+import { defineRouteConfig } from "@medusajs/admin-sdk"
+import { CalendarMini } from "@medusajs/icons"
 import { OrderCycleListTable } from "./components/order-cycle-list-table"
 
-export const OrderCycleList = () => {
-  const { getWidgets } = useDashboardExtension()
-
-  return (
-    <SingleColumnPage
-      widgets={{
-        after: getWidgets("order_cycle.list.after"),
-        before: getWidgets("order_cycle.list.before"),
-      }}
-    >
-      <OrderCycleListTable />
-    </SingleColumnPage>
-  )
+const OrderCycleListPage = () => {
+  return <OrderCycleListTable />
 }
+
+export const config = defineRouteConfig({
+  label: "Order Cycles",
+  icon: CalendarMini,
+})
+
+export default OrderCycleListPage
