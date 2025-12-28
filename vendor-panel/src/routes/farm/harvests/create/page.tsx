@@ -8,7 +8,10 @@ import {
   Select,
   Textarea,
   toast,
+  Badge,
+  Tooltip,
 } from "@medusajs/ui"
+import { InformationCircle, LightBulb, CheckCircle } from "@medusajs/icons"
 import { useForm, Controller } from "react-hook-form"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useParams } from "react-router-dom"
@@ -20,6 +23,21 @@ import {
   HarvestVisibility,
   HarvestVisibilityLabels,
 } from "../../../../types/domain"
+
+// Field help text
+const FIELD_HELP = {
+  crop_name: "The main type of crop (e.g., Tomatoes, Lettuce, Basil)",
+  variety: "Specific variety or cultivar (e.g., Brandywine, Butterhead, Genovese)",
+  category: "Group similar crops for easier filtering (e.g., Vegetables, Herbs)",
+  growing_method: "How this crop was grown (e.g., Organic, Hydroponic, No-till)",
+  field_name: "Where on your farm this was grown (helps track productivity)",
+  visibility: {
+    DRAFT: "Only visible to you - use while planning",
+    PREVIEW: "Share with select partners before public launch",
+    PUBLIC: "Visible to all customers",
+    ARCHIVED: "Hidden from view but preserved for records"
+  }
+}
 
 interface HarvestFormValues {
   crop_name: string
@@ -126,25 +144,59 @@ const HarvestCreatePage = () => {
 
   return (
     <div className="flex flex-col gap-y-4">
+      {/* Page Header with context */}
       <Container className="p-6">
         <div className="flex items-center justify-between mb-6">
-          <Heading level="h1">
-            {isEdit ? "Edit Harvest" : "Log New Harvest"}
-          </Heading>
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Heading level="h1">
+                {isEdit ? "Edit Harvest" : "Log New Harvest"}
+              </Heading>
+              {!isEdit && <Badge color="green" size="xsmall">Step 1 of 3</Badge>}
+            </div>
+            <Text className="text-ui-fg-subtle">
+              {isEdit 
+                ? "Update harvest details and notes" 
+                : "Record your harvest details to start tracking inventory"
+              }
+            </Text>
+          </div>
           <Button variant="secondary" onClick={() => navigate("/farm/harvests")}>
             Cancel
           </Button>
         </div>
 
+        {/* Quick tip for new users */}
+        {!isEdit && (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <LightBulb className="w-5 h-5 text-amber-600 mt-0.5" />
+              <div>
+                <Text className="font-medium text-amber-800">Quick Tip</Text>
+                <Text className="text-amber-700 text-sm mt-1">
+                  Start with the basics (crop name and season). You can always add more details later 
+                  or update this harvest as you learn more.
+                </Text>
+              </div>
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Crop Info */}
-          <div>
-            <Heading level="h3" className="mb-4">
-              Crop Information
-            </Heading>
+          <div className="bg-ui-bg-subtle rounded-lg p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Heading level="h3">Crop Information</Heading>
+              <Badge color="red" size="xsmall">Required</Badge>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="crop_name">Crop Name *</Label>
+                <div className="flex items-center gap-1 mb-1">
+                  <Label htmlFor="crop_name">Crop Name *</Label>
+                  <Tooltip content={FIELD_HELP.crop_name}>
+                    <InformationCircle className="w-3.5 h-3.5 text-ui-fg-muted cursor-help" />
+                  </Tooltip>
+                </div>
                 <Input
                   id="crop_name"
                   {...form.register("crop_name", { required: true })}
@@ -152,7 +204,12 @@ const HarvestCreatePage = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="variety">Variety</Label>
+                <div className="flex items-center gap-1 mb-1">
+                  <Label htmlFor="variety">Variety</Label>
+                  <Tooltip content={FIELD_HELP.variety}>
+                    <InformationCircle className="w-3.5 h-3.5 text-ui-fg-muted cursor-help" />
+                  </Tooltip>
+                </div>
                 <Input
                   id="variety"
                   {...form.register("variety")}
@@ -160,7 +217,12 @@ const HarvestCreatePage = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="category">Category</Label>
+                <div className="flex items-center gap-1 mb-1">
+                  <Label htmlFor="category">Category</Label>
+                  <Tooltip content={FIELD_HELP.category}>
+                    <InformationCircle className="w-3.5 h-3.5 text-ui-fg-muted cursor-help" />
+                  </Tooltip>
+                </div>
                 <Input
                   id="category"
                   {...form.register("category")}
@@ -168,7 +230,12 @@ const HarvestCreatePage = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="growing_method">Growing Method</Label>
+                <div className="flex items-center gap-1 mb-1">
+                  <Label htmlFor="growing_method">Growing Method</Label>
+                  <Tooltip content={FIELD_HELP.growing_method}>
+                    <InformationCircle className="w-3.5 h-3.5 text-ui-fg-muted cursor-help" />
+                  </Tooltip>
+                </div>
                 <Input
                   id="growing_method"
                   {...form.register("growing_method")}
@@ -239,12 +306,18 @@ const HarvestCreatePage = () => {
 
           {/* Field Info */}
           <div className="border-t pt-6">
-            <Heading level="h3" className="mb-4">
-              Field Information
-            </Heading>
+            <div className="flex items-center gap-2 mb-4">
+              <Heading level="h3">Field Information</Heading>
+              <Badge color="grey" size="xsmall">Optional</Badge>
+            </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="field_name">Field Name</Label>
+                <div className="flex items-center gap-1 mb-1">
+                  <Label htmlFor="field_name">Field Name</Label>
+                  <Tooltip content={FIELD_HELP.field_name}>
+                    <InformationCircle className="w-3.5 h-3.5 text-ui-fg-muted cursor-help" />
+                  </Tooltip>
+                </div>
                 <Input
                   id="field_name"
                   {...form.register("field_name")}
@@ -291,12 +364,18 @@ const HarvestCreatePage = () => {
 
           {/* Notes */}
           <div className="border-t pt-6">
-            <Heading level="h3" className="mb-4">
-              Notes & Details
-            </Heading>
+            <div className="flex items-center gap-2 mb-4">
+              <Heading level="h3">Notes & Details</Heading>
+              <Badge color="grey" size="xsmall">Optional</Badge>
+            </div>
+            <Text className="text-ui-fg-subtle text-sm mb-4">
+              Add notes to remember important details. Customer-facing notes (taste notes, usage tips) 
+              will be shown on your product pages.
+            </Text>
             <div className="space-y-4">
               <div>
                 <Label htmlFor="farmer_notes">Farmer Notes</Label>
+                <Text className="text-ui-fg-muted text-xs mb-1">Private - only visible to you</Text>
                 <Textarea
                   id="farmer_notes"
                   {...form.register("farmer_notes")}
@@ -307,6 +386,7 @@ const HarvestCreatePage = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="weather_notes">Weather Notes</Label>
+                  <Text className="text-ui-fg-muted text-xs mb-1">Private</Text>
                   <Textarea
                     id="weather_notes"
                     {...form.register("weather_notes")}
@@ -316,6 +396,7 @@ const HarvestCreatePage = () => {
                 </div>
                 <div>
                   <Label htmlFor="taste_notes">Taste Notes</Label>
+                  <Text className="text-ui-fg-muted text-xs mb-1">Shown to customers</Text>
                   <Textarea
                     id="taste_notes"
                     {...form.register("taste_notes")}
@@ -326,6 +407,7 @@ const HarvestCreatePage = () => {
               </div>
               <div>
                 <Label htmlFor="usage_tips">Usage Tips</Label>
+                <Text className="text-ui-fg-muted text-xs mb-1">Shown to customers</Text>
                 <Textarea
                   id="usage_tips"
                   {...form.register("usage_tips")}
@@ -341,7 +423,7 @@ const HarvestCreatePage = () => {
             <Heading level="h3" className="mb-4">
               Visibility
             </Heading>
-            <div className="max-w-xs">
+            <div className="max-w-md">
               <Label htmlFor="visibility_status">Status</Label>
               <Controller
                 control={form.control}
@@ -363,32 +445,90 @@ const HarvestCreatePage = () => {
                   </Select>
                 )}
               />
-              <Text className="text-ui-fg-subtle text-xs mt-1">
-                Draft harvests are only visible to you. Public harvests can be
-                linked to products.
-              </Text>
+              
+              {/* Visibility explanation */}
+              <div className="mt-3 space-y-2">
+                {Object.entries(FIELD_HELP.visibility).map(([key, desc]) => (
+                  <div 
+                    key={key}
+                    className={`flex items-start gap-2 p-2 rounded text-sm ${
+                      form.watch("visibility_status") === key 
+                        ? "bg-ui-bg-subtle" 
+                        : "opacity-60"
+                    }`}
+                  >
+                    {form.watch("visibility_status") === key ? (
+                      <CheckCircle className="w-4 h-4 text-ui-fg-success mt-0.5" />
+                    ) : (
+                      <div className="w-4 h-4" />
+                    )}
+                    <div>
+                      <Text className="font-medium">{HarvestVisibilityLabels[key as HarvestVisibility]}</Text>
+                      <Text className="text-ui-fg-subtle text-xs">{desc}</Text>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
           {/* Submit */}
-          <div className="border-t pt-6 flex justify-end gap-2">
-            <Button
-              variant="secondary"
-              type="button"
-              onClick={() => navigate("/farm/harvests")}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="primary"
-              type="submit"
-              isLoading={mutation.isPending}
-            >
-              {isEdit ? "Save Changes" : "Log Harvest"}
-            </Button>
+          <div className="border-t pt-6 flex items-center justify-between">
+            <Text className="text-ui-fg-subtle text-sm">
+              {isEdit 
+                ? "Changes will be saved immediately" 
+                : "You can edit this harvest anytime after creating it"
+              }
+            </Text>
+            <div className="flex gap-2">
+              <Button
+                variant="secondary"
+                type="button"
+                onClick={() => navigate("/farm/harvests")}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                type="submit"
+                isLoading={mutation.isPending}
+              >
+                {isEdit ? "Save Changes" : "Log Harvest"}
+              </Button>
+            </div>
           </div>
         </form>
       </Container>
+
+      {/* What's Next Panel */}
+      {!isEdit && (
+        <Container className="p-6 bg-ui-bg-subtle">
+          <Heading level="h3" className="mb-3">What happens next?</Heading>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-medium">1</div>
+              <div>
+                <Text className="font-medium">Create harvest</Text>
+                <Text className="text-ui-fg-subtle text-sm">You're doing this now</Text>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-medium">2</div>
+              <div>
+                <Text className="font-medium">Add lots</Text>
+                <Text className="text-ui-fg-subtle text-sm">Break into inventory batches</Text>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-medium">3</div>
+              <div>
+                <Text className="font-medium">Link products</Text>
+                <Text className="text-ui-fg-subtle text-sm">Make available for sale</Text>
+              </div>
+            </div>
+          </div>
+        </Container>
+      )}
     </div>
   )
 }
