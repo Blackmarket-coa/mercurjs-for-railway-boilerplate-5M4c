@@ -6,7 +6,7 @@ import { TicketPurchase } from "./ticket-purchase"
 export const TicketProduct = model.define("ticket_product", {
   id: model.id().primaryKey(),
   product_id: model.text().unique(),
-  seller_id: model.text(),
+  seller_id: model.text().nullable(),
   venue: model.belongsTo(() => Venue),
   dates: model.array(),
   variants: model.hasMany(() => TicketProductVariant, {
