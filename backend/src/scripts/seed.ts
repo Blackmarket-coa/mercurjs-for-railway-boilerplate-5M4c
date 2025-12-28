@@ -286,14 +286,27 @@ export default async function seedDemoData({ container }: ExecArgs) {
     }
   }
 
-  await link.create({
-    [Modules.STOCK_LOCATION]: {
-      stock_location_id: stockLocation.id,
-    },
-    [Modules.FULFILLMENT]: {
-      fulfillment_set_id: fulfillmentSet.id,
-    },
-  });
+  // Create link between stock location and fulfillment set
+  try {
+    await link.create({
+      [Modules.STOCK_LOCATION]: {
+        stock_location_id: stockLocation.id,
+      },
+      [Modules.FULFILLMENT]: {
+        fulfillment_set_id: fulfillmentSet.id,
+      },
+    });
+    logger.info("Created link between stock location and fulfillment set.");
+  } catch (error: any) {
+    if (
+      error.message?.includes("Cannot create multiple links") ||
+      error.message?.includes("already exists")
+    ) {
+      logger.info("Link between stock location and fulfillment set already exists, skipping...");
+    } else {
+      throw error;
+    }
+  }
 
   await createShippingOptionsWorkflow(container).run({
     input: [
