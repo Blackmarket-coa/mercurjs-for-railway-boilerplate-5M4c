@@ -429,7 +429,8 @@ export default async function seedDemoData({ container }: ExecArgs) {
 
   logger.info("Seeding product data...");
 
-  let categoryResult: any;
+  let shouldSeedProducts = false;
+  let categoryResult: any = [];
   const categoryNames = ["Shirts", "Sweatshirts", "Pants", "Merch"];
   
   try {
@@ -442,82 +443,33 @@ export default async function seedDemoData({ container }: ExecArgs) {
       },
     });
     categoryResult = result.result;
+    shouldSeedProducts = categoryResult && categoryResult.length > 0;
     logger.info("Product categories created successfully.");
   } catch (error: any) {
     if (error.message?.includes("already exists")) {
-      logger.info("Product categories already exist, fetching existing ones...");
-      const productService = container.resolve(Modules.PRODUCT);
-      
-      // Fetch all categories
-      const allCategories = await productService.listProductCategories(
-        {},
-        {
-          relations: ["parent_category"],
-        }
-      );
-      
-      // Filter to get only the ones we need
-      categoryResult = allCategories.filter((cat: any) => 
-        categoryNames.some((name) => cat.name === name || cat.name?.toLowerCase() === name.toLowerCase())
-      );
-      
-      // If we still don't have all categories, try to create the missing ones
-      const missingCategories = categoryNames.filter(
-        (name) => !categoryResult.some((cat: any) => cat.name?.toLowerCase() === name.toLowerCase())
-      );
-      
-      if (missingCategories.length > 0) {
-        logger.warn(`Missing categories: ${missingCategories.join(", ")}. Attempting to create...`);
-        try {
-          const newCats = await createProductCategoriesWorkflow(container).run({
-            input: {
-              product_categories: missingCategories.map((name) => ({
-                name,
-                is_active: true,
-              })),
-            },
-          });
-          categoryResult = [...categoryResult, ...newCats.result];
-          logger.info(`Successfully created missing categories.`);
-        } catch (createError: any) {
-          if (createError.message?.includes("already exists")) {
-            logger.info("Missing categories already exist. Fetching all categories again...");
-            const allCats = await productService.listProductCategories(
-              {},
-              {
-                relations: ["parent_category"],
-              }
-            );
-            categoryResult = allCats.filter((cat: any) => 
-              categoryNames.some((name) => cat.name?.toLowerCase() === name.toLowerCase())
-            );
-          } else {
-            throw createError;
-          }
-        }
-      }
-      
-      logger.info(`Using product categories: ${categoryResult.length} found.`);
+      logger.info("Product categories already exist, skipping product seeding. Products can be created manually from the admin panel.");
+      shouldSeedProducts = false;
     } else {
       throw error;
     }
   }
 
-  // Helper function to safely get category ID
-  const getCategoryId = (name: string) => {
-    const category = categoryResult.find((cat: any) => cat.name === name || cat.name?.toLowerCase() === name.toLowerCase());
-    if (!category) {
-      throw new Error(`Category "${name}" not found in categoryResult. Available: ${categoryResult.map((c: any) => c.name).join(", ")}`);
-    }
-    return category.id;
-  };
+  if (shouldSeedProducts && categoryResult.length > 0) {
+    // Helper function to safely get category ID
+    const getCategoryId = (name: string) => {
+      const category = categoryResult.find((cat: any) => cat.name === name);
+      if (!category) {
+        throw new Error(`Category "${name}" not found in categoryResult`);
+      }
+      return category.id;
+    };
 
-  await createProductsWorkflow(container).run({
-    input: {
-      products: [
-        {
-          title: "Medusa T-Shirt",
-          category_ids: [
+    await createProductsWorkflow(container).run({
+      input: {
+        products: [
+          {
+            title: "Medusa T-Shirt",
+            category_ids: [
             getCategoryId("Shirts"),
           ],
           description:
@@ -1008,7 +960,10 @@ export default async function seedDemoData({ container }: ExecArgs) {
       ],
     },
   });
-  logger.info("Finished seeding product data.");
+    logger.info("Finished seeding product data.");
+  } else {
+    logger.info("Skipping product seeding since categories are not available. Products can be created manually from the admin panel.");
+  }
 
   logger.info("Seeding inventory levels.");
 
