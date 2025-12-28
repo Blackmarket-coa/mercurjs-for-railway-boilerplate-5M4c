@@ -40,6 +40,15 @@ export const createTicketProductWorkflow = createWorkflow(
       input,
       stores
     }, (data) => {
+      if (!data.stores || data.stores.length === 0) {
+        throw new Error("No store found. Please ensure your store is properly configured.")
+      }
+
+      const store = data.stores[0]
+      if (!store.default_location_id) {
+        throw new Error("Store does not have a default stock location. Please configure a default stock location for your store.")
+      }
+
       const inventoryItems: any[] = []
 
       for (const date of data.input.dates) {
@@ -49,7 +58,7 @@ export const createTicketProductWorkflow = createWorkflow(
             title: `${data.input.name} - ${date} - ${variant.row_type}`,
             description: `Ticket for ${data.input.name} on ${date} in ${variant.row_type} seating`,
             location_levels: [{
-              location_id: data.stores[0].default_location_id,
+              location_id: store.default_location_id,
               stocked_quantity: variant.seat_count,
             }],
             requires_shipping: false
