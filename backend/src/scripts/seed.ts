@@ -430,27 +430,15 @@ export default async function seedDemoData({ container }: ExecArgs) {
   logger.info("Seeding product data...");
 
   let categoryResult: any;
+  const categoryNames = ["Shirts", "Sweatshirts", "Pants", "Merch"];
+  
   try {
     const result = await createProductCategoriesWorkflow(container).run({
       input: {
-        product_categories: [
-          {
-            name: "Shirts",
-            is_active: true,
-          },
-          {
-            name: "Sweatshirts",
-            is_active: true,
-          },
-          {
-            name: "Pants",
-            is_active: true,
-          },
-          {
-            name: "Merch",
-            is_active: true,
-          },
-        ],
+        product_categories: categoryNames.map((name) => ({
+          name,
+          is_active: true,
+        })),
       },
     });
     categoryResult = result.result;
@@ -460,17 +448,48 @@ export default async function seedDemoData({ container }: ExecArgs) {
       logger.info("Product categories already exist, fetching existing ones...");
       const productService = container.resolve(Modules.PRODUCT);
       const existingCategories = await productService.listProductCategories(
-        {},
+        {
+          name: categoryNames,
+        },
         {
           relations: ["parent_category"],
         }
       );
-      categoryResult = existingCategories;
-      logger.info(`Using existing product categories: ${categoryResult.length} found.`);
+      
+      // Ensure all required categories exist
+      const missingCategories = categoryNames.filter(
+        (name) => !existingCategories.some((cat) => cat.name === name)
+      );
+      
+      if (missingCategories.length > 0) {
+        logger.warn(`Missing categories: ${missingCategories.join(", ")}. Creating them...`);
+        const newCats = await createProductCategoriesWorkflow(container).run({
+          input: {
+            product_categories: missingCategories.map((name) => ({
+              name,
+              is_active: true,
+            })),
+          },
+        });
+        categoryResult = [...existingCategories, ...newCats.result];
+      } else {
+        categoryResult = existingCategories;
+      }
+      
+      logger.info(`Using product categories: ${categoryResult.length} found.`);
     } else {
       throw error;
     }
   }
+
+  // Helper function to safely get category ID
+  const getCategoryId = (name: string) => {
+    const category = categoryResult.find((cat: any) => cat.name === name);
+    if (!category) {
+      throw new Error(`Category "${name}" not found in categoryResult`);
+    }
+    return category.id;
+  };
 
   await createProductsWorkflow(container).run({
     input: {
@@ -478,7 +497,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
         {
           title: "Medusa T-Shirt",
           category_ids: [
-            categoryResult.find((cat) => cat.name === "Shirts")!.id,
+            getCategoryId("Shirts"),
           ],
           description:
             "Reimagine the feeling of a classic T-shirt. With our cotton T-shirts, everyday essentials no longer have to be ordinary.",
@@ -665,7 +684,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
         {
           title: "Medusa Sweatshirt",
           category_ids: [
-            categoryResult.find((cat) => cat.name === "Sweatshirts")!.id,
+            getCategoryId("Sweatshirts"),
           ],
           description:
             "Reimagine the feeling of a classic sweatshirt. With our cotton sweatshirt, everyday essentials no longer have to be ordinary.",
@@ -766,7 +785,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
         {
           title: "Medusa Sweatpants",
           category_ids: [
-            categoryResult.find((cat) => cat.name === "Pants")!.id,
+            getCategoryId("Pants"),
           ],
           description:
             "Reimagine the feeling of classic sweatpants. With our cotton sweatpants, everyday essentials no longer have to be ordinary.",
@@ -867,7 +886,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
         {
           title: "Medusa Shorts",
           category_ids: [
-            categoryResult.find((cat) => cat.name === "Merch")!.id,
+            getCategoryId("Merch"),
           ],
           description:
             "Reimagine the feeling of classic shorts. With our cotton shorts, everyday essentials no longer have to be ordinary.",
