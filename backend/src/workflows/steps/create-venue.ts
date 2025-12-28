@@ -1,10 +1,11 @@
-﻿import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { TICKET_BOOKING_MODULE } from "../../modules/ticket-booking"
 import TicketBookingModuleService from "../../modules/ticket-booking/service"
 
 export type CreateVenueStepInput = {
   name: string
   address?: string
+  seller_id: string
 }
 
 export const createVenueStep = createStep(
