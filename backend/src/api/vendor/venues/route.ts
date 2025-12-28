@@ -24,7 +24,6 @@ export async function GET(
       filters: {
         seller_id: sellerId
       },
-      ...req.queryConfig,
     })
 
     res.json({

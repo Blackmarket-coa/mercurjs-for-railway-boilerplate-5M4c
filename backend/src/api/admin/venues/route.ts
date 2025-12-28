@@ -9,7 +9,7 @@ export async function GET(
 ) {
   const query = req.scope.resolve("query")
 
-  const { 
+  const {
     data: venues,
     metadata
   } = await query.graph({
@@ -17,7 +17,7 @@ export async function GET(
     ...req.queryConfig,
   })
 
-  res.json({ 
+  res.json({
     venues,
     count: metadata?.count,
     limit: metadata?.take,
@@ -28,6 +28,7 @@ export async function GET(
 export const CreateVenueSchema = z.object({
   name: z.string(),
   address: z.string().optional(),
+  seller_id: z.string(),
   rows: z.array(z.object({
     row_number: z.string(),
     row_type: z.nativeEnum(RowType),
