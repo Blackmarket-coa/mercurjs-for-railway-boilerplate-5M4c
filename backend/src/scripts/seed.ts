@@ -429,30 +429,48 @@ export default async function seedDemoData({ container }: ExecArgs) {
 
   logger.info("Seeding product data...");
 
-  const { result: categoryResult } = await createProductCategoriesWorkflow(
-    container
-  ).run({
-    input: {
-      product_categories: [
+  let categoryResult: any;
+  try {
+    const result = await createProductCategoriesWorkflow(container).run({
+      input: {
+        product_categories: [
+          {
+            name: "Shirts",
+            is_active: true,
+          },
+          {
+            name: "Sweatshirts",
+            is_active: true,
+          },
+          {
+            name: "Pants",
+            is_active: true,
+          },
+          {
+            name: "Merch",
+            is_active: true,
+          },
+        ],
+      },
+    });
+    categoryResult = result.result;
+    logger.info("Product categories created successfully.");
+  } catch (error: any) {
+    if (error.message?.includes("already exists")) {
+      logger.info("Product categories already exist, fetching existing ones...");
+      const productService = container.resolve(Modules.PRODUCT);
+      const existingCategories = await productService.listProductCategories(
+        {},
         {
-          name: "Shirts",
-          is_active: true,
-        },
-        {
-          name: "Sweatshirts",
-          is_active: true,
-        },
-        {
-          name: "Pants",
-          is_active: true,
-        },
-        {
-          name: "Merch",
-          is_active: true,
-        },
-      ],
-    },
-  });
+          relations: ["parent_category"],
+        }
+      );
+      categoryResult = existingCategories;
+      logger.info(`Using existing product categories: ${categoryResult.length} found.`);
+    } else {
+      throw error;
+    }
+  }
 
   await createProductsWorkflow(container).run({
     input: {
