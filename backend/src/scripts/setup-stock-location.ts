@@ -31,7 +31,7 @@ async function setupStockLocation(container: MedusaContainer) {
     }
 
     // List existing stock locations
-    const existingLocations = await stockLocationService.listStockLocations()
+    const existingLocations = await stockLocationService.listStockLocations({})
 
     if (existingLocations && existingLocations.length > 0) {
       const location = existingLocations[0]
@@ -72,5 +72,6 @@ async function setupStockLocation(container: MedusaContainer) {
     logger.error("Error setting up stock location:", error)
     throw error
   }
+}
 
 export default setupStockLocation
