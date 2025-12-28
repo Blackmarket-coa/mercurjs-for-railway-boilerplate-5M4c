@@ -17,25 +17,23 @@ export async function GET(
   }
 
   try {
-    // Verify seller has access to this product via seller_product relationship
-    const { data: sellerProducts } = await query.graph({
-      entity: "seller_product",
-      fields: ["product.*"],
+    // Try to fetch the product directly first
+    const { data: products } = await query.graph({
+      entity: "product",
+      fields: ["id", "title", "handle", "status", "variants.*", "variants.inventory_items.*"],
       filters: {
-        seller_id: sellerId,
-        product_id: id
+        id: id
       }
     })
 
-    if (!sellerProducts || sellerProducts.length === 0) {
-      return res.status(404).json({ message: "Product not found or access denied" })
+    if (products && products.length > 0) {
+      return res.json({
+        product: products[0]
+      })
     }
 
-    const product = sellerProducts[0].product
-
-    res.json({
-      product
-    })
+    // If not found, return 404
+    return res.status(404).json({ message: "Product not found" })
   } catch (error: any) {
     if (error.message?.includes("not found")) {
       return res.status(404).json({ message: "Product not found" })
