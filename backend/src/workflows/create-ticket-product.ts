@@ -82,9 +82,15 @@ export const createTicketProductWorkflow = createWorkflow(
       stores
     }, (data) => {
       const rowTypes = [...new Set(data.input.variants.map((variant: any) => variant.row_type))]
+      
+      // Generate unique product handle to avoid conflicts
+      const timestamp = Date.now();
+      const venueId = data.input.venue_id.substring(0, 8);
+      const uniqueHandle = `ticket-${venueId}-${timestamp}`;
 
       const product: CreateProductWorkflowInputDTO = {
         title: data.input.name,
+        handle: uniqueHandle,
         status: "published",
         options: [
           {
