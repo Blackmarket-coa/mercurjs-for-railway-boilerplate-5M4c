@@ -60,6 +60,15 @@ module.exports = defineConfig({
     { resolve: '@mercurjs/resend', options: {} },
   ],
   modules: [
+    // Phase 1: Domain Architecture Modules
+    // Seller Extension module (vendor_type, certifications, etc.)
+    {
+      resolve: './src/modules/seller-extension',
+    },
+    // Product Archetype module (behavior-driven product classification)
+    {
+      resolve: './src/modules/product-archetype',
+    },
     // Ticket Booking module
     {
       resolve: './src/modules/ticket-booking',
