@@ -1,4 +1,4 @@
-import { CalendarMini, TriangleRightMini } from "@medusajs/icons"
+import { CalendarMini, TriangleRightMini, ShoppingCart, Envelope, Star, TruckFast, LightBulb } from "@medusajs/icons"
 import {
   CartesianGrid,
   Line,
@@ -24,6 +24,38 @@ import { useState } from "react"
 import { addDays, differenceInDays, format, subDays } from "date-fns"
 import { Calendar } from "../../../components/common/calendar/calendar"
 import { useUnreads } from "@talkjs/react"
+
+// Quick actions for established vendors
+const QUICK_ACTIONS = [
+  {
+    title: "Add New Product",
+    description: "List a new item for sale",
+    link: "/products/create",
+    icon: ShoppingCart,
+    color: "blue",
+  },
+  {
+    title: "View All Orders",
+    description: "Manage your orders",
+    link: "/orders",
+    icon: TruckFast,
+    color: "green",
+  },
+  {
+    title: "Check Reviews",
+    description: "See customer feedback",
+    link: "/reviews",
+    icon: Star,
+    color: "orange",
+  },
+  {
+    title: "Messages",
+    description: "Customer inquiries",
+    link: "/messages",
+    icon: Envelope,
+    color: "purple",
+  },
+]
 
 const colorPicker = (line: string) => {
   switch (line) {
@@ -89,7 +121,7 @@ export const DashboardCharts = ({
 }: {
   notFulfilledOrders: number
   fulfilledOrders: number
-  reviewsToReply: any[]
+  reviewsToReply: number
 }) => {
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -141,12 +173,30 @@ export const DashboardCharts = ({
 
   return (
     <>
+      {/* Welcome Back Header */}
+      <Container className="p-0 mb-4">
+        <div className="px-6 py-6 bg-gradient-to-r from-ui-bg-subtle to-ui-bg-base">
+          <Heading level="h1" className="text-2xl mb-2">Welcome Back! 👋</Heading>
+          <Text className="text-ui-fg-subtle">
+            Here's what's happening with your store today. Check your pending tasks and track your progress.
+          </Text>
+        </div>
+      </Container>
+
+      {/* Action Items - Tasks that need attention */}
       <Container className="divide-y p-0">
         <div className="flex items-center justify-between px-6 py-4">
           <div>
-            <Heading>Actions</Heading>
+            <div className="flex items-center gap-2">
+              <Heading>Tasks Needing Attention</Heading>
+              {(notFulfilledOrders > 0 || reviewsToReply > 0 || (unreadMessages?.length || 0) > 0) && (
+                <Badge color="red" size="xsmall">
+                  {notFulfilledOrders + reviewsToReply + (unreadMessages?.length || 0)}
+                </Badge>
+              )}
+            </div>
             <Text className="text-ui-fg-subtle" size="small">
-              Check out new events and manage your store
+              Complete these tasks to keep your customers happy
             </Text>
           </div>
         </div>
@@ -154,11 +204,14 @@ export const DashboardCharts = ({
           <Link to="/orders?order_status=not_fulfilled">
             <Button
               variant="secondary"
-              className="w-full justify-between py-4 h-full"
+              className="w-full justify-between py-4 h-full hover:border-ui-tag-orange-border transition-colors"
             >
               <div className="flex gap-4 items-center">
-                <Badge>{notFulfilledOrders}</Badge>
-                Orders to be fulfilled
+                <Badge color={notFulfilledOrders > 0 ? "orange" : "grey"}>{notFulfilledOrders}</Badge>
+                <div className="text-left">
+                  <div className="font-medium">Orders to fulfill</div>
+                  <div className="text-xs text-ui-fg-subtle">Pack & ship orders</div>
+                </div>
               </div>
               <TriangleRightMini color="grey" />
             </Button>
@@ -166,11 +219,14 @@ export const DashboardCharts = ({
           <Link to="/orders?order_status=fulfilled">
             <Button
               variant="secondary"
-              className="w-full justify-between py-4 h-full"
+              className="w-full justify-between py-4 h-full hover:border-ui-tag-blue-border transition-colors"
             >
               <div className="flex gap-4 items-center">
-                <Badge>{fulfilledOrders}</Badge>
-                Orders to be shipped
+                <Badge color={fulfilledOrders > 0 ? "blue" : "grey"}>{fulfilledOrders}</Badge>
+                <div className="text-left">
+                  <div className="font-medium">Ready to ship</div>
+                  <div className="text-xs text-ui-fg-subtle">Mark as shipped</div>
+                </div>
               </div>
               <TriangleRightMini color="grey" />
             </Button>
@@ -178,11 +234,14 @@ export const DashboardCharts = ({
           <Link to="/reviews?seller_note=false">
             <Button
               variant="secondary"
-              className="w-full justify-between py-4 h-full"
+              className="w-full justify-between py-4 h-full hover:border-ui-tag-green-border transition-colors"
             >
               <div className="flex gap-4 items-center">
-                <Badge>{reviewsToReply}</Badge>
-                Reviews to reply
+                <Badge color={reviewsToReply > 0 ? "green" : "grey"}>{reviewsToReply}</Badge>
+                <div className="text-left">
+                  <div className="font-medium">Reviews to reply</div>
+                  <div className="text-xs text-ui-fg-subtle">Thank your customers</div>
+                </div>
               </div>
               <TriangleRightMini color="grey" />
             </Button>
@@ -190,22 +249,58 @@ export const DashboardCharts = ({
           <Link to="/messages">
             <Button
               variant="secondary"
-              className="w-full justify-between py-4 h-full h-full"
+              className="w-full justify-between py-4 h-full hover:border-ui-tag-purple-border transition-colors"
             >
               <div className="flex gap-4 items-center">
-                <Badge>{unreadMessages?.length || 0}</Badge>Unread messages
+                <Badge color={(unreadMessages?.length || 0) > 0 ? "purple" : "grey"}>{unreadMessages?.length || 0}</Badge>
+                <div className="text-left">
+                  <div className="font-medium">Unread messages</div>
+                  <div className="text-xs text-ui-fg-subtle">Customer inquiries</div>
+                </div>
               </div>
               <TriangleRightMini color="grey" />
             </Button>
           </Link>
         </div>
       </Container>
-      <Container className="divide-y p-0 mt-2">
+
+      {/* Quick Actions */}
+      <Container className="p-0 mt-4">
+        <div className="px-6 py-4 border-b border-ui-border-base">
+          <Heading>Quick Actions</Heading>
+          <Text className="text-ui-fg-subtle" size="small">
+            Common tasks to manage your store
+          </Text>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-ui-border-base">
+          {QUICK_ACTIONS.map((action, index) => (
+            <Link
+              key={index}
+              to={action.link}
+              className="flex flex-col items-center p-6 hover:bg-ui-bg-subtle transition-colors group text-center"
+            >
+              <div className="p-3 rounded-lg bg-ui-bg-subtle group-hover:bg-ui-bg-base mb-3 transition-colors">
+                <action.icon className="w-6 h-6 text-ui-fg-muted" />
+              </div>
+              <Text className="font-medium text-ui-fg-base">{action.title}</Text>
+              <Text className="text-ui-fg-subtle text-xs">{action.description}</Text>
+            </Link>
+          ))}
+        </div>
+      </Container>
+
+      {/* Analytics Section */}
+      <Container className="divide-y p-0 mt-4">
         <div className="flex items-center justify-between px-6 py-4">
           <div>
-            <Heading>Analytics</Heading>
+            <div className="flex items-center gap-2">
+              <Heading>Analytics</Heading>
+              <Badge size="xsmall" color="blue">
+                {differenceInDays(to, from) + 1} days
+              </Badge>
+            </div>
             <Text className="text-ui-fg-subtle" size="small">
-              See your store's progress
+              Track your store's performance over time. Click the legend to toggle metrics.
             </Text>
           </div>
           <div>
@@ -244,6 +339,15 @@ export const DashboardCharts = ({
           <div className="col-span-3 relative h-[150px] md:h-[300px] w-[calc(100%-2rem)]">
             {isPending ? (
               <ChartSkeleton />
+            ) : chartData.length === 0 || (totals.orders === 0 && totals.customers === 0) ? (
+              <div className="flex flex-col items-center justify-center h-full text-center">
+                <LightBulb className="w-12 h-12 text-ui-fg-muted mb-4" />
+                <Text className="font-medium text-ui-fg-base">No data yet for this period</Text>
+                <Text className="text-ui-fg-subtle text-sm max-w-sm mt-2">
+                  As you make sales and attract customers, your analytics will appear here. 
+                  Keep promoting your products!
+                </Text>
+              </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData}>
@@ -270,13 +374,18 @@ export const DashboardCharts = ({
               <>
                 <Button
                   variant="secondary"
-                  className="p-4 border rounded-lg w-full flex-col items-start my-2"
+                  className="p-4 border rounded-lg w-full flex-col items-start my-2 hover:border-ui-tag-blue-border transition-colors"
                   onClick={() => handleFilter("orders")}
                 >
-                  <Heading level="h3">Orders</Heading>
+                  <div className="flex items-center justify-between w-full">
+                    <Heading level="h3">Orders</Heading>
+                    <Text className="text-xs text-ui-fg-muted">
+                      {filters.find((item) => item === "orders") ? "Visible" : "Hidden"}
+                    </Text>
+                  </div>
                   <div className="flex gap-2 items-center mt-2">
                     <div
-                      className="h-8 w-1"
+                      className="h-8 w-1 rounded"
                       style={{
                         backgroundColor: filters.find(
                           (item) => item === "orders"
@@ -285,18 +394,26 @@ export const DashboardCharts = ({
                           : "gray",
                       }}
                     />
-                    <Text className="text-ui-fg-subtle">{totals.orders}</Text>
+                    <div>
+                      <Text className="text-2xl font-bold text-ui-fg-base">{totals.orders}</Text>
+                      <Text className="text-xs text-ui-fg-subtle">in selected period</Text>
+                    </div>
                   </div>
                 </Button>
                 <Button
                   variant="secondary"
-                  className="p-4 border rounded-lg w-full flex-col items-start my-2"
+                  className="p-4 border rounded-lg w-full flex-col items-start my-2 hover:border-ui-tag-green-border transition-colors"
                   onClick={() => handleFilter("customers")}
                 >
-                  <Heading level="h3">Customers</Heading>
+                  <div className="flex items-center justify-between w-full">
+                    <Heading level="h3">Customers</Heading>
+                    <Text className="text-xs text-ui-fg-muted">
+                      {filters.find((item) => item === "customers") ? "Visible" : "Hidden"}
+                    </Text>
+                  </div>
                   <div className="flex gap-2 items-center mt-2">
                     <div
-                      className="h-8 w-1"
+                      className="h-8 w-1 rounded"
                       style={{
                         backgroundColor: filters.find(
                           (item) => item === "customers"
@@ -305,9 +422,10 @@ export const DashboardCharts = ({
                           : "gray",
                       }}
                     />
-                    <Text className="text-ui-fg-subtle">
-                      {totals.customers}
-                    </Text>
+                    <div>
+                      <Text className="text-2xl font-bold text-ui-fg-base">{totals.customers}</Text>
+                      <Text className="text-xs text-ui-fg-subtle">new customers</Text>
+                    </div>
                   </div>
                 </Button>
               </>
