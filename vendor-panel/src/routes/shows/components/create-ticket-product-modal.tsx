@@ -48,15 +48,8 @@ export const CreateTicketProductModal = ({
     queryFn: () => sdk.admin.region.list()
   })
 
-  // Fetch stores
-  const { data: storesData } = useQuery({
-    queryKey: ["stores"],
-    queryFn: () => sdk.admin.store.list()
-  })
-
   const venues = venuesData?.venues || []
   const regions = regionsData?.regions || []
-  const stores = storesData?.stores || []
   const selectedVenue = venues?.find(v => v.id === selectedVenueId)
 
   // Create currency-region combinations
@@ -73,20 +66,8 @@ export const CreateTicketProductModal = ({
       })
     })
     
-    // Add combinations from stores (all supported currencies)
-    stores.forEach((store) => {      
-      // Add all supported currencies
-      store.supported_currencies.forEach((currency) => {
-        combinations.push({
-          currency: currency.currency_code,
-          region_id: undefined, // No region for store currencies
-          is_store_currency: true
-        })
-      })
-    })
-    
     return combinations
-  }, [regions, stores])
+  }, [regions])
 
   const resetForm = () => {
     setName("")
