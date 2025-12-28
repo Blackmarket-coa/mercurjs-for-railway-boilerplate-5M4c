@@ -3,7 +3,7 @@ import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { Container, Heading, Text, Table, Badge, Button } from "@medusajs/ui"
 import { ReceiptPercent } from "@medusajs/icons"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { sdk } from "../../lib/sdk"
+import { sdk } from "../../lib/client"
 import { Link } from "react-router-dom"
 import { CreateTicketProductModal } from "../venues/components/create-ticket-product-modal"
 
@@ -29,13 +29,13 @@ const Shows = () => {
 
   const { data, isLoading } = useQuery<{ ticket_products: TicketProduct[]; count: number }>({
     queryKey: ["ticket-products"],
-    queryFn: () => sdk.client.fetch("/admin/ticket-products"),
+    queryFn: () => sdk.client.fetch("/vendor/ticket-products"),
   })
 
   const shows = data?.ticket_products || []
 
   const handleCreateShow = async (payload: any) => {
-    await sdk.client.fetch("/admin/ticket-products", {
+    await sdk.client.fetch("/vendor/ticket-products", {
       method: "POST",
       body: payload,
     })
@@ -130,3 +130,4 @@ export const config = defineRouteConfig({
 })
 
 export default Shows
+
