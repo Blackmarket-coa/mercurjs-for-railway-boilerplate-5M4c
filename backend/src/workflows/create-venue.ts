@@ -7,7 +7,6 @@ import { useQueryGraphStep } from "@medusajs/core-flows"
 export type CreateVenueWorkflowInput = {
   name: string
   address?: string
-  seller_id: string
   rows: Array<{
     row_number: string
     row_type: RowType
@@ -21,7 +20,6 @@ export const createVenueWorkflow = createWorkflow(
     const venue = createVenueStep({
       name: input.name,
       address: input.address,
-      seller_id: input.seller_id,
     })
 
     const venueRowsData = transform({
@@ -42,7 +40,7 @@ export const createVenueWorkflow = createWorkflow(
 
     const { data: venues } = useQueryGraphStep({
       entity: "venue",
-      fields: ["id", "name", "address", "seller_id", "rows.*"],
+      fields: ["id", "name", "address", "rows.*"],
       filters: {
         id: venue.id,
       },

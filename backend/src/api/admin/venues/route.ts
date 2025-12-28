@@ -28,7 +28,6 @@ export async function GET(
 export const CreateVenueSchema = z.object({
   name: z.string(),
   address: z.string().optional(),
-  seller_id: z.string(),
   rows: z.array(z.object({
     row_number: z.string(),
     row_type: z.nativeEnum(RowType),
