@@ -225,45 +225,66 @@ export default async function seedDemoData({ container }: ExecArgs) {
     shippingProfile = shippingProfileResult[0];
   }
 
-  const fulfillmentSet = await fulfillmentModuleService.createFulfillmentSets({
-    name: "European Warehouse delivery",
-    type: "shipping",
-    service_zones: [
-      {
-        name: "Europe",
-        geo_zones: [
-          {
-            country_code: "gb",
-            type: "country",
-          },
-          {
-            country_code: "de",
-            type: "country",
-          },
-          {
-            country_code: "dk",
-            type: "country",
-          },
-          {
-            country_code: "se",
-            type: "country",
-          },
-          {
-            country_code: "fr",
-            type: "country",
-          },
-          {
-            country_code: "es",
-            type: "country",
-          },
-          {
-            country_code: "it",
-            type: "country",
-          },
-        ],
-      },
-    ],
-  });
+  logger.info("Seeding fulfillment set data...");
+  let fulfillmentSet;
+  try {
+    fulfillmentSet = await fulfillmentModuleService.createFulfillmentSets({
+      name: "European Warehouse delivery",
+      type: "shipping",
+      service_zones: [
+        {
+          name: "Europe",
+          geo_zones: [
+            {
+              country_code: "gb",
+              type: "country",
+            },
+            {
+              country_code: "de",
+              type: "country",
+            },
+            {
+              country_code: "dk",
+              type: "country",
+            },
+            {
+              country_code: "se",
+              type: "country",
+            },
+            {
+              country_code: "fr",
+              type: "country",
+            },
+            {
+              country_code: "es",
+              type: "country",
+            },
+            {
+              country_code: "it",
+              type: "country",
+            },
+          ],
+        },
+      ],
+    });
+    logger.info("Finished seeding fulfillment set.");
+  } catch (error: any) {
+    // If fulfillment set already exists, fetch the existing one
+    if (error.message?.includes("already exists")) {
+      logger.info("Fulfillment set already exists, fetching existing one...");
+      const existingSets = await fulfillmentModuleService.listFulfillmentSets({
+        name: "European Warehouse delivery",
+      });
+      if (existingSets && existingSets.length > 0) {
+        fulfillmentSet = existingSets[0];
+        logger.info(`Using existing fulfillment set: ${fulfillmentSet.id}`);
+      } else {
+        throw error;
+      }
+    } else {
+      throw error;
+    }
+  }
 
   await link.create({
     [Modules.STOCK_LOCATION]: {
