@@ -46,7 +46,7 @@ export const createTicketProductWorkflow = createWorkflow(
 
       const store = data.stores[0]
       if (!store.default_location_id) {
-        throw new Error("Store does not have a default stock location. Please configure a default stock location for your store.")
+        throw new Error("Store does not have a default stock location. Please ensure the backend seed has been run.")
       }
 
       const inventoryItems: any[] = []
@@ -152,12 +152,12 @@ export const createTicketProductWorkflow = createWorkflow(
       }
     })
 
-    // Step 6: Create ticket product and variants
+    // Step 7: Create ticket product and variants
     const { ticket_products } = createTicketProductsStep(
       ticketProductData
     )
 
-    // Step 7: Prepare ticket product variants data
+    // Step 8: Prepare ticket product variants data
     const ticketVariantsData = transform({
       medusaProduct,
       ticket_products,
@@ -175,12 +175,12 @@ export const createTicketProductWorkflow = createWorkflow(
       }
     })
 
-    // Step 8: Create ticket product variants
+    // Step 9: Create ticket product variants
     const { ticket_product_variants } = createTicketProductVariantsStep(
       ticketVariantsData
     )
 
-    // Step 9: Prepare links data using transform
+    // Step 10: Prepare links data using transform
     const linksData = transform({
       medusaProduct,
       ticket_products,
@@ -209,10 +209,10 @@ export const createTicketProductWorkflow = createWorkflow(
       return [...productLinks, ...variantLinks]
     })
 
-    // Step 9: Create remote links
+    // Step 11: Create remote links
     createRemoteLinkStep(linksData)
 
-    // Step 10: Get final result with all relations
+    // Step 12: Get final result with all relations
     const { data: finalTicketProduct } = useQueryGraphStep({
       entity: "ticket_product",
       fields: [
