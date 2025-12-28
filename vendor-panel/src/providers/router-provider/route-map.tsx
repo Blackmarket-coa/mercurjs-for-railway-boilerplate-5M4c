@@ -1047,6 +1047,83 @@ export const RouteMap: RouteObject[] = [
               },
             ],
           },
+          {
+            path: "/farm",
+            errorElement: <ErrorBoundary />,
+            handle: {
+              breadcrumb: () => "Farm",
+            },
+            children: [
+              {
+                path: "",
+                lazy: () => import("../../routes/farm"),
+              },
+              {
+                path: "profile/create",
+                lazy: () => import("../../routes/farm/profile"),
+              },
+              {
+                path: "profile/edit",
+                lazy: () => import("../../routes/farm/profile"),
+              },
+              {
+                path: "harvests",
+                handle: {
+                  breadcrumb: () => "Harvests",
+                },
+                children: [
+                  {
+                    path: "",
+                    lazy: () => import("../../routes/farm/harvests"),
+                  },
+                  {
+                    path: "create",
+                    lazy: () => import("../../routes/farm/harvests/create"),
+                  },
+                  {
+                    path: ":id",
+                    handle: {
+                      breadcrumb: () => "Harvest Detail",
+                    },
+                    children: [
+                      {
+                        path: "",
+                        lazy: () => import("../../routes/farm/harvests/[id]"),
+                      },
+                      {
+                        path: "edit",
+                        lazy: () => import("../../routes/farm/harvests/create"),
+                      },
+                      {
+                        path: "lots/create",
+                        lazy: () => import("../../routes/farm/harvests/[id]/lots/create"),
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                path: "lots/:id",
+                handle: {
+                  breadcrumb: () => "Lot Detail",
+                },
+                children: [
+                  {
+                    path: "",
+                    lazy: () => import("../../routes/farm/lots/[id]"),
+                  },
+                  {
+                    path: "edit",
+                    lazy: () => import("../../routes/farm/lots/[id]"),
+                  },
+                  {
+                    path: "availability/create",
+                    lazy: () => import("../../routes/farm/lots/[id]/availability/create"),
+                  },
+                ],
+              },
+            ],
+          },
           ...RouteExtensions,
         ],
       },
