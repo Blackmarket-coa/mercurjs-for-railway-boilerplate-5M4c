@@ -1,4 +1,3 @@
-// src/routes/venues/venues.tsx
 import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { Buildings } from "@medusajs/icons"
 import {
@@ -13,7 +12,7 @@ import {
 } from "@medusajs/ui"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useState, useMemo } from "react"
-import { sdk } from "../../lib/sdk"
+import { sdk } from "../../lib/client"
 import { Venue, CreateVenueRequest } from "./types"
 import { CreateVenueModal } from "./components/create-venue-modal"
 
@@ -34,7 +33,7 @@ const columns = [
   columnHelper.accessor("rows", {
     header: "Total Capacity",
     cell: ({ row }) => {
-      const totalSeats = row.original.rows.reduce((sum, r) => sum + r.seat_count, 0)
+      const totalSeats = row.original.rows?.reduce((sum, r) => sum + r.seat_count, 0) || 0
       return <span>{totalSeats} seats</span>
     },
   }),
@@ -58,15 +57,15 @@ const VenuesPage = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["venues", offset, limit],
     queryFn: () =>
-      sdk.client.fetch("/admin/venues", {
+      sdk.client.fetch("/vendor/venues", {
         query: { offset, limit, order: "-created_at" },
       }),
   })
 
   const table = useDataTable({
     columns,
-    data: data?.venues || [],
-    rowCount: data?.count || 0,
+    data: (data as any)?.venues || [],
+    rowCount: (data as any)?.count || 0,
     isLoading,
     pagination: {
       state: pagination,
@@ -77,7 +76,7 @@ const VenuesPage = () => {
 
   const handleCreateVenue = async (payload: CreateVenueRequest) => {
     try {
-      await sdk.client.fetch("/admin/venues", {
+      await sdk.client.fetch("/vendor/venues", {
         method: "POST",
         body: payload,
       })
@@ -97,8 +96,7 @@ const VenuesPage = () => {
             Create Venue
           </Button>
         </DataTable.Toolbar>
-
-        {data?.venues.length === 0 && !isLoading ? (
+        {(data as any)?.venues?.length === 0 && !isLoading ? (
           <div className="text-center py-8">
             <Buildings className="mx-auto h-12 w-12 text-ui-fg-subtle mb-4" />
             <Heading level="h3">No venues yet</Heading>
