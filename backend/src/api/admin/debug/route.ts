@@ -46,7 +46,8 @@ export async function POST(
   req: MedusaRequest,
   res: MedusaResponse
 ) {
-  const { action } = req.body
+  const body = req.body as { action?: string }
+  const { action } = body
 
   try {
     const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION)
