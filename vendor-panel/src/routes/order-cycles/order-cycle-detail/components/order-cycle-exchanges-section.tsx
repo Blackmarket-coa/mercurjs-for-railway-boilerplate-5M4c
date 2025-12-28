@@ -470,9 +470,7 @@ const AddProductsToExchangeModal = ({
   onClose,
 }: AddProductsToExchangeModalProps) => {
   const [search, setSearch] = useState("")
-  const [selectedVariants, setSelectedVariants] = useState
-    Array<{ id: string; title: string; product_title: string }>
-  >([])
+  const [selectedVariants, setSelectedVariants] = useState<Array<{ id: string; title: string; product_title: string }>>([])
 
   const addProducts = useAddProductsToExchange(orderCycleId)
   const { products, isLoading } = useProducts({
@@ -613,3 +611,4 @@ const AddProductsToExchangeModal = ({
     </FocusModal>
   )
 }
+
