@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom"
 import { Container, Text } from "@medusajs/ui"
 import { OrderCycleGeneralSection } from "./components/order-cycle-general-section"
 import { OrderCycleProductsSection } from "./components/order-cycle-products-section"
+import { OrderCycleExchangesSection } from "./components/order-cycle-exchanges-section"
 import { useOrderCycle } from "../../../hooks/api/order-cycles"
 
 const OrderCycleDetailPage = () => {
@@ -27,6 +28,7 @@ const OrderCycleDetailPage = () => {
   return (
     <div className="flex flex-col gap-y-4">
       <OrderCycleGeneralSection orderCycle={data.order_cycle} />
+      <OrderCycleExchangesSection orderCycle={data.order_cycle} />
       <OrderCycleProductsSection orderCycle={data.order_cycle} />
     </div>
   )
