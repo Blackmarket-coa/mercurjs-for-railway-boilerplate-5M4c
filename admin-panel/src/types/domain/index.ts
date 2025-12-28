@@ -150,3 +150,463 @@ export interface ExtendedSellerDTO {
   // Extended fields from seller_metadata
   seller_metadata?: SellerMetadataDTO | null
 }
+
+// =============================================================================
+// Phase 2-4: Barn-to-Door Agricultural Types
+// =============================================================================
+
+/**
+ * Growing Practice Enum
+ */
+export enum GrowingPractice {
+  ORGANIC = "ORGANIC",
+  CERTIFIED_ORGANIC = "CERTIFIED_ORGANIC",
+  REGENERATIVE = "REGENERATIVE",
+  CONVENTIONAL = "CONVENTIONAL",
+  BIODYNAMIC = "BIODYNAMIC",
+  PERMACULTURE = "PERMACULTURE",
+  HYDROPONIC = "HYDROPONIC",
+  AQUAPONIC = "AQUAPONIC",
+  NO_SPRAY = "NO_SPRAY",
+  IPM = "IPM",
+}
+
+export const GrowingPracticeLabels: Record<GrowingPractice, string> = {
+  [GrowingPractice.ORGANIC]: "Organic",
+  [GrowingPractice.CERTIFIED_ORGANIC]: "Certified Organic",
+  [GrowingPractice.REGENERATIVE]: "Regenerative",
+  [GrowingPractice.CONVENTIONAL]: "Conventional",
+  [GrowingPractice.BIODYNAMIC]: "Biodynamic",
+  [GrowingPractice.PERMACULTURE]: "Permaculture",
+  [GrowingPractice.HYDROPONIC]: "Hydroponic",
+  [GrowingPractice.AQUAPONIC]: "Aquaponic",
+  [GrowingPractice.NO_SPRAY]: "No Spray",
+  [GrowingPractice.IPM]: "Integrated Pest Management",
+}
+
+/**
+ * Producer DTO
+ */
+export interface ProducerDTO {
+  id: string
+  seller_id: string
+  name: string
+  handle: string
+  description?: string | null
+  region?: string | null
+  state?: string | null
+  country_code?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  farm_size_acres?: number | null
+  year_established?: number | null
+  practices?: GrowingPractice[] | null
+  certifications?: CertificationDTO[] | null
+  story?: string | null
+  photo?: string | null
+  cover_image?: string | null
+  gallery?: string[] | null
+  website?: string | null
+  social_links?: Record<string, string> | null
+  public_profile_enabled: boolean
+  featured: boolean
+  verified: boolean
+  verified_at?: string | null
+  metadata?: Record<string, any> | null
+  created_at: string
+  updated_at: string
+}
+
+export interface CertificationDTO {
+  name: string
+  issuer: string
+  valid_until?: string | null
+  document_url?: string | null
+}
+
+/**
+ * Season Enum
+ */
+export enum Season {
+  SPRING = "SPRING",
+  SUMMER = "SUMMER",
+  FALL = "FALL",
+  WINTER = "WINTER",
+  YEAR_ROUND = "YEAR_ROUND",
+}
+
+export const SeasonLabels: Record<Season, string> = {
+  [Season.SPRING]: "Spring",
+  [Season.SUMMER]: "Summer",
+  [Season.FALL]: "Fall",
+  [Season.WINTER]: "Winter",
+  [Season.YEAR_ROUND]: "Year Round",
+}
+
+/**
+ * Harvest Visibility Enum
+ */
+export enum HarvestVisibility {
+  DRAFT = "DRAFT",
+  PREVIEW = "PREVIEW",
+  PUBLIC = "PUBLIC",
+  ARCHIVED = "ARCHIVED",
+}
+
+export const HarvestVisibilityLabels: Record<HarvestVisibility, string> = {
+  [HarvestVisibility.DRAFT]: "Draft",
+  [HarvestVisibility.PREVIEW]: "Preview",
+  [HarvestVisibility.PUBLIC]: "Public",
+  [HarvestVisibility.ARCHIVED]: "Archived",
+}
+
+/**
+ * Harvest DTO
+ */
+export interface HarvestDTO {
+  id: string
+  producer_id: string
+  crop_name: string
+  variety?: string | null
+  category?: string | null
+  harvest_date?: string | null
+  planted_date?: string | null
+  season: Season
+  year: number
+  growing_method?: string | null
+  field_name?: string | null
+  farmer_notes?: string | null
+  weather_notes?: string | null
+  taste_notes?: string | null
+  usage_tips?: string | null
+  photo?: string | null
+  gallery?: string[] | null
+  expected_yield_quantity?: number | null
+  expected_yield_unit?: string | null
+  visibility_status: HarvestVisibility
+  published_at?: string | null
+  metadata?: Record<string, any> | null
+  created_at: string
+  updated_at: string
+  // Relations
+  producer?: ProducerDTO | null
+  lots?: LotDTO[] | null
+}
+
+/**
+ * Lot Grade Enum
+ */
+export enum LotGrade {
+  PREMIUM = "PREMIUM",
+  GRADE_A = "GRADE_A",
+  GRADE_B = "GRADE_B",
+  PROCESSING = "PROCESSING",
+  IMPERFECT = "IMPERFECT",
+  SECONDS = "SECONDS",
+}
+
+export const LotGradeLabels: Record<LotGrade, string> = {
+  [LotGrade.PREMIUM]: "Premium",
+  [LotGrade.GRADE_A]: "Grade A",
+  [LotGrade.GRADE_B]: "Grade B",
+  [LotGrade.PROCESSING]: "Processing Grade",
+  [LotGrade.IMPERFECT]: "Imperfect / Ugly",
+  [LotGrade.SECONDS]: "Seconds",
+}
+
+/**
+ * Lot Allocation Enum
+ */
+export enum LotAllocation {
+  RETAIL = "RETAIL",
+  RESTAURANT = "RESTAURANT",
+  WHOLESALE = "WHOLESALE",
+  CSA = "CSA",
+  COOPERATIVE = "COOPERATIVE",
+  DONATION = "DONATION",
+  PROCESSING = "PROCESSING",
+}
+
+export const LotAllocationLabels: Record<LotAllocation, string> = {
+  [LotAllocation.RETAIL]: "Retail (DTC)",
+  [LotAllocation.RESTAURANT]: "Restaurant (B2B)",
+  [LotAllocation.WHOLESALE]: "Wholesale",
+  [LotAllocation.CSA]: "CSA Share",
+  [LotAllocation.COOPERATIVE]: "Cooperative",
+  [LotAllocation.DONATION]: "Donation",
+  [LotAllocation.PROCESSING]: "Processing",
+}
+
+/**
+ * Lot DTO
+ */
+export interface LotDTO {
+  id: string
+  harvest_id: string
+  lot_number?: string | null
+  batch_date?: string | null
+  grade: LotGrade
+  size_class?: string | null
+  quantity_total: number
+  quantity_available: number
+  quantity_reserved: number
+  quantity_sold: number
+  unit: string
+  suggested_price_per_unit?: number | null
+  cost_per_unit?: number | null
+  allocation_type: LotAllocation
+  surplus_flag: boolean
+  surplus_declared_at?: string | null
+  surplus_reason?: string | null
+  best_by_date?: string | null
+  use_by_date?: string | null
+  storage_location?: string | null
+  storage_requirements?: string | null
+  external_lot_id?: string | null
+  is_active: boolean
+  metadata?: Record<string, any> | null
+  created_at: string
+  updated_at: string
+  // Relations
+  harvest?: HarvestDTO | null
+  availability_windows?: AvailabilityWindowDTO[] | null
+}
+
+/**
+ * Sales Channel Enum
+ */
+export enum SalesChannel {
+  DTC = "DTC",
+  B2B = "B2B",
+  CSA = "CSA",
+  WHOLESALE = "WHOLESALE",
+  FARMERS_MARKET = "FARMERS_MARKET",
+}
+
+export const SalesChannelLabels: Record<SalesChannel, string> = {
+  [SalesChannel.DTC]: "Direct to Consumer",
+  [SalesChannel.B2B]: "Business to Business",
+  [SalesChannel.CSA]: "CSA Share",
+  [SalesChannel.WHOLESALE]: "Wholesale",
+  [SalesChannel.FARMERS_MARKET]: "Farmers Market",
+}
+
+/**
+ * Pricing Strategy Enum
+ */
+export enum PricingStrategy {
+  FIXED = "FIXED",
+  TIERED = "TIERED",
+  DYNAMIC = "DYNAMIC",
+  AUCTION = "AUCTION",
+  NEGOTIATED = "NEGOTIATED",
+}
+
+export const PricingStrategyLabels: Record<PricingStrategy, string> = {
+  [PricingStrategy.FIXED]: "Fixed Price",
+  [PricingStrategy.TIERED]: "Volume Tiers",
+  [PricingStrategy.DYNAMIC]: "Dynamic",
+  [PricingStrategy.AUCTION]: "Auction",
+  [PricingStrategy.NEGOTIATED]: "Negotiated",
+}
+
+/**
+ * Availability Window DTO
+ */
+export interface AvailabilityWindowDTO {
+  id: string
+  lot_id: string
+  product_id?: string | null
+  available_from: string
+  available_until?: string | null
+  sales_channel: SalesChannel
+  pricing_strategy: PricingStrategy
+  unit_price: number
+  currency_code: string
+  price_tiers?: PriceTierDTO[] | null
+  min_order_quantity?: number | null
+  max_order_quantity?: number | null
+  quantity_increment?: number | null
+  preorder_enabled: boolean
+  preorder_deposit_percent?: number | null
+  estimated_ship_date?: string | null
+  pickup_enabled: boolean
+  delivery_enabled: boolean
+  shipping_enabled: boolean
+  pickup_locations?: PickupLocationDTO[] | null
+  fulfillment_lead_time_hours?: number | null
+  surplus_discount_percent?: number | null
+  featured: boolean
+  sort_order: number
+  is_active: boolean
+  paused_at?: string | null
+  pause_reason?: string | null
+  view_count: number
+  order_count: number
+  metadata?: Record<string, any> | null
+  created_at: string
+  updated_at: string
+  // Relations
+  lot?: LotDTO | null
+}
+
+export interface PriceTierDTO {
+  min_quantity: number
+  max_quantity?: number | null
+  price_per_unit: number
+}
+
+export interface PickupLocationDTO {
+  name: string
+  address: string
+  city: string
+  state: string
+  postal_code: string
+  instructions?: string | null
+  available_days?: string[] | null
+  available_hours?: string | null
+}
+
+// =============================================================================
+// Cooperative Types
+// =============================================================================
+
+/**
+ * Cooperative Type Enum
+ */
+export enum CooperativeType {
+  FARM_COOP = "FARM_COOP",
+  FOOD_HUB = "FOOD_HUB",
+  CSA = "CSA",
+  BUYING_CLUB = "BUYING_CLUB",
+  INDIGENOUS = "INDIGENOUS",
+  WORKER_OWNED = "WORKER_OWNED",
+}
+
+export const CooperativeTypeLabels: Record<CooperativeType, string> = {
+  [CooperativeType.FARM_COOP]: "Farm Cooperative",
+  [CooperativeType.FOOD_HUB]: "Food Hub",
+  [CooperativeType.CSA]: "Community Supported Agriculture",
+  [CooperativeType.BUYING_CLUB]: "Buying Club",
+  [CooperativeType.INDIGENOUS]: "Indigenous Collective",
+  [CooperativeType.WORKER_OWNED]: "Worker Owned",
+}
+
+/**
+ * Cooperative Member Role Enum
+ */
+export enum CooperativeMemberRole {
+  ADMIN = "ADMIN",
+  COORDINATOR = "COORDINATOR",
+  PRODUCER = "PRODUCER",
+  MEMBER = "MEMBER",
+}
+
+export const CooperativeMemberRoleLabels: Record<CooperativeMemberRole, string> = {
+  [CooperativeMemberRole.ADMIN]: "Administrator",
+  [CooperativeMemberRole.COORDINATOR]: "Coordinator",
+  [CooperativeMemberRole.PRODUCER]: "Producer",
+  [CooperativeMemberRole.MEMBER]: "Member",
+}
+
+/**
+ * Aggregation Method Enum
+ */
+export enum AggregationMethod {
+  POOLED = "POOLED",
+  INDIVIDUAL = "INDIVIDUAL",
+  HYBRID = "HYBRID",
+}
+
+export const AggregationMethodLabels: Record<AggregationMethod, string> = {
+  [AggregationMethod.POOLED]: "Pooled Inventory",
+  [AggregationMethod.INDIVIDUAL]: "Individual Listings",
+  [AggregationMethod.HYBRID]: "Hybrid",
+}
+
+/**
+ * Cooperative DTO
+ */
+export interface CooperativeDTO {
+  id: string
+  name: string
+  handle: string
+  description?: string | null
+  cooperative_type: CooperativeType
+  region?: string | null
+  state?: string | null
+  country_code?: string | null
+  address_line?: string | null
+  postal_code?: string | null
+  email?: string | null
+  phone?: string | null
+  website?: string | null
+  logo?: string | null
+  cover_image?: string | null
+  default_platform_commission: number
+  default_coop_fee: number
+  public_storefront_enabled: boolean
+  featured: boolean
+  governance_model?: string | null
+  membership_requirements?: string | null
+  is_active: boolean
+  verified: boolean
+  verified_at?: string | null
+  metadata?: Record<string, any> | null
+  created_at: string
+  updated_at: string
+  // Relations
+  members?: CooperativeMemberDTO[] | null
+  listings?: CooperativeListingDTO[] | null
+}
+
+/**
+ * Cooperative Member DTO
+ */
+export interface CooperativeMemberDTO {
+  id: string
+  cooperative_id: string
+  producer_id: string
+  role: CooperativeMemberRole
+  revenue_share_percent?: number | null
+  joined_at: string
+  membership_number?: string | null
+  max_products?: number | null
+  max_monthly_revenue?: number | null
+  is_active: boolean
+  suspended_at?: string | null
+  suspension_reason?: string | null
+  metadata?: Record<string, any> | null
+  created_at: string
+  updated_at: string
+  // Relations
+  cooperative?: CooperativeDTO | null
+  producer?: ProducerDTO | null
+}
+
+/**
+ * Cooperative Listing DTO
+ */
+export interface CooperativeListingDTO {
+  id: string
+  cooperative_id: string
+  product_id?: string | null
+  name: string
+  description?: string | null
+  aggregation_method: AggregationMethod
+  unified_price?: number | null
+  currency_code: string
+  availability_window_ids?: string[] | null
+  total_quantity_available: number
+  unit?: string | null
+  aggregation_point?: string | null
+  aggregation_deadline?: string | null
+  featured: boolean
+  sort_order: number
+  is_active: boolean
+  metadata?: Record<string, any> | null
+  created_at: string
+  updated_at: string
+  // Relations
+  cooperative?: CooperativeDTO | null
+}

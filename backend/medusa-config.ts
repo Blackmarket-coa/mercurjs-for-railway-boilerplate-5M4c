@@ -69,6 +69,21 @@ module.exports = defineConfig({
     {
       resolve: './src/modules/product-archetype',
     },
+    
+    // Phase 2-4: Barn-to-Door Agricultural Modules
+    // Producer module (farm profiles)
+    {
+      resolve: './src/modules/producer',
+    },
+    // Agriculture module (harvests, lots, availability windows)
+    {
+      resolve: './src/modules/agriculture',
+    },
+    // Cooperative module (food hubs, coops, CSAs)
+    {
+      resolve: './src/modules/cooperative',
+    },
+    
     // Ticket Booking module
     {
       resolve: './src/modules/ticket-booking',
