@@ -3215,6 +3215,80 @@
       "successToast": "Seller {{name}} was successfully updated."
     }
   },
+  "producers": {
+    "domain": "Producers",
+    "list": {
+      "header": "Producers",
+      "description": "Manage farm and producer profiles, verification, and visibility"
+    },
+    "details": {
+      "header": "Producer Details"
+    },
+    "fields": {
+      "name": "Farm/Producer Name",
+      "location": "Location",
+      "practices": "Growing Practices",
+      "status": "Status",
+      "seller": "Linked Seller",
+      "description": "Description",
+      "region": "Region",
+      "state": "State",
+      "country": "Country",
+      "farm_size": "Farm Size (acres)",
+      "year_established": "Year Established",
+      "certifications": "Certifications",
+      "story": "Producer Story",
+      "website": "Website",
+      "verified": "Verified",
+      "featured": "Featured",
+      "public": "Public Profile"
+    },
+    "stats": {
+      "total": "Total Producers",
+      "verified": "Verified",
+      "pending": "Pending Verification",
+      "featured": "Featured"
+    },
+    "actions": {
+      "view": "View Details",
+      "verify": "Verify Producer",
+      "unverify": "Remove Verification",
+      "feature": "Feature Producer",
+      "unfeature": "Remove from Featured",
+      "delete": "Delete Producer"
+    },
+    "practices": {
+      "ORGANIC": "Organic",
+      "CERTIFIED_ORGANIC": "Certified Organic",
+      "REGENERATIVE": "Regenerative",
+      "CONVENTIONAL": "Conventional",
+      "BIODYNAMIC": "Biodynamic",
+      "PERMACULTURE": "Permaculture",
+      "HYDROPONIC": "Hydroponic",
+      "AQUAPONIC": "Aquaponic",
+      "NO_SPRAY": "No Spray",
+      "IPM": "IPM"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "certifications": "Certifications",
+      "media": "Media",
+      "seller": "Linked Seller"
+    },
+    "empty": {
+      "title": "No producers yet",
+      "description": "Producers will appear here when sellers create their farm profiles"
+    },
+    "toast": {
+      "verifySuccess": "Producer has been verified",
+      "unverifySuccess": "Producer verification removed",
+      "featureSuccess": "Producer is now featured",
+      "unfeatureSuccess": "Producer removed from featured",
+      "deleteSuccess": "Producer has been deleted",
+      "certificationVerified": "Certification verified",
+      "certificationUnverified": "Certification verification removed"
+    }
+  },
   "messages": {
     "domain": "Messages"
   },

@@ -813,6 +813,23 @@ export function getRouteMap({
               ],
             },
             {
+              path: "/producers",
+              errorElement: <ErrorBoundary />,
+              handle: {
+                breadcrumb: () => "Producers",
+              },
+              children: [
+                {
+                  path: "",
+                  lazy: () => import("../../routes/producers/producer-list"),
+                },
+                {
+                  path: ":id",
+                  lazy: () => import("../../routes/producers/producer-details"),
+                },
+              ],
+            },
+            {
               path: "/messages",
               errorElement: <ErrorBoundary />,
               handle: {

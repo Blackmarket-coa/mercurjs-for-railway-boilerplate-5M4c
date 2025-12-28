@@ -15,3 +15,4 @@ export * from "./payment-stripe-connect";
 export * from "./store";
 export * from "./customer-group";
 export * from "./product";
+export * from "./producer";

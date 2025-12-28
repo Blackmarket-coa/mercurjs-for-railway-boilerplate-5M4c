@@ -14,6 +14,7 @@ import {
   Shopping,
   ShoppingCart,
   SquaresPlus,
+  Sun,
   Tag,
   Users,
 } from "@medusajs/icons";
@@ -241,6 +242,11 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
       icon: <Shopping />,
       label: t("sellers.domain"),
       to: "/sellers",
+    },
+    {
+      icon: <Sun />,
+      label: "Producers",
+      to: "/producers",
     },
     {
       icon: <ReceiptPercent />,
