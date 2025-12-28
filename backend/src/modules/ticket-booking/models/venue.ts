@@ -5,7 +5,6 @@ export const Venue = model.define("venue", {
   id: model.id().primaryKey(),
   name: model.text(),
   address: model.text().nullable(),
-  seller_id: model.text().nullable(),
   rows: model.hasMany(() => VenueRow, {
     mappedBy: "venue"
   })
