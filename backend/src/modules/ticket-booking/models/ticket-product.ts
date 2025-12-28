@@ -6,6 +6,7 @@ import { TicketPurchase } from "./ticket-purchase"
 export const TicketProduct = model.define("ticket_product", {
   id: model.id().primaryKey(),
   product_id: model.text().unique(),
+  seller_id: model.text(),
   venue: model.belongsTo(() => Venue),
   dates: model.array(),
   variants: model.hasMany(() => TicketProductVariant, {
@@ -18,6 +19,9 @@ export const TicketProduct = model.define("ticket_product", {
 .indexes([
   {
     on: ["venue_id", "dates"]
+  },
+  {
+    on: ["seller_id"]
   }
 ])
 

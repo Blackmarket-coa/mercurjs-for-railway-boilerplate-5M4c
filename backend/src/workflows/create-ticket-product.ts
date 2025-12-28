@@ -11,6 +11,7 @@ import { createTicketProductVariantsStep } from "./steps/create-ticket-product-v
 export type CreateTicketProductWorkflowInput = {
   name: string
   venue_id: string
+  seller_id: string
   dates: string[]
   variants: Array<{
     row_type: RowType
@@ -40,7 +41,7 @@ export const createTicketProductWorkflow = createWorkflow(
       stores
     }, (data) => {
       const inventoryItems: any[] = []
-      
+
       for (const date of data.input.dates) {
         for (const variant of data.input.variants) {
           inventoryItems.push({
@@ -55,7 +56,7 @@ export const createTicketProductWorkflow = createWorkflow(
           })
         }
       }
-      
+
       return inventoryItems
     })
 
@@ -72,7 +73,7 @@ export const createTicketProductWorkflow = createWorkflow(
       stores
     }, (data) => {
       const rowTypes = [...new Set(data.input.variants.map((variant: any) => variant.row_type))]
-      
+
       const product: CreateProductWorkflowInputDTO = {
         title: data.input.name,
         status: "published",
@@ -82,7 +83,7 @@ export const createTicketProductWorkflow = createWorkflow(
             values: data.input.dates
           },
           {
-            title: "Row Type", 
+            title: "Row Type",
             values: rowTypes
           }
         ],
@@ -136,6 +137,7 @@ export const createTicketProductWorkflow = createWorkflow(
         ticket_products: data.medusaProduct.map((product: any) => ({
           product_id: product.id,
           venue_id: data.input.venue_id,
+          seller_id: data.input.seller_id,
           dates: data.input.dates
         }))
       }
@@ -207,6 +209,7 @@ export const createTicketProductWorkflow = createWorkflow(
       fields: [
         "id",
         "product_id",
+        "seller_id",
         "venue_id",
         "dates",
         "venue.*",
