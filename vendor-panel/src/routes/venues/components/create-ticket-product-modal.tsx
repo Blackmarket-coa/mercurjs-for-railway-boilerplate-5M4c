@@ -45,13 +45,13 @@ export const CreateTicketProductModal = ({
   // Fetch regions
   const { data: regionsData } = useQuery({
     queryKey: ["regions"],
-    queryFn: () => sdk.admin.region.list()
+    queryFn: () => sdk.client.fetch("/store/regions")
   })
 
   // Fetch stores
   const { data: storesData } = useQuery({
     queryKey: ["stores"],
-    queryFn: () => sdk.admin.store.list()
+    queryFn: () => sdk.client.fetch("/store/store")
   })
 
   const venues = venuesData?.venues || []
@@ -289,5 +289,6 @@ export const CreateTicketProductModal = ({
     </FocusModal>
   )
 }
+
 
 
