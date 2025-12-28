@@ -11,7 +11,7 @@ import { createTicketProductVariantsStep } from "./steps/create-ticket-product-v
 export type CreateTicketProductWorkflowInput = {
   name: string
   venue_id: string
-  seller_id: string
+  seller_id?: string
   dates: string[]
   variants: Array<{
     row_type: RowType
@@ -226,3 +226,4 @@ export const createTicketProductWorkflow = createWorkflow(
     })
   }
 )
+

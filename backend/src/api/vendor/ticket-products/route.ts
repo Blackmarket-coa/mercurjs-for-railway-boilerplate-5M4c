@@ -15,16 +15,33 @@ export async function GET(
   }
 
   try {
-    const {
-      data: ticketProducts,
-      metadata
-    } = await query.graph({
-      entity: "ticket_product",
-      fields: ["*", "venue.*", "product.*"],
-      filters: {
-        seller_id: sellerId
-      },
-    })
+    // Try with seller_id filter first, fall back to no filter if column doesn't exist
+    let ticketProducts: any[] = []
+    let metadata: any = {}
+    
+    try {
+      const result = await query.graph({
+        entity: "ticket_product",
+        fields: ["*", "venue.*", "product.*"],
+        filters: {
+          seller_id: sellerId
+        },
+      })
+      ticketProducts = result.data
+      metadata = result.metadata
+    } catch (filterError: any) {
+      // If seller_id column doesn't exist, fetch all (temporary)
+      if (filterError.message?.includes("seller_id")) {
+        const result = await query.graph({
+          entity: "ticket_product",
+          fields: ["*", "venue.*", "product.*"],
+        })
+        ticketProducts = result.data
+        metadata = result.metadata
+      } else {
+        throw filterError
+      }
+    }
 
     res.json({
       ticket_products: ticketProducts,
