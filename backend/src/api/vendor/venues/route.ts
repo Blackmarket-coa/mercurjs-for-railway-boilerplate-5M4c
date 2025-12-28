@@ -21,9 +21,6 @@ export async function GET(
     } = await query.graph({
       entity: "venue",
       fields: ["*", "rows.*"],
-      filters: {
-        seller_id: sellerId
-      },
     })
 
     res.json({
@@ -61,10 +58,7 @@ export async function POST(
 
   try {
     const { result } = await createVenueWorkflow(req.scope).run({
-      input: {
-        ...req.body,
-        seller_id: sellerId
-      }
+      input: req.body
     })
 
     res.status(201).json(result)

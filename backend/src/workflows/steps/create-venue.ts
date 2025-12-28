@@ -5,7 +5,6 @@ import TicketBookingModuleService from "../../modules/ticket-booking/service"
 export type CreateVenueStepInput = {
   name: string
   address?: string
-  seller_id: string
 }
 
 export const createVenueStep = createStep(
