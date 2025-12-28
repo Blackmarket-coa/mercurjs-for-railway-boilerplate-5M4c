@@ -22,7 +22,7 @@ export async function GET(
     try {
       const result = await query.graph({
         entity: "ticket_product",
-        fields: ["*", "venue.*", "product.*"],
+        fields: ["id", "product_id", "venue_id", "dates", "venue.*"],
         filters: {
           seller_id: sellerId
         },
@@ -34,7 +34,7 @@ export async function GET(
       if (filterError.message?.includes("seller_id")) {
         const result = await query.graph({
           entity: "ticket_product",
-          fields: ["*", "venue.*", "product.*"],
+          fields: ["id", "product_id", "venue_id", "dates", "venue.*"],
         })
         ticketProducts = result.data
         metadata = result.metadata
