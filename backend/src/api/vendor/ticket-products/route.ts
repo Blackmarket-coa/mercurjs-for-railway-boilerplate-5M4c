@@ -64,6 +64,9 @@ export const CreateTicketProductSchema = z.object({
     prices: z.array(z.object({
       currency_code: z.string().min(1, "Currency code is required"),
       amount: z.number().min(0, "Amount must be non-negative"),
+      rules: z.object({
+        region_id: z.string()
+      }).optional(),
       min_quantity: z.number().optional(),
       max_quantity: z.number().optional()
     })).min(1, "At least one price is required")
@@ -92,6 +95,11 @@ export async function POST(
 
     res.status(201).json(result)
   } catch (error: any) {
-    res.status(500).json({ message: "Failed to create ticket product", error: error.message })
+    console.error("Failed to create ticket product:", error)
+    res.status(500).json({ 
+      message: "Failed to create ticket product", 
+      error: error.message,
+      details: error.stack
+    })
   }
 }
