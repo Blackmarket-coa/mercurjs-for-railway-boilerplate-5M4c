@@ -20,7 +20,7 @@ export async function GET(
       metadata
     } = await query.graph({
       entity: "venue",
-      fields: ["*", "rows.*"],
+      fields: ["id", "name", "address", "created_at", "updated_at", "rows.*"],
     })
 
     res.json({
