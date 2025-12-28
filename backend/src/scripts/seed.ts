@@ -110,29 +110,55 @@ export default async function seedDemoData({ container }: ExecArgs) {
     },
   });
   logger.info("Seeding region data...");
-  const { result: regionResult } = await createRegionsWorkflow(container).run({
-    input: {
-      regions: [
-        {
-          name: "Europe",
-          currency_code: "eur",
-          countries,
-          payment_providers: ["pp_system_default"],
-        },
-      ],
-    },
-  });
-  const region = regionResult[0];
-  logger.info("Finished seeding regions.");
+  let region;
+  try {
+    const { result: regionResult } = await createRegionsWorkflow(container).run({
+      input: {
+        regions: [
+          {
+            name: "Europe",
+            currency_code: "eur",
+            countries,
+            payment_providers: ["pp_system_default"],
+          },
+        ],
+      },
+    });
+    region = regionResult[0];
+    logger.info("Finished seeding regions.");
+  } catch (error: any) {
+    // If regions already exist, fetch the existing one
+    if (error.message?.includes("already assigned to a region")) {
+      logger.info("Regions already exist, fetching existing region...");
+      const regions = await storeModuleService.listRegions?.() || [];
+      if (regions && regions.length > 0) {
+        region = regions[0];
+        logger.info(`Using existing region: ${region.id}`);
+      } else {
+        throw error;
+      }
+    } else {
+      throw error;
+    }
+  }
 
   logger.info("Seeding tax regions...");
-  await createTaxRegionsWorkflow(container).run({
-    input: countries.map((country_code) => ({
-      country_code,
-      provider_id: "tp_system",
-    })),
-  });
-  logger.info("Finished seeding tax regions.");
+  try {
+    await createTaxRegionsWorkflow(container).run({
+      input: countries.map((country_code) => ({
+        country_code,
+        provider_id: "tp_system",
+      })),
+    });
+    logger.info("Finished seeding tax regions.");
+  } catch (error: any) {
+    // Tax regions might already exist, that's okay
+    if (error.message?.includes("already exists")) {
+      logger.info("Tax regions already exist, skipping...");
+    } else {
+      logger.warn("Warning seeding tax regions:", error.message);
+    }
+  }
 
   logger.info("Seeding stock location data...");
   const { result: stockLocationResult } = await createStockLocationsWorkflow(
