@@ -17,7 +17,24 @@ export async function GET(
   }
 
   try {
-    // Try to fetch the product directly first
+    // First verify the seller_product link exists
+    const { data: sellerProducts } = await query.graph({
+      entity: "seller_product",
+      fields: ["product_id"],
+      filters: {
+        product_id: id,
+        seller_id: sellerId
+      }
+    })
+
+    if (!sellerProducts || sellerProducts.length === 0) {
+      return res.status(404).json({ 
+        message: "Product not found or access denied",
+        details: `No seller_product link found for product ${id} and seller ${sellerId}`
+      })
+    }
+
+    // Now fetch the full product
     const { data: products } = await query.graph({
       entity: "product",
       fields: ["id", "title", "handle", "status", "variants.*", "variants.inventory_items.*"],
@@ -32,12 +49,12 @@ export async function GET(
       })
     }
 
-    // If not found, return 404
     return res.status(404).json({ message: "Product not found" })
   } catch (error: any) {
-    if (error.message?.includes("not found")) {
-      return res.status(404).json({ message: "Product not found" })
-    }
-    res.status(500).json({ message: "Failed to fetch product", error: error.message })
+    console.error(`Error fetching product ${id} for seller ${sellerId}:`, error)
+    res.status(500).json({ 
+      message: "Failed to fetch product", 
+      error: error.message 
+    })
   }
 }
