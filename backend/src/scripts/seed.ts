@@ -447,33 +447,54 @@ export default async function seedDemoData({ container }: ExecArgs) {
     if (error.message?.includes("already exists")) {
       logger.info("Product categories already exist, fetching existing ones...");
       const productService = container.resolve(Modules.PRODUCT);
-      const existingCategories = await productService.listProductCategories(
-        {
-          name: categoryNames,
-        },
+      
+      // Fetch all categories
+      const allCategories = await productService.listProductCategories(
+        {},
         {
           relations: ["parent_category"],
         }
       );
       
-      // Ensure all required categories exist
+      // Filter to get only the ones we need
+      categoryResult = allCategories.filter((cat: any) => 
+        categoryNames.some((name) => cat.name === name || cat.name?.toLowerCase() === name.toLowerCase())
+      );
+      
+      // If we still don't have all categories, try to create the missing ones
       const missingCategories = categoryNames.filter(
-        (name) => !existingCategories.some((cat) => cat.name === name)
+        (name) => !categoryResult.some((cat: any) => cat.name?.toLowerCase() === name.toLowerCase())
       );
       
       if (missingCategories.length > 0) {
-        logger.warn(`Missing categories: ${missingCategories.join(", ")}. Creating them...`);
-        const newCats = await createProductCategoriesWorkflow(container).run({
-          input: {
-            product_categories: missingCategories.map((name) => ({
-              name,
-              is_active: true,
-            })),
-          },
-        });
-        categoryResult = [...existingCategories, ...newCats.result];
-      } else {
-        categoryResult = existingCategories;
+        logger.warn(`Missing categories: ${missingCategories.join(", ")}. Attempting to create...`);
+        try {
+          const newCats = await createProductCategoriesWorkflow(container).run({
+            input: {
+              product_categories: missingCategories.map((name) => ({
+                name,
+                is_active: true,
+              })),
+            },
+          });
+          categoryResult = [...categoryResult, ...newCats.result];
+          logger.info(`Successfully created missing categories.`);
+        } catch (createError: any) {
+          if (createError.message?.includes("already exists")) {
+            logger.info("Missing categories already exist. Fetching all categories again...");
+            const allCats = await productService.listProductCategories(
+              {},
+              {
+                relations: ["parent_category"],
+              }
+            );
+            categoryResult = allCats.filter((cat: any) => 
+              categoryNames.some((name) => cat.name?.toLowerCase() === name.toLowerCase())
+            );
+          } else {
+            throw createError;
+          }
+        }
       }
       
       logger.info(`Using product categories: ${categoryResult.length} found.`);
@@ -484,9 +505,9 @@ export default async function seedDemoData({ container }: ExecArgs) {
 
   // Helper function to safely get category ID
   const getCategoryId = (name: string) => {
-    const category = categoryResult.find((cat: any) => cat.name === name);
+    const category = categoryResult.find((cat: any) => cat.name === name || cat.name?.toLowerCase() === name.toLowerCase());
     if (!category) {
-      throw new Error(`Category "${name}" not found in categoryResult`);
+      throw new Error(`Category "${name}" not found in categoryResult. Available: ${categoryResult.map((c: any) => c.name).join(", ")}`);
     }
     return category.id;
   };
