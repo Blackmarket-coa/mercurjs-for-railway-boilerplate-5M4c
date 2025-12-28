@@ -64,7 +64,7 @@ export const fetchQuery = async (
     headers?: { [key: string]: string }
   }
 ) => {
-  const bearer = (await window.localStorage.getItem("medusa_auth_token")) || ""
+  const bearer = window.localStorage.getItem("medusa_auth_token") || ""
   const params = Object.entries(query || {}).reduce(
     (acc, [key, value], index) => {
       if (value && value !== undefined) {
