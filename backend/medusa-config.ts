@@ -7,11 +7,21 @@ loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 const getStoreCors = () => {
   const baseCors = process.env.STORE_CORS || 'http://localhost:8000,https://docs.medusajs.com'
   const vendorPanelUrl = process.env.VENDOR_PANEL_URL
+  const vendorCors = process.env.VENDOR_CORS
   
+  let cors = baseCors
+  
+  // Add VENDOR_PANEL_URL if explicitly set
   if (vendorPanelUrl && !baseCors.includes(vendorPanelUrl)) {
-    return `${baseCors},${vendorPanelUrl}`
+    cors = `${cors},${vendorPanelUrl}`
   }
-  return baseCors
+  
+  // Also add VENDOR_CORS if it's different from baseCors (for vendor panel access to store endpoints)
+  if (vendorCors && !cors.includes(vendorCors)) {
+    cors = `${cors},${vendorCors}`
+  }
+  
+  return cors
 }
 
 module.exports = defineConfig({
