@@ -85,8 +85,8 @@ export const createTicketProductWorkflow = createWorkflow(
       
       // Generate unique product handle to avoid conflicts
       const timestamp = Date.now();
-      const venueId = data.input.venue_id.substring(0, 8);
-      const uniqueHandle = `ticket-${venueId}-${timestamp}`;
+      const venueId = data.input.venue_id.substring(0, 8).toLowerCase().replace(/[^a-z0-9]/g, '');
+      const uniqueHandle = `ticket-${venueId}-${timestamp}`.toLowerCase();
 
       const product: CreateProductWorkflowInputDTO = {
         title: data.input.name,
