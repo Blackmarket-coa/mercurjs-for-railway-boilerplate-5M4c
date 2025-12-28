@@ -1,31 +1,40 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import OrderCycleModuleService from "../../../../../../modules/order-cycle/service"
+
+interface AddProductsBody {
+  products: Array<{
+    variant_id: string
+    available_quantity?: number
+    override_price?: number
+  }>
+}
 
 // GET /vendor/order-cycles/:id/exchanges/:exchangeId/products
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const { exchangeId } = req.params
-  const orderCycleService = req.scope.resolve("orderCycleModuleService")
+  const orderCycleService: OrderCycleModuleService = req.scope.resolve("orderCycleModuleService")
 
   try {
     const products = await orderCycleService.listOrderCycleProducts({
       exchange_id: exchangeId,
     })
     res.json({ products })
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ message: "Failed to fetch products", error: error.message })
   }
 }
 
 // POST /vendor/order-cycles/:id/exchanges/:exchangeId/products
-export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
+export const POST = async (req: MedusaRequest<AddProductsBody>, res: MedusaResponse) => {
   const { id, exchangeId } = req.params
   const { products } = req.body
-  const orderCycleService = req.scope.resolve("orderCycleModuleService")
+  const orderCycleService: OrderCycleModuleService = req.scope.resolve("orderCycleModuleService")
   const sellerId = (req as any).auth_context?.actor_id
 
   try {
     const exchange = await orderCycleService.retrieveOrderCycleExchange(exchangeId)
     
-    const createdProducts = []
+    const createdProducts: any[] = []
     for (const product of products) {
       const created = await orderCycleService.createOrderCycleProducts({
         order_cycle_id: id,
@@ -39,7 +48,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     }
 
     res.status(201).json({ products: createdProducts })
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ message: "Failed to add products", error: error.message })
   }
 }

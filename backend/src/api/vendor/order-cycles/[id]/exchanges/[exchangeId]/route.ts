@@ -1,23 +1,31 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import OrderCycleModuleService from "../../../../../modules/order-cycle/service"
+
+interface UpdateExchangeBody {
+  pickup_time?: string
+  pickup_instructions?: string
+  ready_at?: string
+  is_active?: boolean
+}
 
 // GET /vendor/order-cycles/:id/exchanges/:exchangeId
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const { exchangeId } = req.params
-  const orderCycleService = req.scope.resolve("orderCycleModuleService")
+  const orderCycleService: OrderCycleModuleService = req.scope.resolve("orderCycleModuleService")
 
   try {
     const exchange = await orderCycleService.retrieveOrderCycleExchange(exchangeId)
     res.json({ exchange })
-  } catch (error) {
+  } catch (error: any) {
     res.status(404).json({ message: "Exchange not found" })
   }
 }
 
 // PUT /vendor/order-cycles/:id/exchanges/:exchangeId
-export const PUT = async (req: MedusaRequest, res: MedusaResponse) => {
+export const PUT = async (req: MedusaRequest<UpdateExchangeBody>, res: MedusaResponse) => {
   const { exchangeId } = req.params
   const { pickup_time, pickup_instructions, ready_at, is_active } = req.body
-  const orderCycleService = req.scope.resolve("orderCycleModuleService")
+  const orderCycleService: OrderCycleModuleService = req.scope.resolve("orderCycleModuleService")
 
   try {
     const exchange = await orderCycleService.updateOrderCycleExchanges({
@@ -29,7 +37,7 @@ export const PUT = async (req: MedusaRequest, res: MedusaResponse) => {
     })
 
     res.json({ exchange })
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ message: "Failed to update exchange", error: error.message })
   }
 }
@@ -37,12 +45,12 @@ export const PUT = async (req: MedusaRequest, res: MedusaResponse) => {
 // DELETE /vendor/order-cycles/:id/exchanges/:exchangeId
 export const DELETE = async (req: MedusaRequest, res: MedusaResponse) => {
   const { exchangeId } = req.params
-  const orderCycleService = req.scope.resolve("orderCycleModuleService")
+  const orderCycleService: OrderCycleModuleService = req.scope.resolve("orderCycleModuleService")
 
   try {
     await orderCycleService.deleteOrderCycleExchanges(exchangeId)
     res.status(200).json({ success: true })
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ message: "Failed to delete exchange", error: error.message })
   }
 }
