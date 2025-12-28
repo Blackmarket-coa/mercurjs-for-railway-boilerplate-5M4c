@@ -130,11 +130,18 @@ export default async function seedDemoData({ container }: ExecArgs) {
     // If regions already exist, fetch the existing one
     if (error.message?.includes("already assigned to a region")) {
       logger.info("Regions already exist, fetching existing region...");
-      const regions = await storeModuleService.listRegions?.() || [];
-      if (regions && regions.length > 0) {
-        region = regions[0];
-        logger.info(`Using existing region: ${region.id}`);
-      } else {
+      try {
+        const { data: regions } = await query.graph({
+          entity: "region",
+          fields: ["id", "name"],
+        })
+        if (regions && regions.length > 0) {
+          region = regions[0];
+          logger.info(`Using existing region: ${region.id}`);
+        } else {
+          throw error;
+        }
+      } catch (queryError) {
         throw error;
       }
     } else {
@@ -156,7 +163,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
     if (error.message?.includes("already exists")) {
       logger.info("Tax regions already exist, skipping...");
     } else {
-      logger.warn("Warning seeding tax regions:", error.message);
+      logger.warn(`Warning seeding tax regions: ${error.message}`);
     }
   }
 
