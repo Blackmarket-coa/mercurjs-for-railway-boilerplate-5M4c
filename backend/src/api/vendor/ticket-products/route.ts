@@ -86,6 +86,8 @@ export async function POST(
   }
 
   try {
+    console.log("Creating ticket product with input:", JSON.stringify(req.body, null, 2))
+    
     const { result } = await createTicketProductWorkflow(req.scope).run({
       input: {
         ...req.body,
