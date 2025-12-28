@@ -196,7 +196,8 @@ export const createTicketProductWorkflow = createWorkflow(
     const linksData = transform({
       medusaProduct,
       ticket_products,
-      ticket_product_variants
+      ticket_product_variants,
+      input
     }, (data) => {
       // Create links between ticket product and Medusa product
       const productLinks = [{
@@ -218,7 +219,17 @@ export const createTicketProductWorkflow = createWorkflow(
         }
       }))
 
-      return [...productLinks, ...variantLinks]
+      // Create seller_product link if seller_id is provided
+      const sellerLinks = data.input.seller_id ? [{
+        "seller": {
+          seller_id: data.input.seller_id
+        },
+        [Modules.PRODUCT]: {
+          product_id: data.medusaProduct[0].id
+        }
+      }] : []
+
+      return [...productLinks, ...variantLinks, ...sellerLinks]
     })
 
     // Step 11: Create remote links
