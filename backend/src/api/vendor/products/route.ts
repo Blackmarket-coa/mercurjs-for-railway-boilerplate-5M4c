@@ -19,7 +19,6 @@ export async function GET(
       filters: {
         seller_id: sellerId
       },
-      ...req.queryConfig,
     })
 
     // Extract products from seller_product results
