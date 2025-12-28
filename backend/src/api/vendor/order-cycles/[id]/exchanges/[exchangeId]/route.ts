@@ -1,5 +1,5 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import OrderCycleModuleService from "../../../../../modules/order-cycle/service"
+import OrderCycleModuleService from "../../../../../../modules/order-cycle/service"
 
 interface UpdateExchangeBody {
   pickup_time?: string
