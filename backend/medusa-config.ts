@@ -3,12 +3,23 @@ import { defineConfig, loadEnv } from '@medusajs/framework/utils'
 // Load environment variables
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
+// Build CORS configuration dynamically
+const getStoreCors = () => {
+  const baseCors = process.env.STORE_CORS || 'http://localhost:8000,https://docs.medusajs.com'
+  const vendorPanelUrl = process.env.VENDOR_PANEL_URL
+  
+  if (vendorPanelUrl && !baseCors.includes(vendorPanelUrl)) {
+    return `${baseCors},${vendorPanelUrl}`
+  }
+  return baseCors
+}
+
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     ...(process.env.REDIS_URL ? { redisUrl: process.env.REDIS_URL } : {}),
     http: {
-      storeCors: process.env.STORE_CORS!,
+      storeCors: getStoreCors(),
       adminCors: process.env.ADMIN_CORS!,
       // @ts-expect-error: vendorCors is not a valid config
       vendorCors: process.env.VENDOR_CORS!,
