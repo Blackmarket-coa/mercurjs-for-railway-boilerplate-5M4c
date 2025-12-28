@@ -7,8 +7,8 @@ async function setupStockLocation(container: MedusaContainer) {
   try {
     logger.info("Setting up default stock location...")
 
-    // Get the inventory module service
-    const inventoryService = container.resolve(Modules.INVENTORY)
+    // Get the stock location module service
+    const stockLocationService = container.resolve(Modules.STOCK_LOCATION)
 
     // Get the store module service
     const storeService = container.resolve(Modules.STORE)
@@ -31,15 +31,14 @@ async function setupStockLocation(container: MedusaContainer) {
     }
 
     // List existing stock locations
-    const existingLocations = await inventoryService.listStockLocations()
+    const existingLocations = await stockLocationService.listStockLocations()
 
     if (existingLocations && existingLocations.length > 0) {
       const location = existingLocations[0]
       logger.info(`Using existing stock location: ${location.id} (${location.name})`)
 
       // Update store to use this location
-      await storeService.updateStores({
-        id: store.id,
+      await storeService.updateStores(store.id, {
         default_location_id: location.id,
       })
 
@@ -50,7 +49,7 @@ async function setupStockLocation(container: MedusaContainer) {
     // Create a new stock location
     logger.info("Creating new stock location...")
 
-    const newLocation = await inventoryService.createStockLocations({
+    const newLocation = await stockLocationService.createStockLocations({
       name: "Main Warehouse",
       address: {
         address_1: "123 Warehouse Street",
@@ -63,17 +62,15 @@ async function setupStockLocation(container: MedusaContainer) {
     logger.info(`✓ Created stock location: ${newLocation[0].id}`)
 
     // Update store to use this location
-    await storeService.updateStores({
-      id: store.id,
+    await storeService.updateStores(store.id, {
       default_location_id: newLocation[0].id,
     })
 
     logger.info(`✓ Store updated with default location: ${newLocation[0].id}`)
     logger.info("✓ Stock location setup complete!")
   } catch (error: any) {
-    console.error("Error setting up stock location:", error)
+    logger.error("Error setting up stock location:", error)
     throw error
   }
-}
 
 export default setupStockLocation
