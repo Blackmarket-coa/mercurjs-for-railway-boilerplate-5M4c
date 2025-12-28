@@ -272,9 +272,14 @@ export default async function seedDemoData({ container }: ExecArgs) {
     // If fulfillment set already exists, fetch the existing one
     if (error.message?.includes("already exists")) {
       logger.info("Fulfillment set already exists, fetching existing one...");
-      const existingSets = await fulfillmentModuleService.listFulfillmentSets({
-        name: "European Warehouse delivery",
-      });
+      const existingSets = await fulfillmentModuleService.listFulfillmentSets(
+        {
+          name: "European Warehouse delivery",
+        },
+        {
+          relations: ["service_zones"],
+        }
+      );
       if (existingSets && existingSets.length > 0) {
         fulfillmentSet = existingSets[0];
         logger.info(`Using existing fulfillment set: ${fulfillmentSet.id}`);
