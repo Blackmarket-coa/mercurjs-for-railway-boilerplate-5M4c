@@ -149,12 +149,18 @@ export const createTicketProductWorkflow = createWorkflow(
       input
     }, (data) => {
       return {
-        ticket_products: data.medusaProduct.map((product: any) => ({
-          product_id: product.id,
-          venue_id: data.input.venue_id,
-          seller_id: data.input.seller_id,
-          dates: data.input.dates
-        }))
+        ticket_products: data.medusaProduct.map((product: any) => {
+          const ticketProduct: any = {
+            product_id: product.id,
+            venue_id: data.input.venue_id,
+            dates: data.input.dates
+          }
+          // Only include seller_id if provided
+          if (data.input.seller_id) {
+            ticketProduct.seller_id = data.input.seller_id
+          }
+          return ticketProduct
+        })
       }
     })
 
@@ -224,7 +230,6 @@ export const createTicketProductWorkflow = createWorkflow(
       fields: [
         "id",
         "product_id",
-        "seller_id",
         "venue_id",
         "dates",
         "venue.*",
