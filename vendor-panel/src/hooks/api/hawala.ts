@@ -3,7 +3,7 @@ import { sdk } from "../../lib/sdk"
 
 // Custom hook for fetching vendor financial dashboard
 export const useVendorDashboard = () => {
-  const { data, ...rest } = useQuery({
+  const { data, error, ...rest } = useQuery({
     queryKey: ["hawala", "dashboard"],
     queryFn: async () => {
       const response = await sdk.client.fetch("/vendor/hawala/dashboard", {
@@ -11,10 +11,12 @@ export const useVendorDashboard = () => {
       })
       return response as { dashboard: VendorDashboard }
     },
+    retry: false,
   })
 
   return {
     dashboard: data?.dashboard,
+    error,
     ...rest,
   }
 }

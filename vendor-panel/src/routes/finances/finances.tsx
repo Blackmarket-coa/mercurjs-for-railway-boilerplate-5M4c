@@ -410,7 +410,7 @@ const RecentTransactions = ({ transactions }: { transactions: any[] }) => {
 
 // Main Finances Page
 export const FinancesPage = () => {
-  const { dashboard, isPending, isError } = useVendorDashboard()
+  const { dashboard, isPending, isError, error } = useVendorDashboard()
 
   if (isPending) {
     return (
@@ -431,7 +431,7 @@ export const FinancesPage = () => {
             Financial Dashboard Unavailable
           </Heading>
           <Text className="text-ui-fg-muted">
-            Set up your vendor account to access financial features.
+            {error ? String(error) : "Set up your vendor account to access financial features."}
           </Text>
         </div>
       </Container>
