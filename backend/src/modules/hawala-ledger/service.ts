@@ -1126,7 +1126,7 @@ class HawalaLedgerModuleService extends MedusaService({
     const monthEntries = entries.filter(e => new Date(e.created_at) >= monthStart)
 
     const calcRevenue = (items: typeof entries) => 
-      items.filter(e => e.direction === "CREDIT" && e.entry_type === "SALE")
+      items.filter(e => e.direction === "CREDIT" && e.entry_type === "PURCHASE")
            .reduce((sum, e) => sum + Number(e.amount), 0)
 
     const todayRevenue = calcRevenue(todayEntries)
