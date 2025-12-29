@@ -509,28 +509,26 @@ export const FinancesPage = () => {
           <Tabs.Trigger value="transactions">📜 Transactions</Tabs.Trigger>
         </Tabs.List>
 
-        <div className="mt-6">
-          <Tabs.Content value="payouts">
-            <div className="bg-ui-bg-base border border-ui-border-base rounded-lg p-6">
-              <PayoutSection />
-            </div>
-          </Tabs.Content>
+        <Tabs.Content value="payouts" className="mt-6">
+          <div className="bg-ui-bg-base border border-ui-border-base rounded-lg p-6">
+            <PayoutSection />
+          </div>
+        </Tabs.Content>
 
-          <Tabs.Content value="advances">
-            <div className="bg-ui-bg-base border border-ui-border-base rounded-lg p-6">
-              <AdvanceSection />
-            </div>
-          </Tabs.Content>
+        <Tabs.Content value="advances" className="mt-6">
+          <div className="bg-ui-bg-base border border-ui-border-base rounded-lg p-6">
+            <AdvanceSection />
+          </div>
+        </Tabs.Content>
 
-          <Tabs.Content value="transactions">
-            <div className="bg-ui-bg-base border border-ui-border-base rounded-lg p-6">
-              <Heading level="h3" className="mb-4">
-                Recent Transactions
-              </Heading>
-              <RecentTransactions transactions={dashboard.recent_transactions} />
-            </div>
-          </Tabs.Content>
-        </div>
+        <Tabs.Content value="transactions" className="mt-6">
+          <div className="bg-ui-bg-base border border-ui-border-base rounded-lg p-6">
+            <Heading level="h3" className="mb-4">
+              Recent Transactions
+            </Heading>
+            <RecentTransactions transactions={dashboard.recent_transactions} />
+          </div>
+        </Tabs.Content>
       </Tabs>
 
       {/* Investment Pools */}
