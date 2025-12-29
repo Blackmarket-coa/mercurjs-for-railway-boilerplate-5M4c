@@ -452,7 +452,7 @@ export const FinancesPage = () => {
     <Container className="p-8">
       <div className="mb-8">
         <Heading level="h1" className="text-2xl font-bold mb-2">
-          💰 Financial Dashboard
+          Financial Dashboard
         </Heading>
         <Text className="text-ui-fg-muted">
           Manage your earnings, payouts, and cash advances
@@ -521,7 +521,7 @@ export const FinancesPage = () => {
 
       {/* Advance Section */}
       <div className="mb-8">
-        <Heading level="h3" className="mb-4">💵 Get Advance</Heading>
+        <Heading level="h3" className="mb-4">Get Advance</Heading>
         <div className="bg-ui-bg-base border border-ui-border-base rounded-lg p-6">
           <AdvanceSection />
         </div>

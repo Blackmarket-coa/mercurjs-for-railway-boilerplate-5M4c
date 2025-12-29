@@ -112,7 +112,7 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
     },
     {
       icon: <CashSolid />,
-      label: "💰 Finances",
+      label: "Finances",
       to: "/finances",
     },
     {
