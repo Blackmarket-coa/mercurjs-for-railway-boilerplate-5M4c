@@ -1,6 +1,6 @@
 import {
   Keypair,
-  Server,
+  Horizon,
   Networks,
   TransactionBuilder,
   Operation,
@@ -34,13 +34,13 @@ export interface SettlementData {
  * Handles blockchain anchoring and USDC settlements
  */
 export class StellarSettlementService {
-  private server: Server
+  private server: Horizon.Server
   private keypair: Keypair
   private networkPassphrase: string
   private usdcAsset: Asset
 
   constructor(config: StellarConfig) {
-    this.server = new Server(config.horizonUrl)
+    this.server = new Horizon.Server(config.horizonUrl)
     this.keypair = Keypair.fromSecret(config.signerSecretKey)
     this.networkPassphrase = config.networkPassphrase
     this.usdcAsset = new Asset("USDC", config.usdcIssuer)
