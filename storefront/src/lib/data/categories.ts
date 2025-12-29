@@ -6,6 +6,9 @@ interface CategoriesProps {
   headingCategories?: string[]
 }
 
+// Categories to hide from navigation (lowercase handles)
+const HIDDEN_CATEGORIES = ['sweatshirts', 'sweatshirt', 'pants', 'merch']
+
 export const listCategories = async ({
   query,
   headingCategories = [],
@@ -26,11 +29,16 @@ export const listCategories = async ({
     })
     .then(({ product_categories }) => product_categories)
 
-  const parentCategories = categories.filter(({ name }) =>
+  // Filter out hidden categories
+  const visibleCategories = categories.filter(
+    ({ handle }) => !HIDDEN_CATEGORIES.includes(handle.toLowerCase())
+  )
+
+  const parentCategories = visibleCategories.filter(({ name }) =>
     headingCategories.includes(name.toLowerCase())
   )
 
-  const childrenCategories = categories.filter(
+  const childrenCategories = visibleCategories.filter(
     ({ name }) => !headingCategories.includes(name.toLowerCase())
   )
 
