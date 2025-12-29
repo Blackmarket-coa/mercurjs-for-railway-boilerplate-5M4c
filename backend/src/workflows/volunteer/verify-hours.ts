@@ -48,24 +48,34 @@ const verifyHoursStep = createStep(
     const gardenService = container.resolve(GARDEN_MODULE) as GardenServiceType
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
-    // Get log
-    const { data: [log] } = await query.graph({
-      entity: "volunteer_log",
-      fields: [
-        "id",
-        "garden_id",
-        "customer_id",
-        "membership_id",
-        "hours",
-        "credits_earned",
-        "credit_rate",
-        "verification_status",
-      ],
-      filters: { id: input.log_id },
-    })
+    // Get log and membership in parallel
+    const [{ data: [log] }, { data: [membership] }] = await Promise.all([
+      query.graph({
+        entity: "volunteer_log",
+        fields: [
+          "id",
+          "garden_id",
+          "customer_id",
+          "membership_id",
+          "hours",
+          "credits_earned",
+          "credit_rate",
+          "verification_status",
+        ],
+        filters: { id: input.log_id },
+      }),
+      query.graph({
+        entity: "garden_membership",
+        fields: ["id", "time_credit_balance", "total_labor_hours"],
+        filters: { id: log?.membership_id ?? undefined },
+      })
+    ])
 
     if (!log) {
       throw new Error("Volunteer log not found")
+    }
+    if (!membership) {
+      throw new Error("Membership not found")
     }
 
     if (log.verification_status !== "pending") {
@@ -76,98 +86,80 @@ const verifyHoursStep = createStep(
     const logHours = log.hours as number
     const logCreditRate = log.credit_rate as number
     const logMembershipId = log.membership_id as string
-    
-    if (!input.approved) {
-      // Rejected - update status and revert hours
-      await volunteerService.updateVolunteerLogs({
-        id: input.log_id,
-        verification_status: "rejected",
-        verified_by_id: input.verified_by_id,
-        verified_at: new Date(),
-        verification_notes: input.notes,
-      })
 
-      // Revert membership hours
-      const { data: [membership] } = await query.graph({
-        entity: "garden_membership",
-        fields: ["id", "total_labor_hours"],
-        filters: { id: logMembershipId },
-      })
+    // Use transaction for all DB mutations
+    await container.transaction(async (trx) => {
+      if (!input.approved) {
+        // Rejected - update status and revert hours
+        await volunteerService.updateVolunteerLogs({
+          id: input.log_id,
+          verification_status: "rejected",
+          verified_by_id: input.verified_by_id,
+          verified_at: new Date(),
+          verification_notes: input.notes,
+        }, trx)
 
-      if (membership) {
         await gardenService.updateGardenMemberships({
           id: logMembershipId,
           total_labor_hours: Math.max(0, ((membership.total_labor_hours as number) || 0) - logHours),
-        })
+        }, trx)
+
+        return new StepResponse({
+          log_id: input.log_id,
+          status: "rejected",
+          credits_issued: 0,
+        }, { logId: input.log_id, previousStatus } as CompensationContext)
+      } else {
+        // Approved - calculate final credits
+        const finalHours = input.adjustment_hours ?? logHours
+        const finalCredits = finalHours * logCreditRate
+
+        await volunteerService.updateVolunteerLogs({
+          id: input.log_id,
+          verification_status: "verified",
+          verified_by_id: input.verified_by_id,
+          verified_at: new Date(),
+          verification_notes: input.notes,
+          hours: finalHours,
+          credits_earned: finalCredits,
+        }, trx)
+
+        const credit = await volunteerService.createTimeCredits({
+          garden_id: log.garden_id,
+          customer_id: log.customer_id,
+          membership_id: logMembershipId,
+          source_type: "volunteer_log",
+          source_id: input.log_id,
+          hours_equivalent: finalHours,
+          credit_value: finalCredits,
+          earned_at: new Date(),
+          expires_at: null, // Credits don't expire
+          status: "active",
+          balance: finalCredits,
+        }, trx)
+
+        // Adjust hours if different
+        const hoursDiff = finalHours - logHours
+        await gardenService.updateGardenMemberships({
+          id: logMembershipId,
+          time_credit_balance: ((membership.time_credit_balance as number) || 0) + finalCredits,
+          total_labor_hours: ((membership.total_labor_hours as number) || 0) + hoursDiff,
+        }, trx)
+
+        return new StepResponse({
+          log_id: input.log_id,
+          status: "verified",
+          credits_issued: finalCredits,
+          credit_id: credit.id,
+        }, { 
+          logId: input.log_id, 
+          creditId: credit.id,
+          previousStatus,
+          membershipId: logMembershipId,
+          creditsIssued: finalCredits,
+        } as CompensationContext)
       }
-
-      return new StepResponse({
-        log_id: input.log_id,
-        status: "rejected",
-        credits_issued: 0,
-      }, { logId: input.log_id, previousStatus } as CompensationContext)
-    }
-
-    // Approved - calculate final credits
-    const finalHours = input.adjustment_hours ?? logHours
-    const finalCredits = finalHours * logCreditRate
-
-    // Update log
-    await volunteerService.updateVolunteerLogs({
-      id: input.log_id,
-      verification_status: "verified",
-      verified_by_id: input.verified_by_id,
-      verified_at: new Date(),
-      verification_notes: input.notes,
-      hours: finalHours,
-      credits_earned: finalCredits,
     })
-
-    // Create time credit
-    const credit = await volunteerService.createTimeCredits({
-      garden_id: log.garden_id,
-      customer_id: log.customer_id,
-      membership_id: logMembershipId,
-      source_type: "volunteer_log",
-      source_id: input.log_id,
-      hours_equivalent: finalHours,
-      credit_value: finalCredits,
-      earned_at: new Date(),
-      expires_at: null, // Credits don't expire
-      status: "active",
-      balance: finalCredits,
-    })
-
-    // Update membership balances
-    const { data: [membership] } = await query.graph({
-      entity: "garden_membership",
-      fields: ["id", "time_credit_balance", "total_labor_hours"],
-      filters: { id: logMembershipId },
-    })
-
-    if (membership) {
-      // Adjust hours if different
-      const hoursDiff = finalHours - logHours
-      
-      await gardenService.updateGardenMemberships({
-        id: logMembershipId,
-        time_credit_balance: ((membership.time_credit_balance as number) || 0) + finalCredits,
-        total_labor_hours: ((membership.total_labor_hours as number) || 0) + hoursDiff,
-      })
-    }
-
-    return new StepResponse({
-      log_id: input.log_id,
-      status: "verified",
-      credits_issued: finalCredits,
-      credit_id: credit.id,
-    }, { 
-      logId: input.log_id, 
-      creditId: credit.id,
-      previousStatus,
-      membershipId: logMembershipId,
-      creditsIssued: finalCredits,
-    } as CompensationContext)
   },
   async (context: CompensationContext | undefined, { container }) => {
     if (!context) return
