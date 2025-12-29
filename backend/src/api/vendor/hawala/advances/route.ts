@@ -21,7 +21,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
     // Get any existing advances
     const advances = await hawalaService.listVendorAdvances({
-      filters: { vendor_id: vendorId },
+      vendor_id: vendorId,
     })
 
     res.json({

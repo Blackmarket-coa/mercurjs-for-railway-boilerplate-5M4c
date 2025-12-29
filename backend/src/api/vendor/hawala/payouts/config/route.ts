@@ -18,7 +18,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
     // Get payout config
     const configs = await hawalaService.listPayoutConfigs({
-      filters: { vendor_id: vendorId },
+      vendor_id: vendorId,
     })
 
     if (configs.length === 0) {
@@ -29,7 +29,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
     // Get split rules
     const splitRules = await hawalaService.listPayoutSplitRules({
-      filters: { payout_config_id: config.id },
+      payout_config_id: config.id,
     })
 
     res.json({

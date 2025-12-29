@@ -35,11 +35,9 @@ export default async function hawalaOrderPaymentSubscriber({
     }
 
     let customerWallets = await hawalaService.listLedgerAccounts({
-      filters: {
-        account_type: "USER_WALLET",
-        owner_type: "CUSTOMER",
-        owner_id: customerId,
-      },
+      account_type: "USER_WALLET",
+      owner_type: "CUSTOMER",
+      owner_id: customerId,
     })
 
     if (customerWallets.length === 0) {
@@ -57,11 +55,9 @@ export default async function hawalaOrderPaymentSubscriber({
 
     // Get or create seller earnings account
     let sellerAccounts = await hawalaService.listLedgerAccounts({
-      filters: {
-        account_type: "SELLER_EARNINGS",
-        owner_type: "SELLER",
-        owner_id: sellerId,
-      },
+      account_type: "SELLER_EARNINGS",
+      owner_type: "SELLER",
+      owner_id: sellerId,
     })
 
     if (sellerAccounts.length === 0) {

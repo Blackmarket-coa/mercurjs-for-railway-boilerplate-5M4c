@@ -130,7 +130,7 @@ class HawalaLedgerModuleService extends MedusaService({
     // Check idempotency
     if (data.idempotency_key) {
       const existing = await this.listLedgerEntries({
-        filters: { idempotency_key: data.idempotency_key },
+        idempotency_key: data.idempotency_key,
       })
       if (existing.length > 0) {
         return existing[0] // Return existing entry
@@ -353,7 +353,7 @@ class HawalaLedgerModuleService extends MedusaService({
    */
   async getOrCreateProducerPool(producerId: string) {
     const existing = await this.listInvestmentPools({
-      filters: { producer_id: producerId, status: "ACTIVE" },
+      producer_id: producerId, status: "ACTIVE",
     })
 
     if (existing.length > 0) {
@@ -448,7 +448,7 @@ class HawalaLedgerModuleService extends MedusaService({
     }
 
     const investments = await this.listInvestments({
-      filters: { pool_id: data.pool_id, status: "CONFIRMED" },
+      pool_id: data.pool_id, status: "CONFIRMED",
     })
 
     const totalInvested = Number(pool.total_raised)
@@ -588,11 +588,9 @@ class HawalaLedgerModuleService extends MedusaService({
   async getPayoutOptions(vendorId: string) {
     // Get vendor's ledger account
     const accounts = await this.listLedgerAccounts({
-      filters: {
-        owner_type: "SELLER",
-        owner_id: vendorId,
-        account_type: "SELLER_EARNINGS",
-      },
+      owner_type: "SELLER",
+      owner_id: vendorId,
+      account_type: "SELLER_EARNINGS",
     })
 
     if (accounts.length === 0) {
@@ -604,7 +602,7 @@ class HawalaLedgerModuleService extends MedusaService({
 
     // Get payout config
     const configs = await this.listPayoutConfigs({
-      filters: { vendor_id: vendorId },
+      vendor_id: vendorId,
     })
     const config = configs[0]
 
@@ -657,11 +655,9 @@ class HawalaLedgerModuleService extends MedusaService({
 
     // Get vendor account
     const accounts = await this.listLedgerAccounts({
-      filters: {
-        owner_type: "SELLER",
-        owner_id: data.vendor_id,
-        account_type: "SELLER_EARNINGS",
-      },
+      owner_type: "SELLER",
+      owner_id: data.vendor_id,
+      account_type: "SELLER_EARNINGS",
     })
 
     if (accounts.length === 0) {
@@ -745,11 +741,9 @@ class HawalaLedgerModuleService extends MedusaService({
   async calculateAdvanceEligibility(vendorId: string) {
     // Get vendor's ledger account
     const accounts = await this.listLedgerAccounts({
-      filters: {
-        owner_type: "SELLER",
-        owner_id: vendorId,
-        account_type: "SELLER_EARNINGS",
-      },
+      owner_type: "SELLER",
+      owner_id: vendorId,
+      account_type: "SELLER_EARNINGS",
     })
 
     if (accounts.length === 0) {
@@ -769,10 +763,8 @@ class HawalaLedgerModuleService extends MedusaService({
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
     const entries = await this.listLedgerEntries({
-      filters: {
-        credit_account_id: account.id,
-        entry_type: "SALE",
-      },
+      credit_account_id: account.id,
+      entry_type: "SALE",
     })
 
     // Calculate metrics
@@ -787,10 +779,8 @@ class HawalaLedgerModuleService extends MedusaService({
 
     // Check for existing active advances
     const activeAdvances = await this.listVendorAdvances({
-      filters: {
-        vendor_id: vendorId,
-        status: "ACTIVE",
-      },
+      vendor_id: vendorId,
+      status: "ACTIVE",
     })
 
     if (activeAdvances.length > 0) {
@@ -867,11 +857,9 @@ class HawalaLedgerModuleService extends MedusaService({
 
     // Get vendor account
     const accounts = await this.listLedgerAccounts({
-      filters: {
-        owner_type: "SELLER",
-        owner_id: data.vendor_id,
-        account_type: "SELLER_EARNINGS",
-      },
+      owner_type: "SELLER",
+      owner_id: data.vendor_id,
+      account_type: "SELLER_EARNINGS",
     })
     const account = accounts[0]
 
@@ -934,10 +922,8 @@ class HawalaLedgerModuleService extends MedusaService({
   }) {
     // Get active advance
     const advances = await this.listVendorAdvances({
-      filters: {
-        vendor_id: data.vendor_id,
-        status: "ACTIVE",
-      },
+      vendor_id: data.vendor_id,
+      status: "ACTIVE",
     })
 
     if (advances.length === 0) {
@@ -958,11 +944,9 @@ class HawalaLedgerModuleService extends MedusaService({
 
     // Get accounts
     const vendorAccounts = await this.listLedgerAccounts({
-      filters: {
-        owner_type: "SELLER",
-        owner_id: data.vendor_id,
-        account_type: "SELLER_EARNINGS",
-      },
+      owner_type: "SELLER",
+      owner_id: data.vendor_id,
+      account_type: "SELLER_EARNINGS",
     })
     const vendorAccount = vendorAccounts[0]
     const reserveAccount = await this.getOrCreateSystemAccount("RESERVE")
@@ -1027,18 +1011,14 @@ class HawalaLedgerModuleService extends MedusaService({
     // Get both vendor accounts
     const [payerAccounts, payeeAccounts] = await Promise.all([
       this.listLedgerAccounts({
-        filters: {
-          owner_type: "SELLER",
-          owner_id: data.payer_vendor_id,
-          account_type: "SELLER_EARNINGS",
-        },
+        owner_type: "SELLER",
+        owner_id: data.payer_vendor_id,
+        account_type: "SELLER_EARNINGS",
       }),
       this.listLedgerAccounts({
-        filters: {
-          owner_type: "SELLER",
-          owner_id: data.payee_vendor_id,
-          account_type: "SELLER_EARNINGS",
-        },
+        owner_type: "SELLER",
+        owner_id: data.payee_vendor_id,
+        account_type: "SELLER_EARNINGS",
       }),
     ])
 
@@ -1223,7 +1203,7 @@ class HawalaLedgerModuleService extends MedusaService({
    */
   async getOrCreatePayoutConfig(vendorId: string, ledgerAccountId: string) {
     const existing = await this.listPayoutConfigs({
-      filters: { vendor_id: vendorId },
+      vendor_id: vendorId,
     })
 
     if (existing.length > 0) {
@@ -1252,7 +1232,7 @@ class HawalaLedgerModuleService extends MedusaService({
     split_payout_enabled?: boolean
   }) {
     const configs = await this.listPayoutConfigs({
-      filters: { vendor_id: vendorId },
+      vendor_id: vendorId,
     })
 
     if (configs.length === 0) {
@@ -1279,10 +1259,8 @@ class HawalaLedgerModuleService extends MedusaService({
   }) {
     // Check if rule exists for this destination type
     const existing = await this.listPayoutSplitRules({
-      filters: {
-        payout_config_id: data.payout_config_id,
-        destination_type: data.destination_type,
-      },
+      payout_config_id: data.payout_config_id,
+      destination_type: data.destination_type,
     })
 
     if (existing.length > 0) {
@@ -1312,7 +1290,7 @@ class HawalaLedgerModuleService extends MedusaService({
    */
   async processSplitPayout(vendorId: string, grossAmount: number, orderId?: string) {
     const configs = await this.listPayoutConfigs({
-      filters: { vendor_id: vendorId, split_payout_enabled: true },
+      vendor_id: vendorId, split_payout_enabled: true,
     })
 
     if (configs.length === 0) {
@@ -1323,10 +1301,8 @@ class HawalaLedgerModuleService extends MedusaService({
 
     // Get split rules
     const rules = await this.listPayoutSplitRules({
-      filters: {
-        payout_config_id: config.id,
-        is_active: true,
-      },
+      payout_config_id: config.id,
+      is_active: true,
     })
 
     if (rules.length === 0) {

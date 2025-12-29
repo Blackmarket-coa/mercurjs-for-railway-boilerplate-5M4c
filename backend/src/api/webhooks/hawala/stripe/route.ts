@@ -34,10 +34,8 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
         if (ledgerAccountId && paymentIntent.metadata?.type === "ach_deposit") {
           // Find the pending ACH transaction
           const transactions = await hawalaService.listAchTransactions({
-            filters: {
-              stripe_payment_intent_id: paymentIntent.id,
-              status: "PENDING",
-            },
+            stripe_payment_intent_id: paymentIntent.id,
+            status: "PENDING",
           })
 
           if (transactions.length > 0) {
@@ -71,10 +69,8 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
 
         // Find and mark transaction as failed
         const transactions = await hawalaService.listAchTransactions({
-          filters: {
-            stripe_payment_intent_id: paymentIntent.id,
-            status: "PENDING",
-          },
+          stripe_payment_intent_id: paymentIntent.id,
+          status: "PENDING",
         })
 
         if (transactions.length > 0) {
@@ -95,10 +91,8 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
         if (ledgerAccountId && payout.metadata?.type === "ach_payout") {
           // Update ACH transaction
           const transactions = await hawalaService.listAchTransactions({
-            filters: {
-              stripe_payout_id: payout.id,
-              status: "PENDING",
-            },
+            stripe_payout_id: payout.id,
+            status: "PENDING",
           })
 
           if (transactions.length > 0) {
@@ -117,10 +111,8 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
         const payout = event.data
 
         const transactions = await hawalaService.listAchTransactions({
-          filters: {
-            stripe_payout_id: payout.id,
-            status: "PENDING",
-          },
+          stripe_payout_id: payout.id,
+          status: "PENDING",
         })
 
         if (transactions.length > 0) {
@@ -152,9 +144,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
         
         // Find and deactivate the bank account
         const bankAccounts = await hawalaService.listBankAccounts({
-          filters: {
-            stripe_bank_account_id: fcAccount.id,
-          },
+          stripe_bank_account_id: fcAccount.id,
         })
 
         if (bankAccounts.length > 0) {
