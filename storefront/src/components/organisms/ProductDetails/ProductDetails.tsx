@@ -5,6 +5,7 @@ import {
   ProductDetailsShipping,
   ProductPageDetails,
   ProductAdditionalAttributes,
+  FarmStory,
 } from "@/components/cells"
 
 import { retrieveCustomer } from "@/lib/data/customer"
@@ -44,6 +45,7 @@ export const ProductDetails = async ({
       <ProductAdditionalAttributes
         attributes={product?.attribute_values || []}
       />
+      <FarmStory productId={product.id} />
       <ProductDetailsShipping />
       <ProductDetailsSeller seller={product?.seller} />
       <ProductDetailsFooter

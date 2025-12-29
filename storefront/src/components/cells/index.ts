@@ -30,6 +30,7 @@ import { OrderProductListItem } from "./OrderProductListItem/OrderProductListIte
 import { OrderTimeline } from "./OrderTimeline/OrderTimeline"
 import { WishlistItem } from "./WishlistItem/WishlistItem"
 import { ProductAdditionalAttributes } from "./ProductAdditionalAttributes/ProductAdditionalAttributes"
+import { FarmStory } from "./FarmStory/FarmStory"
 
 export {
   Navbar,
@@ -64,4 +65,5 @@ export {
   OrderTimeline,
   WishlistItem,
   ProductAdditionalAttributes,
+  FarmStory,
 }
