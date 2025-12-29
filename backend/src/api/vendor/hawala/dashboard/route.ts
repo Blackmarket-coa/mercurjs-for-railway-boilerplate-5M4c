@@ -16,7 +16,25 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       return res.status(401).json({ error: "Unauthorized" })
     }
 
-    const dashboard = await hawalaService.getVendorDashboard(vendorId)
+    // Try to get existing dashboard, or create account if needed
+    let dashboard
+    try {
+      dashboard = await hawalaService.getVendorDashboard(vendorId)
+    } catch (error: any) {
+      if (error.message === "Vendor account not found") {
+        // Auto-create vendor account
+        await hawalaService.createAccount({
+          account_type: "SELLER_EARNINGS",
+          owner_type: "SELLER",
+          owner_id: vendorId,
+          currency_code: "USD",
+        })
+        // Try again
+        dashboard = await hawalaService.getVendorDashboard(vendorId)
+      } else {
+        throw error
+      }
+    }
     
     res.json({ dashboard })
   } catch (error: any) {
