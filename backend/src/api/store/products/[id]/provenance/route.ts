@@ -125,8 +125,26 @@ export async function GET(
       },
     })
 
-    let harvest = null
-    let lot = null
+    let harvest: {
+      id: any
+      crop_name: any
+      variety: any
+      harvest_date: any
+      growing_method: any
+      farmer_notes: any
+      taste_notes: any
+      season: any
+      year: any
+      photo: any
+    } | null = null
+    
+    let lot: {
+      id: any
+      lot_number: any
+      grade: any
+      batch_date: any
+      best_by_date: any
+    } | null = null
 
     if (availabilityLinks && availabilityLinks.length > 0) {
       const link = availabilityLinks[0]
