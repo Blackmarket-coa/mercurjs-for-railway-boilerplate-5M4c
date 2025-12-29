@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { MapPin, Calendar, Leaf, Award, ChevronDown, ChevronUp, ExternalLink } from "lucide-react"
+import { LocationIcon, CalendarIcon, AwardIcon, CollapseIcon, OpenIcon, LeafIcon } from "@/icons"
 
 // Growing practice labels
 const PRACTICE_LABELS: Record<string, string> = {
@@ -132,7 +132,7 @@ export function FarmStory({ productId }: FarmStoryProps) {
             />
           ) : (
             <div className="w-10 h-10 rounded-full bg-green-200 flex items-center justify-center">
-              <Leaf className="w-5 h-5 text-green-700" />
+              <LeafIcon className="w-5 h-5 text-green-700" />
             </div>
           )}
           <div className="text-left">
@@ -146,7 +146,7 @@ export function FarmStory({ productId }: FarmStoryProps) {
             </div>
             {producer.region && (
               <span className="text-sm text-green-700 flex items-center gap-1">
-                <MapPin className="w-3 h-3" />
+                <LocationIcon className="w-3 h-3" />
                 {producer.region}{producer.state ? `, ${producer.state}` : ''}
               </span>
             )}
@@ -154,7 +154,7 @@ export function FarmStory({ productId }: FarmStoryProps) {
         </div>
         <div className="flex items-center gap-2 text-green-700">
           <span className="text-sm">Farm Story</span>
-          {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          <CollapseIcon className={`w-4 h-4 transition-transform ${expanded ? 'rotate-180' : ''}`} />
         </div>
       </button>
 
@@ -165,7 +165,7 @@ export function FarmStory({ productId }: FarmStoryProps) {
           {harvest && (
             <div className="bg-white rounded-lg p-3 border border-green-100">
               <h4 className="font-medium text-green-800 mb-2 flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
+                <CalendarIcon className="w-4 h-4" />
                 Harvest Information
               </h4>
               <div className="grid grid-cols-2 gap-2 text-sm">
@@ -246,7 +246,7 @@ export function FarmStory({ productId }: FarmStoryProps) {
                   key={practice}
                   className="inline-flex items-center gap-1 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full"
                 >
-                  <Leaf className="w-3 h-3" />
+                  <LeafIcon className="w-3 h-3" />
                   {PRACTICE_LABELS[practice] || practice}
                 </span>
               ))}
@@ -261,7 +261,7 @@ export function FarmStory({ productId }: FarmStoryProps) {
                   key={idx}
                   className="inline-flex items-center gap-1 text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full"
                 >
-                  <Award className="w-3 h-3" />
+                  <AwardIcon className="w-3 h-3" />
                   {cert.name}
                 </span>
               ))}
@@ -281,7 +281,7 @@ export function FarmStory({ productId }: FarmStoryProps) {
             className="inline-flex items-center gap-1 text-sm text-green-700 hover:text-green-800 font-medium"
           >
             Visit {producer.name}'s farm page
-            <ExternalLink className="w-3 h-3" />
+            <OpenIcon className="w-3 h-3" />
           </Link>
         </div>
       )}

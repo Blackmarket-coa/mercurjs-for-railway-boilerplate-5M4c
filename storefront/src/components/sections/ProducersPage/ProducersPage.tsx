@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { MapPin, Leaf, Award, Search, Filter, ChevronRight } from "lucide-react"
+import { LocationIcon, AwardIcon, SearchIcon, FilterIcon, ForwardIcon, LeafIcon } from "@/icons"
 
 // Growing practice labels
 const PRACTICE_LABELS: Record<string, string> = {
@@ -84,7 +84,7 @@ export function ProducersPage({ locale }: ProducersPageProps) {
       {/* Search & Filters */}
       <div className="flex flex-col sm:flex-row gap-4 mb-8">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             type="text"
             placeholder="Search producers by name or location..."
@@ -101,7 +101,7 @@ export function ProducersPage({ locale }: ProducersPageProps) {
               : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
           }`}
         >
-          <Filter className="w-4 h-4" />
+          <FilterIcon className="w-4 h-4" />
           Featured Only
         </button>
       </div>
@@ -141,7 +141,7 @@ export function ProducersPage({ locale }: ProducersPageProps) {
             </h2>
             {(showFeatured ? producers : regularProducers).length === 0 ? (
               <div className="text-center py-12 bg-gray-50 rounded-lg">
-                <Leaf className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                <LeafIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
                 <p className="text-gray-600">No producers found matching your criteria.</p>
               </div>
             ) : (
@@ -174,7 +174,7 @@ function FeaturedProducerCard({ producer }: { producer: Producer }) {
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-green-200 to-emerald-200 flex items-center justify-center">
-            <Leaf className="w-16 h-16 text-green-500" />
+            <LeafIcon className="w-16 h-16 text-green-500" />
           </div>
         )}
         <div className="absolute top-3 left-3 flex gap-2">
@@ -193,11 +193,11 @@ function FeaturedProducerCard({ producer }: { producer: Producer }) {
           <h3 className="text-xl font-semibold text-gray-900 group-hover:text-green-700 transition-colors">
             {producer.name}
           </h3>
-          <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-green-600 transition-colors" />
+          <ForwardIcon className="w-5 h-5 text-gray-400 group-hover:text-green-600 transition-colors" />
         </div>
         {producer.region && (
           <p className="text-sm text-gray-600 flex items-center gap-1 mb-3">
-            <MapPin className="w-4 h-4" />
+            <LocationIcon className="w-4 h-4" />
             {producer.region}{producer.state ? `, ${producer.state}` : ""}
           </p>
         )}
@@ -237,7 +237,7 @@ function ProducerCard({ producer }: { producer: Producer }) {
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-            <Leaf className="w-12 h-12 text-gray-400" />
+            <LeafIcon className="w-12 h-12 text-gray-400" />
           </div>
         )}
         {producer.verified && (
@@ -252,7 +252,7 @@ function ProducerCard({ producer }: { producer: Producer }) {
         </h3>
         {producer.region && (
           <p className="text-sm text-gray-500 flex items-center gap-1 mb-2">
-            <MapPin className="w-3 h-3" />
+            <LocationIcon className="w-3 h-3" />
             {producer.region}{producer.state ? `, ${producer.state}` : ""}
           </p>
         )}

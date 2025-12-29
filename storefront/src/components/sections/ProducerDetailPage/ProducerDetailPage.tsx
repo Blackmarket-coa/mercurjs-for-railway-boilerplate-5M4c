@@ -4,30 +4,30 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { 
-  MapPin, 
-  Calendar, 
-  Leaf, 
-  Award, 
-  Globe, 
-  ChevronLeft,
-  ExternalLink,
-  ShoppingBag,
-  Sun,
-  Droplets,
-} from "lucide-react"
+  LocationIcon, 
+  CalendarIcon, 
+  AwardIcon, 
+  EarthIcon, 
+  BackIcon,
+  OpenIcon,
+  CartIcon,
+  SunIcon,
+  LeafIcon,
+  DropletsIcon,
+} from "@/icons"
 
 // Growing practice labels and icons
-const PRACTICE_INFO: Record<string, { label: string; icon: typeof Leaf; color: string }> = {
-  ORGANIC: { label: "Organic", icon: Leaf, color: "green" },
-  CERTIFIED_ORGANIC: { label: "Certified Organic", icon: Award, color: "green" },
-  REGENERATIVE: { label: "Regenerative", icon: Sun, color: "amber" },
-  CONVENTIONAL: { label: "Conventional", icon: Leaf, color: "gray" },
-  BIODYNAMIC: { label: "Biodynamic", icon: Sun, color: "purple" },
-  PERMACULTURE: { label: "Permaculture", icon: Leaf, color: "emerald" },
-  HYDROPONIC: { label: "Hydroponic", icon: Droplets, color: "blue" },
-  AQUAPONIC: { label: "Aquaponic", icon: Droplets, color: "cyan" },
-  NO_SPRAY: { label: "No Spray", icon: Leaf, color: "lime" },
-  IPM: { label: "Integrated Pest Management", icon: Leaf, color: "teal" },
+const PRACTICE_INFO: Record<string, { label: string; icon: typeof LeafIcon; color: string }> = {
+  ORGANIC: { label: "Organic", icon: LeafIcon, color: "green" },
+  CERTIFIED_ORGANIC: { label: "Certified Organic", icon: AwardIcon, color: "green" },
+  REGENERATIVE: { label: "Regenerative", icon: SunIcon, color: "amber" },
+  CONVENTIONAL: { label: "Conventional", icon: LeafIcon, color: "gray" },
+  BIODYNAMIC: { label: "Biodynamic", icon: SunIcon, color: "purple" },
+  PERMACULTURE: { label: "Permaculture", icon: LeafIcon, color: "emerald" },
+  HYDROPONIC: { label: "Hydroponic", icon: DropletsIcon, color: "blue" },
+  AQUAPONIC: { label: "Aquaponic", icon: DropletsIcon, color: "cyan" },
+  NO_SPRAY: { label: "No Spray", icon: LeafIcon, color: "lime" },
+  IPM: { label: "Integrated Pest Management", icon: LeafIcon, color: "teal" },
 }
 
 const SEASON_LABELS: Record<string, string> = {
@@ -127,14 +127,14 @@ export function ProducerDetailPage({ handle, locale }: ProducerDetailPageProps) 
   if (error || !producer) {
     return (
       <div className="text-center py-16">
-        <Leaf className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+        <LeafIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
         <h2 className="text-xl font-semibold text-gray-900 mb-2">Producer Not Found</h2>
         <p className="text-gray-600 mb-4">{error || "This producer profile doesn't exist."}</p>
         <Link
           href="/producers"
           className="inline-flex items-center gap-2 text-green-700 hover:text-green-800"
         >
-          <ChevronLeft className="w-4 h-4" />
+          <BackIcon className="w-4 h-4" />
           Back to all producers
         </Link>
       </div>
@@ -148,7 +148,7 @@ export function ProducerDetailPage({ handle, locale }: ProducerDetailPageProps) 
         href="/producers"
         className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 mb-6"
       >
-        <ChevronLeft className="w-4 h-4" />
+        <BackIcon className="w-4 h-4" />
         All Producers
       </Link>
 
@@ -198,13 +198,13 @@ export function ProducerDetailPage({ handle, locale }: ProducerDetailPageProps) 
               <div className="flex items-center gap-4 mt-2 text-white/90 flex-wrap">
                 {producer.region && (
                   <span className="flex items-center gap-1 text-sm">
-                    <MapPin className="w-4 h-4" />
+                    <LocationIcon className="w-4 h-4" />
                     {producer.region}{producer.state ? `, ${producer.state}` : ""}
                   </span>
                 )}
                 {producer.year_established && (
                   <span className="flex items-center gap-1 text-sm">
-                    <Calendar className="w-4 h-4" />
+                    <CalendarIcon className="w-4 h-4" />
                     Est. {producer.year_established}
                   </span>
                 )}
@@ -225,7 +225,7 @@ export function ProducerDetailPage({ handle, locale }: ProducerDetailPageProps) 
         {producer.practices && producer.practices.length > 0 && (
           <div className="bg-green-50 rounded-lg p-4 border border-green-200">
             <h3 className="font-medium text-green-800 mb-2 flex items-center gap-2">
-              <Leaf className="w-4 h-4" />
+              <LeafIcon className="w-4 h-4" />
               Growing Practices
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -248,7 +248,7 @@ export function ProducerDetailPage({ handle, locale }: ProducerDetailPageProps) 
         {producer.certifications && producer.certifications.length > 0 && (
           <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
             <h3 className="font-medium text-amber-800 mb-2 flex items-center gap-2">
-              <Award className="w-4 h-4" />
+              <AwardIcon className="w-4 h-4" />
               Certifications
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -268,7 +268,7 @@ export function ProducerDetailPage({ handle, locale }: ProducerDetailPageProps) 
         {producer.website && (
           <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
             <h3 className="font-medium text-blue-800 mb-2 flex items-center gap-2">
-              <Globe className="w-4 h-4" />
+              <EarthIcon className="w-4 h-4" />
               Connect
             </h3>
             <a
@@ -278,7 +278,7 @@ export function ProducerDetailPage({ handle, locale }: ProducerDetailPageProps) 
               className="text-sm text-blue-700 hover:text-blue-800 flex items-center gap-1"
             >
               Visit Website
-              <ExternalLink className="w-3 h-3" />
+              <OpenIcon className="w-3 h-3" />
             </a>
           </div>
         )}
@@ -420,7 +420,7 @@ export function ProducerDetailPage({ handle, locale }: ProducerDetailPageProps) 
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                    <ShoppingBag className="w-8 h-8 text-gray-400" />
+                    <CartIcon className="w-8 h-8 text-gray-400" />
                   </div>
                 )}
               </div>

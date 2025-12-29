@@ -2038,3 +2038,83 @@ export function MessageIcon({
     </svg>
   );
 }
+
+export function LeafIcon({
+  color = '#090909',
+  size = 24,
+  className = '',
+}: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox='0 0 24 24'
+      fill='none'
+      xmlns='http://www.w3.org/2000/svg'
+      className={className}
+      aria-hidden='true'
+    >
+      <path
+        d='M11 20C11 20 3 17 3 9C3 9 3 3 12 3C21 3 21 9 21 9C21 17 13 20 13 20'
+        stroke={color}
+        strokeWidth='1.5'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+      />
+      <path
+        d='M12 20V10'
+        stroke={color}
+        strokeWidth='1.5'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+      />
+      <path
+        d='M12 10C12 10 15 8 18 8'
+        stroke={color}
+        strokeWidth='1.5'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+      />
+      <path
+        d='M12 14C12 14 9 12 6 12'
+        stroke={color}
+        strokeWidth='1.5'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+      />
+    </svg>
+  );
+}
+
+export function DropletsIcon({
+  color = '#090909',
+  size = 24,
+  className = '',
+}: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox='0 0 24 24'
+      fill='none'
+      xmlns='http://www.w3.org/2000/svg'
+      className={className}
+      aria-hidden='true'
+    >
+      <path
+        d='M7 16.3C7 17.3609 7.42143 18.3783 8.17157 19.1284C8.92172 19.8786 9.93913 20.3 11 20.3C12.0609 20.3 13.0783 19.8786 13.8284 19.1284C14.5786 18.3783 15 17.3609 15 16.3C15 13.3 11 9 11 9C11 9 7 13.3 7 16.3Z'
+        stroke={color}
+        strokeWidth='1.5'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+      />
+      <path
+        d='M12.5 7.3C12.5 7.96304 12.7634 8.59893 13.2322 9.06777C13.7011 9.53661 14.337 9.8 15 9.8C15.663 9.8 16.2989 9.53661 16.7678 9.06777C17.2366 8.59893 17.5 7.96304 17.5 7.3C17.5 5.3 15 3 15 3C15 3 12.5 5.3 12.5 7.3Z'
+        stroke={color}
+        strokeWidth='1.5'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+      />
+    </svg>
+  );
+}
