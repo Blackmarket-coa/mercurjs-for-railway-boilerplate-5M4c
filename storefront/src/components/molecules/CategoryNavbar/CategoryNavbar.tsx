@@ -25,6 +25,15 @@ export const CategoryNavbar = ({
       >
         All Products
       </LocalizedClientLink>
+      <LocalizedClientLink
+        href="/producers"
+        onClick={() => (onClose ? onClose(false) : null)}
+        className={cn(
+          "label-md uppercase px-4 my-3 md:my-0 flex items-center justify-between"
+        )}
+      >
+        Our Producers
+      </LocalizedClientLink>
       {categories?.map(({ id, handle, name }) => (
         <LocalizedClientLink
           key={id}
