@@ -109,8 +109,7 @@ export const FoodDelivery = model.define("food_delivery", {
   leave_at_door: model.boolean().default(false),
   safe_place_description: model.text().nullable(),
   
-  // Timing
-  created_at: model.dateTime(),
+  // Timing (created_at/updated_at are implicit)
   assigned_at: model.dateTime().nullable(),
   
   // Pickup timing
@@ -248,8 +247,7 @@ export const DeliveryBatch = model.define("food_delivery_batch", {
   // Status
   status: model.enum(["PLANNING", "ASSIGNED", "IN_PROGRESS", "COMPLETED", "CANCELLED"]).default("PLANNING"),
   
-  // Timing
-  created_at: model.dateTime(),
+  // Timing (created_at/updated_at are implicit)
   started_at: model.dateTime().nullable(),
   completed_at: model.dateTime().nullable(),
   
