@@ -50,7 +50,7 @@ export async function generateMetadata({
 
   const title = "Home"
   const description =
-    "The BMC Community Market"
+    "BMC Community Market — Farm-fresh food direct from local producers. Shop with full harvest traceability, support regenerative agriculture, and keep your dollars in the community."
   const ogImage = "/B2C_Storefront_Open_Graph.png"
   const canonical = `${baseUrl}/${locale}`
 
@@ -162,16 +162,11 @@ export default async function Home({
 
       <Hero
         image="/images/hero/Image.jpg"
-        heading="Where you put your money matters!"
-        paragraph="Our goal is to bring abundance to the community by making it easy to do business ethically. A 3% service fee covers payment providers, web service providers, and Black Market ecosystem investments. This service fee allows the coalition to invest in our community members and bring additional points of sale to our customers. Join Black Market Coalition (Vendor $9 or Bulk/Wholesale $20) and the service fee falls to below 1%. The market is designed to maximize your profit while you scale. It's on us to build the parallel systems we need."
+        heading="Farm Fresh. Community Powered."
+        paragraph="Welcome to the BMC Community Market — a direct-to-consumer marketplace connecting you with local farmers, food artisans, and producers. Know exactly where your food comes from with full harvest traceability, support regenerative agriculture, and keep your dollars in the community. Vendors pay just 3% (or under 1% as Coalition members), meaning more goes directly to the people growing your food. Shop by producer, explore seasonal harvests, and join a food system that works for everyone."
         buttons={[
-          { label: "Purchase Product", path: "/categories" },
-          {
-            label: "Provide Product",
-            path:
-              process.env.NEXT_PUBLIC_VENDOR_URL ||
-              "https://vendor.mercurjs.com",
-          },
+          { label: "Shop Products", path: "/categories" },
+          { label: "Meet Our Producers", path: "/producers" },
         ]}
       />
       <div className="px-4 lg:px-8 w-full">
