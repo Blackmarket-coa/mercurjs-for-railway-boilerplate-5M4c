@@ -1118,7 +1118,7 @@ class HawalaLedgerModuleService extends MedusaService({
     monthStart.setDate(monthStart.getDate() - 30)
 
     // Get all entries for this account
-    const entries = await this.getAccountTransactions(account.id, { limit: 1000 })
+    const entries = await this.getTransactionHistory(account.id, { limit: 1000 })
 
     // Calculate metrics
     const todayEntries = entries.filter(e => new Date(e.created_at) >= todayStart)
@@ -1216,9 +1216,9 @@ class HawalaLedgerModuleService extends MedusaService({
       // Investment pools
       investment_pools: pools.map(p => ({
         id: p.id,
-        name: p.pool_name,
+        name: p.name,
         target: Number(p.target_amount),
-        raised: Number(p.current_amount),
+        raised: Number(p.total_raised),
         status: p.status,
       })),
     }
