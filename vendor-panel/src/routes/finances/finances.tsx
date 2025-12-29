@@ -2,10 +2,10 @@ import { useState } from "react"
 import {
   ArrowDownTray,
   ArrowUpTray,
-  BankNote,
+  CurrencyDollarSolid,
   CashSolid,
   ChartBar,
-  CreditCard,
+  CreditCardSolid,
   Spinner,
 } from "@medusajs/icons"
 import {
@@ -236,7 +236,7 @@ const AdvanceSection = () => {
   if (!eligibility?.eligible) {
     return (
       <div className="text-center py-8">
-        <BankNote className="h-12 w-12 mx-auto text-ui-fg-muted mb-4" />
+        <CurrencyDollarSolid className="h-12 w-12 mx-auto text-ui-fg-muted mb-4" />
         <Heading level="h3" className="mb-2">
           Not Yet Eligible for Advances
         </Heading>
@@ -349,7 +349,7 @@ const AdvanceSection = () => {
         {requestAdvance.isPending ? (
           <Spinner className="animate-spin mr-2" />
         ) : (
-          <BankNote className="mr-2" />
+          <CurrencyDollarSolid className="mr-2" />
         )}
         Get {formatCurrency(requestedAmount)} Now
       </Button>
@@ -472,7 +472,7 @@ export const FinancesPage = () => {
           title="Pending"
           amount={dashboard.pending_balance}
           currency={dashboard.currency}
-          icon={CreditCard}
+          icon={CreditCardSolid}
           color="yellow"
         />
         <BalanceCard
