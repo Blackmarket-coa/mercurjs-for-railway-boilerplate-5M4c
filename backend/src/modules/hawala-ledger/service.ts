@@ -1180,33 +1180,37 @@ class HawalaLedgerModuleService extends MedusaService({
       },
 
       // Recent activity
-      recent_transactions: entries.slice(0, 10),
+      recent_transactions: entries.slice(0, 10).map(e => ({
+        id: e.id,
+        amount: Number(e.amount),
+        direction: e.direction,
+        entry_type: e.entry_type,
+        description: e.description,
+        created_at: e.created_at,
+      })),
 
-      // Advance status
+      // Advance status - simplified
       advance: activeAdvances.length > 0 ? {
         has_active: true,
-        principal: Number(activeAdvances[0].principal_amount),
-        outstanding: Number(activeAdvances[0].outstanding_balance),
-        repaid: Number(activeAdvances[0].total_repaid),
-        expected_end: activeAdvances[0].expected_end_date,
+        principal: Number(activeAdvances[0].principal_amount || 0),
+        outstanding: Number(activeAdvances[0].outstanding_balance || 0),
+        repaid: Number(activeAdvances[0].total_repaid || 0),
       } : {
         has_active: false,
-        eligible: await this.calculateAdvanceEligibility(vendorId),
       },
 
-      // Payout settings
+      // Payout settings - simplified
       payout: payoutConfigs.length > 0 ? {
-        default_tier: payoutConfigs[0].default_payout_tier,
-        auto_enabled: payoutConfigs[0].auto_payout_enabled,
-        instant_eligible: payoutConfigs[0].instant_payout_eligible,
+        default_tier: payoutConfigs[0].payout_schedule || "WEEKLY",
+        auto_enabled: payoutConfigs[0].auto_payout || false,
       } : null,
 
-      // Investment pools
+      // Investment pools - simplified
       investment_pools: pools.map(p => ({
         id: p.id,
         name: p.name,
-        target: Number(p.target_amount),
-        raised: Number(p.total_raised),
+        target: Number(p.target_amount || 0),
+        raised: Number(p.current_amount || 0),
         status: p.status,
       })),
     }
