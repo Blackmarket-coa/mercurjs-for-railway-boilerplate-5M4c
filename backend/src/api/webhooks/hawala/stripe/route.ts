@@ -1,0 +1,177 @@
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { HAWALA_LEDGER_MODULE } from "../../../../modules/hawala-ledger"
+import HawalaLedgerModuleService from "../../../../modules/hawala-ledger/service"
+import { createStripeAchService } from "../../../../modules/hawala-ledger/stripe-ach"
+
+/**
+ * POST /webhooks/hawala/stripe
+ * Handle Stripe ACH webhooks
+ */
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  const hawalaService = req.scope.resolve<HawalaLedgerModuleService>(HAWALA_LEDGER_MODULE)
+
+  const signature = req.headers["stripe-signature"] as string
+  if (!signature) {
+    return res.status(400).json({ error: "Missing Stripe signature" })
+  }
+
+  try {
+    const achService = createStripeAchService()
+    const rawBody = (req as any).rawBody || req.body
+
+    const event = await achService.handleWebhook(
+      Buffer.isBuffer(rawBody) ? rawBody : Buffer.from(JSON.stringify(rawBody)),
+      signature
+    )
+
+    console.log(`Stripe webhook received: ${event.type}`)
+
+    switch (event.type) {
+      case "payment_intent.succeeded": {
+        const paymentIntent = event.data
+        const ledgerAccountId = paymentIntent.metadata?.ledger_account_id
+
+        if (ledgerAccountId && paymentIntent.metadata?.type === "ach_deposit") {
+          // Find the pending ACH transaction
+          const transactions = await hawalaService.listAchTransactions({
+            filters: {
+              stripe_payment_intent_id: paymentIntent.id,
+              status: "PENDING",
+            },
+          })
+
+          if (transactions.length > 0) {
+            const txn = transactions[0]
+            const fee = parseFloat(paymentIntent.metadata?.fee || "0")
+            const netAmount = parseFloat(paymentIntent.metadata?.net_amount || String(txn.amount))
+
+            // Credit the ledger account
+            await hawalaService.recordDeposit({
+              credit_account_id: txn.ledger_account_id,
+              amount: netAmount,
+              stripe_payment_intent_id: paymentIntent.id,
+              fee,
+              idempotency_key: `webhook-${paymentIntent.id}`,
+            })
+
+            // Update ACH transaction
+            await hawalaService.updateAchTransactions({
+              id: txn.id,
+              status: "COMPLETED",
+              completed_at: new Date(),
+            })
+          }
+        }
+        break
+      }
+
+      case "payment_intent.payment_failed": {
+        const paymentIntent = event.data
+
+        // Find and mark transaction as failed
+        const transactions = await hawalaService.listAchTransactions({
+          filters: {
+            stripe_payment_intent_id: paymentIntent.id,
+            status: "PENDING",
+          },
+        })
+
+        if (transactions.length > 0) {
+          await hawalaService.updateAchTransactions({
+            id: transactions[0].id,
+            status: "FAILED",
+            failed_at: new Date(),
+            failure_reason: paymentIntent.last_payment_error?.message || "Payment failed",
+          })
+        }
+        break
+      }
+
+      case "payout.paid": {
+        const payout = event.data
+        const ledgerAccountId = payout.metadata?.ledger_account_id
+
+        if (ledgerAccountId && payout.metadata?.type === "ach_payout") {
+          // Update ACH transaction
+          const transactions = await hawalaService.listAchTransactions({
+            filters: {
+              stripe_payout_id: payout.id,
+              status: "PENDING",
+            },
+          })
+
+          if (transactions.length > 0) {
+            await hawalaService.updateAchTransactions({
+              id: transactions[0].id,
+              status: "COMPLETED",
+              completed_at: new Date(),
+            })
+          }
+        }
+        break
+      }
+
+      case "payout.failed": {
+        const payout = event.data
+
+        const transactions = await hawalaService.listAchTransactions({
+          filters: {
+            stripe_payout_id: payout.id,
+            status: "PENDING",
+          },
+        })
+
+        if (transactions.length > 0) {
+          const txn = transactions[0]
+
+          // Refund the ledger debit
+          const reserveAccount = await hawalaService.getOrCreateSystemAccount("RESERVE")
+          await hawalaService.createTransfer({
+            debit_account_id: reserveAccount.id,
+            credit_account_id: txn.ledger_account_id,
+            amount: Number(txn.amount),
+            entry_type: "REFUND",
+            description: "Withdrawal failed - funds returned",
+            idempotency_key: `refund-${payout.id}`,
+          })
+
+          await hawalaService.updateAchTransactions({
+            id: txn.id,
+            status: "FAILED",
+            failed_at: new Date(),
+            failure_reason: payout.failure_message || "Payout failed",
+          })
+        }
+        break
+      }
+
+      case "financial_connections.account.disconnected": {
+        const fcAccount = event.data
+        
+        // Find and deactivate the bank account
+        const bankAccounts = await hawalaService.listBankAccounts({
+          filters: {
+            stripe_bank_account_id: fcAccount.id,
+          },
+        })
+
+        if (bankAccounts.length > 0) {
+          await hawalaService.updateBankAccounts({
+            id: bankAccounts[0].id,
+            verification_status: "DISCONNECTED",
+            is_default: false,
+          })
+        }
+        break
+      }
+
+      default:
+        console.log(`Unhandled Stripe event type: ${event.type}`)
+    }
+
+    res.json({ received: true })
+  } catch (error) {
+    console.error("Stripe webhook error:", error)
+    res.status(400).json({ error: (error as Error).message })
+  }
+}

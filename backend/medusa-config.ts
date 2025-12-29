@@ -103,6 +103,10 @@ module.exports = defineConfig({
     {
       resolve: './src/modules/order-cycle',
     },
+    // Hawala Ledger module (double-entry bookkeeping, Stellar settlement)
+    {
+      resolve: './src/modules/hawala-ledger',
+    },
     // File module
     {
       resolve: '@medusajs/medusa/file',
