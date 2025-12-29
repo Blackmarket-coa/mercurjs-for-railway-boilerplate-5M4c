@@ -1,7 +1,16 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { VOLUNTEER_MODULE } from "../../../modules/volunteer"
-import { GardenLedgerService } from "../../../modules/garden/services/garden-ledger"
+
+const VOLUNTEER_MODULE = "volunteerModuleService"
+
+interface VolunteerServiceType {
+  createVolunteerLogs: (data: Record<string, unknown>) => Promise<{ id: string }>
+}
+
+// Inline credit calculation to avoid service import issues
+function calculateTimeCreditValue(hours: number, creditRate: number): number {
+  return hours * creditRate
+}
 
 /**
  * GET /store/volunteer-logs
@@ -15,7 +24,7 @@ export async function GET(
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const { garden_id, customer_id, status } = req.query
 
-  const filters: any = {}
+  const filters: Record<string, unknown> = {}
   if (garden_id) filters.garden_id = garden_id
   if (customer_id) filters.customer_id = customer_id
   if (status) filters.verification_status = status
@@ -50,7 +59,7 @@ export async function POST(
   req: MedusaRequest,
   res: MedusaResponse
 ) {
-  const volunteerService = req.scope.resolve(VOLUNTEER_MODULE)
+  const volunteerService = req.scope.resolve(VOLUNTEER_MODULE) as VolunteerServiceType
 
   const {
     garden_id,
@@ -64,11 +73,11 @@ export async function POST(
     hours,
     work_party_id,
     plot_id,
-  } = req.body as any
+  } = req.body as Record<string, unknown>
 
   // Calculate default credit rate
   const credit_rate = 15 // $15/hour default
-  const credits_earned = GardenLedgerService.calculateTimeCreditValue(hours, credit_rate)
+  const credits_earned = calculateTimeCreditValue(hours as number, credit_rate)
 
   const log = await volunteerService.createVolunteerLogs({
     garden_id,
@@ -76,7 +85,7 @@ export async function POST(
     membership_id,
     activity_type,
     description,
-    date: new Date(date),
+    date: new Date(date as string),
     start_time,
     end_time,
     hours,

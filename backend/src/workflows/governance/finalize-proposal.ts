@@ -5,7 +5,12 @@ import {
   StepResponse,
 } from "@medusajs/framework/workflows-sdk"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { GOVERNANCE_MODULE } from "../../modules/governance"
+
+const GOVERNANCE_MODULE = "governanceModuleService"
+
+interface GovernanceServiceType {
+  updateGardenProposals: (data: Record<string, unknown>) => Promise<{ id: string }>
+}
 
 /**
  * Finalize Proposal Workflow
@@ -20,7 +25,7 @@ type FinalizeProposalInput = {
 const finalizeProposalStep = createStep(
   "finalize-proposal-step",
   async (input: FinalizeProposalInput, { container }) => {
-    const governanceService = container.resolve(GOVERNANCE_MODULE)
+    const governanceService = container.resolve(GOVERNANCE_MODULE) as GovernanceServiceType
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
     // Get proposal
@@ -53,27 +58,31 @@ const finalizeProposalStep = createStep(
     }
 
     // Calculate results
-    const totalVotes = proposal.votes_for + proposal.votes_against + proposal.votes_abstain
-    const votingPower = proposal.total_voting_power
+    const votesFor = proposal.votes_for as number
+    const votesAgainst = proposal.votes_against as number
+    const votesAbstain = proposal.votes_abstain as number
+    const uniqueVoters = proposal.unique_voters as number
+    const quorumRequired = proposal.quorum_required as number
+    const approvalThreshold = proposal.approval_threshold as number
+    const eligibleVoters = (proposal.eligible_voters as number) || 1
     
     // Check quorum (based on unique voters if eligible_voters not set)
-    const eligibleVoters = proposal.eligible_voters || 1
-    const voterTurnout = (proposal.unique_voters / eligibleVoters) * 100
-    const quorumMet = voterTurnout >= proposal.quorum_required
+    const voterTurnout = (uniqueVoters / eligibleVoters) * 100
+    const quorumMet = voterTurnout >= quorumRequired
 
     // Calculate approval percentage (excluding abstains)
-    const votesConsidered = proposal.votes_for + proposal.votes_against
+    const votesConsidered = votesFor + votesAgainst
     const approvalPercentage = votesConsidered > 0 
-      ? (proposal.votes_for / votesConsidered) * 100 
+      ? (votesFor / votesConsidered) * 100 
       : 0
 
     // Determine status
     let newStatus: string
     if (!quorumMet) {
       newStatus = "expired"
-    } else if (approvalPercentage >= proposal.approval_threshold) {
+    } else if (approvalPercentage >= approvalThreshold) {
       newStatus = "passed"
-    } else if (approvalPercentage === 50 && proposal.approval_threshold === 50) {
+    } else if (approvalPercentage === 50 && approvalThreshold === 50) {
       newStatus = "tie"
     } else {
       newStatus = "rejected"
@@ -94,15 +103,15 @@ const finalizeProposalStep = createStep(
       status: newStatus,
       quorum_met: quorumMet,
       approval_percentage: approvalPercentage,
-      votes_for: proposal.votes_for,
-      votes_against: proposal.votes_against,
-      unique_voters: proposal.unique_voters,
+      votes_for: votesFor,
+      votes_against: votesAgainst,
+      unique_voters: uniqueVoters,
     }, { proposalId: input.proposal_id, previousStatus })
   },
   async (context, { container }) => {
     if (!context) return
     
-    const governanceService = container.resolve(GOVERNANCE_MODULE)
+    const governanceService = container.resolve(GOVERNANCE_MODULE) as GovernanceServiceType
     await governanceService.updateGardenProposals({
       id: context.proposalId,
       status: context.previousStatus,

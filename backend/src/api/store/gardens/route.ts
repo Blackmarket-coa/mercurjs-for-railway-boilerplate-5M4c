@@ -1,6 +1,14 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { GARDEN_MODULE } from "../../../modules/garden"
+
+export const GARDEN_MODULE = "gardenModuleService"
+
+interface GardenServiceType {
+  createGardens: (data: Record<string, unknown>) => Promise<{ id: string }>
+  updateGardens: (data: Record<string, unknown>) => Promise<{ id: string }>
+  createGardenPlots: (data: Record<string, unknown>) => Promise<{ id: string }>
+  createGardenMemberships: (data: Record<string, unknown>) => Promise<{ id: string }>
+}
 
 /**
  * GET /store/gardens
@@ -60,7 +68,8 @@ export async function POST(
   req: MedusaRequest,
   res: MedusaResponse
 ) {
-  const gardenService = req.scope.resolve(GARDEN_MODULE)
+  const gardenService = req.scope.resolve(GARDEN_MODULE) as GardenServiceType
+  const body = req.body as Record<string, unknown>
   
   const {
     name,
@@ -74,10 +83,11 @@ export async function POST(
     contact_email,
     operating_hours,
     image_urls,
-  } = req.body as any
+  } = body
 
   // Generate slug from name
-  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+  const nameStr = String(name)
+  const slug = nameStr.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 
   const garden = await gardenService.createGardens({
     name,

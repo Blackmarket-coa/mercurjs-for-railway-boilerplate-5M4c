@@ -4,8 +4,15 @@ import {
   createStep,
   StepResponse,
 } from "@medusajs/framework/workflows-sdk"
-import { HARVEST_MODULE } from "../../modules/harvest"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+
+const HARVEST_MODULE = "harvestModuleService"
+
+interface HarvestServiceType {
+  createHarvestClaims: (data: Record<string, unknown>) => Promise<{ id: string }>
+  deleteHarvestClaims: (id: string) => Promise<void>
+  updateHarvestAllocations: (data: Record<string, unknown>) => Promise<{ id: string }>
+}
 
 /**
  * Claim Harvest Share Workflow
@@ -24,7 +31,7 @@ type ClaimHarvestInput = {
 const claimHarvestStep = createStep(
   "claim-harvest-share-step",
   async (input: ClaimHarvestInput, { container }) => {
-    const harvestService = container.resolve(HARVEST_MODULE)
+    const harvestService = container.resolve(HARVEST_MODULE) as HarvestServiceType
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
     // Get allocation
@@ -49,17 +56,21 @@ const claimHarvestStep = createStep(
       throw new Error("Allocation is not open for claims")
     }
 
-    if (new Date() > new Date(allocation.claim_deadline)) {
+    if (new Date() > new Date(allocation.claim_deadline as string)) {
       throw new Error("Claim deadline has passed")
     }
 
-    if (allocation.remaining_quantity <= 0) {
+    const remainingQuantity = allocation.remaining_quantity as number
+    const allocatedQuantity = allocation.allocated_quantity as number
+    const allocatedValue = allocation.allocated_value as number
+
+    if (remainingQuantity <= 0) {
       throw new Error("No remaining quantity to claim")
     }
 
     // Calculate claim amounts
-    const quantity_claimed = Math.min(input.quantity_requested, allocation.remaining_quantity)
-    const value_claimed = (quantity_claimed / allocation.allocated_quantity) * allocation.allocated_value
+    const quantity_claimed = Math.min(input.quantity_requested, remainingQuantity)
+    const value_claimed = (quantity_claimed / allocatedQuantity) * allocatedValue
 
     // Create claim
     const claim = await harvestService.createHarvestClaims({
@@ -74,8 +85,8 @@ const claimHarvestStep = createStep(
     })
 
     // Update allocation
-    const newRemaining = allocation.remaining_quantity - quantity_claimed
-    const newClaimed = allocation.allocated_quantity - newRemaining
+    const newRemaining = remainingQuantity - quantity_claimed
+    const newClaimed = allocatedQuantity - newRemaining
 
     await harvestService.updateHarvestAllocations({
       id: input.allocation_id,
@@ -93,13 +104,13 @@ const claimHarvestStep = createStep(
       claimId: claim.id,
       allocationId: input.allocation_id,
       quantityClaimed: quantity_claimed,
-      previousRemaining: allocation.remaining_quantity,
+      previousRemaining: remainingQuantity,
     })
   },
   async (context, { container }) => {
     if (!context) return
     
-    const harvestService = container.resolve(HARVEST_MODULE)
+    const harvestService = container.resolve(HARVEST_MODULE) as HarvestServiceType
     
     // Delete claim
     await harvestService.deleteHarvestClaims(context.claimId)

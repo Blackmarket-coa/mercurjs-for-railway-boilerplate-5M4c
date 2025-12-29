@@ -1,7 +1,33 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { HARVEST_MODULE } from "../../../modules/harvest"
-import { HarvestAllocationEngine } from "../../../modules/harvest/services/allocation-engine"
+
+const HARVEST_MODULE = "harvestModuleService"
+
+interface HarvestServiceType {
+  createGardenHarvests: (data: Record<string, unknown>) => Promise<{ id: string }>
+  updateGardenHarvests: (data: Record<string, unknown>) => Promise<{ id: string }>
+  createHarvestAllocations: (data: Record<string, unknown>) => Promise<{ id: string }>
+  createHarvestClaims: (data: Record<string, unknown>) => Promise<{ id: string }>
+  updateHarvestAllocations: (data: Record<string, unknown>) => Promise<{ id: string }>
+}
+
+/**
+ * Calculate harvest value with quality multiplier
+ */
+function estimateHarvestValue(
+  quantity: number,
+  pricePerUnit: number,
+  qualityGrade: string
+): number {
+  const multipliers: Record<string, number> = {
+    premium: 1.3,
+    standard: 1.0,
+    seconds: 0.7,
+    processing: 0.4
+  }
+  const baseValue = quantity * pricePerUnit
+  return baseValue * (multipliers[qualityGrade] || 1.0)
+}
 
 /**
  * GET /store/harvests
@@ -15,13 +41,13 @@ export async function GET(
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const { garden_id, season_id, status } = req.query
 
-  const filters: any = {}
+  const filters: Record<string, unknown> = {}
   if (garden_id) filters.garden_id = garden_id
   if (season_id) filters.season_id = season_id
   if (status) filters.status = status
 
   const { data: harvests } = await query.graph({
-    entity: "harvest",
+    entity: "garden_harvest",
     fields: [
       "id",
       "garden_id",
@@ -53,7 +79,7 @@ export async function POST(
   req: MedusaRequest,
   res: MedusaResponse
 ) {
-  const harvestService = req.scope.resolve(HARVEST_MODULE)
+  const harvestService = req.scope.resolve(HARVEST_MODULE) as HarvestServiceType
 
   const {
     garden_id,
@@ -69,18 +95,16 @@ export async function POST(
     notes,
     storage_location,
     photos,
-  } = req.body as any
+  } = req.body as Record<string, unknown>
 
   // Calculate estimated value
-  const estimated_value = HarvestAllocationEngine.estimateHarvestValue(
-    crop_type,
-    quantity,
-    unit,
-    quality_grade || "standard",
-    price_per_unit || 0
+  const estimated_value = estimateHarvestValue(
+    quantity as number,
+    (price_per_unit as number) || 0,
+    (quality_grade as string) || "standard"
   )
 
-  const harvest = await harvestService.createHarvests({
+  const harvest = await harvestService.createGardenHarvests({
     garden_id,
     season_id,
     planting_id,

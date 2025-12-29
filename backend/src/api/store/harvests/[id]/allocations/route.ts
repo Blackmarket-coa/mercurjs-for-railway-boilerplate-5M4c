@@ -1,7 +1,28 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { HARVEST_MODULE } from "../../../../modules/harvest"
-import { HarvestAllocationEngine } from "../../../../modules/harvest/services/allocation-engine"
+
+const HARVEST_MODULE = "harvestModuleService"
+
+interface HarvestServiceType {
+  createHarvestAllocations: (data: Record<string, unknown>) => Promise<{ id: string }>
+  updateGardenHarvests: (data: Record<string, unknown>) => Promise<{ id: string }>
+}
+
+type PoolType = "investor" | "volunteer" | "plot_holder" | "communal" | "open_market" | "donation"
+
+function getClaimDeadline(poolType: PoolType, harvestDate: Date): Date {
+  const deadlines: Record<PoolType, number> = {
+    investor: 14,
+    volunteer: 14,
+    plot_holder: 14,
+    communal: 7,
+    open_market: 0,
+    donation: 0
+  }
+  const deadline = new Date(harvestDate)
+  deadline.setDate(deadline.getDate() + (deadlines[poolType] || 7))
+  return deadline
+}
 
 /**
  * GET /store/harvests/:id/allocations
@@ -45,12 +66,12 @@ export async function POST(
   res: MedusaResponse
 ) {
   const { id } = req.params
-  const harvestService = req.scope.resolve(HARVEST_MODULE)
+  const harvestService = req.scope.resolve(HARVEST_MODULE) as HarvestServiceType
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   // Get the harvest
   const { data: [harvest] } = await query.graph({
-    entity: "harvest",
+    entity: "garden_harvest",
     fields: ["id", "garden_id", "quantity", "estimated_value"],
     filters: { id },
   })
@@ -72,7 +93,7 @@ export async function POST(
 
   // Use default rules if none configured
   const allocationRules = rules.length > 0 
-    ? rules 
+    ? rules as { pool_type: string; percentage: number }[]
     : [
         { pool_type: "investor", percentage: 20 },
         { pool_type: "volunteer", percentage: 20 },
@@ -82,6 +103,9 @@ export async function POST(
         { pool_type: "donation", percentage: 5 },
       ]
 
+  const quantity = harvest.quantity as number
+  const estimatedValue = harvest.estimated_value as number
+
   // Create allocations
   const allocations = await Promise.all(
     allocationRules.map(rule => 
@@ -90,21 +114,18 @@ export async function POST(
         garden_id: harvest.garden_id,
         pool_type: rule.pool_type,
         percentage: rule.percentage,
-        allocated_quantity: (harvest.quantity * rule.percentage) / 100,
-        allocated_value: (harvest.estimated_value * rule.percentage) / 100,
+        allocated_quantity: (quantity * rule.percentage) / 100,
+        allocated_value: (estimatedValue * rule.percentage) / 100,
         claimed_quantity: 0,
-        remaining_quantity: (harvest.quantity * rule.percentage) / 100,
+        remaining_quantity: (quantity * rule.percentage) / 100,
         status: "open",
-        claim_deadline: HarvestAllocationEngine.getClaimDeadline(
-          rule.pool_type as any,
-          new Date()
-        ),
+        claim_deadline: getClaimDeadline(rule.pool_type as PoolType, new Date()),
       })
     )
   )
 
   // Update harvest allocation status
-  await harvestService.updateHarvests({
+  await harvestService.updateGardenHarvests({
     id,
     allocation_status: "allocated",
   })

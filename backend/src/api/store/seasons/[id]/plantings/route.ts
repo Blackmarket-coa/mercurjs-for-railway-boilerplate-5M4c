@@ -1,6 +1,11 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { SEASON_MODULE } from "../../../../modules/season"
+
+const SEASON_MODULE = "seasonModuleService"
+
+interface SeasonServiceType {
+  createGardenPlantings: (data: Record<string, unknown>) => Promise<{ id: string }>
+}
 
 /**
  * GET /store/seasons/:id/plantings
@@ -15,7 +20,7 @@ export async function GET(
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { data: plantings } = await query.graph({
-    entity: "planting",
+    entity: "garden_planting",
     fields: [
       "id",
       "plot_id",
@@ -29,7 +34,6 @@ export async function GET(
       "expected_yield",
       "actual_yield",
       "yield_unit",
-      "quality_notes",
     ],
     filters: {
       season_id: id,
@@ -49,12 +53,21 @@ export async function POST(
   res: MedusaResponse
 ) {
   const { id } = req.params
-  const seasonService = req.scope.resolve(SEASON_MODULE)
+  const seasonService = req.scope.resolve(SEASON_MODULE) as SeasonServiceType
+
+  // Get garden_id from season
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const { data: [season] } = await query.graph({
+    entity: "garden_season",
+    fields: ["garden_id"],
+    filters: { id },
+  })
 
   const {
     plot_id,
     crop_type,
     variety,
+    category,
     planted_by_id,
     planted_date,
     expected_harvest_date,
@@ -64,21 +77,23 @@ export async function POST(
     seed_source,
     organic_certified,
     notes,
-  } = req.body as any
+  } = req.body as Record<string, unknown>
 
-  const planting = await seasonService.createPlantings({
+  const planting = await seasonService.createGardenPlantings({
     season_id: id,
+    garden_id: season?.garden_id,
     plot_id,
     crop_type,
     variety,
+    category: category || "vegetable",
     planted_by_id,
-    planted_date: new Date(planted_date),
-    expected_harvest_date: expected_harvest_date ? new Date(expected_harvest_date) : null,
+    planted_date: planted_date ? new Date(planted_date as string) : new Date(),
+    expected_harvest_date: expected_harvest_date ? new Date(expected_harvest_date as string) : null,
     quantity_planted,
     expected_yield,
     yield_unit: yield_unit || "lbs",
     seed_source,
-    organic_certified: organic_certified || false,
+    is_organic: organic_certified || false,
     status: "planted",
     notes,
   })

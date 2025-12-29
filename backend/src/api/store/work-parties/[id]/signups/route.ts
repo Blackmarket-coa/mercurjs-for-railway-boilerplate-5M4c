@@ -1,6 +1,12 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { VOLUNTEER_MODULE } from "../../../../../modules/volunteer"
+
+const VOLUNTEER_MODULE = "volunteerModuleService"
+
+interface VolunteerServiceType {
+  createWorkPartySignups: (data: Record<string, unknown>) => Promise<{ id: string }>
+  updateWorkPartys: (data: Record<string, unknown>) => Promise<{ id: string }>
+}
 
 /**
  * GET /store/work-parties/:id/signups
@@ -45,10 +51,10 @@ export async function POST(
   res: MedusaResponse
 ) {
   const { id } = req.params
-  const volunteerService = req.scope.resolve(VOLUNTEER_MODULE)
+  const volunteerService = req.scope.resolve(VOLUNTEER_MODULE) as VolunteerServiceType
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { customer_id, membership_id, notes } = req.body as any
+  const { customer_id, membership_id, notes } = req.body as Record<string, unknown>
 
   // Check capacity
   const { data: [workParty] } = await query.graph({
@@ -67,7 +73,10 @@ export async function POST(
     return
   }
 
-  if (workParty.max_participants && workParty.current_signups >= workParty.max_participants) {
+  const maxParticipants = workParty.max_participants as number | null
+  const currentSignups = workParty.current_signups as number
+
+  if (maxParticipants && currentSignups >= maxParticipants) {
     res.status(400).json({ message: "Work party is at capacity" })
     return
   }
@@ -84,7 +93,7 @@ export async function POST(
   // Update signup count
   await volunteerService.updateWorkPartys({
     id,
-    current_signups: workParty.current_signups + 1,
+    current_signups: currentSignups + 1,
   })
 
   res.status(201).json({ signup })

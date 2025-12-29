@@ -5,8 +5,38 @@ import {
   StepResponse,
 } from "@medusajs/framework/workflows-sdk"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { GOVERNANCE_MODULE } from "../../modules/governance"
-import { GardenLedgerService } from "../../modules/garden/services/garden-ledger"
+
+const GOVERNANCE_MODULE = "governanceModuleService"
+
+interface GovernanceServiceType {
+  createGardenVotes: (data: Record<string, unknown>) => Promise<{ id: string }>
+  updateGardenProposals: (data: Record<string, unknown>) => Promise<{ id: string }>
+  deleteGardenVotes: (id: string) => Promise<void>
+}
+
+// Inline voting power calculation
+function calculateVotingPower(params: {
+  governance_model: string
+  base_votes: number
+  labor_hours: number
+  investment_amount: number
+  role_bonus: number
+  weights?: { labor_weight?: number; investment_weight?: number } | null
+}): number {
+  const { governance_model, base_votes, labor_hours, investment_amount, weights } = params
+  
+  if (governance_model === "one_member_one_vote") {
+    return 1
+  }
+  
+  const laborWeight = weights?.labor_weight || 0.5
+  const investmentWeight = weights?.investment_weight || 0.5
+  
+  const laborBonus = Math.floor(labor_hours / 10) * laborWeight
+  const investmentBonus = Math.floor(investment_amount / 100) * investmentWeight
+  
+  return base_votes + laborBonus + investmentBonus
+}
 
 /**
  * Cast Vote Workflow
@@ -26,7 +56,7 @@ type CastVoteInput = {
 const validateAndCastVoteStep = createStep(
   "validate-and-cast-vote-step",
   async (input: CastVoteInput, { container }) => {
-    const governanceService = container.resolve(GOVERNANCE_MODULE)
+    const governanceService = container.resolve(GOVERNANCE_MODULE) as GovernanceServiceType
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
     // Get proposal
@@ -54,7 +84,7 @@ const validateAndCastVoteStep = createStep(
       throw new Error("Voting is not open for this proposal")
     }
 
-    if (new Date() > new Date(proposal.voting_end)) {
+    if (new Date() > new Date(proposal.voting_end as string)) {
       throw new Error("Voting period has ended")
     }
 
@@ -83,13 +113,13 @@ const validateAndCastVoteStep = createStep(
     })
 
     // Calculate voting power
-    const voting_power = GardenLedgerService.calculateVotingPower({
-      governance_model: garden.governance_model,
+    const voting_power = calculateVotingPower({
+      governance_model: garden.governance_model as string,
       base_votes: 1,
-      labor_hours: membership?.total_labor_hours || 0,
-      investment_amount: membership?.total_investment || 0,
+      labor_hours: (membership?.total_labor_hours as number) || 0,
+      investment_amount: (membership?.total_investment as number) || 0,
       role_bonus: 0,
-      weights: garden.voting_weights,
+      weights: garden.voting_weights as { labor_weight?: number; investment_weight?: number } | null,
     })
 
     // Create vote
@@ -102,8 +132,8 @@ const validateAndCastVoteStep = createStep(
       voting_power,
       power_basis: {
         base: 1,
-        labor_hours: membership?.total_labor_hours || 0,
-        investment: membership?.total_investment || 0,
+        labor_hours: (membership?.total_labor_hours as number) || 0,
+        investment: (membership?.total_investment as number) || 0,
       },
       comment: input.comment,
       comment_visibility: input.comment_visibility || "public",
@@ -113,18 +143,24 @@ const validateAndCastVoteStep = createStep(
     })
 
     // Update proposal counts
-    const voteUpdates: any = {
+    const votesFor = proposal.votes_for as number
+    const votesAgainst = proposal.votes_against as number
+    const votesAbstain = proposal.votes_abstain as number
+    const totalVotingPower = proposal.total_voting_power as number
+    const uniqueVoters = proposal.unique_voters as number
+
+    const voteUpdates: Record<string, unknown> = {
       id: input.proposal_id,
-      total_voting_power: proposal.total_voting_power + voting_power,
-      unique_voters: proposal.unique_voters + 1,
+      total_voting_power: totalVotingPower + voting_power,
+      unique_voters: uniqueVoters + 1,
     }
 
     if (input.vote === "for") {
-      voteUpdates.votes_for = proposal.votes_for + voting_power
+      voteUpdates.votes_for = votesFor + voting_power
     } else if (input.vote === "against") {
-      voteUpdates.votes_against = proposal.votes_against + voting_power
+      voteUpdates.votes_against = votesAgainst + voting_power
     } else {
-      voteUpdates.votes_abstain = proposal.votes_abstain + voting_power
+      voteUpdates.votes_abstain = votesAbstain + voting_power
     }
 
     await governanceService.updateGardenProposals(voteUpdates)
@@ -134,7 +170,7 @@ const validateAndCastVoteStep = createStep(
   async (context, { container }) => {
     if (!context) return
     
-    const governanceService = container.resolve(GOVERNANCE_MODULE)
+    const governanceService = container.resolve(GOVERNANCE_MODULE) as GovernanceServiceType
     // Rollback would require reversing vote counts - simplified here
     await governanceService.deleteGardenVotes(context.voteId)
   }

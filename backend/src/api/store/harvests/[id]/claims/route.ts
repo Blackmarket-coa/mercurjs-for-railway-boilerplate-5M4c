@@ -1,6 +1,12 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { HARVEST_MODULE } from "../../../../modules/harvest"
+
+const HARVEST_MODULE = "harvestModuleService"
+
+interface HarvestServiceType {
+  createHarvestClaims: (data: Record<string, unknown>) => Promise<{ id: string }>
+  updateHarvestAllocations: (data: Record<string, unknown>) => Promise<{ id: string }>
+}
 
 /**
  * GET /store/harvests/:id/claims
@@ -45,7 +51,7 @@ export async function POST(
   res: MedusaResponse
 ) {
   const { id } = req.params
-  const harvestService = req.scope.resolve(HARVEST_MODULE)
+  const harvestService = req.scope.resolve(HARVEST_MODULE) as HarvestServiceType
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const {
@@ -53,7 +59,7 @@ export async function POST(
     customer_id,
     membership_id,
     quantity_requested,
-  } = req.body as any
+  } = req.body as Record<string, unknown>
 
   // Get the allocation
   const { data: [allocation] } = await query.graph({
@@ -72,8 +78,12 @@ export async function POST(
     return
   }
 
-  const quantity_claimed = Math.min(quantity_requested, allocation.remaining_quantity)
-  const value_claimed = (quantity_claimed / allocation.allocated_quantity) * allocation.allocated_value
+  const remainingQty = allocation.remaining_quantity as number
+  const allocatedQty = allocation.allocated_quantity as number
+  const allocatedValue = allocation.allocated_value as number
+
+  const quantity_claimed = Math.min(quantity_requested as number, remainingQty)
+  const value_claimed = (quantity_claimed / allocatedQty) * allocatedValue
 
   const claim = await harvestService.createHarvestClaims({
     harvest_id: id,
@@ -89,8 +99,8 @@ export async function POST(
   // Update allocation remaining quantity
   await harvestService.updateHarvestAllocations({
     id: allocation_id,
-    remaining_quantity: allocation.remaining_quantity - quantity_claimed,
-    claimed_quantity: (allocation.allocated_quantity - allocation.remaining_quantity) + quantity_claimed,
+    remaining_quantity: remainingQty - quantity_claimed,
+    claimed_quantity: (allocatedQty - remainingQty) + quantity_claimed,
   })
 
   res.status(201).json({ claim })

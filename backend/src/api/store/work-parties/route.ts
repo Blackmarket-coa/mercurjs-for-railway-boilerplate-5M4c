@@ -1,6 +1,11 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { VOLUNTEER_MODULE } from "../../../modules/volunteer"
+
+const VOLUNTEER_MODULE = "volunteerModuleService"
+
+interface VolunteerServiceType {
+  createWorkPartys: (data: Record<string, unknown>) => Promise<{ id: string }>
+}
 
 /**
  * GET /store/work-parties
@@ -14,7 +19,7 @@ export async function GET(
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const { garden_id, status, upcoming } = req.query
 
-  const filters: any = {}
+  const filters: Record<string, unknown> = {}
   if (garden_id) filters.garden_id = garden_id
   if (status) filters.status = status
 
@@ -45,7 +50,7 @@ export async function GET(
   let result = workParties
   if (upcoming === "true") {
     const now = new Date()
-    result = workParties.filter((wp: any) => new Date(wp.scheduled_date) >= now)
+    result = workParties.filter((wp: { scheduled_date: string | Date }) => new Date(wp.scheduled_date) >= now)
   }
 
   res.json({ work_parties: result })
@@ -60,7 +65,7 @@ export async function POST(
   req: MedusaRequest,
   res: MedusaResponse
 ) {
-  const volunteerService = req.scope.resolve(VOLUNTEER_MODULE)
+  const volunteerService = req.scope.resolve(VOLUNTEER_MODULE) as VolunteerServiceType
 
   const {
     garden_id,
@@ -77,20 +82,20 @@ export async function POST(
     requirements,
     provides,
     organizer_id,
-  } = req.body as any
+  } = req.body as Record<string, unknown>
 
   const workParty = await volunteerService.createWorkPartys({
     garden_id,
     title,
     description,
-    scheduled_date: new Date(scheduled_date),
+    scheduled_date: new Date(scheduled_date as string),
     start_time,
     end_time,
     expected_hours,
     max_participants,
     current_signups: 0,
-    activity_types: activity_types || [],
-    credit_multiplier: credit_multiplier || 1.0,
+    activity_types: (activity_types as string[]) || [],
+    credit_multiplier: (credit_multiplier as number) || 1.0,
     status: "scheduled",
     location_notes,
     requirements,

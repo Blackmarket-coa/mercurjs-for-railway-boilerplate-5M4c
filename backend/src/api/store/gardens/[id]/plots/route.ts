@@ -1,6 +1,12 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { GARDEN_MODULE } from "../../../../modules/garden"
+
+const GARDEN_MODULE = "gardenModuleService"
+
+interface GardenServiceType {
+  createGardenPlots: (data: Record<string, unknown>) => Promise<{ id: string }>
+  updateGardens: (data: Record<string, unknown>) => Promise<{ id: string }>
+}
 
 /**
  * GET /store/gardens/:id/plots
@@ -15,7 +21,7 @@ export async function GET(
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { data: plots } = await query.graph({
-    entity: "plot",
+    entity: "garden_plot",
     fields: [
       "id",
       "plot_number",
@@ -23,12 +29,9 @@ export async function GET(
       "soil_zone_id",
       "status",
       "sun_exposure",
-      "irrigation_type",
-      "raised_bed",
-      "price_per_season",
-      "current_assignee_id",
-      "assignment_start",
-      "assignment_end",
+      "has_raised_bed",
+      "season_fee",
+      "assigned_to_id",
     ],
     filters: {
       garden_id: id,
@@ -48,27 +51,27 @@ export async function POST(
   res: MedusaResponse
 ) {
   const { id } = req.params
-  const gardenService = req.scope.resolve(GARDEN_MODULE)
+  const gardenService = req.scope.resolve(GARDEN_MODULE) as GardenServiceType
 
   const {
     plot_number,
     size_sqft,
     soil_zone_id,
     sun_exposure,
-    irrigation_type,
-    raised_bed,
-    price_per_season,
-  } = req.body as any
+    has_water_access,
+    has_raised_bed,
+    season_fee,
+  } = req.body as Record<string, unknown>
 
-  const plot = await gardenService.createPlots({
+  const plot = await gardenService.createGardenPlots({
     garden_id: id,
     plot_number,
     size_sqft,
     soil_zone_id,
     sun_exposure,
-    irrigation_type: irrigation_type || "manual",
-    raised_bed: raised_bed || false,
-    price_per_season,
+    has_water_access: has_water_access || false,
+    has_raised_bed: has_raised_bed || false,
+    season_fee,
     status: "available",
   })
 
@@ -83,8 +86,8 @@ export async function POST(
   if (garden) {
     await gardenService.updateGardens({
       id,
-      total_plots: (garden.total_plots || 0) + 1,
-      available_plots: (garden.available_plots || 0) + 1,
+      total_plots: ((garden.total_plots as number) || 0) + 1,
+      available_plots: ((garden.available_plots as number) || 0) + 1,
     })
   }
 

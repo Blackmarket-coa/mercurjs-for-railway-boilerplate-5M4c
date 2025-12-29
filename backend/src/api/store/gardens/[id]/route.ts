@@ -1,6 +1,11 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { GARDEN_MODULE } from "../../../../modules/garden"
+
+const GARDEN_MODULE = "gardenModuleService"
+
+interface GardenServiceType {
+  updateGardens: (data: Record<string, unknown>) => Promise<{ id: string }>
+}
 
 /**
  * GET /store/gardens/:id
@@ -60,11 +65,12 @@ export async function PUT(
   res: MedusaResponse
 ) {
   const { id } = req.params
-  const gardenService = req.scope.resolve(GARDEN_MODULE)
+  const gardenService = req.scope.resolve(GARDEN_MODULE) as GardenServiceType
+  const body = req.body as Record<string, unknown>
 
   const garden = await gardenService.updateGardens({
     id,
-    ...req.body,
+    ...body,
   })
 
   res.json({ garden })

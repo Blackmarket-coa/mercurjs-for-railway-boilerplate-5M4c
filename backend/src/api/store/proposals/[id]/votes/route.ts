@@ -1,8 +1,36 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { GOVERNANCE_MODULE } from "../../../../../modules/governance"
-import { GARDEN_MODULE } from "../../../../../modules/garden"
-import { GardenLedgerService } from "../../../../../modules/garden/services/garden-ledger"
+
+const GOVERNANCE_MODULE = "governanceModuleService"
+
+interface GovernanceServiceType {
+  createGardenVotes: (data: Record<string, unknown>) => Promise<{ id: string }>
+  updateGardenProposals: (data: Record<string, unknown>) => Promise<{ id: string }>
+}
+
+// Inline voting power calculation
+function calculateVotingPower(params: {
+  governance_model: string
+  base_votes: number
+  labor_hours: number
+  investment_amount: number
+  role_bonus: number
+  weights?: { labor_weight?: number; investment_weight?: number } | null
+}): number {
+  const { governance_model, base_votes, labor_hours, investment_amount, weights } = params
+  
+  if (governance_model === "one_member_one_vote") {
+    return 1
+  }
+  
+  const laborWeight = weights?.labor_weight || 0.5
+  const investmentWeight = weights?.investment_weight || 0.5
+  
+  const laborBonus = Math.floor(labor_hours / 10) * laborWeight
+  const investmentBonus = Math.floor(investment_amount / 100) * investmentWeight
+  
+  return base_votes + laborBonus + investmentBonus
+}
 
 /**
  * GET /store/proposals/:id/votes
@@ -46,7 +74,7 @@ export async function POST(
   res: MedusaResponse
 ) {
   const { id } = req.params
-  const governanceService = req.scope.resolve(GOVERNANCE_MODULE)
+  const governanceService = req.scope.resolve(GOVERNANCE_MODULE) as GovernanceServiceType
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const {
@@ -55,7 +83,7 @@ export async function POST(
     vote,
     comment,
     comment_visibility,
-  } = req.body as any
+  } = req.body as Record<string, unknown>
 
   // Get proposal
   const { data: [proposal] } = await query.graph({
@@ -74,7 +102,7 @@ export async function POST(
     return
   }
 
-  if (new Date() > new Date(proposal.voting_end)) {
+  if (new Date() > new Date(proposal.voting_end as string)) {
     res.status(400).json({ message: "Voting period has ended" })
     return
   }
@@ -106,13 +134,13 @@ export async function POST(
   })
 
   // Calculate voting power
-  const voting_power = GardenLedgerService.calculateVotingPower({
-    governance_model: garden.governance_model,
+  const voting_power = calculateVotingPower({
+    governance_model: garden.governance_model as string,
     base_votes: 1,
-    labor_hours: membership?.total_labor_hours || 0,
-    investment_amount: membership?.total_investment || 0,
+    labor_hours: (membership?.total_labor_hours as number) || 0,
+    investment_amount: (membership?.total_investment as number) || 0,
     role_bonus: 0,
-    weights: garden.voting_weights,
+    weights: garden.voting_weights as { labor_weight?: number; investment_weight?: number } | null,
   })
 
   const voteRecord = await governanceService.createGardenVotes({
@@ -124,29 +152,29 @@ export async function POST(
     voting_power,
     power_basis: {
       base: 1,
-      labor_hours: membership?.total_labor_hours || 0,
-      investment: membership?.total_investment || 0,
+      labor_hours: (membership?.total_labor_hours as number) || 0,
+      investment: (membership?.total_investment as number) || 0,
     },
     comment,
-    comment_visibility: comment_visibility || "public",
+    comment_visibility: (comment_visibility as string) || "public",
     is_delegated: false,
     is_final: true,
     voted_at: new Date(),
   })
 
   // Update proposal vote counts
-  const voteUpdates: any = {
+  const voteUpdates: Record<string, unknown> = {
     id,
-    total_voting_power: proposal.total_voting_power + voting_power,
-    unique_voters: proposal.unique_voters + 1,
+    total_voting_power: (proposal.total_voting_power as number) + voting_power,
+    unique_voters: (proposal.unique_voters as number) + 1,
   }
 
   if (vote === "for") {
-    voteUpdates.votes_for = proposal.votes_for + voting_power
+    voteUpdates.votes_for = (proposal.votes_for as number) + voting_power
   } else if (vote === "against") {
-    voteUpdates.votes_against = proposal.votes_against + voting_power
+    voteUpdates.votes_against = (proposal.votes_against as number) + voting_power
   } else {
-    voteUpdates.votes_abstain = proposal.votes_abstain + voting_power
+    voteUpdates.votes_abstain = (proposal.votes_abstain as number) + voting_power
   }
 
   await governanceService.updateGardenProposals(voteUpdates)

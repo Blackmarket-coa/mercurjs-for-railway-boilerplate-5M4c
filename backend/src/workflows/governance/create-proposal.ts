@@ -4,7 +4,13 @@ import {
   createStep,
   StepResponse,
 } from "@medusajs/framework/workflows-sdk"
-import { GOVERNANCE_MODULE } from "../../modules/governance"
+
+const GOVERNANCE_MODULE = "governanceModuleService"
+
+interface GovernanceServiceType {
+  createGardenProposals: (data: Record<string, unknown>) => Promise<{ id: string }>
+  deleteGardenProposals: (id: string) => Promise<void>
+}
 
 /**
  * Create Garden Proposal Workflow
@@ -23,14 +29,14 @@ type CreateProposalInput = {
   voting_end: Date
   quorum_required?: number
   approval_threshold?: number
-  budget_request?: any
-  policy_changes?: any
+  budget_request?: Record<string, unknown>
+  policy_changes?: Record<string, unknown>
 }
 
 const createProposalStep = createStep(
   "create-garden-proposal-step",
   async (input: CreateProposalInput, { container }) => {
-    const governanceService = container.resolve(GOVERNANCE_MODULE)
+    const governanceService = container.resolve(GOVERNANCE_MODULE) as GovernanceServiceType
 
     const proposal = await governanceService.createGardenProposals({
       garden_id: input.garden_id,
@@ -57,7 +63,8 @@ const createProposalStep = createStep(
     return new StepResponse(proposal, proposal.id)
   },
   async (proposalId, { container }) => {
-    const governanceService = container.resolve(GOVERNANCE_MODULE)
+    if (!proposalId) return
+    const governanceService = container.resolve(GOVERNANCE_MODULE) as GovernanceServiceType
     await governanceService.deleteGardenProposals(proposalId)
   }
 )

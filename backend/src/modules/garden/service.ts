@@ -1,5 +1,5 @@
 import { MedusaService } from "@medusajs/framework/utils"
-import { Garden, Plot, SoilZone, GardenMembership } from "./models"
+import { Garden, GardenPlot, SoilZone, GardenMembership } from "./models"
 
 /**
  * Garden Module Service
@@ -9,7 +9,7 @@ import { Garden, Plot, SoilZone, GardenMembership } from "./models"
  */
 export class GardenModuleService extends MedusaService({
   Garden,
-  Plot,
+  GardenPlot,
   SoilZone,
   GardenMembership,
 }) {}

@@ -4,9 +4,34 @@ import {
   createStep,
   StepResponse,
 } from "@medusajs/framework/workflows-sdk"
-import { HARVEST_MODULE } from "../../modules/harvest"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { HarvestAllocationEngine, PoolType } from "../../modules/harvest/services/allocation-engine"
+
+const HARVEST_MODULE = "harvestModuleService"
+
+interface HarvestServiceType {
+  createHarvestAllocations: (data: Record<string, unknown>) => Promise<{ id: string }>
+  deleteHarvestAllocations: (id: string) => Promise<void>
+  updateHarvests: (data: Record<string, unknown>) => Promise<{ id: string }>
+}
+
+type PoolType = "investor" | "volunteer" | "plot_holder" | "communal" | "open_market" | "donation"
+
+// Inline claim deadline calculation
+function getClaimDeadline(poolType: PoolType, harvestDate: Date): Date {
+  const deadlines: Record<PoolType, number> = {
+    investor: 3,
+    volunteer: 3,
+    plot_holder: 5,
+    communal: 7,
+    open_market: 14,
+    donation: 30,
+  }
+  
+  const days = deadlines[poolType] || 7
+  const deadline = new Date(harvestDate)
+  deadline.setDate(deadline.getDate() + days)
+  return deadline
+}
 
 /**
  * Allocate Harvest Workflow
@@ -21,12 +46,12 @@ type AllocateHarvestInput = {
 const allocateHarvestStep = createStep(
   "allocate-harvest-step",
   async (input: AllocateHarvestInput, { container }) => {
-    const harvestService = container.resolve(HARVEST_MODULE)
+    const harvestService = container.resolve(HARVEST_MODULE) as HarvestServiceType
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
     // Get harvest
     const { data: [harvest] } = await query.graph({
-      entity: "harvest",
+      entity: "garden_harvest",
       fields: ["id", "garden_id", "quantity", "estimated_value", "allocation_status"],
       filters: { id: input.harvest_id },
     })
@@ -59,27 +84,29 @@ const allocateHarvestStep = createStep(
       { pool_type: "donation", percentage: 5 },
     ]
 
+    const harvestQuantity = harvest.quantity as number
+    const estimatedValue = harvest.estimated_value as number
+
     // Create allocations
     const allocationIds: string[] = []
     
     for (const rule of allocationRules) {
-      const allocatedQuantity = (harvest.quantity * rule.percentage) / 100
-      const allocatedValue = (harvest.estimated_value * rule.percentage) / 100
+      const rulePercentage = rule.percentage as number
+      const poolType = rule.pool_type as PoolType
+      const allocatedQuantity = (harvestQuantity * rulePercentage) / 100
+      const allocatedValue = (estimatedValue * rulePercentage) / 100
 
       const allocation = await harvestService.createHarvestAllocations({
         harvest_id: input.harvest_id,
         garden_id: harvest.garden_id,
-        pool_type: rule.pool_type,
-        percentage: rule.percentage,
+        pool_type: poolType,
+        percentage: rulePercentage,
         allocated_quantity: allocatedQuantity,
         allocated_value: allocatedValue,
         claimed_quantity: 0,
         remaining_quantity: allocatedQuantity,
         status: "open",
-        claim_deadline: HarvestAllocationEngine.getClaimDeadline(
-          rule.pool_type as PoolType,
-          new Date()
-        ),
+        claim_deadline: getClaimDeadline(poolType, new Date()),
       })
 
       allocationIds.push(allocation.id)
@@ -100,7 +127,7 @@ const allocateHarvestStep = createStep(
   async (context, { container }) => {
     if (!context) return
     
-    const harvestService = container.resolve(HARVEST_MODULE)
+    const harvestService = container.resolve(HARVEST_MODULE) as HarvestServiceType
     
     // Delete allocations
     for (const id of context.allocationIds) {

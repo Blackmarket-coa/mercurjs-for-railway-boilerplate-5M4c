@@ -1,5 +1,5 @@
 import { MedusaService } from "@medusajs/framework/utils"
-import { GrowingSeason, Planting, GrowingPlan } from "./models"
+import { GardenSeason, GardenPlanting, GrowingPlan } from "./models"
 
 /**
  * Season Module Service
@@ -7,8 +7,8 @@ import { GrowingSeason, Planting, GrowingPlan } from "./models"
  * Manages growing seasons, plantings, and growing plans.
  */
 export class SeasonModuleService extends MedusaService({
-  GrowingSeason,
-  Planting,
+  GardenSeason,
+  GardenPlanting,
   GrowingPlan,
 }) {}
 

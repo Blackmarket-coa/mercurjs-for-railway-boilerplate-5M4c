@@ -4,9 +4,28 @@ import {
   createStep,
   StepResponse,
 } from "@medusajs/framework/workflows-sdk"
-import { VOLUNTEER_MODULE } from "../../modules/volunteer"
-import { GARDEN_MODULE } from "../../modules/garden"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+
+const VOLUNTEER_MODULE = "volunteerModuleService"
+const GARDEN_MODULE = "gardenModuleService"
+
+interface VolunteerServiceType {
+  updateVolunteerLogs: (data: Record<string, unknown>) => Promise<{ id: string }>
+  createTimeCredits: (data: Record<string, unknown>) => Promise<{ id: string }>
+  deleteTimeCredits: (id: string) => Promise<void>
+}
+
+interface GardenServiceType {
+  updateGardenMemberships: (data: Record<string, unknown>) => Promise<{ id: string }>
+}
+
+type CompensationContext = {
+  logId: string
+  creditId?: string
+  previousStatus: string
+  membershipId?: string
+  creditsIssued?: number
+}
 
 /**
  * Verify Volunteer Hours Workflow
@@ -25,8 +44,8 @@ type VerifyHoursInput = {
 const verifyHoursStep = createStep(
   "verify-volunteer-hours-step",
   async (input: VerifyHoursInput, { container }) => {
-    const volunteerService = container.resolve(VOLUNTEER_MODULE)
-    const gardenService = container.resolve(GARDEN_MODULE)
+    const volunteerService = container.resolve(VOLUNTEER_MODULE) as VolunteerServiceType
+    const gardenService = container.resolve(GARDEN_MODULE) as GardenServiceType
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
     // Get log
@@ -53,7 +72,10 @@ const verifyHoursStep = createStep(
       throw new Error("Log has already been processed")
     }
 
-    const previousStatus = log.verification_status
+    const previousStatus = log.verification_status as string
+    const logHours = log.hours as number
+    const logCreditRate = log.credit_rate as number
+    const logMembershipId = log.membership_id as string
     
     if (!input.approved) {
       // Rejected - update status and revert hours
@@ -69,13 +91,13 @@ const verifyHoursStep = createStep(
       const { data: [membership] } = await query.graph({
         entity: "garden_membership",
         fields: ["id", "total_labor_hours"],
-        filters: { id: log.membership_id },
+        filters: { id: logMembershipId },
       })
 
       if (membership) {
         await gardenService.updateGardenMemberships({
-          id: log.membership_id,
-          total_labor_hours: Math.max(0, (membership.total_labor_hours || 0) - log.hours),
+          id: logMembershipId,
+          total_labor_hours: Math.max(0, ((membership.total_labor_hours as number) || 0) - logHours),
         })
       }
 
@@ -83,12 +105,12 @@ const verifyHoursStep = createStep(
         log_id: input.log_id,
         status: "rejected",
         credits_issued: 0,
-      }, { logId: input.log_id, previousStatus })
+      }, { logId: input.log_id, previousStatus } as CompensationContext)
     }
 
     // Approved - calculate final credits
-    const finalHours = input.adjustment_hours ?? log.hours
-    const finalCredits = finalHours * log.credit_rate
+    const finalHours = input.adjustment_hours ?? logHours
+    const finalCredits = finalHours * logCreditRate
 
     // Update log
     await volunteerService.updateVolunteerLogs({
@@ -105,7 +127,7 @@ const verifyHoursStep = createStep(
     const credit = await volunteerService.createTimeCredits({
       garden_id: log.garden_id,
       customer_id: log.customer_id,
-      membership_id: log.membership_id,
+      membership_id: logMembershipId,
       source_type: "volunteer_log",
       source_id: input.log_id,
       hours_equivalent: finalHours,
@@ -120,17 +142,17 @@ const verifyHoursStep = createStep(
     const { data: [membership] } = await query.graph({
       entity: "garden_membership",
       fields: ["id", "time_credit_balance", "total_labor_hours"],
-      filters: { id: log.membership_id },
+      filters: { id: logMembershipId },
     })
 
     if (membership) {
       // Adjust hours if different
-      const hoursDiff = finalHours - log.hours
+      const hoursDiff = finalHours - logHours
       
       await gardenService.updateGardenMemberships({
-        id: log.membership_id,
-        time_credit_balance: (membership.time_credit_balance || 0) + finalCredits,
-        total_labor_hours: (membership.total_labor_hours || 0) + hoursDiff,
+        id: logMembershipId,
+        time_credit_balance: ((membership.time_credit_balance as number) || 0) + finalCredits,
+        total_labor_hours: ((membership.total_labor_hours as number) || 0) + hoursDiff,
       })
     }
 
@@ -143,14 +165,14 @@ const verifyHoursStep = createStep(
       logId: input.log_id, 
       creditId: credit.id,
       previousStatus,
-      membershipId: log.membership_id,
+      membershipId: logMembershipId,
       creditsIssued: finalCredits,
-    })
+    } as CompensationContext)
   },
-  async (context, { container }) => {
+  async (context: CompensationContext | undefined, { container }) => {
     if (!context) return
     
-    const volunteerService = container.resolve(VOLUNTEER_MODULE)
+    const volunteerService = container.resolve(VOLUNTEER_MODULE) as VolunteerServiceType
     
     // Revert log status
     await volunteerService.updateVolunteerLogs({

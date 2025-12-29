@@ -4,10 +4,24 @@ import {
   createStep,
   StepResponse,
 } from "@medusajs/framework/workflows-sdk"
-import { VOLUNTEER_MODULE } from "../../modules/volunteer"
-import { GARDEN_MODULE } from "../../modules/garden"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { GardenLedgerService } from "../../modules/garden/services/garden-ledger"
+
+const VOLUNTEER_MODULE = "volunteerModuleService"
+const GARDEN_MODULE = "gardenModuleService"
+
+interface VolunteerServiceType {
+  createVolunteerLogs: (data: Record<string, unknown>) => Promise<{ id: string }>
+  deleteVolunteerLogs: (id: string) => Promise<void>
+}
+
+interface GardenServiceType {
+  updateGardenMemberships: (data: Record<string, unknown>) => Promise<{ id: string }>
+}
+
+// Inline credit calculation
+function calculateTimeCreditValue(hours: number, creditRate: number): number {
+  return hours * creditRate
+}
 
 /**
  * Log Volunteer Hours Workflow
@@ -30,8 +44,8 @@ type LogVolunteerHoursInput = {
 const logVolunteerHoursStep = createStep(
   "log-volunteer-hours-step",
   async (input: LogVolunteerHoursInput, { container }) => {
-    const volunteerService = container.resolve(VOLUNTEER_MODULE)
-    const gardenService = container.resolve(GARDEN_MODULE)
+    const volunteerService = container.resolve(VOLUNTEER_MODULE) as VolunteerServiceType
+    const gardenService = container.resolve(GARDEN_MODULE) as GardenServiceType
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
     // Get base credit rate
@@ -47,11 +61,11 @@ const logVolunteerHoursStep = createStep(
       })
 
       if (workParty?.credit_multiplier) {
-        creditMultiplier = workParty.credit_multiplier
+        creditMultiplier = workParty.credit_multiplier as number
       }
     }
 
-    const creditsEarned = GardenLedgerService.calculateTimeCreditValue(
+    const creditsEarned = calculateTimeCreditValue(
       input.hours * creditMultiplier,
       creditRate
     )
@@ -83,7 +97,7 @@ const logVolunteerHoursStep = createStep(
     if (membership) {
       await gardenService.updateGardenMemberships({
         id: input.membership_id,
-        total_labor_hours: (membership.total_labor_hours || 0) + input.hours,
+        total_labor_hours: ((membership.total_labor_hours as number) || 0) + input.hours,
       })
     }
 
@@ -101,8 +115,8 @@ const logVolunteerHoursStep = createStep(
   async (context, { container }) => {
     if (!context) return
     
-    const volunteerService = container.resolve(VOLUNTEER_MODULE)
-    const gardenService = container.resolve(GARDEN_MODULE)
+    const volunteerService = container.resolve(VOLUNTEER_MODULE) as VolunteerServiceType
+    const gardenService = container.resolve(GARDEN_MODULE) as GardenServiceType
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
     
     // Delete log
@@ -118,7 +132,7 @@ const logVolunteerHoursStep = createStep(
     if (membership) {
       await gardenService.updateGardenMemberships({
         id: context.membershipId,
-        total_labor_hours: Math.max(0, (membership.total_labor_hours || 0) - context.hours),
+        total_labor_hours: Math.max(0, ((membership.total_labor_hours as number) || 0) - context.hours),
       })
     }
   }
