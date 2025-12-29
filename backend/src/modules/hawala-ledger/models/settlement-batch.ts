@@ -52,8 +52,6 @@ export const SettlementBatch = model.define("hawala_settlement_batch", {
   // Metadata
   metadata: model.json().nullable(),
   
-  created_at: model.dateTime(),
-  updated_at: model.dateTime(),
   submitted_at: model.dateTime().nullable(),
   confirmed_at: model.dateTime().nullable(),
 })

@@ -63,7 +63,4 @@ export const LedgerAccount = model.define("hawala_ledger_account", {
   
   // Metadata
   metadata: model.json().nullable(),
-  
-  created_at: model.dateTime(),
-  updated_at: model.dateTime(),
 })

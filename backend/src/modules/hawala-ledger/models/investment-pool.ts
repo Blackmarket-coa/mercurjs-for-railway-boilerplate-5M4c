@@ -67,9 +67,6 @@ export const InvestmentPool = model.define("hawala_investment_pool", {
   
   // Metadata
   metadata: model.json().nullable(),
-  
-  created_at: model.dateTime(),
-  updated_at: model.dateTime(),
 })
 
 /**
@@ -120,6 +117,4 @@ export const Investment = model.define("hawala_investment", {
   invested_at: model.dateTime(),
   matured_at: model.dateTime().nullable(),
   withdrawn_at: model.dateTime().nullable(),
-  created_at: model.dateTime(),
-  updated_at: model.dateTime(),
 })

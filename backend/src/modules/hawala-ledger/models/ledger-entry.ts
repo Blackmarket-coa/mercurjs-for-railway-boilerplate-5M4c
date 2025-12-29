@@ -81,9 +81,6 @@ export const LedgerEntry = model.define("hawala_ledger_entry", {
   // Metadata
   metadata: model.json().nullable(),
   
-  // Timestamps (append-only, no updates)
-  created_at: model.dateTime(),
-  
   // For settlement batching
   settlement_batch_id: model.text().nullable(),
   settled_at: model.dateTime().nullable(),

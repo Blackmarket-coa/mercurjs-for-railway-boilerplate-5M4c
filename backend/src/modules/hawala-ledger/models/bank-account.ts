@@ -54,8 +54,6 @@ export const BankAccount = model.define("hawala_bank_account", {
   // Metadata
   metadata: model.json().nullable(),
   
-  created_at: model.dateTime(),
-  updated_at: model.dateTime(),
   verified_at: model.dateTime().nullable(),
 })
 
@@ -115,7 +113,4 @@ export const AchTransaction = model.define("hawala_ach_transaction", {
   
   // Metadata
   metadata: model.json().nullable(),
-  
-  created_at: model.dateTime(),
-  updated_at: model.dateTime(),
 })
