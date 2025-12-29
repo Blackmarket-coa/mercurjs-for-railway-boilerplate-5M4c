@@ -1,7 +1,7 @@
-import { Migration } from "@mikro-orm/migrations"
+import { Migration } from "@medusajs/framework/mikro-orm/migrations"
 
 export class Migration20251229CreateHawalaLedger extends Migration {
-  async up(): Promise<void> {
+  override async up(): Promise<void> {
     // Ledger Account - Core financial accounts
     this.addSql(`
       CREATE TABLE IF NOT EXISTS "hawala_ledger_account" (
@@ -356,7 +356,7 @@ export class Migration20251229CreateHawalaLedger extends Migration {
     `)
   }
 
-  async down(): Promise<void> {
+  override async down(): Promise<void> {
     this.addSql(`DROP TABLE IF EXISTS "hawala_credit_line_transaction" CASCADE;`)
     this.addSql(`DROP TABLE IF EXISTS "hawala_vendor_credit_line" CASCADE;`)
     this.addSql(`DROP TABLE IF EXISTS "hawala_vendor_payment" CASCADE;`)
