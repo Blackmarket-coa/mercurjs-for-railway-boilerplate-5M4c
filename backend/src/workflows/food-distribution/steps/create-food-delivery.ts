@@ -1,6 +1,7 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
-import { FOOD_DISTRIBUTION_MODULE } from "../../../../modules/food-distribution"
-import type FoodDistributionService from "../../../../modules/food-distribution/service"
+import { FOOD_DISTRIBUTION_MODULE } from "../../../modules/food-distribution"
+import type FoodDistributionService from "../../../modules/food-distribution/service"
+import { DeliveryStatus } from "../../../modules/food-distribution/models/delivery"
 
 type CreateFoodDeliveryInput = {
   order_id: string
@@ -57,10 +58,10 @@ export const createFoodDeliveryStep = createStep(
     // Compensation: cancel the delivery if workflow fails
     if (deliveryId) {
       const foodDistribution = container.resolve<FoodDistributionService>(FOOD_DISTRIBUTION_MODULE)
-      await foodDistribution.updateFoodDeliverys({
+      await foodDistribution.updateFoodDeliveries({
         id: deliveryId,
-        status: "CANCELLED",
-      })
+        status: DeliveryStatus.CANCELLED,
+      } as any)
     }
   }
 )

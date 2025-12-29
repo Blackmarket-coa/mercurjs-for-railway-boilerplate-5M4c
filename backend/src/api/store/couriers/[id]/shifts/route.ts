@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { FOOD_DISTRIBUTION_MODULE } from "../../../../../../modules/food-distribution"
-import type FoodDistributionService from "../../../../../../modules/food-distribution/service"
+import { FOOD_DISTRIBUTION_MODULE } from "../../../../../modules/food-distribution"
+import type FoodDistributionService from "../../../../../modules/food-distribution/service"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -49,7 +49,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       return
     }
     
-    const filters: Record<string, any> = { courier_id: courierId }
+    const filters: Record<string, any> = { courier: courierId }
     
     // Filter by date range
     if (query.from) {
@@ -120,12 +120,12 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     }
     
     const shift = await foodDistribution.createCourierShifts({
-      courier_id: courierId,
+      courier: courierId,
       scheduled_start: startTime,
       scheduled_end: endTime,
-      zone_codes: data.zone_codes,
+      assigned_zone: data.zone_codes?.[0] || null,
       notes: data.notes,
-    })
+    } as any)
     
     res.status(201).json({ shift })
   } catch (error) {

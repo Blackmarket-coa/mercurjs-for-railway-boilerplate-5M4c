@@ -1,6 +1,8 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
-import { FOOD_DISTRIBUTION_MODULE } from "../../../../modules/food-distribution"
-import type FoodDistributionService from "../../../../modules/food-distribution/service"
+import { FOOD_DISTRIBUTION_MODULE } from "../../../modules/food-distribution"
+import type FoodDistributionService from "../../../modules/food-distribution/service"
+import { FoodOrderStatus } from "../../../modules/food-distribution/models/food-order"
+import { DeliveryStatus } from "../../../modules/food-distribution/models/delivery"
 
 type AwaitDeliveryInput = {
   delivery_id: string
@@ -19,7 +21,7 @@ export const awaitDeliveryCompletionStep = createStep(
     // Update delivery status to en route
     await foodDistribution.updateDeliveryStatus(
       input.delivery_id,
-      "EN_ROUTE_DELIVERY"
+      DeliveryStatus.EN_ROUTE_DELIVERY
     )
 
     // Log event
@@ -78,9 +80,9 @@ export const confirmDeliveryStep = createStep(
     // Update order status
     await foodDistribution.updateFoodOrders({
       id: input.order_id,
-      status: "DELIVERED",
+      status: FoodOrderStatus.DELIVERED,
       delivered_at: new Date(),
-    })
+    } as any)
 
     return new StepResponse({ delivered: true })
   }

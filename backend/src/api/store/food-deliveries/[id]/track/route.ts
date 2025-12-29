@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { FOOD_DISTRIBUTION_MODULE } from "../../../../../../modules/food-distribution"
-import type FoodDistributionService from "../../../../../../modules/food-distribution/service"
+import { FOOD_DISTRIBUTION_MODULE } from "../../../../../modules/food-distribution"
+import type FoodDistributionService from "../../../../../modules/food-distribution/service"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -33,7 +33,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   }
   
   // Get courier info if assigned
-  let courier = null
+  let courier: any = null
   if (delivery.courier_id) {
     courier = await foodDistribution.retrieveCourier(delivery.courier_id)
   }

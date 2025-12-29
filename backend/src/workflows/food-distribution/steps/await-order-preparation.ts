@@ -1,6 +1,8 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
-import { FOOD_DISTRIBUTION_MODULE } from "../../../../modules/food-distribution"
-import type FoodDistributionService from "../../../../modules/food-distribution/service"
+import { FOOD_DISTRIBUTION_MODULE } from "../../../modules/food-distribution"
+import type FoodDistributionService from "../../../modules/food-distribution/service"
+import { FoodOrderStatus } from "../../../modules/food-distribution/models/food-order"
+import { DeliveryStatus } from "../../../modules/food-distribution/models/delivery"
 
 type AwaitOrderPreparationInput = {
   delivery_id: string
@@ -19,8 +21,8 @@ export const awaitPreparationStartStep = createStep(
     // Update order status
     await foodDistribution.updateFoodOrders({
       id: input.order_id,
-      status: "CONFIRMED",
-    })
+      status: FoodOrderStatus.CONFIRMED,
+    } as any)
 
     // Log event
     await foodDistribution.logDeliveryEvent(input.delivery_id, {
@@ -44,8 +46,8 @@ export const awaitOrderReadyStep = createStep(
     // Update order status
     await foodDistribution.updateFoodOrders({
       id: input.order_id,
-      status: "PREPARING",
-    })
+      status: FoodOrderStatus.PREPARING,
+    } as any)
 
     // Log event
     await foodDistribution.logDeliveryEvent(input.delivery_id, {
@@ -70,11 +72,11 @@ export const processOrderReadyStep = createStep(
     // Update order status
     await foodDistribution.updateFoodOrders({
       id: input.order_id,
-      status: "READY",
-    })
+      status: FoodOrderStatus.READY,
+    } as any)
 
     // Update delivery status
-    await foodDistribution.updateDeliveryStatus(input.delivery_id, "WAITING_FOR_ORDER")
+    await foodDistribution.updateDeliveryStatus(input.delivery_id, DeliveryStatus.WAITING_FOR_ORDER)
 
     // Log event
     await foodDistribution.logDeliveryEvent(input.delivery_id, {

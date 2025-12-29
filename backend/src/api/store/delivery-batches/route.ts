@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { FOOD_DISTRIBUTION_MODULE } from "../../../../modules/food-distribution"
-import type FoodDistributionService from "../../../../modules/food-distribution/service"
+import { FOOD_DISTRIBUTION_MODULE } from "../../../modules/food-distribution"
+import type FoodDistributionService from "../../../modules/food-distribution/service"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -38,14 +38,14 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     if (query.courier_id) filters.courier_id = query.courier_id
     if (query.is_community_run !== undefined) filters.is_community_run = query.is_community_run
     
-    const batches = await foodDistribution.listDeliveryBatchs(filters, {
+    const batches = await foodDistribution.listDeliveryBatches(filters, {
       take: query.limit,
       skip: query.offset,
       order: { created_at: "DESC" },
     })
     
     const count = await foodDistribution
-      .listDeliveryBatchs(filters, { select: ["id"] })
+      .listDeliveryBatches(filters, { select: ["id"] })
       .then((b) => b.length)
     
     res.json({
@@ -96,7 +96,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
         res.status(404).json({ message: "Courier not found" })
         return
       }
-      if (!courier.is_active) {
+      if (!courier.active) {
         res.status(400).json({ message: "Courier is not active" })
         return
       }
@@ -110,7 +110,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     )
     
     // Get deliveries in batch
-    const deliveries = await foodDistribution.listFoodDeliverys({
+    const deliveries = await foodDistribution.listFoodDeliveries({
       batch_id: batch.id,
     })
     

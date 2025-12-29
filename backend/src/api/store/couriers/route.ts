@@ -1,7 +1,8 @@
 import { z } from "zod"
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { FOOD_DISTRIBUTION_MODULE } from "../../../../modules/food-distribution"
-import type FoodDistributionService from "../../../../modules/food-distribution/service"
+import { FOOD_DISTRIBUTION_MODULE } from "../../../modules/food-distribution"
+import type FoodDistributionService from "../../../modules/food-distribution/service"
+import { CourierStatus } from "../../../modules/food-distribution/models/courier"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -79,7 +80,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     if (query.status) filters.status = query.status
     if (query.courier_type) filters.courier_type = query.courier_type
     if (query.vehicle_type) filters.vehicle_type = query.vehicle_type
-    if (query.is_active !== undefined) filters.is_active = query.is_active
+    if (query.is_active !== undefined) filters.active = query.is_active
     
     const couriers = await foodDistribution.listCouriers(filters, {
       take: query.limit,
@@ -125,14 +126,13 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     
     const courier = await foodDistribution.createCouriers({
       ...data,
-      status: "OFFLINE",
-      is_active: true,
-      is_verified: false,
+      status: CourierStatus.OFFLINE,
+      active: true,
+      verified: false,
       total_deliveries: 0,
       total_earnings: 0,
       average_rating: 0,
-      created_at: new Date(),
-    })
+    } as any)
     
     res.status(201).json({ courier })
   } catch (error) {

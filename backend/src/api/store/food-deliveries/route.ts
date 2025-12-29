@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { FOOD_DISTRIBUTION_MODULE } from "../../../../modules/food-distribution"
-import type FoodDistributionService from "../../../../modules/food-distribution/service"
+import { FOOD_DISTRIBUTION_MODULE } from "../../../modules/food-distribution"
+import type FoodDistributionService from "../../../modules/food-distribution/service"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -94,14 +94,14 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     if (query.producer_id) filters.producer_id = query.producer_id
     if (query.priority) filters.priority = query.priority
     
-    const deliveries = await foodDistribution.listFoodDeliverys(filters, {
+    const deliveries = await foodDistribution.listFoodDeliveries(filters, {
       take: query.limit,
       skip: query.offset,
       order: { created_at: "DESC" },
     })
     
     const count = await foodDistribution
-      .listFoodDeliverys(filters, { select: ["id"] })
+      .listFoodDeliveries(filters, { select: ["id"] })
       .then((d) => d.length)
     
     res.json({

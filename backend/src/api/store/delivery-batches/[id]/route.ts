@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { FOOD_DISTRIBUTION_MODULE } from "../../../../../modules/food-distribution"
-import type FoodDistributionService from "../../../../../modules/food-distribution/service"
+import { FOOD_DISTRIBUTION_MODULE } from "../../../../modules/food-distribution"
+import type FoodDistributionService from "../../../../modules/food-distribution/service"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -39,13 +39,13 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   }
   
   // Get deliveries in batch
-  const deliveries = await foodDistribution.listFoodDeliverys(
+  const deliveries = await foodDistribution.listFoodDeliveries(
     { batch_id: id },
     { order: { batch_sequence: "ASC" } }
   )
   
   // Get courier info if assigned
-  let courier = null
+  let courier: any = null
   if (batch.courier_id) {
     courier = await foodDistribution.retrieveCourier(batch.courier_id)
   }
@@ -110,15 +110,15 @@ export async function PUT(req: MedusaRequest, res: MedusaResponse) {
       
       // Update delivery sequences
       for (const item of data.optimized_route) {
-        await foodDistribution.updateFoodDeliverys({
+        await foodDistribution.updateFoodDeliveries({
           id: item.delivery_id,
           batch_sequence: item.sequence,
           estimated_delivery_at: item.estimated_arrival ? new Date(item.estimated_arrival) : undefined,
-        })
+        } as any)
       }
     }
     
-    const batch = await foodDistribution.updateDeliveryBatchs(updateData)
+    const batch = await foodDistribution.updateDeliveryBatches(updateData)
     
     res.json({ batch })
   } catch (error) {
@@ -156,7 +156,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     }
     
     // Get current deliveries count
-    const existingDeliveries = await foodDistribution.listFoodDeliverys({ batch_id: id })
+    const existingDeliveries = await foodDistribution.listFoodDeliveries({ batch_id: id })
     let currentSequence = existingDeliveries.length
     
     // Add new deliveries
@@ -174,15 +174,15 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       }
       
       currentSequence++
-      await foodDistribution.updateFoodDeliverys({
+      await foodDistribution.updateFoodDeliveries({
         id: deliveryId,
         batch_id: id,
         batch_sequence: currentSequence,
-      })
+      } as any)
     }
     
     // Update batch total
-    await foodDistribution.updateDeliveryBatchs({
+    await foodDistribution.updateDeliveryBatches({
       id,
       total_deliveries: currentSequence,
     })
@@ -219,17 +219,17 @@ export async function DELETE(req: MedusaRequest, res: MedusaResponse) {
   }
   
   // Remove deliveries from batch
-  const deliveries = await foodDistribution.listFoodDeliverys({ batch_id: id })
+  const deliveries = await foodDistribution.listFoodDeliveries({ batch_id: id })
   for (const delivery of deliveries) {
-    await foodDistribution.updateFoodDeliverys({
+    await foodDistribution.updateFoodDeliveries({
       id: delivery.id,
       batch_id: null,
       batch_sequence: null,
-    })
+    } as any)
   }
   
   // Mark batch as cancelled
-  await foodDistribution.updateDeliveryBatchs({
+  await foodDistribution.updateDeliveryBatches({
     id,
     status: "CANCELLED",
   })

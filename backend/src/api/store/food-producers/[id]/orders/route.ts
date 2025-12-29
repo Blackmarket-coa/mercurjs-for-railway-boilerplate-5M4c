@@ -1,7 +1,8 @@
 import { z } from "zod"
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { FOOD_DISTRIBUTION_MODULE } from "../../../../../../modules/food-distribution"
-import type FoodDistributionService from "../../../../../../modules/food-distribution/service"
+import { FOOD_DISTRIBUTION_MODULE } from "../../../../../modules/food-distribution"
+import type FoodDistributionService from "../../../../../modules/food-distribution/service"
+import { OperatingStatus } from "../../../../../modules/food-distribution/models/food-producer"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -119,8 +120,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     
     const [orders, count] = await Promise.all([
       foodDistribution.getProducerOrders(producerId, query.status, {
-        limit: query.limit,
-        offset: query.offset,
+        take: query.limit,
+        skip: query.offset,
       }),
       foodDistribution.listFoodOrders({
         producer_id: producerId,
@@ -161,7 +162,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       res.status(404).json({ message: "Producer not found" })
       return
     }
-    if (!producer.is_active) {
+    if (producer.operating_status !== OperatingStatus.ACCEPTING_ORDERS) {
       res.status(400).json({ message: "Producer is not currently active" })
       return
     }
@@ -185,10 +186,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       res.status(400).json({ message: "This producer does not offer pickup" })
       return
     }
-    if (data.fulfillment_type === "DINE_IN" && !producer.offers_dine_in) {
-      res.status(400).json({ message: "This producer does not offer dine-in" })
-      return
-    }
+    // Note: DINE_IN and other fulfillment types are accepted by default as metadata
     
     // Calculate totals
     const { items, ...orderData } = data

@@ -11,6 +11,9 @@ import {
   DeliveryBatch,
   DeliveryZone,
 } from "./models"
+import { CourierStatus } from "./models/courier"
+import { OperatingStatus } from "./models/food-producer"
+import { DeliveryStatus } from "./models/delivery"
 
 /**
  * FoodDistributionService
@@ -48,9 +51,9 @@ class FoodDistributionService extends MedusaService({
   /**
    * Get active producers by type
    */
-  async getProducersByType(type: string, options?: { limit?: number; offset?: number }) {
+  async getProducersByType(type: string, options?: { take?: number; skip?: number }) {
     return this.listFoodProducers(
-      { producer_type: type, is_active: true },
+      { producer_type: type, operating_status: OperatingStatus.ACCEPTING_ORDERS },
       options
     )
   }
@@ -61,7 +64,7 @@ class FoodDistributionService extends MedusaService({
   async getDonationAcceptingProducers() {
     return this.listFoodProducers({
       accepts_donations: true,
-      is_active: true,
+      operating_status: OperatingStatus.ACCEPTING_ORDERS,
     })
   }
   
@@ -71,7 +74,7 @@ class FoodDistributionService extends MedusaService({
   async getTradeEnabledProducers() {
     return this.listFoodProducers({
       accepts_trades: true,
-      is_active: true,
+      operating_status: OperatingStatus.ACCEPTING_ORDERS,
     })
   }
   
@@ -80,10 +83,10 @@ class FoodDistributionService extends MedusaService({
    */
   async isProducerOpen(producerId: string): Promise<boolean> {
     const producer = await this.retrieveFoodProducer(producerId)
-    if (!producer || !producer.is_active) return false
+    if (!producer || producer.operating_status !== OperatingStatus.ACCEPTING_ORDERS) return false
     
     const now = new Date()
-    const dayOfWeek = now.toLocaleDateString('en-US', { weekday: 'lowercase' })
+    const dayOfWeek = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase()
     const currentTime = now.toTimeString().substring(0, 5) // HH:MM
     
     const hours = producer.operating_hours as Record<string, { open: string; close: string }>
@@ -102,8 +105,7 @@ class FoodDistributionService extends MedusaService({
    */
   async getAvailableCouriers(zoneCode?: string) {
     return this.listCouriers({
-      status: "AVAILABLE",
-      is_active: true,
+      status: CourierStatus.AVAILABLE,
       ...(zoneCode && { service_area: { $contains: zoneCode } }),
     })
   }
@@ -120,7 +122,7 @@ class FoodDistributionService extends MedusaService({
       id: courierId,
       current_latitude: latitude,
       current_longitude: longitude,
-      last_location_update: new Date(),
+      location_updated_at: new Date(),
     })
   }
   
@@ -128,10 +130,6 @@ class FoodDistributionService extends MedusaService({
    * Start courier shift
    */
   async startCourierShift(courierId: string, shiftId?: string) {
-    const updateData: any = {
-      status: "AVAILABLE",
-    }
-    
     if (shiftId) {
       await this.updateCourierShifts({
         id: shiftId,
@@ -139,7 +137,7 @@ class FoodDistributionService extends MedusaService({
       })
     }
     
-    return this.updateCouriers({ id: courierId, ...updateData })
+    return this.updateCouriers({ id: courierId, status: CourierStatus.AVAILABLE })
   }
   
   /**
@@ -153,7 +151,7 @@ class FoodDistributionService extends MedusaService({
       })
     }
     
-    return this.updateCouriers({ id: courierId, status: "OFFLINE" })
+    return this.updateCouriers({ id: courierId, status: CourierStatus.OFFLINE })
   }
   
   // ===========================================
@@ -173,16 +171,15 @@ class FoodDistributionService extends MedusaService({
     const order = await this.createFoodOrders({
       ...orderData,
       order_number: orderNumber,
-      created_at: new Date(),
+      ordered_at: new Date(),
     })
     
     // Create items
     const createdItems = await Promise.all(
-      items.map((item, index) =>
+      items.map((item) =>
         this.createFoodOrderItems({
           ...item,
-          order_id: order.id,
-          sequence: index + 1,
+          order: order.id,
         })
       )
     )
@@ -196,7 +193,7 @@ class FoodDistributionService extends MedusaService({
   async getProducerOrders(
     producerId: string,
     status?: string,
-    options?: { limit?: number; offset?: number }
+    options?: { take?: number; skip?: number }
   ) {
     return this.listFoodOrders(
       {
@@ -241,14 +238,13 @@ class FoodDistributionService extends MedusaService({
     
     const deliveryNumber = `DEL-${Date.now().toString(36).toUpperCase()}`
     
-    const delivery = await this.createFoodDeliverys({
+    const delivery = await this.createFoodDeliveries({
       ...deliveryData,
       order_id: orderId,
       producer_id: order.producer_id,
       delivery_number: deliveryNumber,
-      created_at: new Date(),
-      status_history: [{ status: "PENDING", timestamp: new Date() }],
-    })
+      status_history: { entries: [{ status: DeliveryStatus.PENDING, timestamp: new Date().toISOString() }] },
+    } as any)
     
     // Log event
     await this.logDeliveryEvent(delivery.id, {
@@ -265,13 +261,13 @@ class FoodDistributionService extends MedusaService({
    */
   async assignCourierToDelivery(deliveryId: string, courierId: string) {
     // Update courier status
-    await this.updateCouriers({ id: courierId, status: "ON_DELIVERY" })
+    await this.updateCouriers({ id: courierId, status: CourierStatus.ON_DELIVERY })
     
     // Update delivery
-    const delivery = await this.updateFoodDeliverys({
+    const delivery = await this.updateFoodDeliveries({
       id: deliveryId,
       courier_id: courierId,
-      status: "ASSIGNED",
+      status: DeliveryStatus.ASSIGNED,
       assigned_at: new Date(),
     })
     
@@ -292,17 +288,19 @@ class FoodDistributionService extends MedusaService({
    */
   async updateDeliveryStatus(
     deliveryId: string,
-    status: string,
+    status: DeliveryStatus,
     location?: { latitude: number; longitude: number },
     notes?: string
   ) {
     const delivery = await this.retrieveFoodDelivery(deliveryId)
     if (!delivery) throw new Error("Delivery not found")
     
-    const statusHistory = (delivery.status_history as any[]) || []
-    statusHistory.push({
+    // Parse existing status history
+    const existingHistory = delivery.status_history as { entries?: any[] } | null
+    const statusEntries = existingHistory?.entries || []
+    statusEntries.push({
       status,
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
       ...(location && { location }),
       ...(notes && { note: notes }),
     })
@@ -310,21 +308,23 @@ class FoodDistributionService extends MedusaService({
     const updateData: Record<string, any> = {
       id: deliveryId,
       status,
-      status_history: statusHistory,
+      status_history: { entries: statusEntries },
     }
     
     // Update timestamps based on status
-    if (status === "COURIER_EN_ROUTE_PICKUP") {
+    if (status === DeliveryStatus.COURIER_EN_ROUTE_PICKUP) {
       updateData.courier_departed_for_pickup_at = new Date()
-    } else if (status === "COURIER_ARRIVED_PICKUP") {
+    } else if (status === DeliveryStatus.COURIER_ARRIVED_PICKUP) {
       updateData.courier_arrived_at_pickup_at = new Date()
-    } else if (status === "ORDER_PICKED_UP") {
+    } else if (status === DeliveryStatus.ORDER_PICKED_UP) {
       updateData.picked_up_at = new Date()
-    } else if (status === "EN_ROUTE_DELIVERY") {
+    } else if (status === DeliveryStatus.EN_ROUTE_DELIVERY) {
       updateData.departed_for_delivery_at = new Date()
-    } else if (status === "ARRIVED_AT_DESTINATION") {
+    } else if (status === DeliveryStatus.ARRIVED_AT_DESTINATION) {
       updateData.arrived_at_delivery_at = new Date()
-    } else if (status === "DELIVERED" || status.startsWith("DELIVERED_")) {
+    } else if (status === DeliveryStatus.DELIVERED || 
+               status === DeliveryStatus.DELIVERED_TO_NEIGHBOR || 
+               status === DeliveryStatus.DELIVERED_TO_SAFE_PLACE) {
       updateData.delivered_at = new Date()
     }
     
@@ -332,10 +332,9 @@ class FoodDistributionService extends MedusaService({
     if (location) {
       updateData.last_known_latitude = location.latitude
       updateData.last_known_longitude = location.longitude
-      updateData.last_location_update = new Date()
     }
     
-    const updated = await this.updateFoodDeliverys(updateData)
+    const updated = await this.updateFoodDeliveries(updateData)
     
     // Log event
     await this.logDeliveryEvent(deliveryId, {
@@ -366,28 +365,28 @@ class FoodDistributionService extends MedusaService({
       notes?: string
     }
   ) {
-    const delivery = await this.updateFoodDeliverys({
+    const delivery = await this.updateFoodDeliveries({
       id: deliveryId,
-      proof_type: proofType,
+      proof_type: proofType as any,
       proof_photo_url: proofData.photoUrl,
       proof_signature_url: proofData.signatureUrl,
       proof_pin_code: proofData.pinCode,
       proof_recipient_name: proofData.recipientName,
       proof_notes: proofData.notes,
-      status: "DELIVERED",
+      status: DeliveryStatus.DELIVERED,
       delivered_at: new Date(),
     })
     
     // Log event
     await this.logDeliveryEvent(deliveryId, {
       event_type: "proof_of_delivery",
-      new_status: "DELIVERED",
+      new_status: DeliveryStatus.DELIVERED,
       description: `Delivery completed with ${proofType} proof`,
     })
     
     // Free up courier
     if (delivery.courier_id) {
-      await this.updateCouriers({ id: delivery.courier_id, status: "AVAILABLE" })
+      await this.updateCouriers({ id: delivery.courier_id, status: CourierStatus.AVAILABLE })
     }
     
     return delivery
@@ -400,11 +399,11 @@ class FoodDistributionService extends MedusaService({
     deliveryId: string,
     eventData: {
       event_type: string
-      previous_status?: string
-      new_status?: string
+      previous_status?: string | DeliveryStatus
+      new_status?: string | DeliveryStatus
       latitude?: number
       longitude?: number
-      actor_type?: string
+      actor_type?: "COURIER" | "CUSTOMER" | "PRODUCER" | "ADMIN" | "SYSTEM"
       actor_id?: string
       description?: string
       metadata?: Record<string, any>
@@ -412,7 +411,7 @@ class FoodDistributionService extends MedusaService({
   ) {
     return this.createDeliveryEvents({
       ...eventData,
-      delivery_id: deliveryId,
+      delivery: deliveryId,
       occurred_at: new Date(),
     })
   }
@@ -430,21 +429,22 @@ class FoodDistributionService extends MedusaService({
     const delivery = await this.retrieveFoodDelivery(deliveryId)
     if (!delivery) throw new Error("Delivery not found")
     
-    const routeTracking = (delivery.route_tracking as any[]) || []
-    routeTracking.push({
+    // Parse existing route tracking
+    const existingRoutes = delivery.route_tracking as { points?: any[] } | null
+    const routePoints = existingRoutes?.points || []
+    routePoints.push({
       lat: latitude,
       lng: longitude,
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
       ...(speed && { speed }),
       ...(heading && { heading }),
     })
     
-    return this.updateFoodDeliverys({
+    return this.updateFoodDeliveries({
       id: deliveryId,
-      route_tracking: routeTracking,
+      route_tracking: { points: routePoints },
       last_known_latitude: latitude,
       last_known_longitude: longitude,
-      last_location_update: new Date(),
     })
   }
   
@@ -463,20 +463,22 @@ class FoodDistributionService extends MedusaService({
   ) {
     const batchNumber = `BATCH-${Date.now().toString(36).toUpperCase()}`
     
-    const batch = await this.createDeliveryBatchs({
+    // Batch status type-safe assignment
+    const batchStatus: "PLANNING" | "ASSIGNED" = courierId ? "ASSIGNED" : "PLANNING"
+    
+    const batch = await this.createDeliveryBatches({
       batch_number: batchNumber,
       courier_id: courierId,
-      status: courierId ? "ASSIGNED" : "PLANNING",
-      created_at: new Date(),
+      status: batchStatus,
       total_deliveries: deliveryIds.length,
       is_community_run: isCommunityRun || false,
       community_org_id: communityOrgId,
-    })
+    } as any)
     
     // Update all deliveries
     await Promise.all(
       deliveryIds.map((id, index) =>
-        this.updateFoodDeliverys({
+        this.updateFoodDeliveries({
           id,
           batch_id: batch.id,
           batch_sequence: index + 1,

@@ -1,7 +1,8 @@
 import { z } from "zod"
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { FOOD_DISTRIBUTION_MODULE } from "../../../../../modules/food-distribution"
-import type FoodDistributionService from "../../../../../modules/food-distribution/service"
+import { FOOD_DISTRIBUTION_MODULE } from "../../../../modules/food-distribution"
+import type FoodDistributionService from "../../../../modules/food-distribution/service"
+import { DeliveryStatus } from "../../../../modules/food-distribution/models/delivery"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -116,7 +117,7 @@ export async function PUT(req: MedusaRequest, res: MedusaResponse) {
       
       delivery = await foodDistribution.updateDeliveryStatus(
         id,
-        data.status,
+        data.status as DeliveryStatus,
         location,
         data.notes
       )
@@ -136,7 +137,7 @@ export async function PUT(req: MedusaRequest, res: MedusaResponse) {
         updateData.customer_feedback = data.customer_feedback
       }
       
-      delivery = await foodDistribution.updateFoodDeliverys(updateData)
+      delivery = await foodDistribution.updateFoodDeliveries(updateData)
     }
     
     res.json({ delivery })

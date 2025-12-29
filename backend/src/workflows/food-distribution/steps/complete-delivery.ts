@@ -1,6 +1,8 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
-import { FOOD_DISTRIBUTION_MODULE } from "../../../../modules/food-distribution"
-import type FoodDistributionService from "../../../../modules/food-distribution/service"
+import { FOOD_DISTRIBUTION_MODULE } from "../../../modules/food-distribution"
+import type FoodDistributionService from "../../../modules/food-distribution/service"
+import { FoodOrderStatus } from "../../../modules/food-distribution/models/food-order"
+import { CourierStatus } from "../../../modules/food-distribution/models/courier"
 
 type CompleteDeliveryInput = {
   delivery_id: string
@@ -29,27 +31,27 @@ export const completeDeliveryStep = createStep(
     const durationMinutes = Math.round((deliveredAt.getTime() - createdAt.getTime()) / 60000)
 
     // Update delivery as completed
-    await foodDistribution.updateFoodDeliverys({
+    await foodDistribution.updateFoodDeliveries({
       id: input.delivery_id,
       actual_duration_minutes: durationMinutes,
-    })
+    } as any)
 
     // Update order as completed
     await foodDistribution.updateFoodOrders({
       id: input.order_id,
-      status: "COMPLETED",
+      status: FoodOrderStatus.COMPLETED,
       completed_at: new Date(),
-    })
+    } as any)
 
     // Update courier stats
     const courier = await foodDistribution.retrieveCourier(input.courier_id)
     if (courier) {
       await foodDistribution.updateCouriers({
         id: input.courier_id,
-        status: "AVAILABLE",
+        status: CourierStatus.AVAILABLE,
         total_deliveries: (courier.total_deliveries || 0) + 1,
         total_earnings: (Number(courier.total_earnings) || 0) + (Number(delivery.courier_earnings) || 0),
-      })
+      } as any)
     }
 
     // Log completion

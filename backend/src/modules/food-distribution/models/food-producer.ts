@@ -187,6 +187,9 @@ export const FoodProducer = model.define("food_producer", {
   
   // Metadata
   metadata: model.json().nullable(),
+  
+  // Relation to admins (hasMany)
+  admins: model.hasMany(() => FoodProducerAdmin, { mappedBy: "producer" }),
 })
   .indexes([
     { on: ["seller_id"], name: "IDX_food_producer_seller" },
@@ -199,6 +202,9 @@ export const FoodProducer = model.define("food_producer", {
     { on: ["accepts_donations"], name: "IDX_food_producer_donations" },
     { on: ["donation_only"], name: "IDX_food_producer_donation_only" },
   ])
+  .cascades({
+    delete: ["admins"],
+  })
 
 /**
  * Food Producer Admin
@@ -227,9 +233,4 @@ export const FoodProducerAdmin = model.define("food_producer_admin", {
   
   // Avatar
   avatar_url: model.text().nullable(),
-})
-
-// Add relation to FoodProducer
-export const FoodProducerWithRelations = FoodProducer.cascades({
-  delete: ["admins"],
 })

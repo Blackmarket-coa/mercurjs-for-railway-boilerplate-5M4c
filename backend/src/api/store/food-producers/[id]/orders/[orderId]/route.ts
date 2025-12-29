@@ -2,6 +2,7 @@ import { z } from "zod"
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { FOOD_DISTRIBUTION_MODULE } from "../../../../../../modules/food-distribution"
 import type FoodDistributionService from "../../../../../../modules/food-distribution/service"
+import { DeliveryStatus } from "../../../../../../modules/food-distribution/models/delivery"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -62,7 +63,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const items = await foodDistribution.listFoodOrderItems({ order_id: orderId })
   
   // Get delivery if exists
-  const deliveries = await foodDistribution.listFoodDeliverys({ order_id: orderId })
+  const deliveries = await foodDistribution.listFoodDeliveries({ order_id: orderId })
   const delivery = deliveries[0] || null
   
   res.json({
@@ -166,11 +167,11 @@ export async function PUT(req: MedusaRequest, res: MedusaResponse) {
     
     // If order is ready, update delivery status
     if (data.status === "READY") {
-      const deliveries = await foodDistribution.listFoodDeliverys({ order_id: orderId })
+      const deliveries = await foodDistribution.listFoodDeliveries({ order_id: orderId })
       if (deliveries.length > 0) {
         await foodDistribution.updateDeliveryStatus(
           deliveries[0].id,
-          "WAITING_FOR_ORDER",
+          DeliveryStatus.WAITING_FOR_ORDER,
           undefined,
           "Order is ready for pickup"
         )

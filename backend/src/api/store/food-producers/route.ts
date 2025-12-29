@@ -1,7 +1,8 @@
 import { z } from "zod"
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { FOOD_DISTRIBUTION_MODULE } from "../../../../modules/food-distribution"
-import type FoodDistributionService from "../../../../modules/food-distribution/service"
+import { FOOD_DISTRIBUTION_MODULE } from "../../../modules/food-distribution"
+import type FoodDistributionService from "../../../modules/food-distribution/service"
+import { OperatingStatus } from "../../../modules/food-distribution/models/food-producer"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -114,7 +115,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     const filters: Record<string, any> = {}
     
     if (query.producer_type) filters.producer_type = query.producer_type
-    if (query.is_active !== undefined) filters.is_active = query.is_active
+    if (query.is_active !== undefined) filters.operating_status = query.is_active ? OperatingStatus.ACCEPTING_ORDERS : OperatingStatus.CLOSED
     if (query.accepts_donations !== undefined) filters.accepts_donations = query.accepts_donations
     if (query.accepts_trades !== undefined) filters.accepts_trades = query.accepts_trades
     if (query.offers_delivery !== undefined) filters.offers_delivery = query.offers_delivery
@@ -164,10 +165,9 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     
     const producer = await foodDistribution.createFoodProducers({
       ...data,
-      is_active: true,
-      is_verified: false,
-      created_at: new Date(),
-    })
+      operating_status: OperatingStatus.ACCEPTING_ORDERS,
+      verified: false,
+    } as any)
     
     res.status(201).json({ producer })
   } catch (error) {

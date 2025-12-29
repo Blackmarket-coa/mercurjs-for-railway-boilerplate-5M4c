@@ -1,6 +1,8 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
-import { FOOD_DISTRIBUTION_MODULE } from "../../../../modules/food-distribution"
-import type FoodDistributionService from "../../../../modules/food-distribution/service"
+import { FOOD_DISTRIBUTION_MODULE } from "../../../modules/food-distribution"
+import type FoodDistributionService from "../../../modules/food-distribution/service"
+import { FoodOrderStatus } from "../../../modules/food-distribution/models/food-order"
+import { DeliveryStatus } from "../../../modules/food-distribution/models/delivery"
 
 type AwaitPickupInput = {
   delivery_id: string
@@ -49,7 +51,7 @@ export const confirmPickupStep = createStep(
     // Update delivery status
     await foodDistribution.updateDeliveryStatus(
       input.delivery_id,
-      "ORDER_PICKED_UP",
+      DeliveryStatus.ORDER_PICKED_UP,
       location,
       "Order picked up by courier"
     )
@@ -57,8 +59,8 @@ export const confirmPickupStep = createStep(
     // Update order status
     await foodDistribution.updateFoodOrders({
       id: input.order_id,
-      status: "OUT_FOR_DELIVERY",
-    })
+      status: FoodOrderStatus.OUT_FOR_DELIVERY,
+    } as any)
 
     return new StepResponse({ picked_up: true })
   }

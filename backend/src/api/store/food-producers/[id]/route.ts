@@ -1,7 +1,8 @@
 import { z } from "zod"
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { FOOD_DISTRIBUTION_MODULE } from "../../../../../modules/food-distribution"
-import type FoodDistributionService from "../../../../../modules/food-distribution/service"
+import { FOOD_DISTRIBUTION_MODULE } from "../../../../modules/food-distribution"
+import type FoodDistributionService from "../../../../modules/food-distribution/service"
+import { OperatingStatus } from "../../../../modules/food-distribution/models/food-producer"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -120,8 +121,7 @@ export async function PUT(req: MedusaRequest, res: MedusaResponse) {
     const producer = await foodDistribution.updateFoodProducers({
       id,
       ...data,
-      updated_at: new Date(),
-    })
+    } as any)
     
     res.json({ producer })
   } catch (error) {
@@ -152,9 +152,8 @@ export async function DELETE(req: MedusaRequest, res: MedusaResponse) {
   // Soft delete by deactivating
   await foodDistribution.updateFoodProducers({
     id,
-    is_active: false,
-    updated_at: new Date(),
-  })
+    operating_status: OperatingStatus.CLOSED,
+  } as any)
   
   res.status(200).json({ success: true, id })
 }

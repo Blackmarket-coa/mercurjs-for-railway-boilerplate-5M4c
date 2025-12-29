@@ -1,7 +1,8 @@
 import { z } from "zod"
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { FOOD_DISTRIBUTION_MODULE } from "../../../../../modules/food-distribution"
-import type FoodDistributionService from "../../../../../modules/food-distribution/service"
+import { FOOD_DISTRIBUTION_MODULE } from "../../../../modules/food-distribution"
+import type FoodDistributionService from "../../../../modules/food-distribution/service"
+import { CourierStatus } from "../../../../modules/food-distribution/models/courier"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -71,7 +72,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   }
   
   // Get current active delivery if any
-  const activeDeliveries = await foodDistribution.listFoodDeliverys({
+  const activeDeliveries = await foodDistribution.listFoodDeliveries({
     courier_id: id,
     status: { $in: ["ASSIGNED", "COURIER_EN_ROUTE_PICKUP", "COURIER_ARRIVED_PICKUP", "ORDER_PICKED_UP", "EN_ROUTE_DELIVERY", "ARRIVED_AT_DESTINATION", "ATTEMPTING_DELIVERY"] },
   })
@@ -115,8 +116,7 @@ export async function PUT(req: MedusaRequest, res: MedusaResponse) {
     const courier = await foodDistribution.updateCouriers({
       id,
       ...data,
-      updated_at: new Date(),
-    })
+    } as any)
     
     res.json({ courier })
   } catch (error) {
@@ -151,7 +151,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       res.status(400).json({ message: "Courier is not available" })
       return
     }
-    if (!courier.is_active) {
+    if (!courier.active) {
       res.status(400).json({ message: "Courier account is not active" })
       return
     }
@@ -200,7 +200,7 @@ export async function DELETE(req: MedusaRequest, res: MedusaResponse) {
   }
   
   // Check no active deliveries
-  const activeDeliveries = await foodDistribution.listFoodDeliverys({
+  const activeDeliveries = await foodDistribution.listFoodDeliveries({
     courier_id: id,
     status: { $in: ["ASSIGNED", "COURIER_EN_ROUTE_PICKUP", "COURIER_ARRIVED_PICKUP", "ORDER_PICKED_UP", "EN_ROUTE_DELIVERY"] },
   })
@@ -213,10 +213,9 @@ export async function DELETE(req: MedusaRequest, res: MedusaResponse) {
   // Soft delete
   await foodDistribution.updateCouriers({
     id,
-    is_active: false,
-    status: "OFFLINE",
-    updated_at: new Date(),
-  })
+    active: false,
+    status: CourierStatus.OFFLINE,
+  } as any)
   
   res.json({ success: true, id })
 }

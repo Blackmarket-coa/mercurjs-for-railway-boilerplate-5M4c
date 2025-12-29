@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { FOOD_DISTRIBUTION_MODULE } from "../../../../../modules/food-distribution"
-import type FoodDistributionService from "../../../../../modules/food-distribution/service"
+import { FOOD_DISTRIBUTION_MODULE } from "../../../../modules/food-distribution"
+import type FoodDistributionService from "../../../../modules/food-distribution/service"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -158,7 +158,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     }
     
     // Calculate delivery fee if inside
-    let deliveryFee = null
+    let deliveryFee: number | null = null
     if (inside) {
       // Calculate distance from center
       const R = 3959 // Earth radius in miles
