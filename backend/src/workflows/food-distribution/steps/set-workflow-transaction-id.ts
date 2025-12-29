@@ -13,7 +13,7 @@ export const setWorkflowTransactionIdStep = createStep(
   async (input: SetWorkflowTransactionIdInput, { container }) => {
     const foodDistribution = container.resolve<FoodDistributionService>(FOOD_DISTRIBUTION_MODULE)
 
-    await foodDistribution.updateFoodDeliverys({
+    await foodDistribution.updateFoodDeliveries({
       id: input.delivery_id,
       workflow_transaction_id: input.transaction_id,
     })
