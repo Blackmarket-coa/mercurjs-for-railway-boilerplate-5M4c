@@ -76,7 +76,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     })
 
     // Submit to Stellar
-    let stellarResult = null
+    let stellarResult: { txHash: string; ledgerSequence: number; feePaid: number; merkleRoot: string } | null = null
     try {
       const stellarService = createStellarSettlementService()
       stellarResult = await stellarService.submitSettlementBatch({
@@ -95,12 +95,12 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       // Update batch with Stellar info
       await hawalaService.updateSettlementBatches({
         id: batch.id,
-        merkle_root: stellarResult.merkleRoot,
-        stellar_tx_hash: stellarResult.txHash,
-        stellar_ledger_sequence: stellarResult.ledgerSequence,
-        stellar_fee_paid: stellarResult.feePaid,
-        status: "COMPLETED",
-        settled_at: new Date(),
+        merkle_root: stellarResult!.merkleRoot,
+        stellar_tx_hash: stellarResult!.txHash,
+        stellar_ledger_sequence: stellarResult!.ledgerSequence,
+        stellar_fee_paid: stellarResult!.feePaid,
+        status: "CONFIRMED",
+        confirmed_at: new Date(),
       })
 
       // Update entries with batch reference
@@ -109,6 +109,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
           id: entry.id,
           settlement_batch_id: batch.id,
           status: "SETTLED",
+          settled_at: new Date(),
         })
       }
     } catch (stellarError) {

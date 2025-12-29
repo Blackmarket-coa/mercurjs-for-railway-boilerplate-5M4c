@@ -56,14 +56,16 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
 
     // Save bank account to ledger
     const bankAccount = await hawalaService.createBankAccounts({
-      customer_id: customerId,
+      owner_type: "CUSTOMER" as const,
+      owner_id: customerId,
       ledger_account_id: walletId,
       stripe_customer_id: stripe_customer_id,
+      stripe_bank_account_id: result.paymentMethodId,
       stripe_payment_method_id: result.paymentMethodId,
       bank_name: result.bankName,
-      account_last_four: result.last4,
-      account_type: "checking",
-      verification_status: "VERIFIED",
+      last_four: result.last4,
+      account_type: "CHECKING" as const,
+      verification_status: "VERIFIED" as const,
       is_default: true,
     })
 

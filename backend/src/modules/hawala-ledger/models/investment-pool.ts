@@ -35,9 +35,13 @@ export const InvestmentPool = model.define("hawala_investment_pool", {
     "HYBRID",           // Combination
   ]).default("REVENUE_SHARE"),
   roi_rate: model.float().nullable(), // For FIXED_RATE: annual percentage
+  fixed_roi_rate: model.float().nullable(), // Fixed ROI rate alias
   revenue_share_percentage: model.float().nullable(), // For REVENUE_SHARE
+  product_credit_multiplier: model.float().nullable(), // For PRODUCT_CREDIT
   
   // Timeline
+  start_date: model.dateTime().nullable(), // Pool start date
+  end_date: model.dateTime().nullable(), // Pool end date
   fundraising_start: model.dateTime().nullable(),
   fundraising_end: model.dateTime().nullable(),
   maturity_date: model.dateTime().nullable(), // When investments mature

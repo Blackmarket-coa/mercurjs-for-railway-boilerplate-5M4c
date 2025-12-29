@@ -32,6 +32,7 @@ export const BankAccount = model.define("hawala_bank_account", {
     "VERIFIED",
     "VERIFICATION_FAILED",
     "ERRORED",
+    "DISCONNECTED",
   ]).default("PENDING"),
   
   // For micro-deposit verification
@@ -92,6 +93,7 @@ export const AchTransaction = model.define("hawala_ach_transaction", {
     "PENDING",
     "PROCESSING",
     "SUCCEEDED",
+    "COMPLETED",
     "FAILED",
     "CANCELED",
     "DISPUTED",
@@ -100,6 +102,7 @@ export const AchTransaction = model.define("hawala_ach_transaction", {
   // ACH-specific
   ach_return_code: model.text().nullable(), // R01, R02, etc. if returned
   failure_reason: model.text().nullable(),
+  failed_at: model.dateTime().nullable(),
   
   // Settlement timeline
   expected_settlement_date: model.dateTime().nullable(),

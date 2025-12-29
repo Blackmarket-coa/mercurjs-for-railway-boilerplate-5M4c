@@ -67,10 +67,10 @@ export class StellarSettlementService {
       for (let i = 0; i < hashes.length; i += 2) {
         const left = hashes[i]
         const right = hashes[i + 1] || left // Duplicate last if odd
-        const combined = Buffer.concat([left, right])
+        const combined = Buffer.concat([left as Buffer, right as Buffer])
         newLevel.push(createHash("sha256").update(combined).digest())
       }
-      hashes = newLevel
+      hashes = newLevel as any
     }
 
     return hashes[0].toString("hex")

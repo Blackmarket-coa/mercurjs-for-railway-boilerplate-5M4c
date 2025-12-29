@@ -34,6 +34,7 @@ export const SettlementBatch = model.define("hawala_settlement_batch", {
     "PROCESSING",   // Settlement in progress
     "SUBMITTED",    // Submitted to Stellar
     "CONFIRMED",    // Confirmed on blockchain
+    "COMPLETED",    // Settlement completed
     "FAILED",       // Settlement failed
   ]).default("PENDING"),
   

@@ -24,7 +24,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
     // Get settlement stats
     const settlements = await hawalaService.listSettlementBatches({})
-    const completedSettlements = settlements.filter(s => s.status === "COMPLETED")
+    const completedSettlements = settlements.filter(s => s.status === "CONFIRMED" || s.status === "COMPLETED")
     const totalSettledVolume = completedSettlements.reduce(
       (sum, s) => sum + Number(s.total_volume),
       0

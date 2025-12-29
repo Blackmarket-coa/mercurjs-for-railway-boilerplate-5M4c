@@ -1,4 +1,4 @@
-import { SubscriberArgs, SchedulerArgs, MedusaContainer } from "@medusajs/framework"
+import { MedusaContainer } from "@medusajs/framework/types"
 import { HAWALA_LEDGER_MODULE } from "../modules/hawala-ledger"
 import HawalaLedgerModuleService from "../modules/hawala-ledger/service"
 import { createStellarSettlementService } from "../modules/hawala-ledger/stellar-settlement"
@@ -76,8 +76,8 @@ export default async function hawalaSettlementJob(container: MedusaContainer) {
         stellar_tx_hash: stellarResult.txHash,
         stellar_ledger_sequence: stellarResult.ledgerSequence,
         stellar_fee_paid: stellarResult.feePaid,
-        status: "COMPLETED",
-        settled_at: new Date(),
+        status: "CONFIRMED" as const,
+        confirmed_at: new Date(),
       })
 
       // Update all entries with batch reference
@@ -85,7 +85,8 @@ export default async function hawalaSettlementJob(container: MedusaContainer) {
         await hawalaService.updateLedgerEntries({
           id: entry.id,
           settlement_batch_id: batch.id,
-          status: "SETTLED",
+          status: "SETTLED" as const,
+          settled_at: new Date(),
         })
       }
 

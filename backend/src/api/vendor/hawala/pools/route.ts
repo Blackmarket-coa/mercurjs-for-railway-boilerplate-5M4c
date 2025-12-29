@@ -107,7 +107,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       ledger_account_id: poolAccount.id,
       target_amount,
       minimum_investment: minimum_investment || 1,
-      roi_type,
+      roi_type: roi_type as "FIXED_RATE" | "REVENUE_SHARE" | "PRODUCT_CREDIT" | "HYBRID",
       fixed_roi_rate,
       revenue_share_percentage,
       product_credit_multiplier,

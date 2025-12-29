@@ -39,12 +39,17 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   try {
     // Get bank account
     const bankAccount = await hawalaService.retrieveBankAccount(bank_account_id)
-    if (!bankAccount || bankAccount.customer_id !== customerId) {
+    if (!bankAccount || bankAccount.owner_id !== customerId) {
       return res.status(404).json({ error: "Bank account not found" })
     }
 
     if (bankAccount.verification_status !== "VERIFIED") {
       return res.status(400).json({ error: "Bank account is not verified" })
+    }
+
+    // Validate required fields
+    if (!bankAccount.stripe_payment_method_id || !bankAccount.ledger_account_id) {
+      return res.status(400).json({ error: "Bank account is not fully configured" })
     }
 
     const achService = createStripeAchService()
@@ -67,14 +72,13 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     const achTransaction = await hawalaService.createAchTransactions({
       bank_account_id: bank_account_id,
       ledger_account_id: bankAccount.ledger_account_id,
-      transaction_type: "DEPOSIT",
+      transaction_type: "DEPOSIT" as const,
       amount: amount,
-      fee: fee,
+      stripe_fee: fee,
       net_amount: netAmount,
       currency_code: "USD",
       stripe_payment_intent_id: depositResult.paymentIntentId,
-      status: depositResult.status === "succeeded" ? "COMPLETED" : "PENDING",
-      initiated_at: new Date(),
+      status: depositResult.status === "succeeded" ? "SUCCEEDED" : "PENDING",
     })
 
     // If payment succeeded immediately, credit the ledger
@@ -89,8 +93,8 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
 
       await hawalaService.updateAchTransactions({
         id: achTransaction.id,
-        status: "COMPLETED",
-        completed_at: new Date(),
+        status: "SUCCEEDED" as const,
+        actual_settlement_date: new Date(),
       })
     }
 

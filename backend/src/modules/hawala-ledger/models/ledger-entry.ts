@@ -46,6 +46,7 @@ export const LedgerEntry = model.define("hawala_ledger_entry", {
   status: model.enum([
     "PENDING",
     "COMPLETED",
+    "SETTLED",
     "FAILED",
     "REVERSED",
   ]).default("PENDING"),

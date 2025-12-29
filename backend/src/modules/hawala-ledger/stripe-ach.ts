@@ -34,9 +34,7 @@ export class StripeAchService {
   private config: AchConfig
 
   constructor(config: AchConfig) {
-    this.stripe = new Stripe(config.stripeSecretKey, {
-      apiVersion: "2024-06-20",
-    })
+    this.stripe = new Stripe(config.stripeSecretKey)
     this.config = config
   }
 
@@ -139,6 +137,7 @@ export class StripeAchService {
 
   /**
    * Create manual bank account (requires micro-deposit verification)
+   * Note: In production, use Stripe.js to tokenize bank account details
    */
   async createManualBankAccount(data: {
     stripeCustomerId: string
@@ -150,21 +149,26 @@ export class StripeAchService {
     bankAccountId: string
     verificationStatus: string
   }> {
-    const bankAccount = await this.stripe.customers.createSource(data.stripeCustomerId, {
-      source: {
-        object: "bank_account",
-        country: "US",
-        currency: "usd",
-        account_holder_name: data.accountHolderName,
-        account_holder_type: data.accountHolderType,
-        routing_number: data.routingNumber,
-        account_number: data.accountNumber,
+    // Create a SetupIntent for us_bank_account
+    const setupIntent = await this.stripe.setupIntents.create({
+      customer: data.stripeCustomerId,
+      payment_method_types: ["us_bank_account"],
+      payment_method_data: {
+        type: "us_bank_account",
+        billing_details: {
+          name: data.accountHolderName,
+        },
+        us_bank_account: {
+          account_holder_type: data.accountHolderType,
+          routing_number: data.routingNumber,
+          account_number: data.accountNumber,
+        },
       },
     })
 
     return {
-      bankAccountId: bankAccount.id,
-      verificationStatus: (bankAccount as any).status || "new",
+      bankAccountId: setupIntent.payment_method as string || setupIntent.id,
+      verificationStatus: setupIntent.status || "requires_action",
     }
   }
 

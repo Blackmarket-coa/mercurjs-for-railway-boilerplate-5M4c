@@ -57,8 +57,8 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
             // Update ACH transaction
             await hawalaService.updateAchTransactions({
               id: txn.id,
-              status: "COMPLETED",
-              completed_at: new Date(),
+              status: "SUCCEEDED" as const,
+              actual_settlement_date: new Date(),
             })
           }
         }
@@ -79,8 +79,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
         if (transactions.length > 0) {
           await hawalaService.updateAchTransactions({
             id: transactions[0].id,
-            status: "FAILED",
-            failed_at: new Date(),
+            status: "FAILED" as const,
             failure_reason: paymentIntent.last_payment_error?.message || "Payment failed",
           })
         }
@@ -103,8 +102,8 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
           if (transactions.length > 0) {
             await hawalaService.updateAchTransactions({
               id: transactions[0].id,
-              status: "COMPLETED",
-              completed_at: new Date(),
+              status: "SUCCEEDED" as const,
+              actual_settlement_date: new Date(),
             })
           }
         }
@@ -137,8 +136,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
 
           await hawalaService.updateAchTransactions({
             id: txn.id,
-            status: "FAILED",
-            failed_at: new Date(),
+            status: "FAILED" as const,
             failure_reason: payout.failure_message || "Payout failed",
           })
         }
@@ -158,7 +156,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
         if (bankAccounts.length > 0) {
           await hawalaService.updateBankAccounts({
             id: bankAccounts[0].id,
-            verification_status: "DISCONNECTED",
+            verification_status: "DISCONNECTED" as const,
             is_default: false,
           })
         }
