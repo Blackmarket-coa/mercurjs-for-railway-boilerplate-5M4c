@@ -19,11 +19,9 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   try {
     // Get customer's wallet
     const wallets = await hawalaService.listLedgerAccounts({
-      filters: {
-        account_type: "USER_WALLET",
-        owner_type: "CUSTOMER",
-        owner_id: customerId,
-      },
+      account_type: "USER_WALLET",
+      owner_type: "CUSTOMER",
+      owner_id: customerId,
     })
 
     if (wallets.length === 0) {

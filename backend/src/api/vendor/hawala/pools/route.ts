@@ -17,7 +17,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   try {
     // Get pools where this seller/producer is the owner
     const pools = await hawalaService.listInvestmentPools({
-      filters: { producer_id: sellerId },
+      producer_id: sellerId,
     })
 
     // Get details for each pool
@@ -25,7 +25,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       pools.map(async (pool) => {
         const balance = await hawalaService.getAccountBalance(pool.ledger_account_id)
         const investments = await hawalaService.listInvestments({
-          filters: { pool_id: pool.id },
+          pool_id: pool.id,
         })
 
         const progress = Number(pool.target_amount) > 0

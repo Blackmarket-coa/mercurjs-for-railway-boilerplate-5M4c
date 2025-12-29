@@ -12,14 +12,10 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const { producer_id, limit = "50", offset = "0" } = req.query
 
   try {
-    const filters: Record<string, any> = { status: "ACTIVE" }
-    if (producer_id) filters.producer_id = producer_id
+    const queryFilters: Record<string, any> = { status: "ACTIVE" }
+    if (producer_id) queryFilters.producer_id = producer_id
 
-    const pools = await hawalaService.listInvestmentPools({
-      filters,
-      take: parseInt(limit as string),
-      skip: parseInt(offset as string),
-    })
+    const pools = await hawalaService.listInvestmentPools(queryFilters)
 
     // Get balance and progress for each pool
     const poolsWithProgress = await Promise.all(

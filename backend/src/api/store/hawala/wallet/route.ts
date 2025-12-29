@@ -18,11 +18,9 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   try {
     // Find or create wallet for customer
     let wallets = await hawalaService.listLedgerAccounts({
-      filters: {
-        account_type: "USER_WALLET",
-        owner_type: "CUSTOMER",
-        owner_id: customerId,
-      },
+      account_type: "USER_WALLET",
+      owner_type: "CUSTOMER",
+      owner_id: customerId,
     })
 
     if (wallets.length === 0) {
@@ -59,11 +57,9 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   try {
     // Check if wallet exists
     const existing = await hawalaService.listLedgerAccounts({
-      filters: {
-        account_type: "USER_WALLET",
-        owner_type: "CUSTOMER",
-        owner_id: customerId,
-      },
+      account_type: "USER_WALLET",
+      owner_type: "CUSTOMER",
+      owner_id: customerId,
     })
 
     if (existing.length > 0) {

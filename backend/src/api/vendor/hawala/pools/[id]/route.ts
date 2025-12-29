@@ -28,7 +28,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
     const balance = await hawalaService.getAccountBalance(pool.ledger_account_id)
     const investments = await hawalaService.listInvestments({
-      filters: { pool_id: id },
+      pool_id: id,
     })
 
     res.json({ pool, balance, investments })

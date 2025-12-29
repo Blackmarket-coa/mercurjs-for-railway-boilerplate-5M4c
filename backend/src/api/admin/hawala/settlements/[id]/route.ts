@@ -19,7 +19,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
     // Get entries in this batch
     const entries = await hawalaService.listLedgerEntries({
-      filters: { settlement_batch_id: id },
+      settlement_batch_id: id,
     })
 
     res.json({ batch, entries })

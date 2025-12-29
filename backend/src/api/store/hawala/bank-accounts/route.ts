@@ -17,7 +17,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
   try {
     const bankAccounts = await hawalaService.listBankAccounts({
-      filters: { customer_id: customerId },
+      customer_id: customerId,
     })
 
     res.json({ bank_accounts: bankAccounts })
@@ -61,7 +61,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
 
     // Store or update Stripe customer ID
     const existingAccounts = await hawalaService.listBankAccounts({
-      filters: { customer_id: customerId },
+      customer_id: customerId,
     })
 
     if (method === "financial_connections" || !method) {

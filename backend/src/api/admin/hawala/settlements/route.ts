@@ -16,14 +16,10 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     offset = "0",
   } = req.query
 
-  const filters: Record<string, any> = {}
-  if (status) filters.status = status
+  const queryFilters: Record<string, any> = {}
+  if (status) queryFilters.status = status
 
-  const batches = await hawalaService.listSettlementBatches({
-    filters,
-    take: parseInt(limit as string),
-    skip: parseInt(offset as string),
-  })
+  const batches = await hawalaService.listSettlementBatches(queryFilters)
 
   res.json({
     batches,
@@ -48,10 +44,8 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   try {
     // Get unsettled entries
     const entries = await hawalaService.listLedgerEntries({
-      filters: {
-        status: "COMPLETED",
-        settlement_batch_id: null,
-      },
+      status: "COMPLETED",
+      settlement_batch_id: null,
     })
 
     if (entries.length === 0) {

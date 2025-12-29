@@ -18,11 +18,9 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   try {
     // Find or create earnings account for seller
     let accounts = await hawalaService.listLedgerAccounts({
-      filters: {
-        account_type: "SELLER_EARNINGS",
-        owner_type: "SELLER",
-        owner_id: sellerId,
-      },
+      account_type: "SELLER_EARNINGS",
+      owner_type: "SELLER",
+      owner_id: sellerId,
     })
 
     if (accounts.length === 0) {

@@ -21,7 +21,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
     // Get investments
     const investments = await hawalaService.listInvestments({
-      filters: { pool_id: id },
+      pool_id: id,
     })
 
     res.json({ pool, balance, investments })

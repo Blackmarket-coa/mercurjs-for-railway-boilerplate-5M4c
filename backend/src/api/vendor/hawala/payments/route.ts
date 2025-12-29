@@ -19,10 +19,10 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     // Get payments sent and received
     const [sent, received] = await Promise.all([
       hawalaService.listVendorPayments({
-        filters: { payer_vendor_id: vendorId },
+        payer_vendor_id: vendorId,
       }),
       hawalaService.listVendorPayments({
-        filters: { payee_vendor_id: vendorId },
+        payee_vendor_id: vendorId,
       }),
     ])
 
