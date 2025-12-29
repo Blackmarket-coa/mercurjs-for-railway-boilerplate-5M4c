@@ -29,9 +29,6 @@ importers:
       '@stripe/stripe-js':
         specifier: ^7.1.0
         version: 7.9.0
-      '@talkjs/react':
-        specifier: ^0.1.11
-        version: 0.1.11(react@19.2.0)(talkjs@0.37.0)
       '@types/js-cookie':
         specifier: ^3.0.6
         version: 3.0.6
@@ -92,9 +89,6 @@ importers:
       tailwind-merge:
         specifier: ^2.6.0
         version: 2.6.0
-      talkjs:
-        specifier: ^0.37.0
-        version: 0.37.0
       uuid:
         specifier: ^11.0.5
         version: 11.1.0
@@ -2954,12 +2948,6 @@ packages:
 
   '@swc/helpers@0.5.17':
     resolution: {integrity: sha512-5IKx/Y13RsYd+sauPb2x+U/xZikHjolzfuDgTAl/Tdf3Q8rslRvC19NKDLgAJQ6wsqADk10ntlv08nPFw/gO/A==}
-
-  '@talkjs/react@0.1.11':
-    resolution: {integrity: sha512-ZJ6vL7Qz5DfPiLZZeISLDXDCpYCdsDQXxR9t8ohNuQ0m1gWqjvaYA8btBZoUYI1dADtgegyVzlu4jZkXkNP1Vg==}
-    peerDependencies:
-      react: '>=17'
-      talkjs: '>=0'
 
   '@tanstack/react-table@8.20.5':
     resolution: {integrity: sha512-WEHopKw3znbUZ61s9i0+i9g8drmDo6asTWbrQh8Us63DAk/M0FkmIqERew6P71HI75ksZ2Pxyuf4vvKh9rAkiA==}
@@ -5931,9 +5919,6 @@ packages:
     resolution: {integrity: sha512-6A2rnmW5xZMdw11LYjhcI5846rt9pbLSabY5XPxo+XWdxwZaFEn47Go4NzFiHu9sNNmr/kXivP1vStfvMaK1GQ==}
     engines: {node: '>=14.0.0'}
     hasBin: true
-
-  talkjs@0.37.0:
-    resolution: {integrity: sha512-oIfCcJ4hY/YXercUPDutKW6ynyNZ8/TQSSarrOrbmuPjuySjCtut1HW/WTHez0MnhbjvgBI/cgJVXf4l3oofSg==}
 
   tapable@2.3.0:
     resolution: {integrity: sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg==}
@@ -9763,12 +9748,6 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@talkjs/react@0.1.11(react@19.2.0)(talkjs@0.37.0)':
-    dependencies:
-      fast-deep-equal: 3.1.3
-      react: 19.2.0
-      talkjs: 0.37.0
-
   '@tanstack/react-table@8.20.5(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@tanstack/table-core': 8.20.5
@@ -13279,8 +13258,6 @@ snapshots:
     transitivePeerDependencies:
       - tsx
       - yaml
-
-  talkjs@0.37.0: {}
 
   tapable@2.3.0: {}
 

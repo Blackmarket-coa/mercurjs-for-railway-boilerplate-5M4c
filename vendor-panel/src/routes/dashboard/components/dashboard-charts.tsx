@@ -23,7 +23,7 @@ import { ChartSkeleton } from "./chart-skeleton"
 import { useState } from "react"
 import { addDays, differenceInDays, format, subDays } from "date-fns"
 import { Calendar } from "../../../components/common/calendar/calendar"
-import { useUnreads } from "@talkjs/react"
+import { useRocketChat } from "../../../providers/rocketchat-provider"
 
 // Quick actions for established vendors
 const QUICK_ACTIONS = [
@@ -127,7 +127,7 @@ export const DashboardCharts = ({
 
   const [filters, setFilters] = useState(["customers", "orders"])
 
-  const unreadMessages = useUnreads()
+  const { unreadCount } = useRocketChat()
 
   const from = (searchParams.get("from") ||
     format(addDays(new Date(), -7), "yyyy-MM-dd")) as unknown as Date
@@ -189,9 +189,9 @@ export const DashboardCharts = ({
           <div>
             <div className="flex items-center gap-2">
               <Heading>Tasks Needing Attention</Heading>
-              {(notFulfilledOrders > 0 || reviewsToReply > 0 || (unreadMessages?.length || 0) > 0) && (
+              {(notFulfilledOrders > 0 || reviewsToReply > 0 || unreadCount > 0) && (
                 <Badge color="red" size="xsmall">
-                  {notFulfilledOrders + reviewsToReply + (unreadMessages?.length || 0)}
+                  {notFulfilledOrders + reviewsToReply + unreadCount}
                 </Badge>
               )}
             </div>
@@ -252,7 +252,7 @@ export const DashboardCharts = ({
               className="w-full justify-between py-4 h-full hover:border-ui-tag-purple-border transition-colors"
             >
               <div className="flex gap-4 items-center">
-                <Badge color={(unreadMessages?.length || 0) > 0 ? "purple" : "grey"}>{unreadMessages?.length || 0}</Badge>
+                <Badge color={unreadCount > 0 ? "purple" : "grey"}>{unreadCount}</Badge>
                 <div className="text-left">
                   <div className="font-medium">Unread messages</div>
                   <div className="text-xs text-ui-fg-subtle">Customer inquiries</div>

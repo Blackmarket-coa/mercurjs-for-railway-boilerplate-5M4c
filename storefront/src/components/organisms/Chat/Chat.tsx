@@ -1,14 +1,13 @@
 "use client"
 
 import { Button } from "@/components/atoms"
-import { ChatBox } from "@/components/cells/ChatBox/ChatBox"
 import { Modal } from "@/components/molecules"
 import { useState } from "react"
 import { HttpTypes } from "@medusajs/types"
 import { SellerProps } from "@/types/seller"
 import { MessageIcon } from "@/icons"
 
-const TALKJS_APP_ID = process.env.NEXT_PUBLIC_TALKJS_APP_ID || ""
+const ROCKETCHAT_URL = process.env.NEXT_PUBLIC_ROCKETCHAT_URL || ""
 
 export const Chat = ({
   user,
@@ -29,9 +28,13 @@ export const Chat = ({
 }) => {
   const [modal, setModal] = useState(false)
 
-  if (!TALKJS_APP_ID) {
+  if (!ROCKETCHAT_URL) {
     return null
   }
+
+  // Build a channel name for the conversation
+  const channelName = `product-${product?.id || order_id}-${user?.id}-${seller?.id}`
+  const iframeUrl = `${ROCKETCHAT_URL}/channel/${channelName}`
 
   return (
     <>
@@ -45,25 +48,14 @@ export const Chat = ({
       {modal && (
         <Modal heading="Chat" onClose={() => setModal(false)}>
           <div className="px-4">
-            <ChatBox
-              order_id={order_id}
-              product_id={product?.id}
-              subject={subject || product?.title || null}
-              currentUser={{
-                id: user?.id || "",
-                name: `${user?.first_name} ${user?.last_name}` || "",
-                email: user?.email || null,
-                photoUrl: "/talkjs-placeholder.jpg",
-                role: "customer",
-              }}
-              supportUser={{
-                id: seller?.id || "",
-                name: seller?.name || "",
-                email: seller?.email || null,
-                photoUrl: seller.photo || "/talkjs-placeholder.jpg",
-                role: "seller",
-              }}
-            />
+            <div className="w-full h-[500px]">
+              <iframe
+                src={iframeUrl}
+                title={`Chat with ${seller?.name || 'Seller'}`}
+                className="w-full h-full border-0 rounded-lg"
+                allow="camera; microphone; fullscreen; display-capture"
+              />
+            </div>
           </div>
         </Modal>
       )}

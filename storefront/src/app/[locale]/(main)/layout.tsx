@@ -1,7 +1,7 @@
 import { Footer, Header } from "@/components/organisms"
 import { retrieveCustomer } from "@/lib/data/customer"
 import { checkRegion } from "@/lib/helpers/check-region"
-import { Session } from "@talkjs/react"
+import { RocketChatProvider } from "@/providers/RocketChatProvider"
 import { redirect } from "next/navigation"
 
 export default async function RootLayout({
@@ -11,7 +11,7 @@ export default async function RootLayout({
   children: React.ReactNode
   params: Promise<{ locale: string }>
 }>) {
-  const APP_ID = process.env.NEXT_PUBLIC_TALKJS_APP_ID
+  const ROCKETCHAT_URL = process.env.NEXT_PUBLIC_ROCKETCHAT_URL
   const { locale } = await params
 
   const user = await retrieveCustomer()
@@ -21,7 +21,7 @@ export default async function RootLayout({
     return redirect("/")
   }
 
-  if (!APP_ID || !user)
+  if (!ROCKETCHAT_URL || !user)
     return (
       <>
         <Header />
@@ -32,11 +32,11 @@ export default async function RootLayout({
 
   return (
     <>
-      <Session appId={APP_ID} userId={user.id}>
+      <RocketChatProvider>
         <Header />
         {children}
         <Footer />
-      </Session>
+      </RocketChatProvider>
     </>
   )
 }

@@ -93,8 +93,8 @@ NEXT_PUBLIC_SITE_DESCRIPTION="Fleek Markeplace"
 NEXT_PUBLIC_ALGOLIA_ID=supersecret
 # Algolia Search API Key
 NEXT_PUBLIC_ALGOLIA_SEARCH_KEY=supersecret
-#TalkJS APP ID
-NEXT_PUBLIC_TALKJS_APP_ID=<your talkjs app id>
+# Rocket.Chat URL for messaging
+NEXT_PUBLIC_ROCKETCHAT_URL=https://your-rocketchat-url.railway.app
 ```
 
 &nbsp;
@@ -111,7 +111,8 @@ npm run dev
 
 #### <a href="https://www.algolia.com/doc/guides/security/api-keys/" target="_blank">How to get Aloglia Keys</a>
 
-#### <a href="https://talkjs.com/docs/Reference/Concepts/Sessions/" target="_blank">How to get TalkJs App ID</a>
+#### Rocket.Chat Setup
+Set up a Rocket.Chat instance (e.g., on Railway) and configure `NEXT_PUBLIC_ROCKETCHAT_URL` with your Rocket.Chat server URL for chat functionality.
 
 ### Configure Algolia index
 

@@ -1,44 +1,49 @@
-import { useCallback } from "react";
+import { Container, Heading, Text } from "@medusajs/ui";
+import { ChatBubbleLeftRight } from "@medusajs/icons";
 
-import { Container, Heading, Label } from "@medusajs/ui";
-
-import { Inbox, Session } from "@talkjs/react";
-import Talk from "talkjs";
-
-import { useTalkJS } from "@hooks/api/messages";
-
-// const TALK_JS_APP_ID = import.meta.env.DEV ? import.meta.env.VITE_TALK_JS_APP_ID || "" : process.env.VITE_TALK_JS_APP_ID || ""
+import { useRocketChat } from "@hooks/api/messages";
 
 export const Messages = () => {
-  const { app_id, isLoading } = useTalkJS();
+  const { isConfigured, rocketChatUrl, isLoading } = useRocketChat();
 
-  const syncUser = useCallback(
-    () =>
-      new Talk.User({
-        id: "admin",
-        name: "Admin",
-      }),
-    [],
-  );
+  // Build iframe URL for admin messages
+  const iframeUrl = rocketChatUrl ? `${rocketChatUrl}/home` : "";
 
   return (
     <Container>
-      <Heading>Messages</Heading>
+      <div className="flex items-center justify-between mb-4">
+        <Heading>Messages</Heading>
+        {isConfigured && rocketChatUrl && (
+          <a
+            href={rocketChatUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-ui-fg-interactive hover:underline text-sm"
+          >
+            Open in new tab
+          </a>
+        )}
+      </div>
       <div className="h-[600px] py-4">
         {isLoading ? (
           <div className="flex h-full items-center justify-center">
             Loading...
           </div>
-        ) : app_id ? (
-          <Session appId={app_id} syncUser={syncUser}>
-            <Inbox className="h-full" />
-          </Session>
+        ) : isConfigured && rocketChatUrl ? (
+          <iframe
+            src={iframeUrl}
+            title="Rocket.Chat Messages"
+            className="w-full h-full border-0 rounded-lg"
+            allow="camera; microphone; fullscreen; display-capture"
+          />
         ) : (
           <div className="flex h-full flex-col items-center justify-center">
-            <Heading>No TalkJS App ID</Heading>
-            <Label className="mt-4">
-              Please set the TALK_JS_APP_ID environment variable
-            </Label>
+            <ChatBubbleLeftRight className="w-12 h-12 text-ui-fg-muted mb-4" />
+            <Heading>Chat Not Configured</Heading>
+            <Text className="mt-4 text-ui-fg-muted text-center max-w-md">
+              Please set the ROCKETCHAT_URL environment variable in your backend
+              to enable chat functionality.
+            </Text>
           </div>
         )}
       </div>

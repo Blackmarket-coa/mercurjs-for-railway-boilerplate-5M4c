@@ -80,7 +80,7 @@ Make a .env.local file and copy the code below
 VITE_MEDUSA_BASE='/'
 VITE_MEDUSA_STOREFRONT_URL=http://localhost:3000
 VITE_MEDUSA_BACKEND_URL=http://localhost:9000
-VITE_TALK_JS_APP_ID=<talkjs public key here>
+VITE_ROCKETCHAT_URL=https://your-rocketchat-url.railway.app
 VITE_DISABLE_SELLERS_REGISTRATION=false
 ```
 
@@ -96,5 +96,5 @@ npm run dev
 
 ## Guides
 
-<a href="https://talkjs.com/docs/Reference/Concepts/Sessions/" target="_blank">How
-to get TalkJs App ID</a>
+#### Rocket.Chat Setup
+Set up a Rocket.Chat instance (e.g., on Railway) and configure `VITE_ROCKETCHAT_URL` with your Rocket.Chat server URL for chat functionality.

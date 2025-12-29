@@ -6,7 +6,7 @@ import {
   LogoutButton,
   NavigationItem,
 } from "@/components/atoms"
-import { useUnreads } from "@talkjs/react"
+import { useRocketChat } from "@/providers/RocketChatProvider"
 import { usePathname } from "next/navigation"
 
 const navigationItems = [
@@ -38,7 +38,7 @@ const navigationItems = [
 ]
 
 export const UserNavigation = () => {
-  const unreads = useUnreads()
+  const { unreadCount } = useRocketChat()
   const path = usePathname()
 
   return (
@@ -51,9 +51,9 @@ export const UserNavigation = () => {
           className="relative"
         >
           {item.label}
-          {item.label === "Messages" && Boolean(unreads?.length) && (
+          {item.label === "Messages" && unreadCount > 0 && (
             <Badge className="absolute top-3 left-24 w-4 h-4 p-0">
-              {unreads?.length}
+              {unreadCount}
             </Badge>
           )}
         </NavigationItem>

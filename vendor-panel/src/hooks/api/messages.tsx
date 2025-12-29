@@ -1,11 +1,16 @@
 import { useQuery } from "@tanstack/react-query"
 import { fetchQuery } from "../../lib/client"
 
-export const useConversationIds = (sellerId: string) => {
+export const useRocketChatConfig = () => {
   const { data, ...rest } = useQuery({
-    queryKey: ["conversations", sellerId],
-    queryFn: async () => await fetchQuery(`/vendor/talkjs`, { method: "GET" }),
+    queryKey: ["rocketchat-config"],
+    queryFn: async () => await fetchQuery(`/vendor/rocketchat`, { method: "GET" }),
   })
 
-  return { ...data, ...rest }
+  return {
+    isConfigured: data?.configured ?? false,
+    rocketChatUrl: data?.url ?? null,
+    iframeUrl: data?.iframe_url ?? null,
+    ...rest
+  }
 }

@@ -82,5 +82,5 @@ npm run dev
 
 ## Guides
 
-<a href="https://talkjs.com/docs/Reference/Concepts/Sessions/" target="_blank">How
-to get TalkJs App ID</a>
+#### Rocket.Chat Setup
+Chat functionality requires a Rocket.Chat instance. Set `ROCKETCHAT_URL` environment variable in the backend to enable messaging.
