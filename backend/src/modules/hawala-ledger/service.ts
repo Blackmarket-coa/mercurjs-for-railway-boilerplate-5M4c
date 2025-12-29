@@ -93,10 +93,8 @@ class HawalaLedgerModuleService extends MedusaService({
    */
   async getOrCreateSystemAccount(accountType: string) {
     const existing = await this.listLedgerAccounts({
-      filters: {
-        account_type: accountType,
-        owner_type: "SYSTEM",
-      },
+      account_type: accountType,
+      owner_type: "SYSTEM",
     })
 
     if (existing.length > 0) {
@@ -522,14 +520,10 @@ class HawalaLedgerModuleService extends MedusaService({
   }) {
     const [debitEntries, creditEntries] = await Promise.all([
       this.listLedgerEntries({
-        filters: { debit_account_id: accountId },
-        take: options?.limit || 50,
-        skip: options?.offset || 0,
+        debit_account_id: accountId,
       }),
       this.listLedgerEntries({
-        filters: { credit_account_id: accountId },
-        take: options?.limit || 50,
-        skip: options?.offset || 0,
+        credit_account_id: accountId,
       }),
     ])
 
@@ -1094,13 +1088,11 @@ class HawalaLedgerModuleService extends MedusaService({
    * Get comprehensive vendor financial dashboard data
    */
   async getVendorDashboard(vendorId: string) {
-    // Get vendor account
+    // Get vendor account using direct filters (not wrapped in filters object)
     const accounts = await this.listLedgerAccounts({
-      filters: {
-        owner_type: "SELLER",
-        owner_id: vendorId,
-        account_type: "SELLER_EARNINGS",
-      },
+      owner_type: "SELLER",
+      owner_id: vendorId,
+      account_type: "SELLER_EARNINGS",
     })
 
     if (accounts.length === 0) {
@@ -1135,29 +1127,25 @@ class HawalaLedgerModuleService extends MedusaService({
 
     // Get pending orders (entries in PENDING status)
     const pendingEntries = await this.listLedgerEntries({
-      filters: {
-        credit_account_id: account.id,
-        status: "PENDING",
-      },
+      credit_account_id: account.id,
+      status: "PENDING",
     })
     const pendingAmount = pendingEntries.reduce((sum, e) => sum + Number(e.amount), 0)
 
     // Get active advance
     const activeAdvances = await this.listVendorAdvances({
-      filters: {
-        vendor_id: vendorId,
-        status: "ACTIVE",
-      },
+      vendor_id: vendorId,
+      status: "ACTIVE",
     })
 
     // Get payout config
     const payoutConfigs = await this.listPayoutConfigs({
-      filters: { vendor_id: vendorId },
+      vendor_id: vendorId,
     })
 
     // Get investment pools
     const pools = await this.listInvestmentPools({
-      filters: { producer_id: vendorId },
+      producer_id: vendorId,
     })
 
     // Calculate daily average for projection
