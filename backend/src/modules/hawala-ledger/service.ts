@@ -1201,8 +1201,8 @@ class HawalaLedgerModuleService extends MedusaService({
 
       // Payout settings - simplified
       payout: payoutConfigs.length > 0 ? {
-        default_tier: payoutConfigs[0].payout_schedule || "WEEKLY",
-        auto_enabled: payoutConfigs[0].auto_payout || false,
+        default_tier: payoutConfigs[0].default_payout_tier || "WEEKLY",
+        auto_enabled: payoutConfigs[0].auto_payout_enabled || false,
       } : null,
 
       // Investment pools - simplified
@@ -1210,7 +1210,7 @@ class HawalaLedgerModuleService extends MedusaService({
         id: p.id,
         name: p.name,
         target: Number(p.target_amount || 0),
-        raised: Number(p.current_amount || 0),
+        raised: Number(p.total_raised || 0),
         status: p.status,
       })),
     }
