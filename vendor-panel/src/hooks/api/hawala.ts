@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { sdk } from "../../lib/sdk"
+import { sdk } from "../../lib/client"
 
 // Custom hook for fetching vendor financial dashboard
 export const useVendorDashboard = () => {
