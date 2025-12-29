@@ -14,8 +14,6 @@ import {
   Container,
   Heading,
   Text,
-  Tabs,
-  Select,
   Input,
   Label,
   toast,
@@ -501,38 +499,32 @@ export const FinancesPage = () => {
         </div>
       </div>
 
-      {/* Tabs for Payouts, Advances, Transactions */}
-      <Tabs defaultValue="payouts">
-        <Tabs.List>
-          <Tabs.Trigger value="payouts">💸 Cash Out</Tabs.Trigger>
-          <Tabs.Trigger value="advances">💵 Get Advance</Tabs.Trigger>
-          <Tabs.Trigger value="transactions">📜 Transactions</Tabs.Trigger>
-        </Tabs.List>
+      {/* Payout Section */}
+      <div className="mb-8">
+        <Heading level="h3" className="mb-4">💸 Cash Out</Heading>
+        <div className="bg-ui-bg-base border border-ui-border-base rounded-lg p-6">
+          <PayoutSection />
+        </div>
+      </div>
 
-        <Tabs.Content value="payouts" className="mt-6">
-          <div className="bg-ui-bg-base border border-ui-border-base rounded-lg p-6">
-            <PayoutSection />
-          </div>
-        </Tabs.Content>
+      {/* Advance Section */}
+      <div className="mb-8">
+        <Heading level="h3" className="mb-4">💵 Get Advance</Heading>
+        <div className="bg-ui-bg-base border border-ui-border-base rounded-lg p-6">
+          <AdvanceSection />
+        </div>
+      </div>
 
-        <Tabs.Content value="advances" className="mt-6">
-          <div className="bg-ui-bg-base border border-ui-border-base rounded-lg p-6">
-            <AdvanceSection />
-          </div>
-        </Tabs.Content>
-
-        <Tabs.Content value="transactions" className="mt-6">
-          <div className="bg-ui-bg-base border border-ui-border-base rounded-lg p-6">
-            <Heading level="h3" className="mb-4">
-              Recent Transactions
-            </Heading>
-            <RecentTransactions transactions={dashboard.recent_transactions} />
-          </div>
-        </Tabs.Content>
-      </Tabs>
+      {/* Recent Transactions */}
+      <div className="mb-8">
+        <Heading level="h3" className="mb-4">📜 Recent Transactions</Heading>
+        <div className="bg-ui-bg-base border border-ui-border-base rounded-lg p-6">
+          <RecentTransactions transactions={dashboard.recent_transactions} />
+        </div>
+      </div>
 
       {/* Investment Pools */}
-      {dashboard.investment_pools.length > 0 && (
+      {dashboard.investment_pools && dashboard.investment_pools.length > 0 && (
         <div className="mt-8">
           <Heading level="h3" className="mb-4">
             🌱 Your Investment Pools
