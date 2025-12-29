@@ -8,7 +8,6 @@ import {
   ArrowLeft,
   ArrowUpRightOnBox,
   Calendar,
-  PencilSquare,
   Trash,
   Sun,
   DocumentText,
@@ -21,7 +20,6 @@ import {
   Text,
   toast,
   usePrompt,
-  Divider,
   Tabs,
 } from "@medusajs/ui"
 

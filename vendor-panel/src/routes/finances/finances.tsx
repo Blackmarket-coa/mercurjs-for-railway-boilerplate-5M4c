@@ -85,7 +85,7 @@ const PayoutSection = () => {
     try {
       await requestPayout.mutateAsync({
         amount,
-        payout_tier: selectedTier as "INSTANT" | "SAME_DAY" | "STANDARD" | "ECONOMY",
+        payout_tier: selectedTier as "INSTANT" | "SAME_DAY" | "NEXT_DAY" | "WEEKLY",
       })
       toast.success("Payout requested successfully!")
     } catch (error: unknown) {

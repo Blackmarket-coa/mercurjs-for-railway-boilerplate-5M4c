@@ -12,7 +12,6 @@ import type {
   AdminProducerListResponse,
   AdminProducerResponse,
   AdminProducerStatsResponse,
-  Producer,
   ProducerListParams,
   UpdateProducerInput,
 } from "../../types/producer"

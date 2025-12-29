@@ -28,24 +28,26 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         const progress = Number(pool.target_amount) > 0
           ? (Number(pool.total_raised) / Number(pool.target_amount)) * 100
           : 0
+        
+        // Cast to any to access all model properties
+        const p = pool as any
 
         return {
-          id: pool.id,
-          name: pool.name,
-          description: pool.description,
-          producer_id: pool.producer_id,
-          target_amount: Number(pool.target_amount),
-          total_raised: Number(pool.total_raised),
-          minimum_investment: Number(pool.minimum_investment),
-          roi_type: pool.roi_type,
-          fixed_roi_rate: pool.fixed_roi_rate,
-          revenue_share_percentage: pool.revenue_share_percentage,
-          product_credit_multiplier: pool.product_credit_multiplier,
-          total_investors: pool.total_investors,
+          id: p.id,
+          name: p.name,
+          description: p.description,
+          producer_id: p.producer_id,
+          target_amount: Number(p.target_amount),
+          total_raised: Number(p.total_raised),
+          minimum_investment: Number(p.minimum_investment),
+          roi_type: p.roi_type,
+          roi_rate: p.roi_rate || p.fixed_roi_rate || null,
+          revenue_share_percentage: p.revenue_share_percentage,
+          total_investors: p.total_investors,
           progress_percentage: Math.min(progress, 100),
           current_balance: balance.balance,
-          start_date: pool.start_date,
-          end_date: pool.end_date,
+          fundraising_start: p.fundraising_start,
+          fundraising_end: p.fundraising_end,
         }
       })
     )

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
 
 import { 
   CheckCircle, 
@@ -12,7 +12,6 @@ import {
 } from "@medusajs/icons"
 import {
   Badge,
-  Button,
   Container,
   Heading,
   Text,
@@ -39,6 +38,7 @@ import {
   useDeleteProducer,
 } from "@hooks/api/producers"
 import { useDataTable } from "@hooks/use-data-table"
+import { useQueryParams } from "@hooks/use-query-params"
 
 const PAGE_SIZE = 10
 
@@ -47,13 +47,13 @@ const columnHelper = createColumnHelper<Producer>()
 export const ProducersList = () => {
   const navigate = useNavigate()
   const prompt = usePrompt()
-  const [searchQuery, setSearchQuery] = useState("")
+  const queryParams = useQueryParams(["q", "offset", "order"])
 
   const { producers, count, isLoading } = useProducers(
     {
       limit: PAGE_SIZE,
-      offset: 0,
-      q: searchQuery || undefined,
+      offset: queryParams.offset ? Number(queryParams.offset) : 0,
+      q: queryParams.q || undefined,
       fields: "id,name,handle,region,state,verified,featured,practices,photo,created_at,seller.*",
     },
     {
@@ -319,14 +319,7 @@ export const ProducersList = () => {
             pagination
             navigateTo={(row) => `/producers/${row.id}`}
             search
-            queryObject={{
-              q: searchQuery,
-            }}
-            setQuery={(key, value) => {
-              if (key === "q") {
-                setSearchQuery(value as string)
-              }
-            }}
+            queryObject={queryParams}
           />
         )}
       </Container>

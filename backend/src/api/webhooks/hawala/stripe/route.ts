@@ -55,11 +55,12 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
             })
 
             // Update ACH transaction
-            await hawalaService.updateAchTransactions({
+            const updateData: any = {
               id: txn.id,
-              status: "SUCCEEDED" as const,
+              status: "SUCCEEDED",
               actual_settlement_date: new Date(),
-            })
+            }
+            await hawalaService.updateAchTransactions(updateData)
           }
         }
         break
@@ -77,11 +78,12 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
         })
 
         if (transactions.length > 0) {
-          await hawalaService.updateAchTransactions({
+          const updateData: any = {
             id: transactions[0].id,
-            status: "FAILED" as const,
+            status: "FAILED",
             failure_reason: paymentIntent.last_payment_error?.message || "Payment failed",
-          })
+          }
+          await hawalaService.updateAchTransactions(updateData)
         }
         break
       }
@@ -100,11 +102,12 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
           })
 
           if (transactions.length > 0) {
-            await hawalaService.updateAchTransactions({
+            const updateData: any = {
               id: transactions[0].id,
-              status: "SUCCEEDED" as const,
+              status: "SUCCEEDED",
               actual_settlement_date: new Date(),
-            })
+            }
+            await hawalaService.updateAchTransactions(updateData)
           }
         }
         break
@@ -134,11 +137,12 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
             idempotency_key: `refund-${payout.id}`,
           })
 
-          await hawalaService.updateAchTransactions({
+          const failedUpdateData: any = {
             id: txn.id,
-            status: "FAILED" as const,
+            status: "FAILED",
             failure_reason: payout.failure_message || "Payout failed",
-          })
+          }
+          await hawalaService.updateAchTransactions(failedUpdateData)
         }
         break
       }
@@ -154,11 +158,12 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
         })
 
         if (bankAccounts.length > 0) {
-          await hawalaService.updateBankAccounts({
+          const bankUpdateData: any = {
             id: bankAccounts[0].id,
-            verification_status: "DISCONNECTED" as const,
+            verification_status: "ERRORED",
             is_default: false,
-          })
+          }
+          await hawalaService.updateBankAccounts(bankUpdateData)
         }
         break
       }
