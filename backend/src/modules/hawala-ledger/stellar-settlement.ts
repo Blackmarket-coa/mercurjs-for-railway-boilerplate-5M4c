@@ -117,10 +117,13 @@ export class StellarSettlementService {
     transaction.sign(this.keypair)
     const result = await this.server.submitTransaction(transaction)
 
+    // Extract fee from result - SDK v13 uses result_xdr for detailed info
+    const feeCharged = (result as any).fee_charged ?? (result as any).feeCharged ?? '0'
+
     return {
       txHash: result.hash,
       ledgerSequence: result.ledger,
-      feePaid: parseInt(result.fee_charged) / 10000000, // Convert stroops to XLM
+      feePaid: parseInt(feeCharged) / 10000000, // Convert stroops to XLM
       merkleRoot,
     }
   }
