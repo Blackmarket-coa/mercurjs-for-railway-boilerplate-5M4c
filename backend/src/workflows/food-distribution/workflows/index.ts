@@ -8,7 +8,7 @@
  * - handleFoodDeliveryWorkflow: Long-running workflow managing complete delivery lifecycle
  * 
  * Resume Workflows (called to advance main workflow):
- * - claimDeliveryWorkflow: Courier claims a delivery
+ * - claimFoodDeliveryWorkflow: Courier claims a food delivery
  * - orderReadyWorkflow: Producer marks order ready
  * - confirmPickupWorkflow: Courier confirms pickup
  * - confirmDeliveryWorkflow: Courier confirms delivery completion

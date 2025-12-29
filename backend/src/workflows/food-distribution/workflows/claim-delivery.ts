@@ -15,9 +15,9 @@ type ClaimDeliveryWorkflowInput = {
  * Called when a courier claims an available delivery.
  * This will resume the main handle-food-delivery workflow.
  */
-export const claimDeliveryWorkflowId = "claim-delivery-workflow"
-export const claimDeliveryWorkflow = createWorkflow(
-  claimDeliveryWorkflowId,
+export const claimFoodDeliveryWorkflowId = "claim-food-delivery-workflow"
+export const claimFoodDeliveryWorkflow = createWorkflow(
+  claimFoodDeliveryWorkflowId,
   function (input: ClaimDeliveryWorkflowInput) {
     const result = processCourierClaimStep({
       delivery_id: input.delivery_id,
