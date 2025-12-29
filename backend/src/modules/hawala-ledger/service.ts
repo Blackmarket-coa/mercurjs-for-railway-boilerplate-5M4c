@@ -7,6 +7,16 @@ import {
   Investment,
   BankAccount,
   AchTransaction,
+  VendorAdvance,
+  AdvanceRepayment,
+  PayoutConfig,
+  PayoutSplitRule,
+  PayoutRequest,
+  ChargebackProtection,
+  ChargebackClaim,
+  VendorPayment,
+  VendorCreditLine,
+  CreditLineTransaction,
 } from "./models"
 
 class HawalaLedgerModuleService extends MedusaService({
@@ -17,6 +27,16 @@ class HawalaLedgerModuleService extends MedusaService({
   Investment,
   BankAccount,
   AchTransaction,
+  VendorAdvance,
+  AdvanceRepayment,
+  PayoutConfig,
+  PayoutSplitRule,
+  PayoutRequest,
+  ChargebackProtection,
+  ChargebackClaim,
+  VendorPayment,
+  VendorCreditLine,
+  CreditLineTransaction,
 }) {
   // ==================== ACCOUNT MANAGEMENT ====================
 
@@ -554,6 +574,806 @@ class HawalaLedgerModuleService extends MedusaService({
     }
 
     return summary
+  }
+
+  // ==================== INSTANT PAYOUTS ====================
+
+  /**
+   * Payout tier configuration with fees
+   */
+  private readonly PAYOUT_TIERS = {
+    INSTANT: { fee_rate: 0.01, name: "Instant", speed: "30 minutes", method: "DEBIT_CARD_PUSH" },
+    SAME_DAY: { fee_rate: 0.005, name: "Same-Day", speed: "End of day", method: "RTP" },
+    NEXT_DAY: { fee_rate: 0.0025, name: "Next-Day", speed: "Next business day", method: "ACH" },
+    WEEKLY: { fee_rate: 0, name: "Weekly", speed: "Every Friday", method: "ACH_BATCH" },
+  }
+
+  /**
+   * Get available payout options for a vendor
+   */
+  async getPayoutOptions(vendorId: string) {
+    // Get vendor's ledger account
+    const accounts = await this.listLedgerAccounts({
+      filters: {
+        owner_type: "SELLER",
+        owner_id: vendorId,
+        account_type: "SELLER_EARNINGS",
+      },
+    })
+
+    if (accounts.length === 0) {
+      throw new Error("Vendor account not found")
+    }
+
+    const account = accounts[0]
+    const availableBalance = Number(account.available_balance)
+
+    // Get payout config
+    const configs = await this.listPayoutConfigs({
+      filters: { vendor_id: vendorId },
+    })
+    const config = configs[0]
+
+    // Build payout options
+    const options = Object.entries(this.PAYOUT_TIERS).map(([tier, info]) => {
+      const fee = availableBalance * info.fee_rate
+      const netAmount = availableBalance - fee
+
+      return {
+        tier,
+        name: info.name,
+        speed: info.speed,
+        method: info.method,
+        fee_rate: info.fee_rate,
+        fee_rate_display: `${(info.fee_rate * 100).toFixed(2)}%`,
+        fee_amount: fee,
+        net_amount: netAmount,
+        available: tier === "INSTANT" 
+          ? (config?.instant_payout_eligible ?? false)
+          : true,
+      }
+    })
+
+    return {
+      available_balance: availableBalance,
+      currency: account.currency_code,
+      options,
+      default_tier: config?.default_payout_tier || "WEEKLY",
+      instant_payout_eligible: config?.instant_payout_eligible ?? false,
+      instant_payout_daily_limit: config?.instant_payout_daily_limit ?? 10000,
+      instant_payout_remaining: config 
+        ? Number(config.instant_payout_daily_limit) - Number(config.instant_payout_used_today)
+        : 0,
+    }
+  }
+
+  /**
+   * Request a payout
+   */
+  async requestPayout(data: {
+    vendor_id: string
+    amount: number
+    payout_tier: "INSTANT" | "SAME_DAY" | "NEXT_DAY" | "WEEKLY"
+    bank_account_id?: string
+  }) {
+    const tierConfig = this.PAYOUT_TIERS[data.payout_tier]
+    if (!tierConfig) {
+      throw new Error("Invalid payout tier")
+    }
+
+    // Get vendor account
+    const accounts = await this.listLedgerAccounts({
+      filters: {
+        owner_type: "SELLER",
+        owner_id: data.vendor_id,
+        account_type: "SELLER_EARNINGS",
+      },
+    })
+
+    if (accounts.length === 0) {
+      throw new Error("Vendor account not found")
+    }
+
+    const account = accounts[0]
+
+    // Validate balance
+    if (Number(account.available_balance) < data.amount) {
+      throw new Error("Insufficient balance")
+    }
+
+    // Calculate fees
+    const feeAmount = data.amount * tierConfig.fee_rate
+    const netAmount = data.amount - feeAmount
+
+    // Get platform fee account
+    const platformAccount = await this.getOrCreateSystemAccount("PLATFORM_FEE")
+
+    // Create payout request
+    const payoutRequest = await this.createPayoutRequests({
+      vendor_id: data.vendor_id,
+      ledger_account_id: account.id,
+      bank_account_id: data.bank_account_id,
+      payout_tier: data.payout_tier as "INSTANT" | "SAME_DAY" | "NEXT_DAY" | "WEEKLY",
+      payout_method: tierConfig.method as any,
+      gross_amount: data.amount,
+      fee_amount: feeAmount,
+      net_amount: netAmount,
+      fee_rate: tierConfig.fee_rate,
+      requested_at: new Date(),
+      status: "PENDING" as const,
+    })
+
+    // Create ledger entries
+    // 1. Debit vendor account for full amount
+    // 2. Credit platform for fee (if any)
+    // 3. Credit settlement account for net amount
+
+    const settlementAccount = await this.getOrCreateSystemAccount("SETTLEMENT")
+
+    // Main transfer (vendor → settlement)
+    await this.createTransfer({
+      debit_account_id: account.id,
+      credit_account_id: settlementAccount.id,
+      amount: netAmount,
+      entry_type: "WITHDRAWAL",
+      description: `${tierConfig.name} payout`,
+      reference_type: "PAYOUT_REQUEST",
+      reference_id: payoutRequest.id,
+    })
+
+    // Fee transfer (if applicable)
+    if (feeAmount > 0) {
+      await this.createTransfer({
+        debit_account_id: account.id,
+        credit_account_id: platformAccount.id,
+        amount: feeAmount,
+        entry_type: "FEE",
+        description: `${tierConfig.name} payout fee`,
+        reference_type: "PAYOUT_REQUEST",
+        reference_id: payoutRequest.id,
+      })
+    }
+
+    // Update status to processing
+    await this.updatePayoutRequests({
+      id: payoutRequest.id,
+      status: "PROCESSING" as const,
+    })
+
+    return payoutRequest
+  }
+
+  // ==================== VENDOR ADVANCES ====================
+
+  /**
+   * Calculate advance eligibility for a vendor
+   */
+  async calculateAdvanceEligibility(vendorId: string) {
+    // Get vendor's ledger account
+    const accounts = await this.listLedgerAccounts({
+      filters: {
+        owner_type: "SELLER",
+        owner_id: vendorId,
+        account_type: "SELLER_EARNINGS",
+      },
+    })
+
+    if (accounts.length === 0) {
+      return {
+        eligible: false,
+        reason: "No vendor account found",
+        max_advance: 0,
+        suggested_term_days: 0,
+        daily_repayment_capacity: 0,
+      }
+    }
+
+    const account = accounts[0]
+
+    // Get last 30 days of credit entries (revenue)
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+    const entries = await this.listLedgerEntries({
+      filters: {
+        credit_account_id: account.id,
+        entry_type: "SALE",
+      },
+    })
+
+    // Calculate metrics
+    const recentEntries = entries.filter(e => 
+      new Date(e.created_at) >= thirtyDaysAgo
+    )
+    const last30DaysRevenue = recentEntries.reduce(
+      (sum, e) => sum + Number(e.amount), 
+      0
+    )
+    const avgDailyRevenue = last30DaysRevenue / 30
+
+    // Check for existing active advances
+    const activeAdvances = await this.listVendorAdvances({
+      filters: {
+        vendor_id: vendorId,
+        status: "ACTIVE",
+      },
+    })
+
+    if (activeAdvances.length > 0) {
+      return {
+        eligible: false,
+        reason: "Active advance exists",
+        max_advance: 0,
+        suggested_term_days: 0,
+        daily_repayment_capacity: 0,
+        active_advance: activeAdvances[0],
+      }
+    }
+
+    // Eligibility criteria
+    const minRevenue = 500 // Minimum $500 in last 30 days
+    const minDays = entries.length >= 10 // At least 10 sales
+
+    if (last30DaysRevenue < minRevenue || !minDays) {
+      return {
+        eligible: false,
+        reason: "Insufficient sales history",
+        max_advance: 0,
+        suggested_term_days: 0,
+        daily_repayment_capacity: 0,
+        metrics: {
+          last_30_days_revenue: last30DaysRevenue,
+          transaction_count: entries.length,
+          avg_daily_revenue: avgDailyRevenue,
+        },
+      }
+    }
+
+    // Calculate advance capacity
+    const repaymentCapacity = avgDailyRevenue * 0.20 // 20% of daily sales
+    const maxAdvance = repaymentCapacity * 30 // ~30 days of repayment
+
+    return {
+      eligible: true,
+      max_advance: Math.round(maxAdvance * 100) / 100,
+      suggested_term_days: 30,
+      daily_repayment_capacity: Math.round(repaymentCapacity * 100) / 100,
+      fee_options: [
+        { type: "FACTOR_RATE", rate: 1.08, total_repayment: maxAdvance * 1.08, apr_equivalent: "~10%" },
+        { type: "FACTOR_RATE", rate: 1.12, total_repayment: maxAdvance * 1.12, apr_equivalent: "~15%" },
+      ],
+      metrics: {
+        last_30_days_revenue: last30DaysRevenue,
+        transaction_count: entries.length,
+        avg_daily_revenue: avgDailyRevenue,
+      },
+    }
+  }
+
+  /**
+   * Request a vendor advance
+   */
+  async requestAdvance(data: {
+    vendor_id: string
+    amount: number
+    fee_rate: number
+    term_days: number
+    repayment_rate?: number
+  }) {
+    // Validate eligibility
+    const eligibility = await this.calculateAdvanceEligibility(data.vendor_id)
+    
+    if (!eligibility.eligible) {
+      throw new Error(`Not eligible for advance: ${eligibility.reason}`)
+    }
+
+    if (data.amount > eligibility.max_advance) {
+      throw new Error(`Amount exceeds maximum eligible advance of $${eligibility.max_advance}`)
+    }
+
+    // Get vendor account
+    const accounts = await this.listLedgerAccounts({
+      filters: {
+        owner_type: "SELLER",
+        owner_id: data.vendor_id,
+        account_type: "SELLER_EARNINGS",
+      },
+    })
+    const account = accounts[0]
+
+    // Get or create reserve account for advances
+    const reserveAccount = await this.getOrCreateSystemAccount("RESERVE")
+
+    // Calculate dates
+    const startDate = new Date()
+    const expectedEndDate = new Date()
+    expectedEndDate.setDate(expectedEndDate.getDate() + data.term_days)
+
+    // Total owed
+    const totalOwed = data.amount * data.fee_rate
+
+    // Create the advance record
+    const advance = await this.createVendorAdvances({
+      vendor_id: data.vendor_id,
+      ledger_account_id: account.id,
+      principal_amount: data.amount,
+      outstanding_balance: totalOwed,
+      fee_type: "FACTOR_RATE" as const,
+      fee_rate: data.fee_rate,
+      repayment_method: "AUTO_DEDUCT" as const,
+      repayment_rate: data.repayment_rate || 0.20,
+      term_days: data.term_days,
+      start_date: startDate,
+      expected_end_date: expectedEndDate,
+      eligibility_snapshot: eligibility.metrics,
+      status: "PENDING_APPROVAL" as const,
+    })
+
+    // For now, auto-approve (in production, might want manual review)
+    await this.updateVendorAdvances({
+      id: advance.id,
+      status: "ACTIVE" as const,
+      approved_at: new Date(),
+    })
+
+    // Create ledger entry: Reserve → Vendor
+    await this.createTransfer({
+      debit_account_id: reserveAccount.id,
+      credit_account_id: account.id,
+      amount: data.amount,
+      entry_type: "ADVANCE",
+      description: `Vendor advance - ${data.term_days} day term`,
+      reference_type: "VENDOR_ADVANCE",
+      reference_id: advance.id,
+    })
+
+    return advance
+  }
+
+  /**
+   * Auto-deduct advance repayment from a sale
+   */
+  async processAdvanceRepayment(data: {
+    vendor_id: string
+    order_id: string
+    sale_amount: number
+  }) {
+    // Get active advance
+    const advances = await this.listVendorAdvances({
+      filters: {
+        vendor_id: data.vendor_id,
+        status: "ACTIVE",
+      },
+    })
+
+    if (advances.length === 0) {
+      return null // No active advance
+    }
+
+    const advance = advances[0]
+    const repaymentRate = Number(advance.repayment_rate)
+    const outstandingBalance = Number(advance.outstanding_balance)
+
+    // Calculate repayment (percentage of sale, capped at outstanding)
+    let repaymentAmount = data.sale_amount * repaymentRate
+    repaymentAmount = Math.min(repaymentAmount, outstandingBalance)
+
+    if (repaymentAmount <= 0) {
+      return null
+    }
+
+    // Get accounts
+    const vendorAccounts = await this.listLedgerAccounts({
+      filters: {
+        owner_type: "SELLER",
+        owner_id: data.vendor_id,
+        account_type: "SELLER_EARNINGS",
+      },
+    })
+    const vendorAccount = vendorAccounts[0]
+    const reserveAccount = await this.getOrCreateSystemAccount("RESERVE")
+
+    // Create ledger entry: Vendor → Reserve
+    const entry = await this.createTransfer({
+      debit_account_id: vendorAccount.id,
+      credit_account_id: reserveAccount.id,
+      amount: repaymentAmount,
+      entry_type: "ADVANCE_REPAYMENT",
+      description: `Advance repayment from order ${data.order_id}`,
+      reference_type: "VENDOR_ADVANCE",
+      reference_id: advance.id,
+      order_id: data.order_id,
+    })
+
+    // Update advance balance
+    const newBalance = outstandingBalance - repaymentAmount
+    const newTotalRepaid = Number(advance.total_repaid) + repaymentAmount
+
+    await this.updateVendorAdvances({
+      id: advance.id,
+      outstanding_balance: newBalance,
+      total_repaid: newTotalRepaid,
+      status: newBalance <= 0 ? ("REPAID" as const) : ("ACTIVE" as const),
+      actual_end_date: newBalance <= 0 ? new Date() : undefined,
+    })
+
+    // Record the repayment
+    await this.createAdvanceRepayments({
+      advance_id: advance.id,
+      ledger_entry_id: entry.id,
+      order_id: data.order_id,
+      principal_amount: repaymentAmount, // Simplified - in reality split principal/fee
+      total_amount: repaymentAmount,
+      outstanding_balance_after: newBalance,
+      repayment_type: "AUTO_DEDUCT" as const,
+      status: "COMPLETED" as const,
+    })
+
+    return {
+      repayment_amount: repaymentAmount,
+      outstanding_balance: newBalance,
+      advance_repaid: newBalance <= 0,
+    }
+  }
+
+  // ==================== VENDOR-TO-VENDOR PAYMENTS ====================
+
+  /**
+   * Create a vendor-to-vendor payment (internal transfer)
+   */
+  async createVendorToVendorPayment(data: {
+    payer_vendor_id: string
+    payee_vendor_id: string
+    amount: number
+    payment_type: string
+    invoice_number?: string
+    purchase_order_number?: string
+    reference_note?: string
+  }) {
+    // Get both vendor accounts
+    const [payerAccounts, payeeAccounts] = await Promise.all([
+      this.listLedgerAccounts({
+        filters: {
+          owner_type: "SELLER",
+          owner_id: data.payer_vendor_id,
+          account_type: "SELLER_EARNINGS",
+        },
+      }),
+      this.listLedgerAccounts({
+        filters: {
+          owner_type: "SELLER",
+          owner_id: data.payee_vendor_id,
+          account_type: "SELLER_EARNINGS",
+        },
+      }),
+    ])
+
+    if (payerAccounts.length === 0 || payeeAccounts.length === 0) {
+      throw new Error("One or both vendor accounts not found")
+    }
+
+    const payerAccount = payerAccounts[0]
+    const payeeAccount = payeeAccounts[0]
+
+    // Validate balance
+    if (Number(payerAccount.available_balance) < data.amount) {
+      throw new Error("Insufficient balance")
+    }
+
+    // Create ledger transfer
+    const entry = await this.createTransfer({
+      debit_account_id: payerAccount.id,
+      credit_account_id: payeeAccount.id,
+      amount: data.amount,
+      entry_type: "VENDOR_PAYMENT",
+      description: data.reference_note || `Vendor payment: ${data.payment_type}`,
+      reference_type: "VENDOR_PAYMENT",
+    })
+
+    // Create vendor payment record
+    const payment = await this.createVendorPayments({
+      payer_vendor_id: data.payer_vendor_id,
+      payer_ledger_account_id: payerAccount.id,
+      payee_vendor_id: data.payee_vendor_id,
+      payee_ledger_account_id: payeeAccount.id,
+      amount: data.amount,
+      payment_type: data.payment_type as any,
+      invoice_number: data.invoice_number,
+      purchase_order_number: data.purchase_order_number,
+      reference_note: data.reference_note,
+      ledger_entry_id: entry.id,
+      status: "COMPLETED" as const,
+    })
+
+    return payment
+  }
+
+  // ==================== VENDOR DASHBOARD ====================
+
+  /**
+   * Get comprehensive vendor financial dashboard data
+   */
+  async getVendorDashboard(vendorId: string) {
+    // Get vendor account
+    const accounts = await this.listLedgerAccounts({
+      filters: {
+        owner_type: "SELLER",
+        owner_id: vendorId,
+        account_type: "SELLER_EARNINGS",
+      },
+    })
+
+    if (accounts.length === 0) {
+      throw new Error("Vendor account not found")
+    }
+
+    const account = accounts[0]
+
+    // Get date ranges
+    const now = new Date()
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const weekStart = new Date(todayStart)
+    weekStart.setDate(weekStart.getDate() - 7)
+    const monthStart = new Date(todayStart)
+    monthStart.setDate(monthStart.getDate() - 30)
+
+    // Get all entries for this account
+    const entries = await this.getAccountTransactions(account.id, { limit: 1000 })
+
+    // Calculate metrics
+    const todayEntries = entries.filter(e => new Date(e.created_at) >= todayStart)
+    const weekEntries = entries.filter(e => new Date(e.created_at) >= weekStart)
+    const monthEntries = entries.filter(e => new Date(e.created_at) >= monthStart)
+
+    const calcRevenue = (items: typeof entries) => 
+      items.filter(e => e.direction === "CREDIT" && e.entry_type === "SALE")
+           .reduce((sum, e) => sum + Number(e.amount), 0)
+
+    const todayRevenue = calcRevenue(todayEntries)
+    const weekRevenue = calcRevenue(weekEntries)
+    const monthRevenue = calcRevenue(monthEntries)
+
+    // Get pending orders (entries in PENDING status)
+    const pendingEntries = await this.listLedgerEntries({
+      filters: {
+        credit_account_id: account.id,
+        status: "PENDING",
+      },
+    })
+    const pendingAmount = pendingEntries.reduce((sum, e) => sum + Number(e.amount), 0)
+
+    // Get active advance
+    const activeAdvances = await this.listVendorAdvances({
+      filters: {
+        vendor_id: vendorId,
+        status: "ACTIVE",
+      },
+    })
+
+    // Get payout config
+    const payoutConfigs = await this.listPayoutConfigs({
+      filters: { vendor_id: vendorId },
+    })
+
+    // Get investment pools
+    const pools = await this.listInvestmentPools({
+      filters: { producer_id: vendorId },
+    })
+
+    // Calculate daily average for projection
+    const avgDailyRevenue = monthRevenue / 30
+
+    return {
+      // Balances
+      available_balance: Number(account.available_balance),
+      pending_balance: pendingAmount,
+      total_balance: Number(account.balance),
+      currency: account.currency_code,
+
+      // Revenue metrics
+      today: {
+        revenue: todayRevenue,
+        transaction_count: todayEntries.filter(e => e.direction === "CREDIT").length,
+      },
+      week: {
+        revenue: weekRevenue,
+        transaction_count: weekEntries.filter(e => e.direction === "CREDIT").length,
+      },
+      month: {
+        revenue: monthRevenue,
+        transaction_count: monthEntries.filter(e => e.direction === "CREDIT").length,
+      },
+
+      // Projections
+      projections: {
+        avg_daily_revenue: avgDailyRevenue,
+        projected_week: avgDailyRevenue * 7,
+        projected_month: avgDailyRevenue * 30,
+      },
+
+      // Recent activity
+      recent_transactions: entries.slice(0, 10),
+
+      // Advance status
+      advance: activeAdvances.length > 0 ? {
+        has_active: true,
+        principal: Number(activeAdvances[0].principal_amount),
+        outstanding: Number(activeAdvances[0].outstanding_balance),
+        repaid: Number(activeAdvances[0].total_repaid),
+        expected_end: activeAdvances[0].expected_end_date,
+      } : {
+        has_active: false,
+        eligible: await this.calculateAdvanceEligibility(vendorId),
+      },
+
+      // Payout settings
+      payout: payoutConfigs.length > 0 ? {
+        default_tier: payoutConfigs[0].default_payout_tier,
+        auto_enabled: payoutConfigs[0].auto_payout_enabled,
+        instant_eligible: payoutConfigs[0].instant_payout_eligible,
+      } : null,
+
+      // Investment pools
+      investment_pools: pools.map(p => ({
+        id: p.id,
+        name: p.pool_name,
+        target: Number(p.target_amount),
+        raised: Number(p.current_amount),
+        status: p.status,
+      })),
+    }
+  }
+
+  // ==================== SPLIT PAYOUTS ====================
+
+  /**
+   * Get or create payout config for a vendor
+   */
+  async getOrCreatePayoutConfig(vendorId: string, ledgerAccountId: string) {
+    const existing = await this.listPayoutConfigs({
+      filters: { vendor_id: vendorId },
+    })
+
+    if (existing.length > 0) {
+      return existing[0]
+    }
+
+    return this.createPayoutConfigs({
+      vendor_id: vendorId,
+      ledger_account_id: ledgerAccountId,
+      default_payout_tier: "WEEKLY" as const,
+      auto_payout_enabled: true,
+      auto_payout_threshold: 50,
+      instant_payout_eligible: false,
+      split_payout_enabled: false,
+      status: "ACTIVE" as const,
+    })
+  }
+
+  /**
+   * Update payout configuration
+   */
+  async updatePayoutConfiguration(vendorId: string, updates: {
+    default_payout_tier?: "INSTANT" | "SAME_DAY" | "NEXT_DAY" | "WEEKLY"
+    auto_payout_enabled?: boolean
+    auto_payout_threshold?: number
+    split_payout_enabled?: boolean
+  }) {
+    const configs = await this.listPayoutConfigs({
+      filters: { vendor_id: vendorId },
+    })
+
+    if (configs.length === 0) {
+      throw new Error("Payout config not found")
+    }
+
+    return this.updatePayoutConfigs({
+      id: configs[0].id,
+      ...updates,
+    })
+  }
+
+  /**
+   * Add or update a split rule
+   */
+  async upsertSplitRule(data: {
+    vendor_id: string
+    payout_config_id: string
+    destination_type: string
+    percentage: number
+    destination_ledger_account_id?: string
+    destination_bank_account_id?: string
+    label?: string
+  }) {
+    // Check if rule exists for this destination type
+    const existing = await this.listPayoutSplitRules({
+      filters: {
+        payout_config_id: data.payout_config_id,
+        destination_type: data.destination_type,
+      },
+    })
+
+    if (existing.length > 0) {
+      return this.updatePayoutSplitRules({
+        id: existing[0].id,
+        percentage: data.percentage,
+        destination_ledger_account_id: data.destination_ledger_account_id,
+        destination_bank_account_id: data.destination_bank_account_id,
+        label: data.label,
+      })
+    }
+
+    return this.createPayoutSplitRules({
+      payout_config_id: data.payout_config_id,
+      vendor_id: data.vendor_id,
+      destination_type: data.destination_type as any,
+      percentage: data.percentage,
+      destination_ledger_account_id: data.destination_ledger_account_id,
+      destination_bank_account_id: data.destination_bank_account_id,
+      label: data.label,
+      is_active: true,
+    })
+  }
+
+  /**
+   * Process split payouts for incoming revenue
+   */
+  async processSplitPayout(vendorId: string, grossAmount: number, orderId?: string) {
+    const configs = await this.listPayoutConfigs({
+      filters: { vendor_id: vendorId, split_payout_enabled: true },
+    })
+
+    if (configs.length === 0) {
+      return null // No split config, all goes to main account
+    }
+
+    const config = configs[0]
+
+    // Get split rules
+    const rules = await this.listPayoutSplitRules({
+      filters: {
+        payout_config_id: config.id,
+        is_active: true,
+      },
+    })
+
+    if (rules.length === 0) {
+      return null
+    }
+
+    // Validate rules sum to 100%
+    const totalPercentage = rules.reduce((sum, r) => sum + Number(r.percentage), 0)
+    if (Math.abs(totalPercentage - 100) > 0.01) {
+      console.warn(`Split rules for vendor ${vendorId} do not sum to 100%: ${totalPercentage}`)
+    }
+
+    const splits: Array<{ destination: string; amount: number; ledger_entry_id?: string }> = []
+
+    // Process each rule
+    for (const rule of rules) {
+      const amount = grossAmount * (Number(rule.percentage) / 100)
+      
+      if (amount > 0 && rule.destination_ledger_account_id) {
+        // Create internal transfer to sub-account
+        const entry = await this.createTransfer({
+          debit_account_id: config.ledger_account_id,
+          credit_account_id: rule.destination_ledger_account_id,
+          amount,
+          entry_type: "SPLIT_PAYOUT",
+          description: rule.label || `Split to ${rule.destination_type}`,
+          reference_type: "ORDER",
+          reference_id: orderId,
+        })
+
+        splits.push({
+          destination: rule.destination_type,
+          amount,
+          ledger_entry_id: entry.id,
+        })
+      }
+    }
+
+    return { splits, total_split: grossAmount }
   }
 }
 

@@ -14,6 +14,7 @@ import {
   ListCheckbox,
   ChatBubbleLeftRight,
   CalendarMini,
+  CashSolid,
 } from "@medusajs/icons"
 import { Divider, Text, clx } from "@medusajs/ui"
 import { Collapsible as RadixCollapsible } from "radix-ui"
@@ -108,6 +109,11 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
       icon: <Component />,
       label: "Dashboard",
       to: "/dashboard",
+    },
+    {
+      icon: <CashSolid />,
+      label: "💰 Finances",
+      to: "/finances",
     },
     {
       icon: <ShoppingCart />,
