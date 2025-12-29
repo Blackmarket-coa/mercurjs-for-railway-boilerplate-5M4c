@@ -1,3 +1,9 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
+  "rewrites": [
+    { "source": "/vendor/:path*", "destination": "https://mercurjs-for-railway-boilerplate-5m4c-production.up.railway.app/vendor/:path*" },
+    { "source": "/admin/:path*", "destination": "https://mercurjs-for-railway-boilerplate-5m4c-production.up.railway.app/admin/:path*" },
+    { "source": "/auth/:path*", "destination": "https://mercurjs-for-railway-boilerplate-5m4c-production.up.railway.app/auth/:path*" },
+    { "source": "/store/:path*", "destination": "https://mercurjs-for-railway-boilerplate-5m4c-production.up.railway.app/store/:path*" },
+    { "source": "/(.*)", "destination": "/" }
+  ]
 }
