@@ -1,6 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { HAWALA_LEDGER_MODULE } from "../../../../modules/hawala-ledger"
 import HawalaLedgerModuleService from "../../../../modules/hawala-ledger/service"
+import { requestAdvanceSchema, validateInput } from "../../../hawala-validation"
 
 /**
  * GET /vendor/hawala/advances
@@ -42,7 +43,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     })
   } catch (error: any) {
     console.error("Error getting advance info:", error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: "Failed to retrieve advance information" })
   }
 }
 
@@ -60,25 +61,18 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
       return res.status(401).json({ error: "Unauthorized" })
     }
 
-    const { amount, fee_rate, term_days, repayment_rate } = req.body as {
-      amount: number
-      fee_rate: number       // e.g., 1.08 for 8% fee
-      term_days: number      // e.g., 30
-      repayment_rate?: number // e.g., 0.20 for 20% of sales
+    // Validate input using Zod schema
+    const validation = validateInput(requestAdvanceSchema, req.body)
+    if (!validation.success) {
+      return res.status(400).json({ error: validation.error })
     }
-
-    if (!amount || !fee_rate || !term_days) {
-      return res.status(400).json({ 
-        error: "amount, fee_rate, and term_days are required" 
-      })
-    }
+    const { amount, fee_rate, term_days } = validation.data
 
     const advance = await hawalaService.requestAdvance({
       vendor_id: vendorId,
       amount,
-      fee_rate,
-      term_days,
-      repayment_rate,
+      fee_rate: fee_rate ?? 1.05,
+      term_days: term_days ?? 30,
     })
 
     res.status(201).json({
@@ -96,6 +90,6 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     })
   } catch (error: any) {
     console.error("Error requesting advance:", error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: "Failed to request advance" })
   }
 }

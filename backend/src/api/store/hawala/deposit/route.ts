@@ -109,6 +109,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
         : "Deposit completed successfully.",
     })
   } catch (error) {
-    res.status(500).json({ error: (error as Error).message })
+    console.error("Error processing deposit:", error)
+    res.status(500).json({ error: "Failed to process deposit" })
   }
 }

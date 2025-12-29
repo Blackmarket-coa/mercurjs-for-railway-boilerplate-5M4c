@@ -1,6 +1,8 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { randomUUID } from "crypto"
 import { HAWALA_LEDGER_MODULE } from "../../../../../../modules/hawala-ledger"
 import HawalaLedgerModuleService from "../../../../../../modules/hawala-ledger/service"
+import { withdrawPoolSchema, validateInput } from "../../../../../hawala-validation"
 
 /**
  * POST /vendor/hawala/pools/:id/withdraw
@@ -15,14 +17,12 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     return res.status(401).json({ error: "Authentication required" })
   }
 
-  const { amount, description } = req.body as {
-    amount: number
-    description?: string
+  // Validate input
+  const validation = validateInput(withdrawPoolSchema, req.body)
+  if (!validation.success) {
+    return res.status(400).json({ error: validation.error })
   }
-
-  if (!amount || amount <= 0) {
-    return res.status(400).json({ error: "Amount must be positive" })
-  }
+  const { amount, description } = validation.data
 
   try {
     const pool = await hawalaService.retrieveInvestmentPool(id)
@@ -58,7 +58,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       earningsAccounts = [account]
     }
 
-    // Transfer from pool to earnings
+    // Transfer from pool to earnings - use UUID for idempotency
     const entry = await hawalaService.createTransfer({
       debit_account_id: pool.ledger_account_id,
       credit_account_id: earningsAccounts[0].id,
@@ -66,7 +66,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       entry_type: "WITHDRAWAL",
       description: description || "Pool withdrawal to earnings",
       investment_pool_id: id,
-      idempotency_key: `pool-withdraw-${id}-${Date.now()}`,
+      idempotency_key: `pool-withdraw-${id}-${randomUUID()}`,
     })
 
     res.json({
@@ -75,6 +75,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       message: `$${amount.toFixed(2)} transferred to earnings account`,
     })
   } catch (error) {
-    res.status(400).json({ error: (error as Error).message })
+    console.error("Error withdrawing from pool:", error)
+    res.status(400).json({ error: "Failed to process withdrawal" })
   }
 }

@@ -41,6 +41,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       offset: parseInt(offset as string),
     })
   } catch (error) {
-    res.status(500).json({ error: (error as Error).message })
+    console.error("Error getting transactions:", error)
+    res.status(500).json({ error: "Failed to retrieve transactions" })
   }
 }

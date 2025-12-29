@@ -17,12 +17,15 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
 
   try {
     const achService = createStripeAchService()
-    const rawBody = (req as any).rawBody || req.body
+    const rawBody = (req as any).rawBody
 
-    const event = await achService.handleWebhook(
-      Buffer.isBuffer(rawBody) ? rawBody : Buffer.from(JSON.stringify(rawBody)),
-      signature
-    )
+    // SECURITY: Require raw body buffer for proper signature verification
+    if (!rawBody || !Buffer.isBuffer(rawBody)) {
+      console.error("Webhook raw body missing or not a buffer - signature verification would be invalid")
+      return res.status(400).json({ error: "Invalid request body format" })
+    }
+
+    const event = await achService.handleWebhook(rawBody, signature)
 
     console.log(`Stripe webhook received: ${event.type}`)
 

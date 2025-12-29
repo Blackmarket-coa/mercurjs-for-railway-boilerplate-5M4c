@@ -38,7 +38,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
     res.json({ wallet, balance })
   } catch (error) {
-    res.status(500).json({ error: (error as Error).message })
+    console.error("Error getting wallet:", error)
+    res.status(500).json({ error: "Failed to retrieve wallet" })
   }
 }
 
@@ -78,6 +79,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
 
     res.status(201).json({ wallet, balance, created: true })
   } catch (error) {
-    res.status(500).json({ error: (error as Error).message })
+    console.error("Error creating wallet:", error)
+    res.status(500).json({ error: "Failed to create wallet" })
   }
 }

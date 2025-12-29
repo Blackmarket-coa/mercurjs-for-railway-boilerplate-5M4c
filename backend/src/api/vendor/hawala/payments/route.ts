@@ -1,6 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { HAWALA_LEDGER_MODULE } from "../../../../modules/hawala-ledger"
 import HawalaLedgerModuleService from "../../../../modules/hawala-ledger/service"
+import { createVendorPaymentSchema, validateInput } from "../../../hawala-validation"
 
 /**
  * GET /vendor/hawala/payments
@@ -50,7 +51,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     })
   } catch (error: any) {
     console.error("Error getting vendor payments:", error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: "Failed to retrieve payment history" })
   }
 }
 
@@ -68,28 +69,20 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
       return res.status(401).json({ error: "Unauthorized" })
     }
 
+    // Validate input
+    const validation = validateInput(createVendorPaymentSchema, req.body)
+    if (!validation.success) {
+      return res.status(400).json({ error: validation.error })
+    }
     const {
       payee_vendor_id,
       amount,
       payment_type,
       invoice_number,
-      purchase_order_number,
       reference_note,
-    } = req.body as {
-      payee_vendor_id: string
-      amount: number
-      payment_type: string
-      invoice_number?: string
-      purchase_order_number?: string
-      reference_note?: string
-    }
+    } = validation.data
 
-    if (!payee_vendor_id || !amount || !payment_type) {
-      return res.status(400).json({ 
-        error: "payee_vendor_id, amount, and payment_type are required" 
-      })
-    }
-
+    // SECURITY: Prevent self-payment
     if (payee_vendor_id === vendorId) {
       return res.status(400).json({ error: "Cannot pay yourself" })
     }
@@ -98,9 +91,8 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
       payer_vendor_id: vendorId,
       payee_vendor_id,
       amount,
-      payment_type,
+      payment_type: payment_type ?? "OTHER",
       invoice_number,
-      purchase_order_number,
       reference_note,
     })
 
@@ -119,6 +111,6 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     })
   } catch (error: any) {
     console.error("Error creating vendor payment:", error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: "Failed to process payment" })
   }
 }

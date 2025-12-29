@@ -1,6 +1,8 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { HAWALA_LEDGER_MODULE } from "../../../../modules/hawala-ledger"
 import HawalaLedgerModuleService from "../../../../modules/hawala-ledger/service"
+import { createPoolSchema, validateInput, paginationSchema } from "../../../hawala-validation"
+import { randomUUID } from "crypto"
 
 /**
  * GET /vendor/hawala/pools
@@ -43,7 +45,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
     res.json({ pools: poolsWithDetails })
   } catch (error) {
-    res.status(500).json({ error: (error as Error).message })
+    console.error("Error listing pools:", error)
+    res.status(500).json({ error: "Failed to retrieve pools" })
   }
 }
 
@@ -59,6 +62,11 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     return res.status(401).json({ error: "Authentication required" })
   }
 
+  // Validate input using Zod schema
+  const validation = validateInput(createPoolSchema, req.body)
+  if (!validation.success) {
+    return res.status(400).json({ error: validation.error })
+  }
   const {
     name,
     description,
@@ -71,25 +79,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     end_date,
     auto_invest_enabled,
     auto_invest_percentage,
-  } = req.body as {
-    name: string
-    description?: string
-    target_amount: number
-    minimum_investment?: number
-    roi_type: string
-    fixed_roi_rate?: number
-    revenue_share_percentage?: number
-    product_credit_multiplier?: number
-    end_date?: string
-    auto_invest_enabled?: boolean
-    auto_invest_percentage?: number
-  }
-
-  if (!name || !target_amount || !roi_type) {
-    return res.status(400).json({
-      error: "name, target_amount, and roi_type are required",
-    })
-  }
+  } = validation.data
 
   try {
     // Create ledger account for pool
@@ -120,6 +110,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
 
     res.status(201).json({ pool, account: poolAccount })
   } catch (error) {
-    res.status(400).json({ error: (error as Error).message })
+    console.error("Error creating pool:", error)
+    res.status(400).json({ error: "Failed to create investment pool" })
   }
 }

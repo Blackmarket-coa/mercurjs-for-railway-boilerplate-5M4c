@@ -2,6 +2,7 @@ import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { HAWALA_LEDGER_MODULE } from "../../../../modules/hawala-ledger"
 import HawalaLedgerModuleService from "../../../../modules/hawala-ledger/service"
 import { createStripeAchService } from "../../../../modules/hawala-ledger/stripe-ach"
+import { linkBankAccountSchema, validateInput } from "../../../hawala-validation"
 
 /**
  * GET /store/hawala/bank-accounts
@@ -22,7 +23,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
     res.json({ bank_accounts: bankAccounts })
   } catch (error) {
-    res.status(500).json({ error: (error as Error).message })
+    console.error("Error listing bank accounts:", error)
+    res.status(500).json({ error: "Failed to retrieve bank accounts" })
   }
 }
 
@@ -38,16 +40,12 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     return res.status(401).json({ error: "Authentication required" })
   }
 
-  const { email, name, return_url, method } = req.body as {
-    email: string
-    name?: string
-    return_url: string
-    method?: "financial_connections" | "manual"
+  // Validate input
+  const validation = validateInput(linkBankAccountSchema, req.body)
+  if (!validation.success) {
+    return res.status(400).json({ error: validation.error })
   }
-
-  if (!email || !return_url) {
-    return res.status(400).json({ error: "email and return_url are required" })
-  }
+  const { email, name, return_url, method } = validation.data
 
   try {
     const achService = createStripeAchService()
@@ -86,6 +84,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       })
     }
   } catch (error) {
-    res.status(500).json({ error: (error as Error).message })
+    console.error("Error linking bank account:", error)
+    res.status(500).json({ error: "Failed to initiate bank account linking" })
   }
 }

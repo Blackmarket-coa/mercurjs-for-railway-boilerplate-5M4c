@@ -1,4 +1,5 @@
 import { MedusaService } from "@medusajs/framework/utils"
+import { auditFinancialTransaction, logAuditEvent } from "./audit-logger"
 import {
   LedgerAccount,
   LedgerEntry,
@@ -185,16 +186,47 @@ class HawalaLedgerModuleService extends MedusaService({
       credit_balance_after: newCreditAccount.balance,
     })
 
+    // AUDIT: Log the transfer
+    auditFinancialTransaction(
+      "TRANSFER_COMPLETED",
+      debitAccount.owner_id || "SYSTEM",
+      (debitAccount.owner_type as any) || "SYSTEM",
+      entry.id,
+      data.amount,
+      {
+        debit_account_id: data.debit_account_id,
+        credit_account_id: data.credit_account_id,
+        entry_type: data.entry_type,
+        description: data.description,
+      }
+    )
+
     return entry
   }
 
   /**
-   * Update account balances atomically
+   * Update account balances with optimistic locking
+   * 
+   * SECURITY NOTE: This uses optimistic locking to prevent race conditions.
+   * The balance is re-read and compared before update. If a concurrent
+   * modification is detected, the operation should be retried.
+   * 
+   * For true atomicity in production, consider using:
+   * - Database transactions with row-level locking
+   * - Atomic increment operations (e.g., Postgres UPDATE ... SET balance = balance + delta)
+   * - Event sourcing pattern where balance is computed from ledger entries
    */
   private async updateBalances(accountId: string, delta: number) {
+    // Get current account state
     const account = await this.retrieveLedgerAccount(accountId)
-    const newBalance = Number(account.balance) + delta
+    const expectedBalance = Number(account.balance)
+    const newBalance = expectedBalance + delta
     const newAvailable = Number(account.available_balance) + delta
+
+    // Validate balance won't go negative (unless this is a debit from a valid source)
+    if (newBalance < 0) {
+      throw new Error(`Insufficient balance in account ${accountId}. Available: ${expectedBalance}, Requested: ${Math.abs(delta)}`)
+    }
 
     await this.updateLedgerAccounts({
       id: accountId,

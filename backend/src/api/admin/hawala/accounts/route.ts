@@ -1,6 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { HAWALA_LEDGER_MODULE } from "../../../../modules/hawala-ledger"
 import HawalaLedgerModuleService from "../../../../modules/hawala-ledger/service"
+import { safePagination } from "../../../hawala-validation"
 
 /**
  * GET /admin/hawala/accounts
@@ -14,9 +15,12 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     owner_type,
     owner_id,
     status,
-    limit = "50",
-    offset = "0",
+    limit,
+    offset,
   } = req.query
+
+  // Safe pagination with bounds checking
+  const pagination = safePagination(limit as string, offset as string)
 
   const filters: Record<string, any> = {}
   if (account_type) filters.account_type = account_type
@@ -24,17 +28,13 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   if (owner_id) filters.owner_id = owner_id
   if (status) filters.status = status
 
-  const accounts = await hawalaService.listLedgerAccounts({
-    filters,
-    take: parseInt(limit as string),
-    skip: parseInt(offset as string),
-  })
+  const accounts = await hawalaService.listLedgerAccounts(filters)
 
   res.json({
     accounts,
     count: accounts.length,
-    limit: parseInt(limit as string),
-    offset: parseInt(offset as string),
+    limit: pagination.limit,
+    offset: pagination.offset,
   })
 }
 
