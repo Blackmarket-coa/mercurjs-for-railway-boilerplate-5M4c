@@ -7,7 +7,7 @@ interface CategoriesProps {
 }
 
 // Categories to hide from navigation (lowercase handles)
-const HIDDEN_CATEGORIES = ['sweatshirts', 'sweatshirt', 'pants', 'merch']
+const HIDDEN_CATEGORIES = ['sweatshirts', 'sweatshirt', 'pants', 'merch', 'shirts', 'shirt']
 
 export const listCategories = async ({
   query,
