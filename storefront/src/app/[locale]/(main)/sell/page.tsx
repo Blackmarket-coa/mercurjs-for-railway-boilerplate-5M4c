@@ -66,9 +66,9 @@ export default function SellPage() {
     setIsSubmitting(true)
     
     // TODO: Integrate with actual signup API
-    // For now, redirect to vendor panel signup
+    // For now, redirect to vendor panel register
     setTimeout(() => {
-      window.location.href = `${VENDOR_PANEL_URL}/signup?email=${encodeURIComponent(email)}`
+      window.location.href = `${VENDOR_PANEL_URL}/register?email=${encodeURIComponent(email)}`
     }, 500)
   }
 
@@ -369,7 +369,7 @@ export default function SellPage() {
           </p>
           
           <Link
-            href={`${VENDOR_PANEL_URL}/signup`}
+            href={`${VENDOR_PANEL_URL}/register`}
             className="inline-block px-8 py-4 bg-white text-green-900 font-semibold rounded-lg hover:bg-green-50 transition-colors text-lg"
           >
             Create Your Producer Account
