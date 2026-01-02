@@ -1,6 +1,7 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { FOOD_DISTRIBUTION_MODULE } from "../../../modules/food-distribution"
 import type FoodDistributionService from "../../../modules/food-distribution/service"
+import { createAppriseService } from "../../../services/apprise"
 
 type NotifyProducerInput = {
   delivery_id: string
@@ -31,8 +32,34 @@ export const notifyProducerStep = createStep(
       },
     })
 
-    // TODO: Integrate with notification service (email, SMS, push)
-    // This would trigger actual notifications in production
+    // Send notification via Apprise
+    if (process.env.APPRISE_API_URL) {
+      try {
+        const apprise = createAppriseService()
+        
+        // Build notification URLs for this producer
+        const notificationUrls: string[] = []
+        
+        // Add email if available
+        if (producer.email) {
+          // Uses SMTP settings from Apprise config
+          notificationUrls.push(`mailto://${producer.email}`)
+        }
+        
+        // Send notification
+        if (notificationUrls.length > 0 || process.env.APPRISE_CONFIG_KEY) {
+          await apprise.notify({
+            title: "🛒 New Order Received!",
+            body: `You have a new order #${input.order_id.slice(-8)} waiting to be prepared.\n\nPlease check your dashboard to view order details and start preparation.`,
+            type: "info",
+            tag: "producers",
+          }, notificationUrls.length > 0 ? notificationUrls : undefined)
+        }
+      } catch (error) {
+        console.error("[NotifyProducer] Apprise notification failed:", error)
+        // Don't fail the step if notification fails
+      }
+    }
 
     return new StepResponse({
       notified: true,

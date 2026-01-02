@@ -12,6 +12,7 @@
 export * from "./create-food-delivery"
 export * from "./set-workflow-transaction-id"
 export * from "./notify-producer"
+export * from "./notify-drivers"
 export * from "./await-courier-claim"
 export * from "./await-order-preparation"
 export * from "./await-pickup"
