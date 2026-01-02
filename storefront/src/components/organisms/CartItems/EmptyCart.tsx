@@ -1,12 +1,10 @@
 import { Button } from "@/components/atoms"
 import { Carousel } from "@/components/cells"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
-import { listCategories } from "@/lib/data/categories"
 import { CategoryCard } from "../CategoryCard/CategoryCard"
+import { categories as featuredCategories } from "@/components/sections/HomeCategories/HomeCategories"
 
 export const EmptyCart = async () => {
-  const { categories } = await listCategories()
-
   return (
     <div>
       <div className="py-4 h-full w-full md:w-[426px] md:mx-auto flex flex-col items-center justify-center mb-16">
@@ -16,15 +14,24 @@ export const EmptyCart = async () => {
         <p className="text-lg text-center py-2">
           Your shopping cart is currently empty.
         </p>
-        <LocalizedClientLink href="/categories" className="w-full mt-6">
-          <Button className="w-full py-3 md:px-24 uppercase">Explore</Button>
+        <p className="text-sm text-center text-gray-500 mb-4">
+          Discover products from Black-owned businesses
+        </p>
+        <LocalizedClientLink href="/categories" className="w-full mt-2">
+          <Button className="w-full py-3 md:px-24 uppercase">Shop Now</Button>
+        </LocalizedClientLink>
+        <LocalizedClientLink href="/producers" className="w-full mt-3">
+          <Button variant="tonal" className="w-full py-3 md:px-24 uppercase">Meet Our Producers</Button>
         </LocalizedClientLink>
       </div>
-      <Carousel
-        items={categories?.map((category) => (
-          <CategoryCard key={category.id} category={category} />
-        ))}
-      />
+      <div className="mb-8">
+        <h3 className="heading-sm text-center mb-6 uppercase">Browse Categories</h3>
+        <Carousel
+          items={featuredCategories.map((category) => (
+            <CategoryCard key={category.id} category={category} />
+          ))}
+        />
+      </div>
     </div>
   )
 }

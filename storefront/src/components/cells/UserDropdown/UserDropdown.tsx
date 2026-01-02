@@ -13,6 +13,17 @@ import { HttpTypes } from "@medusajs/types"
 import { useRocketChat } from "@/providers/RocketChatProvider"
 import { useState } from "react"
 
+// User Avatar with initials
+const UserAvatar = ({ user }: { user: HttpTypes.StoreCustomer }) => {
+  const initials = `${user.first_name?.[0] || ''}${user.last_name?.[0] || ''}`.toUpperCase() || 'U'
+  
+  return (
+    <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center text-xs font-semibold">
+      {initials}
+    </div>
+  )
+}
+
 export const UserDropdown = ({
   user,
 }: {
@@ -31,18 +42,31 @@ export const UserDropdown = ({
     >
       <LocalizedClientLink
         href="/user"
-        className="relative"
+        className="relative flex items-center"
         aria-label="Go to user profile"
       >
-        <ProfileIcon size={20} />
+        {user ? (
+          <UserAvatar user={user} />
+        ) : (
+          <ProfileIcon size={20} />
+        )}
       </LocalizedClientLink>
       <Dropdown show={open}>
         {user ? (
           <div className="p-1">
-            <div className="lg:w-[200px]">
-              <h3 className="uppercase heading-xs border-b p-4">
-                Your account
-              </h3>
+            <div className="lg:w-[220px]">
+              {/* User info header */}
+              <div className="p-4 border-b">
+                <div className="flex items-center gap-3">
+                  <UserAvatar user={user} />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">
+                      {user.first_name} {user.last_name}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                  </div>
+                </div>
+              </div>
             </div>
             <NavigationItem href="/user/orders">Orders</NavigationItem>
             <NavigationItem href="/user/messages" className="relative">

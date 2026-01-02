@@ -61,7 +61,7 @@ export function Footer() {
       </div>
 
       <div className="py-6 border rounded-sm ">
-        <p className="text-md text-secondary text-center ">© 2025 Black Market Coalition LLC</p>
+        <p className="text-md text-secondary text-center ">© {new Date().getFullYear()} Black Market Coalition LLC</p>
       </div>
     </footer>
   )

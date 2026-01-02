@@ -1,15 +1,17 @@
 const links = {
   customerServices: [
-    { label: 'FAQs', path: 'https://www.blackmarketcoa.com' },
-    //{ label: 'Track Order', path: '#' },
-    //{ label: 'Returns', path: '#' },
-    //{ label: 'Payment', path: '#' },
+    { label: 'Shop by Category', path: '/categories' },
+    { label: 'Our Producers', path: '/producers' },
+    { label: 'Track Order', path: '/user/orders' },
+    { label: 'Returns', path: '/user/returns' },
   ],
   about: [
-    { label: 'About us', path: 'https://www.blackmarketcoa.com' },
+    { label: 'About Us', path: 'https://www.blackmarketcoa.com' },
+    { label: 'Sell on FreeBlackMarket', path: '/sell' },
+    { label: 'How It Works', path: 'https://www.blackmarketcoa.com' },
   ],
   connect: [
-    { label: 'Tik Tok', path: 'https://www.tiktok.com/@blackmarketcoa' },
+    { label: 'TikTok', path: 'https://www.tiktok.com/@blackmarketcoa' },
     { label: 'Instagram', path: 'https://www.instagram.com/blackmarket_coalition' },
   ],
 };

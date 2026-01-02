@@ -2,6 +2,7 @@ import { Button } from "./Button/Button"
 import { IconButton } from "./IconButton/IconButton"
 import { Avatar } from "./Avatar/Avatar"
 import { Badge } from "./Badge/Badge"
+import { BackToTop } from "./BackToTop/BackToTop"
 import { Breadcrumbs } from "./Breadcrumbs/Breadcrumbs"
 import { Checkbox } from "./Checkbox/Checkbox"
 import { Chip } from "./Chip/Chip"
@@ -23,6 +24,7 @@ export {
   IconButton,
   Avatar,
   Badge,
+  BackToTop,
   Breadcrumbs,
   Checkbox,
   Chip,
