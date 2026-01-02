@@ -119,24 +119,37 @@ export function extractAdminId(
 }
 
 /**
- * Require seller ID - throws if not authenticated
- * Use when you want to handle the error yourself
+ * Require seller ID - returns null if not authenticated and sends response
+ * @param req - The authenticated request
+ * @param res - The response object to send error if not authenticated
+ * @returns The seller ID or null if not authenticated
  */
-export function requireSellerId(req: AuthenticatedRequest): string {
+export function requireSellerId(req: AuthenticatedRequest, res: MedusaResponse): string | null {
   const sellerId = req.auth_context?.actor_id
   if (!sellerId) {
-    throw new Error("Seller authentication required")
+    res.status(401).json({ 
+      message: "Unauthorized - seller authentication required",
+      type: "unauthorized"
+    })
+    return null
   }
   return sellerId
 }
 
 /**
- * Require customer ID - throws if not authenticated
+ * Require customer ID - returns null if not authenticated and sends response
+ * @param req - The authenticated request
+ * @param res - The response object to send error if not authenticated
+ * @returns The customer ID or null if not authenticated
  */
-export function requireCustomerId(req: AuthenticatedRequest): string {
+export function requireCustomerId(req: AuthenticatedRequest, res: MedusaResponse): string | null {
   const customerId = req.auth_context?.actor_id
   if (!customerId) {
-    throw new Error("Customer authentication required")
+    res.status(401).json({ 
+      message: "Authentication required",
+      type: "unauthorized"
+    })
+    return null
   }
   return customerId
 }

@@ -32,6 +32,10 @@ export interface BadgeRequirements {
   regenerative_orders?: number
   has_active_subscription?: boolean
   total_to_producers?: number // in cents
+  months_active?: number
+  percentile?: number
+  referrals?: number
+  [key: string]: unknown // Allow additional dynamic properties
 }
 
 /**
@@ -106,6 +110,14 @@ export interface StatusHistoryEntry {
 }
 
 /**
+ * GeoJSON Geometry type (simplified for our use case)
+ */
+export interface GeoJSONGeometry {
+  type: "Point" | "Polygon" | "MultiPolygon" | "LineString" | "MultiLineString"
+  coordinates: number[] | number[][] | number[][][] | number[][][][]
+}
+
+/**
  * Service hours for a delivery zone
  */
 export interface ServiceHours {
@@ -122,7 +134,7 @@ export interface DeliveryZone {
   id: string
   name: string
   seller_id: string
-  geojson?: GeoJSON.Geometry
+  geojson?: GeoJSONGeometry
   zip_codes?: string[]
   radius_miles?: number
   center_lat?: number

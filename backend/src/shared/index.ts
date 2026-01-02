@@ -100,6 +100,7 @@ export {
   // Delivery
   type DeliveryStatus,
   type StatusHistoryEntry,
+  type GeoJSONGeometry,
   type ServiceHours,
   type DeliveryZone,
   // Subscription
