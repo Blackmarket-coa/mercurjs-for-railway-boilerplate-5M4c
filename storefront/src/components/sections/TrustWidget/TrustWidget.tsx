@@ -8,8 +8,6 @@ interface TrustWidgetProps {
   producerPercentage?: number
   /** Percentage going to platform operations (0-100) */
   platformPercentage?: number
-  /** Percentage going to community fund (0-100) */
-  communityFundPercentage?: number
   /** Cart total in cents */
   cartTotal?: number
   /** Currency code */
@@ -92,9 +90,8 @@ function ShopSvgIcon({ size = 20, color = "#15803d" }: { size?: number; color?: 
 }
 
 export function TrustWidget({
-  producerPercentage = 75,
-  platformPercentage = 20,
-  communityFundPercentage = 5,
+  producerPercentage = 97,
+  platformPercentage = 3,
   cartTotal,
   currencyCode = "USD",
   defaultExpanded = false,
@@ -109,9 +106,6 @@ export function TrustWidget({
     : undefined
   const platformAmount = cartTotal
     ? formatCurrency((cartTotal * platformPercentage) / 100, currencyCode)
-    : undefined
-  const communityAmount = cartTotal
-    ? formatCurrency((cartTotal * communityFundPercentage) / 100, currencyCode)
     : undefined
 
   const breakdownItems: BreakdownItemProps[] = [
@@ -144,14 +138,6 @@ export function TrustWidget({
       ),
       color: "bg-blue-100",
       description: "Keeps the marketplace running and connects you to producers",
-    },
-    {
-      label: "Community Fund",
-      percentage: communityFundPercentage,
-      amount: communityAmount,
-      icon: <HeartIcon size={20} color="#9333ea" />,
-      color: "bg-purple-100",
-      description: "Supports community gardens, food access, and local initiatives",
     },
   ]
 
@@ -238,11 +224,6 @@ export function TrustWidget({
               className="bg-blue-500 transition-all"
               style={{ width: `${platformPercentage}%` }}
               title={`Platform: ${platformPercentage}%`}
-            />
-            <div
-              className="bg-purple-500 transition-all"
-              style={{ width: `${communityFundPercentage}%` }}
-              title={`Community: ${communityFundPercentage}%`}
             />
           </div>
 
