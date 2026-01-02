@@ -14,7 +14,10 @@ export const useSignInWithEmailPass = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.auth.login("user", "emailpass", payload),
+    mutationFn: (payload) => sdk.auth.login("user", "emailpass", {
+      ...payload,
+      email: payload.email.toLowerCase().trim(),
+    }),
     onSuccess: async (data, variables, context) => {
       options?.onSuccess?.(data, variables, context)
     },
@@ -30,7 +33,10 @@ export const useSignUpWithEmailPass = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.auth.register("user", "emailpass", payload),
+    mutationFn: (payload) => sdk.auth.register("user", "emailpass", {
+      ...payload,
+      email: payload.email.toLowerCase().trim(),
+    }),
     onSuccess: async (data, variables, context) => {
       options?.onSuccess?.(data, variables, context)
     },
@@ -44,7 +50,7 @@ export const useResetPasswordForEmailPass = (
   return useMutation({
     mutationFn: (payload) =>
       sdk.auth.resetPassword("user", "emailpass", {
-        identifier: payload.email,
+        identifier: payload.email.toLowerCase().trim(),
       }),
     onSuccess: async (data, variables, context) => {
       options?.onSuccess?.(data, variables, context)

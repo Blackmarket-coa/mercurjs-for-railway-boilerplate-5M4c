@@ -1,5 +1,6 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import { IEventBusModuleService } from "@medusajs/framework/types"
 import { SELLER_EXTENSION_MODULE } from "../../../../modules/seller-extension"
 import SellerExtensionService from "../../../../modules/seller-extension/service"
 import { VendorType } from "../../../../modules/seller-extension/models/seller-metadata"
@@ -40,6 +41,7 @@ export const GET = async (
  * PUT /admin/seller-metadata/:seller_id
  * 
  * Update seller metadata by seller ID.
+ * Emits "vendor.verified" event when verified is set to true.
  */
 export const PUT = async (
   req: MedusaRequest,
@@ -52,11 +54,12 @@ export const PUT = async (
   )
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const eventBus: IEventBusModuleService = req.scope.resolve(Modules.EVENT_BUS)
 
-  // First, find the existing metadata
+  // First, find the existing metadata including current verified status
   const { data: existingMetadata } = await query.graph({
     entity: "seller_metadata",
-    fields: ["id"],
+    fields: ["id", "verified"],
     filters: {
       seller_id,
     },
@@ -67,6 +70,8 @@ export const PUT = async (
       message: `Seller metadata for seller ${seller_id} not found`,
     })
   }
+
+  const wasVerified = existingMetadata[0].verified
 
   const body = req.body as unknown as {
     vendor_type?: VendorType
@@ -99,6 +104,17 @@ export const PUT = async (
   }
   
   const updated = await sellerExtensionService.updateSellerMetadatas(updateData)
+
+  // Emit vendor.verified event if verified changed from false to true
+  if (!wasVerified && body.verified === true) {
+    await eventBus.emit({
+      name: "vendor.verified",
+      data: {
+        seller_id,
+      },
+    })
+    console.log(`Emitted vendor.verified event for seller ${seller_id}`)
+  }
 
   return res.json({
     seller_metadata: updated,

@@ -14,7 +14,10 @@ export const useSignInWithEmailPass = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.auth.login("seller", "emailpass", payload),
+    mutationFn: (payload) => sdk.auth.login("seller", "emailpass", {
+      ...payload,
+      email: payload.email.toLowerCase().trim(),
+    }),
     onSuccess: async (data, variables, context) => {
       options?.onSuccess?.(data, variables, context)
     },
@@ -33,13 +36,17 @@ export const useSignUpWithEmailPass = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.auth.register("seller", "emailpass", payload),
+    mutationFn: (payload) => sdk.auth.register("seller", "emailpass", {
+      ...payload,
+      email: payload.email.toLowerCase().trim(),
+    }),
     onSuccess: async (_, variables) => {
+      const normalizedEmail = variables.email.toLowerCase().trim()
       const seller = {
         name: variables.name,
         member: {
           name: variables.name,
-          email: variables.email,
+          email: normalizedEmail,
         },
       }
       await fetchQuery("/vendor/sellers", {
@@ -59,7 +66,10 @@ export const useSignUpForInvite = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.auth.register("seller", "emailpass", payload),
+    mutationFn: (payload) => sdk.auth.register("seller", "emailpass", {
+      ...payload,
+      email: payload.email.toLowerCase().trim(),
+    }),
     ...options,
   })
 }
@@ -70,7 +80,7 @@ export const useResetPasswordForEmailPass = (
   return useMutation({
     mutationFn: (payload) =>
       sdk.auth.resetPassword("seller", "emailpass", {
-        identifier: payload.email,
+        identifier: payload.email.toLowerCase().trim(),
       }),
     onSuccess: async (data, variables, context) => {
       options?.onSuccess?.(data, variables, context)

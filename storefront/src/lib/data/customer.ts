@@ -62,8 +62,11 @@ export const updateCustomer = async (body: HttpTypes.StoreUpdateCustomer) => {
 
 export async function signup(formData: FormData) {
   const password = formData.get("password") as string
+  const rawEmail = formData.get("email") as string
+  const normalizedEmail = rawEmail.toLowerCase().trim()
+  
   const customerForm = {
-    email: formData.get("email") as string,
+    email: normalizedEmail,
     first_name: formData.get("first_name") as string,
     last_name: formData.get("last_name") as string,
     phone: formData.get("phone") as string,
@@ -71,7 +74,7 @@ export async function signup(formData: FormData) {
 
   try {
     const token = await sdk.auth.register("customer", "emailpass", {
-      email: customerForm.email,
+      email: normalizedEmail,
       password: password,
     })
 
@@ -88,7 +91,7 @@ export async function signup(formData: FormData) {
     )
 
     const loginToken = await sdk.auth.login("customer", "emailpass", {
-      email: customerForm.email,
+      email: normalizedEmail,
       password,
     })
 
@@ -106,7 +109,8 @@ export async function signup(formData: FormData) {
 }
 
 export async function login(formData: FormData) {
-  const email = formData.get("email") as string
+  const rawEmail = formData.get("email") as string
+  const email = rawEmail.toLowerCase().trim()
   const password = formData.get("password") as string
 
   try {
