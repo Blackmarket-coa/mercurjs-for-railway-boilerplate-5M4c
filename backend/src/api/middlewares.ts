@@ -79,5 +79,23 @@ export default defineMiddlewares({
       matcher: "/store/couriers/me/*",
       middlewares: [authenticate("customer", ["bearer", "session"])],
     },
+    // Store subscription routes - customer authentication
+    {
+      matcher: "/store/subscriptions",
+      middlewares: [authenticate("customer", ["bearer", "session"])],
+    },
+    {
+      matcher: "/store/subscriptions/*",
+      middlewares: [authenticate("customer", ["bearer", "session"])],
+    },
+    // Vendor subscription routes - seller authentication
+    {
+      matcher: "/vendor/subscriptions",
+      middlewares: [authenticate("seller", "bearer")],
+    },
+    {
+      matcher: "/vendor/subscriptions/*",
+      middlewares: [authenticate("seller", "bearer")],
+    },
   ],
 })

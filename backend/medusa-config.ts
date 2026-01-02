@@ -107,6 +107,26 @@ module.exports = defineConfig({
     {
       resolve: './src/modules/hawala-ledger',
     },
+    // Subscription module (CSA shares, meal plans, recurring orders)
+    {
+      resolve: './src/modules/subscription',
+    },
+    // Payment providers (Stripe + system default)
+    {
+      resolve: '@medusajs/medusa/payment',
+      options: {
+        providers: [
+          {
+            resolve: '@medusajs/medusa/payment-stripe',
+            id: 'stripe',
+            options: {
+              apiKey: process.env.STRIPE_API_KEY || '',
+              webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || '',
+            },
+          },
+        ],
+      },
+    },
     // Fulfillment providers (manual + internal delivery)
     {
       resolve: '@medusajs/medusa/fulfillment',
