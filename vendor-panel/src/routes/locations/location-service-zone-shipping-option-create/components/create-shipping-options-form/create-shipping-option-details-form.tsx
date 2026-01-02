@@ -1,5 +1,5 @@
-import { Heading, Input, RadioGroup, Text } from "@medusajs/ui"
-import { UseFormReturn } from "react-hook-form"
+import { Heading, Input, RadioGroup, Select, Text } from "@medusajs/ui"
+import { UseFormReturn, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { VendorExtendedAdminServiceZone } from "../../../../../types/stock-location"
@@ -7,7 +7,9 @@ import { VendorExtendedAdminServiceZone } from "../../../../../types/stock-locat
 import { Form } from "../../../../../components/common/form"
 import { Combobox } from "../../../../../components/inputs/combobox"
 import { useComboboxData } from "../../../../../hooks/use-combobox-data"
+import { useFulfillmentProviderOptions } from "../../../../../hooks/api"
 import { fetchQuery } from "../../../../../lib/client"
+import { formatProvider } from "../../../../../lib/format-provider"
 import {
   FulfillmentSetType,
   ShippingOptionPriceType,
@@ -31,6 +33,16 @@ export const CreateShippingOptionDetailsForm = ({
 
   const isPickup = type === FulfillmentSetType.Pickup
 
+  const selectedProviderId = useWatch({
+    control: form.control,
+    name: "provider_id",
+  })
+
+  const { fulfillment_options: fulfillmentProviderOptions } =
+    useFulfillmentProviderOptions(selectedProviderId, {
+      enabled: !!selectedProviderId,
+    })
+
   const shippingProfiles = useComboboxData({
     queryFn: () =>
       fetchQuery(`/vendor/shipping-profiles`, {
@@ -46,19 +58,18 @@ export const CreateShippingOptionDetailsForm = ({
       })),
   })
 
-  // const fulfillmentProviders = useComboboxData({
-  //   queryFn: (params) =>
-  //     sdk.admin.fulfillmentProvider.list({
-  //       ...params,
-  //       stock_location_id: locationId,
-  //     }),
-  //   queryKey: ['fulfillment_providers'],
-  //   getOptions: (data) =>
-  //     data.fulfillment_providers.map((provider) => ({
-  //       label: formatProvider(provider.id),
-  //       value: provider.id,
-  //     })),
-  // });
+  const fulfillmentProviders = useComboboxData({
+    queryFn: () =>
+      fetchQuery(`/vendor/fulfillment-providers`, {
+        method: "GET",
+      }),
+    queryKey: ["fulfillment_providers_create_shipping_option"],
+    getOptions: (data) =>
+      (data.fulfillment_providers || []).map((provider: any) => ({
+        label: formatProvider(provider.id),
+        value: provider.id,
+      })),
+  })
 
   return (
     <div className="flex flex-1 flex-col items-center overflow-y-auto">
@@ -169,59 +180,50 @@ export const CreateShippingOptionDetailsForm = ({
           />
         </div>
 
-        {/* <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Form.Field
             control={form.control}
-            name='provider_id'
+            name="provider_id"
             render={({ field }) => {
               return (
                 <Form.Item>
                   <Form.Label
                     tooltip={t(
-                      'stockLocations.fulfillmentProviders.shippingOptionsTooltip'
+                      "stockLocations.fulfillmentProviders.shippingOptionsTooltip"
                     )}
                   >
-                    {t(
-                      'stockLocations.shippingOptions.fields.provider'
-                    )}
+                    {t("stockLocations.shippingOptions.fields.provider")}
                   </Form.Label>
                   <Form.Control>
                     <Combobox
                       {...field}
                       onChange={(e) => {
-                        field.onChange(e);
-                        form.setValue(
-                          'fulfillment_option_id',
-                          ''
-                        );
+                        field.onChange(e)
+                        form.setValue("fulfillment_option_id", "")
                       }}
                       options={fulfillmentProviders.options}
-                      searchValue={
-                        fulfillmentProviders.searchValue
-                      }
+                      searchValue={fulfillmentProviders.searchValue}
                       onSearchValueChange={
                         fulfillmentProviders.onSearchValueChange
                       }
-                      disabled={
-                        fulfillmentProviders.disabled
-                      }
+                      disabled={fulfillmentProviders.disabled}
                     />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
-              );
+              )
             }}
           />
 
           <Form.Field
             control={form.control}
-            name='fulfillment_option_id'
+            name="fulfillment_option_id"
             render={({ field }) => {
               return (
                 <Form.Item>
                   <Form.Label>
                     {t(
-                      'stockLocations.shippingOptions.fields.fulfillmentOption'
+                      "stockLocations.shippingOptions.fields.fulfillmentOption"
                     )}
                   </Form.Label>
                   <Form.Control>
@@ -237,15 +239,9 @@ export const CreateShippingOptionDetailsForm = ({
 
                       <Select.Content>
                         {fulfillmentProviderOptions
-                          ?.filter(
-                            (fo) =>
-                              !!fo.is_return === isReturn
-                          )
-                          .map((option) => (
-                            <Select.Item
-                              value={option.id}
-                              key={option.id}
-                            >
+                          ?.filter((fo: any) => !!fo.is_return === isReturn)
+                          .map((option: any) => (
+                            <Select.Item value={option.id} key={option.id}>
                               {option.name || option.id}
                             </Select.Item>
                           ))}
@@ -254,10 +250,10 @@ export const CreateShippingOptionDetailsForm = ({
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
-              );
+              )
             }}
           />
-        </div> */}
+        </div>
 
         {/* <Divider />
         <SwitchBox

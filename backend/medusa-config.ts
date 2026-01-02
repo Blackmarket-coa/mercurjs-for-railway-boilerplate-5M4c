@@ -107,6 +107,26 @@ module.exports = defineConfig({
     {
       resolve: './src/modules/hawala-ledger',
     },
+    // Fulfillment providers (manual + internal delivery)
+    {
+      resolve: '@medusajs/medusa/fulfillment',
+      options: {
+        providers: [
+          {
+            resolve: '@medusajs/medusa/fulfillment-manual',
+            id: 'manual',
+          },
+          {
+            resolve: './src/modules/internal-delivery-fulfillment',
+            id: 'internal-delivery',
+          },
+          {
+            resolve: './src/modules/digital-product-fulfillment',
+            id: 'digital',
+          },
+        ],
+      },
+    },
     // File module
     {
       resolve: '@medusajs/medusa/file',
