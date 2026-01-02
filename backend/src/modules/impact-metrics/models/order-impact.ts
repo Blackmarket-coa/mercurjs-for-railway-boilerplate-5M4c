@@ -58,9 +58,6 @@ const OrderImpact = model.define("order_impact", {
   // Is repeat order to same producer
   is_repeat: model.boolean().default(false),
   
-  // Timestamp
-  created_at: model.dateTime(),
-  
   // Metadata
   metadata: model.json().nullable(),
 })

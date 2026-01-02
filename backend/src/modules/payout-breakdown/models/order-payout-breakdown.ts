@@ -55,9 +55,6 @@ const OrderPayoutBreakdown = model.define("order_payout_breakdown", {
   // For multi-vendor orders
   seller_breakdown: model.json(), // Array<{ seller_id, amount, fees }>
   
-  // Timestamp
-  created_at: model.dateTime(),
-  
   // Metadata
   metadata: model.json().nullable(),
 })
