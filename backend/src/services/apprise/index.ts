@@ -15,3 +15,13 @@ export type {
   DeliveryNotificationData, 
   CourierNotificationData 
 } from "./delivery-notifications"
+
+export {
+  ResendService,
+  createResendService
+} from "./resend.service"
+export type {
+  ResendEmailOptions,
+  SendEmailParams,
+  ResendResponse
+} from "./resend.service"

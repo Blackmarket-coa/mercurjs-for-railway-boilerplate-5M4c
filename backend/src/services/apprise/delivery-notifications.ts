@@ -2,15 +2,18 @@
  * Delivery Notification Templates
  * 
  * Pre-built notification templates for delivery-related events.
+ * Supports both Apprise (multi-channel) and Resend (email) notifications.
  */
 
 import { AppriseService, AppriseNotification } from "./apprise.service"
+import { ResendService, createResendService } from "./resend.service"
 
 export interface DeliveryNotificationData {
   deliveryId: string
   deliveryNumber?: string
   orderId?: string
   customerName?: string
+  customerEmail?: string
   customerAddress?: string
   restaurantName?: string
   restaurantAddress?: string
@@ -23,6 +26,7 @@ export interface CourierNotificationData {
   courierId: string
   courierName: string
   courierPhone?: string
+  courierEmail?: string
   vehicleType?: string
 }
 
@@ -30,12 +34,15 @@ export interface CourierNotificationData {
  * Delivery Notification Service
  * 
  * Sends targeted notifications for delivery events.
+ * Uses Apprise for multi-channel (Discord, Slack, SMS) and Resend for email.
  */
 export class DeliveryNotificationService {
   private apprise: AppriseService
+  private resend: ResendService
 
-  constructor(apprise: AppriseService) {
+  constructor(apprise: AppriseService, resend?: ResendService) {
     this.apprise = apprise
+    this.resend = resend || createResendService()
   }
 
   /**
@@ -57,6 +64,7 @@ export class DeliveryNotificationService {
 
   /**
    * Notify specific driver that delivery is assigned to them
+   * Sends via both Apprise (push/SMS) and Resend (email)
    */
   async notifyDeliveryAssigned(
     data: DeliveryNotificationData,
@@ -70,7 +78,22 @@ export class DeliveryNotificationService {
       tag: `courier-${courier.courierId}`,
     }
 
-    return this.apprise.notify(notification, courierUrls)
+    // Send via Apprise (push, SMS, Discord, etc.)
+    const appriseResult = await this.apprise.notify(notification, courierUrls)
+
+    // Also send email via Resend if courier has email
+    if (courier.courierEmail) {
+      await this.resend.sendDriverNotification({
+        to: courier.courierEmail,
+        driverName: courier.courierName,
+        type: "assigned",
+        orderNumber: data.deliveryNumber || data.deliveryId.slice(-8),
+        pickupAddress: data.restaurantAddress,
+        deliveryAddress: data.customerAddress,
+      })
+    }
+
+    return appriseResult
   }
 
   /**
@@ -107,7 +130,23 @@ export class DeliveryNotificationService {
       tag: "customers",
     }
 
-    return this.apprise.notify(notification, customerUrls)
+    // Send via Apprise
+    const appriseResult = await this.apprise.notify(notification, customerUrls)
+
+    // Also send email via Resend if customer email provided
+    if (data.customerEmail) {
+      await this.resend.sendDeliveryNotification({
+        to: data.customerEmail,
+        customerName: data.customerName || "Customer",
+        orderNumber: data.deliveryNumber || data.deliveryId.slice(-8),
+        status: "picked_up",
+        details: `${courier.courierName} has picked up your order and is on the way! ${
+          data.estimatedTime ? `Estimated arrival: ${data.estimatedTime}` : ""
+        }`,
+      })
+    }
+
+    return appriseResult
   }
 
   /**
@@ -141,7 +180,20 @@ export class DeliveryNotificationService {
       tag: "customers",
     }
 
-    return this.apprise.notify(notification, customerUrls)
+    // Send via Apprise
+    const appriseResult = await this.apprise.notify(notification, customerUrls)
+
+    // Also send email via Resend if customer email provided
+    if (data.customerEmail) {
+      await this.resend.sendDeliveryNotification({
+        to: data.customerEmail,
+        customerName: data.customerName || "Customer",
+        orderNumber: data.deliveryNumber || data.deliveryId.slice(-8),
+        status: "delivered",
+      })
+    }
+
+    return appriseResult
   }
 
   /**
