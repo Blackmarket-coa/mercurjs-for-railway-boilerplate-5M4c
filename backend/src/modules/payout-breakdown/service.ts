@@ -88,7 +88,7 @@ class PayoutBreakdownService extends MedusaService({
     return this.createPayoutConfigs({
       name: "default",
       is_default: true,
-      platform_fee_percent: 10,
+      platform_fee_percent: 3,
       payment_processing_percent: 2.9,
       payment_processing_fixed: 30,
       community_fund_percent: 0,

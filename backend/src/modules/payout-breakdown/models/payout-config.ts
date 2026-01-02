@@ -34,8 +34,8 @@ const PayoutConfig = model.define("payout_config", {
   
   // === Platform Fees ===
   
-  // Base platform fee percentage (e.g., 10 = 10%)
-  platform_fee_percent: model.number().default(10),
+  // Base platform fee percentage (e.g., 3 = 3%)
+  platform_fee_percent: model.number().default(3),
   
   // Minimum platform fee (cents)
   platform_fee_min: model.number().default(0),

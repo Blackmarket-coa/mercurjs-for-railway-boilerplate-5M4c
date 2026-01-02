@@ -191,7 +191,7 @@ const SafetyStage = ({ onContinue }: StageProps) => {
       id: "no-hidden-fees",
       icon: <CurrencyDollar className="w-5 h-5" />,
       title: "No hidden fees",
-      description: "Simple 10% platform fee. That's it. No surprise charges.",
+      description: "Simple 3% platform fee. That's it. No surprise charges.",
     },
     {
       id: "clear-payouts",
@@ -293,7 +293,7 @@ const PossibilityStage = ({ onContinue }: StageProps) => {
   
   const weeklyRevenue = weeklyOrders * avgOrderValue
   const monthlyRevenue = weeklyRevenue * 4.33
-  const platformFee = monthlyRevenue * 0.1
+  const platformFee = monthlyRevenue * 0.03
   const yourEarnings = monthlyRevenue - platformFee
   
   const successStories = [
@@ -368,7 +368,7 @@ const PossibilityStage = ({ onContinue }: StageProps) => {
             <Text>${monthlyRevenue.toLocaleString()}</Text>
           </div>
           <div className="flex items-center justify-between mb-2">
-            <Text className="text-gray-600">Platform fee (10%)</Text>
+            <Text className="text-gray-600">Platform fee (3%)</Text>
             <Text className="text-gray-500">-${platformFee.toLocaleString()}</Text>
           </div>
           <div className="flex items-center justify-between pt-2 border-t">

@@ -75,8 +75,8 @@ export default function SellPage() {
   const benefits = [
     {
       icon: CurrencyDollarIcon,
-      title: "Keep 90% of Every Sale",
-      description: "Our 10% platform fee is one of the lowest in the industry. No hidden fees, no monthly charges, no listing fees.",
+      title: "Keep 97% of Every Sale",
+      description: "Our 3% platform fee is one of the lowest in the industry. No hidden fees, no monthly charges, no listing fees.",
     },
     {
       icon: UserGroupIcon,
@@ -121,7 +121,7 @@ export default function SellPage() {
   const faqs = [
     {
       question: "How much does it cost to sell?",
-      answer: "Nothing upfront. We take a 10% commission only when you make a sale. No monthly fees, no listing fees, no hidden charges. If you don't sell, you don't pay.",
+      answer: "Nothing upfront. We take a 3% commission only when you make a sale. No monthly fees, no listing fees, no hidden charges. If you don't sell, you don't pay.",
     },
     {
       question: "Do I need a commercial kitchen?",
@@ -167,7 +167,7 @@ export default function SellPage() {
             <div className="flex flex-wrap gap-4 mb-10">
               <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
                 <CheckCircleIcon className="w-5 h-5 text-green-300" />
-                <span>10% Platform Fee</span>
+                <span>3% Platform Fee</span>
               </div>
               <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
                 <CheckCircleIcon className="w-5 h-5 text-green-300" />
@@ -271,8 +271,8 @@ export default function SellPage() {
                     <span className="text-2xl font-bold">$15.00</span>
                   </div>
                   <div className="flex justify-between items-center border-b border-green-700 pb-4">
-                    <span>Our platform fee (10%)</span>
-                    <span className="text-xl text-green-300">-$1.50</span>
+                    <span>Our platform fee (3%)</span>
+                    <span className="text-xl text-green-300">-$0.45</span>
                   </div>
                   <div className="flex justify-between items-center border-b border-green-700 pb-4">
                     <span>Payment processing (~2.9%)</span>
@@ -280,7 +280,7 @@ export default function SellPage() {
                   </div>
                   <div className="flex justify-between items-center pt-2">
                     <span className="text-xl">You receive</span>
-                    <span className="text-3xl font-bold text-green-300">$13.06</span>
+                    <span className="text-3xl font-bold text-green-300">$14.11</span>
                   </div>
                 </div>
                 <p className="mt-6 text-green-200 text-sm">
@@ -307,21 +307,21 @@ export default function SellPage() {
           
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="text-5xl font-bold text-green-400 mb-2">90%</div>
+              <div className="text-5xl font-bold text-green-400 mb-2">97%</div>
               <div className="text-xl mb-2">Goes to You</div>
               <p className="text-gray-400">
                 The producer. The person who did the actual work.
               </p>
             </div>
             <div className="text-center">
-              <div className="text-5xl font-bold text-green-400 mb-2">7%</div>
+              <div className="text-5xl font-bold text-green-400 mb-2">2%</div>
               <div className="text-xl mb-2">Platform Operations</div>
               <p className="text-gray-400">
                 Servers, development, support, and making this all work.
               </p>
             </div>
             <div className="text-center">
-              <div className="text-5xl font-bold text-green-400 mb-2">3%</div>
+              <div className="text-5xl font-bold text-green-400 mb-2">1%</div>
               <div className="text-xl mb-2">Community Fund</div>
               <p className="text-gray-400">
                 Reinvested in producer grants, education, and local food access.
