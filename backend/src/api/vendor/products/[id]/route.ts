@@ -2,7 +2,7 @@ import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import { updateProductsWorkflow } from "@medusajs/medusa/core-flows"
 
-// Default fields matching MercurJS vendorProductFields
+// Core product fields - avoiding relations that may not exist
 const productFields = [
   "id",
   "title",
@@ -25,18 +25,10 @@ const productFields = [
   "mid_code",
   "material",
   "metadata",
-  "*type",
-  "*collection",
-  "*options",
-  "*options.values",
-  "*tags",
-  "*images",
-  "*variants",
-  "*variants.prices",
-  "variants.prices.price_rules.value",
-  "variants.prices.price_rules.attribute",
-  "*variants.options",
-  "*variants.inventory_items",
+  "images.*",
+  "variants.*",
+  "variants.prices.*",
+  "variants.inventory_items.*",
 ]
 
 export async function GET(
