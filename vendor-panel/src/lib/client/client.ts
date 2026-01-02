@@ -11,7 +11,8 @@ export const sdk = new Medusa({
 })
 
 // useful when you want to call the BE from the console and try things out quickly
-if (typeof window !== "undefined") {
+// Only expose in development to prevent security inspection in production
+if (process.env.NODE_ENV === "development" && typeof window !== "undefined") {
   ;(window as any).__sdk = sdk
 }
 

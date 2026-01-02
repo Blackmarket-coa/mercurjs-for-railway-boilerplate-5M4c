@@ -5,11 +5,14 @@ import type {
   MedusaNextFunction,
 } from "@medusajs/framework/http"
 
+// Basic email validation regex
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 /**
- * Middleware: Normalize Email to Lowercase
+ * Middleware: Normalize and Validate Email
  * 
  * Ensures email signups and logins are case-insensitive by normalizing
- * the email field to lowercase before processing.
+ * the email field to lowercase before processing. Also validates email format.
  */
 async function normalizeEmailMiddleware(
   req: MedusaRequest,
@@ -19,9 +22,19 @@ async function normalizeEmailMiddleware(
   if (req.body && typeof req.body === "object") {
     const body = req.body as Record<string, unknown>
     
-    // Normalize email field to lowercase
+    // Normalize and validate email field
     if (body.email && typeof body.email === "string") {
-      body.email = body.email.toLowerCase().trim()
+      const normalizedEmail = body.email.toLowerCase().trim()
+      
+      // Validate email format
+      if (!EMAIL_REGEX.test(normalizedEmail)) {
+        return res.status(400).json({ 
+          message: "Invalid email format",
+          type: "invalid_data"
+        })
+      }
+      
+      body.email = normalizedEmail
     }
     
     // Also handle identifier field (used in password reset)
