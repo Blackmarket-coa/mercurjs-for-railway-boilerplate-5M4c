@@ -34,6 +34,13 @@ import { ReviewForm } from "./ReviewForm/ReviewForm"
 import { ProfileDetails } from "./ProfileDetails/ProfileDetails"
 import { DeliveryCheck } from "./DeliveryCheck/DeliveryCheck"
 
+// FreeBlackMarket.com Conversion Copy
+export * from "./ConversionCopy"
+// FreeBlackMarket.com Trust & Impact Components
+export * from "./TrustIndicators"
+export * from "./PriceTransparency"
+export * from "./ImpactDashboard"
+
 export {
   PrimeCategoryNavbar,
   CategoryNavbar,

@@ -111,6 +111,29 @@ module.exports = defineConfig({
     {
       resolve: './src/modules/subscription',
     },
+    
+    // === FreeBlackMarket.com Feature Modules ===
+    // Vendor Verification module (trust badges, verification levels)
+    {
+      resolve: './src/modules/vendor-verification',
+    },
+    // Impact Metrics module (buyer/producer impact tracking)
+    {
+      resolve: './src/modules/impact-metrics',
+    },
+    // Payout Breakdown module (cost transparency)
+    {
+      resolve: './src/modules/payout-breakdown',
+    },
+    // Harvest Batches module (scarcity, seasonal availability)
+    {
+      resolve: './src/modules/harvest-batches',
+    },
+    // Vendor Rules module (vendor autonomy, fulfillment control)
+    {
+      resolve: './src/modules/vendor-rules',
+    },
+    
     // Payment providers (Stripe + system default)
     {
       resolve: '@medusajs/medusa/payment',

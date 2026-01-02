@@ -6,6 +6,7 @@ import {
   HomeProductSection,
   ShopByStyleSection,
 } from "@/components/sections"
+import { ValueProposition, BecomeProducerCTA } from "@/components/molecules"
 
 import type { Metadata } from "next"
 import { headers } from "next/headers"
@@ -50,7 +51,7 @@ export async function generateMetadata({
 
   const title = "Home"
   const description =
-    "BMC Community Market — Farm-fresh food direct from local producers. Shop with full harvest traceability, support regenerative agriculture, and keep your dollars in the community."
+    "Buy directly from producers. Not corporations. Not middlemen. Every dollar you spend goes straight to verified local producers. Transparent pricing, real community impact."
   const ogImage = "/B2C_Storefront_Open_Graph.png"
   const canonical = `${baseUrl}/${locale}`
 
@@ -163,13 +164,17 @@ export default async function Home({
       <Hero
         variant="mission"
         image="/images/hero/Image.jpg"
-        heading="Buy directly from local producers. Support what you believe in."
-        paragraph="Food, goods, and community projects — transparently sourced, fairly paid, locally rooted. Vendors pay just 3%, meaning more goes directly to the people growing your food."
+        heading="Buy directly from producers. Not corporations. Not middlemen."
+        paragraph="Every dollar you spend here goes straight to a producer who made it. Transparent pricing. Verified sources. Real community impact."
         buttons={[
           { label: "Shop the Market", path: "/categories" },
           { label: "Explore Producers", path: "/producers" },
         ]}
       />
+      {/* FreeBlackMarket.com Value Proposition */}
+      <div className="px-4 lg:px-8 w-full py-12">
+        <ValueProposition />
+      </div>
       <div className="px-4 lg:px-8 w-full">
         <HomeProductSection heading="trending listings" locale={locale} home />
       </div>
@@ -178,6 +183,10 @@ export default async function Home({
       </div>
       <BannerSection />
       <ShopByStyleSection />
+      {/* FreeBlackMarket.com: Producer CTA */}
+      <div className="px-4 lg:px-8 w-full py-8">
+        <BecomeProducerCTA />
+      </div>
       <BlogSection />
     </main>
   )

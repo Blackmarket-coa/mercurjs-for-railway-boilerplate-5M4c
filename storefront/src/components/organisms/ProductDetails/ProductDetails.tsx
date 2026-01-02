@@ -8,6 +8,7 @@ import {
   FarmStory,
 } from "@/components/cells"
 
+import { DirectFromProducerMessage, ProductTrustBanner } from "@/components/molecules"
 import { retrieveCustomer } from "@/lib/data/customer"
 import { getUserWishlists } from "@/lib/data/wishlist"
 import { AdditionalAttributeProps } from "@/types/product"
@@ -41,6 +42,15 @@ export const ProductDetails = async ({
         user={user}
         wishlist={wishlist}
       />
+      {/* FreeBlackMarket.com: Direct-to-producer messaging */}
+      <div className="my-4">
+        <DirectFromProducerMessage 
+          producerName={product?.seller?.name} 
+        />
+        <div className="mt-2">
+          <ProductTrustBanner />
+        </div>
+      </div>
       <ProductPageDetails details={product?.description || ""} />
       <ProductAdditionalAttributes
         attributes={product?.attribute_values || []}
