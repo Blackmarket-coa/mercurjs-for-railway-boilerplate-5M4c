@@ -11,8 +11,17 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Fragment, useEffect, useState } from "react"
 import { Button } from "@/components/atoms"
 import { CartShippingMethodRow } from "./CartShippingMethodRow"
-import { Listbox, Transition } from "@headlessui/react"
+import { Listbox, Transition, RadioGroup, Radio } from "@headlessui/react"
 import clsx from "clsx"
+
+// Fulfillment types
+const FULFILLMENT_TYPE = {
+  DELIVERY: "delivery",
+  PICKUP: "pickup",
+  SHIPPING: "shipping",
+} as const
+
+type FulfillmentType = typeof FULFILLMENT_TYPE[keyof typeof FULFILLMENT_TYPE]
 
 // Extended cart item product type to include seller
 type ExtendedStoreProduct = HttpTypes.StoreProduct & {
@@ -30,9 +39,19 @@ type CartItem = {
 
 export type StoreCardShippingMethod = HttpTypes.StoreCartShippingOption & {
   seller_id?: string
+  seller_name?: string
   service_zone?: {
     fulfillment_set: {
       type: string
+      location?: {
+        address?: {
+          address_1?: string
+          address_2?: string
+          city?: string
+          postal_code?: string
+          country_code?: string
+        }
+      }
     }
   }
 }
@@ -53,6 +72,24 @@ type ShippingProps = {
     | null
 }
 
+// Helper to format address
+function formatAddress(address?: {
+  address_1?: string
+  address_2?: string
+  city?: string
+  postal_code?: string
+  country_code?: string
+}) {
+  if (!address) return ""
+  const parts = [
+    address.address_1,
+    address.address_2,
+    address.postal_code && address.city ? `${address.postal_code} ${address.city}` : address.city,
+    address.country_code?.toUpperCase(),
+  ].filter(Boolean)
+  return parts.join(", ")
+}
+
 const CartShippingMethodsSection: React.FC<ShippingProps> = ({
   cart,
   availableShippingMethods,
@@ -66,6 +103,7 @@ const CartShippingMethodsSection: React.FC<ShippingProps> = ({
   const [missingShippingSellers, setMissingShippingSellers] = useState<
     string[]
   >([])
+  const [selectedFulfillmentType, setSelectedFulfillmentType] = useState<FulfillmentType | null>(null)
 
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -73,11 +111,51 @@ const CartShippingMethodsSection: React.FC<ShippingProps> = ({
 
   const isOpen = searchParams.get("step") === "delivery"
 
-  const _shippingMethods = availableShippingMethods?.filter(
+  // Filter out return methods
+  const _allMethods = availableShippingMethods?.filter(
     (sm) =>
       sm.rules?.find((rule: any) => rule.attribute === "is_return")?.value !==
       "true"
   )
+
+  // Categorize methods by fulfillment type
+  const _deliveryMethods = _allMethods?.filter(
+    (sm) => sm.service_zone?.fulfillment_set?.type === "delivery" ||
+            sm.name?.toLowerCase().includes("delivery") ||
+            sm.name?.toLowerCase().includes("internal")
+  )
+
+  const _pickupMethods = _allMethods?.filter(
+    (sm) => sm.service_zone?.fulfillment_set?.type === "pickup" ||
+            sm.name?.toLowerCase().includes("pickup")
+  )
+
+  const _shippingMethods = _allMethods?.filter(
+    (sm) => 
+      sm.service_zone?.fulfillment_set?.type !== "delivery" &&
+      sm.service_zone?.fulfillment_set?.type !== "pickup" &&
+      !sm.name?.toLowerCase().includes("delivery") &&
+      !sm.name?.toLowerCase().includes("pickup") &&
+      !sm.name?.toLowerCase().includes("internal")
+  )
+
+  const hasDeliveryOptions = !!_deliveryMethods?.length
+  const hasPickupOptions = !!_pickupMethods?.length
+  const hasShippingOptions = !!_shippingMethods?.length
+
+  // Determine current selection type based on selected method
+  useEffect(() => {
+    const currentMethodId = cart.shipping_methods?.[0]?.shipping_option_id
+    if (currentMethodId) {
+      if (_deliveryMethods?.find(m => m.id === currentMethodId)) {
+        setSelectedFulfillmentType(FULFILLMENT_TYPE.DELIVERY)
+      } else if (_pickupMethods?.find(m => m.id === currentMethodId)) {
+        setSelectedFulfillmentType(FULFILLMENT_TYPE.PICKUP)
+      } else {
+        setSelectedFulfillmentType(FULFILLMENT_TYPE.SHIPPING)
+      }
+    }
+  }, [cart.shipping_methods, _deliveryMethods, _pickupMethods])
 
   useEffect(() => {
     const set = new Set<string>()
@@ -87,7 +165,7 @@ const CartShippingMethodsSection: React.FC<ShippingProps> = ({
       }
     })
 
-    const sellerMethods = _shippingMethods?.map(({ seller_id }) => seller_id)
+    const sellerMethods = _allMethods?.map(({ seller_id }) => seller_id)
 
     const missingSellerIds = [...set].filter(
       (sellerId) => !sellerMethods?.includes(sellerId)
@@ -101,8 +179,8 @@ const CartShippingMethodsSection: React.FC<ShippingProps> = ({
   }, [cart])
 
   useEffect(() => {
-    if (_shippingMethods?.length) {
-      const promises = _shippingMethods
+    if (_allMethods?.length) {
+      const promises = _allMethods
         .filter((sm) => sm.price_type === "calculated")
         .map((sm) => calculatePriceForShippingOption(sm.id, cart.id))
 
@@ -153,7 +231,22 @@ const CartShippingMethodsSection: React.FC<ShippingProps> = ({
     setError(null)
   }, [isOpen])
 
-  const groupedBySellerId = _shippingMethods?.reduce((acc: any, method) => {
+  // Get methods based on selected fulfillment type
+  const getMethodsForType = (type: FulfillmentType | null) => {
+    switch (type) {
+      case FULFILLMENT_TYPE.DELIVERY:
+        return _deliveryMethods
+      case FULFILLMENT_TYPE.PICKUP:
+        return _pickupMethods
+      case FULFILLMENT_TYPE.SHIPPING:
+      default:
+        return _shippingMethods
+    }
+  }
+
+  const currentMethods = getMethodsForType(selectedFulfillmentType)
+
+  const groupedBySellerId = currentMethods?.reduce((acc: any, method) => {
     const sellerId = method.seller_id!
 
     if (!acc[sellerId]) {
@@ -235,99 +328,218 @@ const CartShippingMethodsSection: React.FC<ShippingProps> = ({
       {isOpen ? (
         <>
           <div className="grid">
-            <div data-testid="delivery-options-container">
-              <div className="pb-8 md:pt-0 pt-2">
-                {Object.keys(groupedBySellerId).map((key) => {
-                  return (
-                    <div key={key} className="mb-4">
-                      <Heading level="h3" className="mb-2">
-                        {groupedBySellerId[key][0].seller_name}
-                      </Heading>
-                      <Listbox
-                        value={cart.shipping_methods?.[0]?.id}
-                        onChange={(value) => {
-                          handleSetShippingMethod(value)
-                        }}
-                      >
-                        <div className="relative">
-                          <Listbox.Button
-                            className={clsx(
-                              "relative w-full flex justify-between items-center px-4 h-12 bg-component-secondary text-left  cursor-default focus:outline-none border rounded-lg focus-visible:ring-2 focus-visible:ring-opacity-75 focus-visible:ring-white focus-visible:ring-offset-gray-300 focus-visible:ring-offset-2 focus-visible:border-gray-300 text-base-regular"
-                            )}
-                          >
-                            {({ open }) => (
-                              <>
-                                <span className="block truncate">
-                                  Choose delivery option
-                                </span>
-                                <ChevronUpDown
-                                  className={clx(
-                                    "transition-rotate duration-200",
-                                    {
-                                      "transform rotate-180": open,
-                                    }
-                                  )}
-                                />
-                              </>
-                            )}
-                          </Listbox.Button>
-                          <Transition
-                            as={Fragment}
-                            leave="transition ease-in duration-100"
-                            leaveFrom="opacity-100"
-                            leaveTo="opacity-0"
-                          >
-                            <Listbox.Options
-                              className="absolute z-20 w-full overflow-auto text-small-regular bg-white border rounded-lg border-top-0 max-h-60 focus:outline-none sm:text-sm"
-                              data-testid="shipping-address-options"
-                            >
-                              {groupedBySellerId[key].map((option: any) => {
-                                return (
-                                  <Listbox.Option
-                                    className="cursor-pointer select-none relative pl-6 pr-10 hover:bg-gray-50 py-4 border-b"
-                                    value={option.id}
-                                    key={option.id}
-                                  >
-                                    {option.name}
-                                    {" - "}
-                                    {option.price_type === "flat" ? (
-                                      convertToLocale({
-                                        amount: option.amount!,
-                                        currency_code: cart?.currency_code,
-                                      })
-                                    ) : calculatedPricesMap[option.id] ? (
-                                      convertToLocale({
-                                        amount: calculatedPricesMap[option.id],
-                                        currency_code: cart?.currency_code,
-                                      })
-                                    ) : isLoadingPrices ? (
-                                      <Loader />
-                                    ) : (
-                                      "-"
-                                    )}
-                                  </Listbox.Option>
-                                )
-                              })}
-                            </Listbox.Options>
-                          </Transition>
-                        </div>
-                      </Listbox>
-                    </div>
-                  )
-                })}
-                {cart && (cart.shipping_methods?.length ?? 0) > 0 && (
-                  <div className="flex flex-col">
-                    {cart.shipping_methods?.map((method) => (
-                      <CartShippingMethodRow
-                        key={method.id}
-                        method={method}
-                        currency_code={cart.currency_code}
-                      />
-                    ))}
-                  </div>
-                )}
+            {/* Fulfillment Type Selector */}
+            {(hasDeliveryOptions || hasPickupOptions || hasShippingOptions) && (
+              <div className="mb-6">
+                <Heading level="h3" className="mb-3 text-lg font-medium">
+                  How would you like to receive your order?
+                </Heading>
+                <RadioGroup
+                  value={selectedFulfillmentType}
+                  onChange={(type: FulfillmentType) => setSelectedFulfillmentType(type)}
+                  className="flex flex-col gap-3"
+                >
+                  {hasDeliveryOptions && (
+                    <Radio
+                      value={FULFILLMENT_TYPE.DELIVERY}
+                      className="group relative flex items-center gap-3 cursor-pointer rounded-lg border p-4 transition-all data-[checked]:border-ui-border-interactive data-[checked]:bg-ui-bg-interactive-subtle hover:bg-gray-50"
+                    >
+                      <div className="flex h-5 w-5 items-center justify-center rounded-full border group-data-[checked]:border-ui-border-interactive group-data-[checked]:bg-ui-bg-interactive">
+                        <span className="invisible h-2.5 w-2.5 rounded-full bg-white group-data-[checked]:visible" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-medium">🚴 Delivery</span>
+                        <span className="text-sm text-ui-fg-subtle">
+                          Get your order delivered to your address
+                        </span>
+                      </div>
+                    </Radio>
+                  )}
+                  {hasPickupOptions && (
+                    <Radio
+                      value={FULFILLMENT_TYPE.PICKUP}
+                      className="group relative flex items-center gap-3 cursor-pointer rounded-lg border p-4 transition-all data-[checked]:border-ui-border-interactive data-[checked]:bg-ui-bg-interactive-subtle hover:bg-gray-50"
+                    >
+                      <div className="flex h-5 w-5 items-center justify-center rounded-full border group-data-[checked]:border-ui-border-interactive group-data-[checked]:bg-ui-bg-interactive">
+                        <span className="invisible h-2.5 w-2.5 rounded-full bg-white group-data-[checked]:visible" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-medium">🏪 Pickup</span>
+                        <span className="text-sm text-ui-fg-subtle">
+                          Pick up your order from the store
+                        </span>
+                      </div>
+                    </Radio>
+                  )}
+                  {hasShippingOptions && (
+                    <Radio
+                      value={FULFILLMENT_TYPE.SHIPPING}
+                      className="group relative flex items-center gap-3 cursor-pointer rounded-lg border p-4 transition-all data-[checked]:border-ui-border-interactive data-[checked]:bg-ui-bg-interactive-subtle hover:bg-gray-50"
+                    >
+                      <div className="flex h-5 w-5 items-center justify-center rounded-full border group-data-[checked]:border-ui-border-interactive group-data-[checked]:bg-ui-bg-interactive">
+                        <span className="invisible h-2.5 w-2.5 rounded-full bg-white group-data-[checked]:visible" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-medium">📦 Shipping</span>
+                        <span className="text-sm text-ui-fg-subtle">
+                          Have your order shipped via carrier
+                        </span>
+                      </div>
+                    </Radio>
+                  )}
+                </RadioGroup>
               </div>
-            </div>
+            )}
+
+            {/* Shipping Methods by Seller */}
+            {selectedFulfillmentType && groupedBySellerId && Object.keys(groupedBySellerId).length > 0 && (
+              <div data-testid="delivery-options-container">
+                <div className="pb-8 md:pt-0 pt-2">
+                  {Object.keys(groupedBySellerId).map((key) => {
+                    const methods = groupedBySellerId[key]
+                    const sellerName = methods[0]?.seller_name
+
+                    return (
+                      <div key={key} className="mb-4">
+                        <Heading level="h3" className="mb-2">
+                          {sellerName}
+                        </Heading>
+
+                        {/* Show pickup location info if pickup selected */}
+                        {selectedFulfillmentType === FULFILLMENT_TYPE.PICKUP && methods[0]?.location_address && (
+                          <div className="mb-3 p-3 bg-ui-bg-subtle rounded-lg text-sm">
+                            <span className="font-medium">Pickup Location: </span>
+                            {formatAddress(methods[0].location_address)}
+                          </div>
+                        )}
+
+                        <Listbox
+                          value={cart.shipping_methods?.find(sm => 
+                            methods.some((m: any) => m.id === sm.shipping_option_id)
+                          )?.shipping_option_id || null}
+                          onChange={(value) => {
+                            handleSetShippingMethod(value)
+                          }}
+                        >
+                          <div className="relative">
+                            <Listbox.Button
+                              className={clsx(
+                                "relative w-full flex justify-between items-center px-4 h-12 bg-component-secondary text-left cursor-default focus:outline-none border rounded-lg focus-visible:ring-2 focus-visible:ring-opacity-75 focus-visible:ring-white focus-visible:ring-offset-gray-300 focus-visible:ring-offset-2 focus-visible:border-gray-300 text-base-regular"
+                              )}
+                            >
+                              {({ open }) => {
+                                const selectedMethod = methods.find((m: any) => 
+                                  cart.shipping_methods?.some(sm => sm.shipping_option_id === m.id)
+                                )
+                                return (
+                                  <>
+                                    <span className="block truncate">
+                                      {selectedMethod 
+                                        ? `${selectedMethod.name} - ${
+                                            selectedMethod.price_type === "flat"
+                                              ? convertToLocale({
+                                                  amount: selectedMethod.amount!,
+                                                  currency_code: cart?.currency_code,
+                                                })
+                                              : calculatedPricesMap[selectedMethod.id]
+                                                ? convertToLocale({
+                                                    amount: calculatedPricesMap[selectedMethod.id],
+                                                    currency_code: cart?.currency_code,
+                                                  })
+                                                : "-"
+                                          }`
+                                        : `Choose ${selectedFulfillmentType} option`}
+                                    </span>
+                                    <ChevronUpDown
+                                      className={clx(
+                                        "transition-rotate duration-200",
+                                        {
+                                          "transform rotate-180": open,
+                                        }
+                                      )}
+                                    />
+                                  </>
+                                )
+                              }}
+                            </Listbox.Button>
+                            <Transition
+                              as={Fragment}
+                              leave="transition ease-in duration-100"
+                              leaveFrom="opacity-100"
+                              leaveTo="opacity-0"
+                            >
+                              <Listbox.Options
+                                className="absolute z-20 w-full overflow-auto text-small-regular bg-white border rounded-lg border-top-0 max-h-60 focus:outline-none sm:text-sm"
+                                data-testid="shipping-address-options"
+                              >
+                                {methods.map((option: any) => {
+                                  return (
+                                    <Listbox.Option
+                                      className="cursor-pointer select-none relative pl-6 pr-10 hover:bg-gray-50 py-4 border-b"
+                                      value={option.id}
+                                      key={option.id}
+                                    >
+                                      {option.name}
+                                      {" - "}
+                                      {option.price_type === "flat" ? (
+                                        convertToLocale({
+                                          amount: option.amount!,
+                                          currency_code: cart?.currency_code,
+                                        })
+                                      ) : calculatedPricesMap[option.id] ? (
+                                        convertToLocale({
+                                          amount: calculatedPricesMap[option.id],
+                                          currency_code: cart?.currency_code,
+                                        })
+                                      ) : isLoadingPrices ? (
+                                        <Loader />
+                                      ) : (
+                                        "-"
+                                      )}
+                                    </Listbox.Option>
+                                  )
+                                })}
+                              </Listbox.Options>
+                            </Transition>
+                          </div>
+                        </Listbox>
+                      </div>
+                    )
+                  })}
+                  {cart && (cart.shipping_methods?.length ?? 0) > 0 && (
+                    <div className="flex flex-col mt-4">
+                      <Heading level="h4" className="mb-2 text-sm font-medium text-ui-fg-subtle">
+                        Selected Options:
+                      </Heading>
+                      {cart.shipping_methods?.map((method) => (
+                        <CartShippingMethodRow
+                          key={method.id}
+                          method={method}
+                          currency_code={cart.currency_code}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* No methods available message */}
+            {selectedFulfillmentType && (!groupedBySellerId || Object.keys(groupedBySellerId).length === 0) && (
+              <div className="p-4 bg-ui-bg-subtle rounded-lg text-center">
+                <Text className="text-ui-fg-subtle">
+                  No {selectedFulfillmentType} options available for your location. 
+                  {hasShippingOptions && selectedFulfillmentType !== FULFILLMENT_TYPE.SHIPPING && (
+                    <> Try selecting <button 
+                      onClick={() => setSelectedFulfillmentType(FULFILLMENT_TYPE.SHIPPING)}
+                      className="text-ui-fg-interactive underline"
+                    >
+                      Shipping
+                    </button> instead.</>
+                  )}
+                </Text>
+              </div>
+            )}
           </div>
           <div>
             <ErrorMessage
@@ -349,6 +561,14 @@ const CartShippingMethodsSection: React.FC<ShippingProps> = ({
           <div className="text-small-regular">
             {cart && (cart.shipping_methods?.length ?? 0) > 0 && (
               <div className="flex flex-col">
+                {/* Show fulfillment type badge */}
+                {selectedFulfillmentType && (
+                  <div className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-ui-fg-subtle">
+                    {selectedFulfillmentType === FULFILLMENT_TYPE.DELIVERY && "🚴 Delivery"}
+                    {selectedFulfillmentType === FULFILLMENT_TYPE.PICKUP && "🏪 Pickup"}
+                    {selectedFulfillmentType === FULFILLMENT_TYPE.SHIPPING && "📦 Shipping"}
+                  </div>
+                )}
                 {cart.shipping_methods?.map((method) => (
                   <div key={method.id} className="mb-4 border rounded-md p-4">
                     <Text className="txt-medium-plus text-ui-fg-base mb-1">
