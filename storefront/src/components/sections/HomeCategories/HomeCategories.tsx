@@ -1,31 +1,54 @@
 import { Carousel } from "@/components/cells"
 import { CategoryCard } from "@/components/organisms"
 
-export const categories: { id: number; name: string; handle: string }[] = [
+export const categories: { id: number; name: string; handle: string; description?: string }[] = [
   {
     id: 1,
-    name: "3D Printed Items",
-    handle: "3d",
+    name: "Food & Beverages",
+    handle: "food-beverages",
+    description: "Sauces, spices, snacks & drinks",
   },
   {
     id: 2,
-    name: "Accessories",
-    handle: "accessories",
+    name: "Beauty & Wellness",
+    handle: "beauty-wellness",
+    description: "Skincare, haircare & self-care",
   },
   {
     id: 3,
-    name: "Components",
-    handle: "components",
+    name: "Art & Home Decor",
+    handle: "art-home",
+    description: "Prints, paintings & decor",
   },
   {
     id: 4,
-    name: "Hand Crafted Items",
-    handle: "crafted",
+    name: "Fashion & Apparel",
+    handle: "fashion",
+    description: "Clothing & accessories",
   },
   {
     id: 5,
-    name: "Essentials",
-    handle: "soap",
+    name: "Handmade & Crafts",
+    handle: "handmade",
+    description: "Jewelry, candles & crafted goods",
+  },
+  {
+    id: 6,
+    name: "Books & Media",
+    handle: "books-media",
+    description: "Books, music & digital content",
+  },
+  {
+    id: 7,
+    name: "Kids & Baby",
+    handle: "kids-baby",
+    description: "Toys, clothing & essentials",
+  },
+  {
+    id: 8,
+    name: "Services",
+    handle: "services",
+    description: "Consulting, coaching & more",
   },
 ]
 

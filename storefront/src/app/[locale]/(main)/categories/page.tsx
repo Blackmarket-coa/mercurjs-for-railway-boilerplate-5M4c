@@ -3,6 +3,8 @@ import { Suspense } from "react"
 
 import { Breadcrumbs } from "@/components/atoms"
 import { AlgoliaProductsListing, ProductListing } from "@/components/sections"
+import { categories as featuredCategories } from "@/components/sections/HomeCategories/HomeCategories"
+import { CategoryCard } from "@/components/organisms"
 import { getRegion } from "@/lib/data/regions"
 import isBot from "@/lib/helpers/isBot"
 import { headers } from "next/headers"
@@ -41,9 +43,9 @@ export async function generateMetadata({
     languages = { [toHreflang(locale)]: `${baseUrl}/${locale}/categories` }
   }
 
-  const title = "All Products"
-  const description = `Browse all products on ${
-    process.env.NEXT_PUBLIC_SITE_NAME || "our store"
+  const title = "Shop by Category"
+  const description = `Discover products from Black-owned businesses. Browse food, beauty, art, fashion, handmade goods, and more on ${
+    process.env.NEXT_PUBLIC_SITE_NAME || "FreeBlackMarket"
   }`
   const canonical = `${baseUrl}/${locale}/categories`
 
@@ -80,8 +82,8 @@ async function AllCategories({
 
   const breadcrumbsItems = [
     {
-      path: "/",
-      label: "All Products",
+      path: "/categories",
+      label: "Shop by Category",
     },
   ]
 
@@ -119,7 +121,7 @@ async function AllCategories({
               {
                 "@type": "ListItem",
                 position: 1,
-                name: "All Products",
+                name: "Shop by Category",
                 item: `${baseUrl}/${locale}/categories`,
               },
             ],
@@ -141,18 +143,33 @@ async function AllCategories({
         <Breadcrumbs items={breadcrumbsItems} />
       </div>
 
-      <h1 className="heading-xl uppercase">All Products</h1>
+      {/* Category Grid Section */}
+      <section className="mb-12">
+        <h1 className="heading-xl uppercase mb-2">Shop by Category</h1>
+        <p className="text-secondary mb-6">
+          Discover products from Black-owned businesses across different categories
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 justify-items-center">
+          {featuredCategories.map((category) => (
+            <CategoryCard key={category.id} category={category} />
+          ))}
+        </div>
+      </section>
 
-      <Suspense fallback={<ProductListingSkeleton />}>
-        {bot || !ALGOLIA_ID || !ALGOLIA_SEARCH_KEY ? (
-          <ProductListing showSidebar locale={locale} />
-        ) : (
-          <AlgoliaProductsListing
-            locale={locale}
-            currency_code={currency_code}
-          />
-        )}
-      </Suspense>
+      {/* All Products Section */}
+      <section>
+        <h2 className="heading-lg uppercase mb-4">All Products</h2>
+        <Suspense fallback={<ProductListingSkeleton />}>
+          {bot || !ALGOLIA_ID || !ALGOLIA_SEARCH_KEY ? (
+            <ProductListing showSidebar locale={locale} />
+          ) : (
+            <AlgoliaProductsListing
+              locale={locale}
+              currency_code={currency_code}
+            />
+          )}
+        </Suspense>
+      </section>
     </main>
   )
 }
