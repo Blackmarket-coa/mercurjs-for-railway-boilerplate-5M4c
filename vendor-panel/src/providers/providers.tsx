@@ -10,6 +10,7 @@ import {
 import { queryClient } from "../lib/query-client"
 import { I18nProvider } from "./i18n-provider"
 import { ThemeProvider } from "./theme-provider"
+import { VendorTypeProvider } from "./vendor-type-provider"
 
 type ProvidersProps = PropsWithChildren<{
   api: DashboardExtensionManager["api"]
@@ -23,7 +24,11 @@ export const Providers = ({ api, children }: ProvidersProps) => {
           <QueryClientProvider client={queryClient}>
             <ThemeProvider>
               <I18n />
-              <I18nProvider>{children}</I18nProvider>
+              <I18nProvider>
+                <VendorTypeProvider>
+                  {children}
+                </VendorTypeProvider>
+              </I18nProvider>
               <Toaster />
             </ThemeProvider>
           </QueryClientProvider>

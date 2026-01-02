@@ -16,8 +16,19 @@ import {
   BookOpen,
   LightBulb,
   ArrowRight,
+  Tag,
+  Heart,
+  SquaresPlus,
+  Newspaper,
 } from "@medusajs/icons"
 import { Link } from "react-router-dom"
+import { useVendorType } from "../../../providers/vendor-type-provider"
+import { 
+  getDashboardTitle, 
+  getWelcomeMessage, 
+  getOnboardingSteps,
+  getBeginnerTips,
+} from "../config/dashboard-config"
 
 type DashboardProps = {
   products: boolean
@@ -26,24 +37,16 @@ type DashboardProps = {
   stripe_connect: boolean
 }
 
-// Quick tips for beginners
-const BEGINNER_TIPS = [
-  {
-    icon: LightBulb,
-    title: "High-quality photos sell",
-    description: "Products with clear, professional photos get 3x more views. Use natural lighting and show multiple angles.",
-  },
-  {
-    icon: LightBulb,
-    title: "Price competitively",
-    description: "Research similar products on the marketplace. Competitive pricing helps you get discovered.",
-  },
-  {
-    icon: LightBulb,
-    title: "Respond quickly",
-    description: "Vendors who respond to messages within 24 hours have 50% higher conversion rates.",
-  },
-]
+// Icon map for onboarding steps
+const ICON_MAP: Record<string, any> = {
+  Building: BuildingStorefront,
+  MapPin: MapPin,
+  Tag: Tag,
+  Heart: Heart,
+  SquaresPlus: SquaresPlus,
+  Newspaper: Newspaper,
+  ShoppingCart: ShoppingCart,
+}
 
 // Help resources
 const HELP_RESOURCES = [
@@ -75,15 +78,43 @@ export const DashboardOnboarding = ({
 }: DashboardProps) => {
   const { mutateAsync } = useUpdateOnboarding()
   const [showTips, setShowTips] = useState(true)
+  const { vendorType, features, typeLabel } = useVendorType()
 
   useEffect(() => {
     mutateAsync()
   }, [])
 
-  // Calculate progress
-  const completedSteps = [store_information, locations_shipping, products].filter(Boolean).length
-  const totalSteps = 3
+  // Get type-specific content
+  const welcomeMessage = getWelcomeMessage(vendorType)
+  const onboardingSteps = getOnboardingSteps(vendorType, features)
+  const beginnerTips = getBeginnerTips(vendorType)
+
+  // Build completion map from props
+  const completionMap: Record<string, boolean> = {
+    store_information,
+    locations_shipping,
+    products,
+    menu: false, // TODO: check from API
+    plots: false, // TODO: check from API
+    volunteers: false, // TODO: check from API
+  }
+
+  // Calculate progress based on actual steps
+  const completedSteps = onboardingSteps.filter(step => completionMap[step.key]).length
+  const totalSteps = onboardingSteps.length
   const progressPercent = Math.round((completedSteps / totalSteps) * 100)
+
+  // Get badge color based on vendor type
+  const getBadgeColor = () => {
+    switch (vendorType) {
+      case "producer": return "green"
+      case "garden": return "blue"
+      case "maker": return "orange"
+      case "restaurant": return "purple"
+      case "mutual_aid": return "red"
+      default: return "grey"
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -92,13 +123,17 @@ export const DashboardOnboarding = ({
         <div className="bg-gradient-to-r from-ui-bg-subtle to-ui-bg-base px-6 py-6">
           <div className="flex items-start justify-between">
             <div className="space-y-2">
-              <Badge color="green" className="mb-2">Getting Started</Badge>
+              <div className="flex items-center gap-2 mb-2">
+                <Badge color="green">Getting Started</Badge>
+                {vendorType !== "default" && (
+                  <Badge color={getBadgeColor()}>{typeLabel}</Badge>
+                )}
+              </div>
               <Heading level="h1" className="text-2xl">
-                Welcome to Your Vendor Dashboard! 🎉
+                Welcome to Your {typeLabel} Dashboard! 🎉
               </Heading>
               <Text className="text-ui-fg-subtle max-w-lg">
-                You're just a few steps away from launching your store. Complete the setup below 
-                to start reaching customers and making sales.
+                {welcomeMessage} Complete the setup below to get started.
               </Text>
             </div>
             <div className="hidden md:flex flex-col items-end gap-2">
@@ -119,39 +154,25 @@ export const DashboardOnboarding = ({
         {/* Setup Steps */}
         <div className="px-6 py-4 space-y-1">
           <div className="flex items-center gap-2 mb-4">
-            <Text className="font-medium">Complete these steps to start selling:</Text>
+            <Text className="font-medium">Complete these steps to start:</Text>
             <Badge size="xsmall">{completedSteps}/{totalSteps} Complete</Badge>
           </div>
           
-          <OnboardingRow
-            label="Set up your store profile"
-            description="Add your store name, logo, and description so customers know who you are."
-            state={store_information}
-            link="/settings/store"
-            buttonLabel="Set Up Store"
-            stepNumber={1}
-            icon={BuildingStorefront}
-          />
-          
-          <OnboardingRow
-            label="Configure shipping & locations"
-            description="Tell us where you ship from and set your shipping rates. This is required before you can sell."
-            state={locations_shipping}
-            link="/settings/locations"
-            buttonLabel="Add Location"
-            stepNumber={2}
-            icon={MapPin}
-          />
-          
-          <OnboardingRow
-            label="Add your first product"
-            description="List your products with photos, descriptions, and prices. You can always add more later!"
-            state={products}
-            link="/products/create"
-            buttonLabel="Add Product"
-            stepNumber={3}
-            icon={ShoppingCart}
-          />
+          {onboardingSteps.map((step, index) => {
+            const IconComponent = ICON_MAP[step.icon] || BuildingStorefront
+            return (
+              <OnboardingRow
+                key={step.key}
+                label={step.title}
+                description={step.description}
+                state={completionMap[step.key] || false}
+                link={step.to}
+                buttonLabel={step.title.replace("Set up", "Set Up").replace("Add", "Add")}
+                stepNumber={index + 1}
+                icon={IconComponent}
+              />
+            )
+          })}
         </div>
       </Container>
 
@@ -161,7 +182,7 @@ export const DashboardOnboarding = ({
           <div className="flex items-center justify-between px-6 py-4 border-b border-ui-border-base">
             <div className="flex items-center gap-2">
               <LightBulb className="text-ui-tag-orange-icon" />
-              <Heading level="h2">Tips for Success</Heading>
+              <Heading level="h2">Tips for {typeLabel}s</Heading>
             </div>
             <Button 
               variant="transparent" 
@@ -172,14 +193,14 @@ export const DashboardOnboarding = ({
             </Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6">
-            {BEGINNER_TIPS.map((tip, index) => (
+            {beginnerTips.map((tip, index) => (
               <div 
                 key={index}
                 className="p-4 rounded-lg bg-ui-bg-subtle border border-ui-border-base"
               >
                 <div className="flex items-start gap-3">
                   <div className="p-2 rounded-lg bg-ui-tag-orange-bg">
-                    <tip.icon className="w-4 h-4 text-ui-tag-orange-icon" />
+                    <LightBulb className="w-4 h-4 text-ui-tag-orange-icon" />
                   </div>
                   <div>
                     <Text className="font-medium text-ui-fg-base">{tip.title}</Text>

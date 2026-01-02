@@ -16,7 +16,7 @@ import {
   CalendarMini,
   CashSolid,
 } from "@medusajs/icons"
-import { Divider, Text, clx } from "@medusajs/ui"
+import { Badge, Divider, Text, clx } from "@medusajs/ui"
 import { Collapsible as RadixCollapsible } from "radix-ui"
 import { useTranslation } from "react-i18next"
 
@@ -26,12 +26,14 @@ import { Shell } from "../../layout/shell"
 
 import { useLocation } from "react-router-dom"
 import { useMe } from "../../../hooks/api"
+import { useVendorNavigation, NavItemConfig } from "../../../hooks/navigation"
 
 import { useSearch } from "../../../providers/search-provider"
 import { UserMenu } from "../user-menu"
 import { StripeIcon } from "../../../assets/icons/Stripe"
 import { ImageAvatar } from "../../common/image-avatar"
 import { useRocketChat } from "../../../providers/rocketchat-provider"
+import { useVendorType } from "../../../providers/vendor-type-provider"
 
 export const MainLayout = () => {
   return (
@@ -68,184 +70,60 @@ const MainSidebar = () => {
 
 const Header = () => {
   const { seller } = useMe()
+  const { vendorType, typeLabel } = useVendorType()
 
   const name = seller?.name || ""
   const fallback = seller?.photo || "M"
 
+  // Get badge color based on vendor type
+  const getBadgeColor = () => {
+    switch (vendorType) {
+      case "producer": return "green"
+      case "garden": return "blue"
+      case "maker": return "orange"
+      case "restaurant": return "purple"
+      case "mutual_aid": return "red"
+      default: return "grey"
+    }
+  }
+
   return (
-    <div className="w-full p-3 p-0.5 pr-2 bg-ui-bg-subtle grid w-full grid-cols-[24px_1fr_15px] items-center gap-x-3">
-      {fallback ? (
-        <div className="w-7 h-7">
-          <ImageAvatar src={seller?.photo || "/logo.svg"} size={7} rounded />
-        </div>
-      ) : (
-        <Skeleton className="h-6 w-6 rounded-md" />
-      )}
-      <div className="block overflow-hidden text-left">
-        {name ? (
-          <Text
-            size="small"
-            weight="plus"
-            leading="compact"
-            className="truncate"
-          >
-            {name}
-          </Text>
+    <div className="w-full p-3 p-0.5 pr-2 bg-ui-bg-subtle">
+      <div className="grid w-full grid-cols-[24px_1fr_15px] items-center gap-x-3">
+        {fallback ? (
+          <div className="w-7 h-7">
+            <ImageAvatar src={seller?.photo || "/logo.svg"} size={7} rounded />
+          </div>
         ) : (
-          <Skeleton className="h-[9px] w-[120px]" />
+          <Skeleton className="h-6 w-6 rounded-md" />
         )}
+        <div className="block overflow-hidden text-left">
+          {name ? (
+            <Text
+              size="small"
+              weight="plus"
+              leading="compact"
+              className="truncate"
+            >
+              {name}
+            </Text>
+          ) : (
+            <Skeleton className="h-[9px] w-[120px]" />
+          )}
+        </div>
       </div>
+      {/* Vendor type badge */}
+      {vendorType !== "default" && (
+        <div className="mt-2">
+          <Badge color={getBadgeColor()} size="xsmall">
+            {typeLabel}
+          </Badge>
+        </div>
+      )}
     </div>
   )
 }
 
-const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
-  const { t } = useTranslation()
-
-  const { unreadCount } = useRocketChat()
-
-  return [
-    {
-      icon: <Component />,
-      label: "Dashboard",
-      to: "/dashboard",
-    },
-    {
-      icon: <CashSolid />,
-      label: "Finances",
-      to: "/finances",
-    },
-    {
-      icon: <ShoppingCart />,
-      label: t("orders.domain"),
-      to: "/orders",
-      items: [
-        // TODO: Enable when domin is introduced
-        // {
-        //   label: t("draftOrders.domain"),
-        //   to: "/draft-orders",
-        // },
-      ],
-    },
-    {
-      icon: <Tag />,
-      label: t("products.domain"),
-      to: "/products",
-      items: [
-        {
-          label: t("collections.domain"),
-          to: "/collections",
-        },
-        {
-          label: t("categories.domain"),
-          to: "/categories",
-        },
-        // TODO: Enable when domin is introduced
-        // {
-        //   label: t("giftCards.domain"),
-        //   to: "/gift-cards",
-        // },
-      ],
-    },
-        {
-      icon: <CalendarMini />,
-      label: "Order Cycles",
-      to: "/order-cycles",
-    },
-    {
-      icon: <Buildings />,
-      label: t("inventory.domain"),
-      to: "/inventory",
-      items: [
-        {
-          label: t("reservations.domain"),
-          to: "/reservations",
-        },
-      ],
-    },
-    {
-      icon: <Users />,
-      label: t("customers.domain"),
-      to: "/customers",
-      items: [
-        {
-          label: t("customerGroups.domain"),
-          to: "/customer-groups",
-        },
-      ],
-    },
-    {
-      icon: <ReceiptPercent />,
-      label: t("promotions.domain"),
-      to: "/promotions",
-      items: [
-        {
-          label: t("campaigns.domain"),
-          to: "/campaigns",
-        },
-      ],
-    },
-    {
-      icon: <CurrencyDollar />,
-      label: t("priceLists.domain"),
-      to: "/price-lists",
-    },
-    {
-      icon: <Star />,
-      label: "Reviews",
-      to: "/reviews",
-    },
-    {
-      icon: <ChatBubbleLeftRight />,
-      label: `Messages ${unreadCount > 0 ? `(${unreadCount})` : ""}`,
-      to: "/messages",
-    },
-    {
-      icon: <ListCheckbox />,
-      label: "Requests",
-      to: "/requests",
-      items: [
-        {
-          label: "Collections",
-          to: "/requests/collections",
-        },
-        {
-          label: "Categories",
-          to: "/requests/categories",
-        },
-        {
-          label: "Reviews",
-          to: "/requests/reviews",
-        },
-      ],
-    },
-  ]
-}
-
-const useExtensionRoutes = (): Omit<INavItem, "pathname">[] => {
-  return [
-    {
-      icon: <StripeIcon />,
-      label: "Stripe Connect",
-      to: "/stripe-connect",
-    },
-        {
-      icon: <CalendarMini />,
-      label: "Order Cycles",
-      to: "/order-cycles",
-    },
-    {
-      icon: <Buildings />,
-      label: "Venues",
-      to: "/venues",
-    },
-    {
-      icon: <ReceiptPercent />,
-      label: "Shows",
-      to: "/shows",
-    },
-  ]
-}
 const Searchbar = () => {
   const { t } = useTranslation()
   const { toggleSearch } = useSearch()
@@ -275,7 +153,7 @@ const Searchbar = () => {
 }
 
 const CoreRouteSection = () => {
-  const coreRoutes = useCoreRoutes()
+  const { coreRoutes } = useVendorNavigation()
 
   return (
     <nav className="flex flex-col gap-y-1 py-3">
@@ -288,7 +166,7 @@ const CoreRouteSection = () => {
 }
 
 const ExtensionRouteSection = () => {
-  const extensionRoutes = useExtensionRoutes()
+  const { extensionRoutes } = useVendorNavigation()
   const { t } = useTranslation()
 
   if (!extensionRoutes.length) return null

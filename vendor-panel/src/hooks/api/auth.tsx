@@ -3,6 +3,7 @@ import { HttpTypes } from "@medusajs/types"
 import { UseMutationOptions, useMutation } from "@tanstack/react-query"
 import { fetchQuery, sdk } from "../../lib/client"
 import { SocialLinks } from "../../types/user"
+import { VendorType } from "../../providers/vendor-type-provider"
 
 export const useSignInWithEmailPass = (
   options?: UseMutationOptions<
@@ -33,6 +34,7 @@ export const useSignUpWithEmailPass = (
     HttpTypes.AdminSignInWithEmailPassword & {
       confirmPassword: string
       name: string
+      vendor_type?: VendorType
       website_url?: string
       social_links?: SocialLinks
     }
@@ -51,6 +53,7 @@ export const useSignUpWithEmailPass = (
           name: variables.name,
           email: normalizedEmail,
         },
+        vendor_type: variables.vendor_type,
         website_url: variables.website_url,
         social_links: variables.social_links,
       }

@@ -5,13 +5,20 @@ import { model } from "@medusajs/framework/utils"
  * 
  * Defines the category of seller for feature gating, 
  * UI specialization, and commission logic.
+ * 
+ * Types:
+ * - producer: Farms, food producers, ranchers
+ * - garden: Community gardens, urban farms
+ * - maker: Artisans, crafters, cottage food producers
+ * - restaurant: Restaurants, ghost kitchens, food trucks
+ * - mutual_aid: Mutual aid networks, community organizations
  */
 export enum VendorType {
-  FARM = "FARM",
-  RESTAURANT = "RESTAURANT", 
-  DISTRIBUTOR = "DISTRIBUTOR",
-  CREATOR = "CREATOR",
-  RETAIL = "RETAIL",
+  PRODUCER = "producer",
+  GARDEN = "garden",
+  MAKER = "maker",
+  RESTAURANT = "restaurant",
+  MUTUAL_AID = "mutual_aid",
 }
 
 /**
@@ -57,7 +64,7 @@ const SellerMetadata = model.define("seller_metadata", {
   seller_id: model.text().unique(),
   
   // Vendor type classification
-  vendor_type: model.enum(Object.values(VendorType)).default(VendorType.RETAIL),
+  vendor_type: model.enum(Object.values(VendorType)).default(VendorType.PRODUCER),
   
   // Extended business information
   business_registration_number: model.text().nullable(),

@@ -1,5 +1,7 @@
 import { HttpTypes } from "@medusajs/types"
 
+export type VendorTypeValue = "producer" | "garden" | "maker" | "restaurant" | "mutual_aid"
+
 export interface Review {
   id: string
   rating: number
@@ -46,6 +48,8 @@ export interface StoreVendor {
   country_code?: string
   tax_id?: string
   store_status?: "ACTIVE" | "SUSPENDED" | "INACTIVE"
+  // Vendor type classification
+  vendor_type?: VendorTypeValue
   // Social media and storefront links
   social_links?: SocialLinks
   storefront_links?: StorefrontLinks
