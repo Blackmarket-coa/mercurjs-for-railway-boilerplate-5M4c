@@ -2049,6 +2049,10 @@ export const RouteMap: RouteObject[] = [
                 : undefined,
           },
           {
+            path: "/signup",
+            lazy: () => import("../../routes/signup"),
+          },
+          {
             path: "/reset-password",
             lazy: () => import("../../routes/reset-password"),
           },
