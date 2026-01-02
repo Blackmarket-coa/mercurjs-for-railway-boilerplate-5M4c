@@ -11,6 +11,9 @@ import { useSignUpWithEmailPass } from "../../hooks/api"
 import { isFetchError } from "../../lib/is-fetch-error"
 import { useState } from "react"
 
+// URL validation helper - allows empty strings
+const urlSchema = z.string().url().optional().or(z.literal(""))
+
 const RegisterSchema = z.object({
   name: z.string().min(2, { message: "Name should be a string" }),
   email: z.string().email({ message: "Invalid email" }),
@@ -18,10 +21,15 @@ const RegisterSchema = z.object({
   confirmPassword: z.string().min(2, {
     message: "Confirm Password should be a string",
   }),
+  // Optional fields for social/website
+  website_url: urlSchema,
+  instagram: urlSchema,
+  facebook: urlSchema,
 })
 
 export const Register = () => {
   const [success, setSuccess] = useState(false)
+  const [showOptionalFields, setShowOptionalFields] = useState(false)
   const { t } = useTranslation()
 
   const form = useForm<z.infer<typeof RegisterSchema>>({
@@ -31,13 +39,16 @@ export const Register = () => {
       email: "",
       password: "",
       confirmPassword: "",
+      website_url: "",
+      instagram: "",
+      facebook: "",
     },
   })
 
   const { mutateAsync, isPending } = useSignUpWithEmailPass()
 
   const handleSubmit = form.handleSubmit(
-    async ({ name, email, password, confirmPassword }) => {
+    async ({ name, email, password, confirmPassword, website_url, instagram, facebook }) => {
       if (password !== confirmPassword) {
         form.setError("password", {
           type: "manual",
@@ -51,12 +62,20 @@ export const Register = () => {
         return null
       }
 
+      // Build social links object if any are provided
+      const social_links = (instagram || facebook) ? {
+        instagram: instagram || undefined,
+        facebook: facebook || undefined,
+      } : undefined
+
       await mutateAsync(
         {
           name,
           email,
           password,
           confirmPassword,
+          website_url: website_url || undefined,
+          social_links,
         },
         {
           onError: (error) => {
@@ -201,6 +220,79 @@ export const Register = () => {
                   }}
                 />
               </div>
+              
+              {/* Optional social/website fields */}
+              <div className="border-t pt-4 mt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowOptionalFields(!showOptionalFields)}
+                  className="text-ui-fg-interactive text-sm hover:underline flex items-center gap-1 mx-auto"
+                >
+                  {showOptionalFields ? "Hide" : "Add"} website & social links (optional)
+                  <svg 
+                    className={`w-4 h-4 transition-transform ${showOptionalFields ? 'rotate-180' : ''}`} 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                
+                {showOptionalFields && (
+                  <div className="flex flex-col gap-y-2 mt-4">
+                    <Form.Field
+                      control={form.control}
+                      name="website_url"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Control>
+                            <Input
+                              {...field}
+                              className="bg-ui-bg-field-component"
+                              placeholder="Website URL (e.g., https://yourfarm.com)"
+                            />
+                          </Form.Control>
+                        </Form.Item>
+                      )}
+                    />
+                    <Form.Field
+                      control={form.control}
+                      name="instagram"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Control>
+                            <Input
+                              {...field}
+                              className="bg-ui-bg-field-component"
+                              placeholder="Instagram URL"
+                            />
+                          </Form.Control>
+                        </Form.Item>
+                      )}
+                    />
+                    <Form.Field
+                      control={form.control}
+                      name="facebook"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Control>
+                            <Input
+                              {...field}
+                              className="bg-ui-bg-field-component"
+                              placeholder="Facebook URL"
+                            />
+                          </Form.Control>
+                        </Form.Item>
+                      )}
+                    />
+                    <Text size="xsmall" className="text-ui-fg-muted text-center">
+                      You can add more links after registration
+                    </Text>
+                  </div>
+                )}
+              </div>
+              
               {validationError && (
                 <div className="text-center">
                   <Hint className="inline-flex" variant={"error"}>

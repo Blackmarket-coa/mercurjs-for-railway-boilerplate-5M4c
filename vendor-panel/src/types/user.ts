@@ -9,6 +9,26 @@ export interface Review {
   reference: string
 }
 
+export interface SocialLinks {
+  instagram?: string
+  facebook?: string
+  twitter?: string
+  tiktok?: string
+  youtube?: string
+  linkedin?: string
+  pinterest?: string
+}
+
+export interface StorefrontLinks {
+  website?: string
+  etsy?: string
+  amazon?: string
+  shopify?: string
+  ebay?: string
+  farmers_market?: string
+  other?: { name: string; url: string }[]
+}
+
 export interface StoreVendor {
   id?: string
   name?: string
@@ -26,6 +46,10 @@ export interface StoreVendor {
   country_code?: string
   tax_id?: string
   store_status?: "ACTIVE" | "SUSPENDED" | "INACTIVE"
+  // Social media and storefront links
+  social_links?: SocialLinks
+  storefront_links?: StorefrontLinks
+  website_url?: string
 }
 
 export interface TeamMemberProps {

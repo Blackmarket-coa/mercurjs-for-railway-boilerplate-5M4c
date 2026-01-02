@@ -8,6 +8,7 @@ import { SingleColumnPageSkeleton } from "../../../components/common/skeleton/sk
 import { SingleColumnPage } from "../../../components/layout/pages/index.ts"
 import { useDashboardExtension } from "../../../extensions/index.ts"
 import { CompanySection } from "./components/company-section/company-section.tsx"
+import { LinksSection } from "./components/links-section/index.ts"
 import { useMe } from "../../../hooks/api/users.tsx"
 
 export const StoreDetail = () => {
@@ -40,6 +41,7 @@ export const StoreDetail = () => {
     >
       <StoreGeneralSection seller={seller} />
       <CompanySection seller={seller} />
+      <LinksSection seller={seller} />
     </SingleColumnPage>
   )
 }

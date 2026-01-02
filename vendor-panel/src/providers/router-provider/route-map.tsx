@@ -1244,6 +1244,10 @@ export const RouteMap: RouteObject[] = [
                 path: "metadata/edit",
                 lazy: () => import("../../routes/store/store-metadata"),
               },
+              {
+                path: "links",
+                lazy: () => import("../../routes/store/store-links"),
+              },
             ],
           },
           {

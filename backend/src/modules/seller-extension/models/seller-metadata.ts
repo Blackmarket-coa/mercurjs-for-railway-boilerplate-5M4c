@@ -15,6 +15,34 @@ export enum VendorType {
 }
 
 /**
+ * Social Media Links Interface
+ * Stores URLs for various social media platforms
+ */
+export interface SocialLinks {
+  instagram?: string
+  facebook?: string
+  twitter?: string
+  tiktok?: string
+  youtube?: string
+  linkedin?: string
+  pinterest?: string
+}
+
+/**
+ * External Storefront Links Interface
+ * Stores URLs for other platforms where the vendor sells
+ */
+export interface StorefrontLinks {
+  website?: string
+  etsy?: string
+  amazon?: string
+  shopify?: string
+  ebay?: string
+  farmers_market?: string
+  other?: { name: string; url: string }[]
+}
+
+/**
  * Seller Metadata - Extension for MercurJS Seller
  * 
  * Since we can't modify the @mercurjs/b2c-core seller model directly,
@@ -34,6 +62,15 @@ const SellerMetadata = model.define("seller_metadata", {
   // Extended business information
   business_registration_number: model.text().nullable(),
   tax_classification: model.text().nullable(),
+  
+  // Social media links (JSON object with platform keys)
+  social_links: model.json().nullable(), // SocialLinks type
+  
+  // External storefront links (where else they sell)
+  storefront_links: model.json().nullable(), // StorefrontLinks type
+  
+  // Primary website URL (quick access)
+  website_url: model.text().nullable(),
   
   // Agricultural-specific fields (used when vendor_type = FARM)
   farm_practices: model.json().nullable(), // organic, regenerative, conventional, etc.

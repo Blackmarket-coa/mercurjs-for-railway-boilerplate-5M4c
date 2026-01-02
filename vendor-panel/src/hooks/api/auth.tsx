@@ -2,6 +2,7 @@ import { FetchError } from "@medusajs/js-sdk"
 import { HttpTypes } from "@medusajs/types"
 import { UseMutationOptions, useMutation } from "@tanstack/react-query"
 import { fetchQuery, sdk } from "../../lib/client"
+import { SocialLinks } from "../../types/user"
 
 export const useSignInWithEmailPass = (
   options?: UseMutationOptions<
@@ -32,6 +33,8 @@ export const useSignUpWithEmailPass = (
     HttpTypes.AdminSignInWithEmailPassword & {
       confirmPassword: string
       name: string
+      website_url?: string
+      social_links?: SocialLinks
     }
   >
 ) => {
@@ -48,6 +51,8 @@ export const useSignUpWithEmailPass = (
           name: variables.name,
           email: normalizedEmail,
         },
+        website_url: variables.website_url,
+        social_links: variables.social_links,
       }
       await fetchQuery("/vendor/sellers", {
         method: "POST",
