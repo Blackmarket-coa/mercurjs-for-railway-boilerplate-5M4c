@@ -3,6 +3,7 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework"
 import { FOOD_DISTRIBUTION_MODULE } from "../../../modules/food-distribution"
 import type FoodDistributionService from "../../../modules/food-distribution/service"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { requireSellerId, validationError } from "../../../shared"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -56,11 +57,8 @@ const listZonesQuerySchema = z.object({
 
 export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   try {
-    const sellerId = req.auth_context?.actor_id
-    if (!sellerId) {
-      res.status(401).json({ message: "Unauthorized" })
-      return
-    }
+    const sellerId = requireSellerId(req, res)
+    if (!sellerId) return
 
     const query = listZonesQuerySchema.parse(req.query)
     const queryService = req.scope.resolve(ContainerRegistrationKeys.QUERY)
@@ -118,11 +116,8 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
 
 export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   try {
-    const sellerId = req.auth_context?.actor_id
-    if (!sellerId) {
-      res.status(401).json({ message: "Unauthorized" })
-      return
-    }
+    const sellerId = requireSellerId(req, res)
+    if (!sellerId) return
 
     const data = createZoneSchema.parse(req.body)
     const queryService = req.scope.resolve(ContainerRegistrationKeys.QUERY)

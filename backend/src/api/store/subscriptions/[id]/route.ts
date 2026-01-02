@@ -3,6 +3,7 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/
 import { SUBSCRIPTION_MODULE } from "../../../../modules/subscription"
 import SubscriptionModuleService from "../../../../modules/subscription/service"
 import { manageSubscriptionWorkflow } from "../../../../workflows/subscription"
+import { requireCustomerId, notFound, forbidden, validationError } from "../../../../shared"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -23,12 +24,8 @@ export async function GET(
   res: MedusaResponse
 ) {
   try {
-    const customerId = req.auth_context.actor_id
-
-    if (!customerId) {
-      res.status(401).json({ message: "Authentication required" })
-      return
-    }
+    const customerId = requireCustomerId(req, res)
+    if (!customerId) return
 
     const { id } = req.params
     const subscriptionService = req.scope.resolve<SubscriptionModuleService>(SUBSCRIPTION_MODULE)
@@ -62,12 +59,8 @@ export async function POST(
   res: MedusaResponse
 ) {
   try {
-    const customerId = req.auth_context.actor_id
-
-    if (!customerId) {
-      res.status(401).json({ message: "Authentication required" })
-      return
-    }
+    const customerId = requireCustomerId(req, res)
+    if (!customerId) return
 
     const { id } = req.params
     const data = updateSubscriptionSchema.parse(req.body)

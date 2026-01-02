@@ -8,7 +8,7 @@ import { GalleryCarouselItem } from "./GalleryCarouselItem/GalleryCarouselItem"
 import { ProductPageAccordion } from "./ProductPageAccordion/ProductPageAccordion"
 import { SellerReview } from "./SellerReview/SellerReview"
 import { ProductTags } from "./ProductTags/ProductTags"
-import { ProdutMeasurementRow } from "./ProdutMeasurementRow/ProdutMeasurementRow"
+import { ProductMeasurementRow, ProdutMeasurementRow } from "./ProductMeasurementRow/ProductMeasurementRow"
 import { ProductCarouselIndicator } from "./ProductCarouselIndicator/ProductCarouselIndicator"
 import { Modal } from "./Modal/Modal"
 import { ReportListingForm } from "./ReportListingForm/ReportListingForm"
@@ -33,6 +33,7 @@ import { AddressForm } from "./AddressForm/AddressForm"
 import { ReviewForm } from "./ReviewForm/ReviewForm"
 import { ProfileDetails } from "./ProfileDetails/ProfileDetails"
 import { DeliveryCheck } from "./DeliveryCheck/DeliveryCheck"
+import { ContactSellerButton } from "./ContactSellerButton/ContactSellerButton"
 
 // FreeBlackMarket.com Conversion Copy
 export * from "./ConversionCopy"
@@ -52,7 +53,8 @@ export {
   ProductPageAccordion,
   SellerReview,
   ProductTags,
-  ProdutMeasurementRow,
+  ProductMeasurementRow,
+  ProdutMeasurementRow, // Deprecated alias for backward compatibility
   ProductCarouselIndicator,
   Modal,
   ReportListingForm,
@@ -77,4 +79,5 @@ export {
   ReviewForm,
   ProfileDetails,
   DeliveryCheck,
+  ContactSellerButton,
 }

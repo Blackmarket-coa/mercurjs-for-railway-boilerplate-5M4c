@@ -6,6 +6,11 @@ import {
   OrderImpact,
   BuyerBadgeType,
 } from "./models"
+import { 
+  OrderImpactData, 
+  ProducerBreakdownItem, 
+  BadgeRequirements 
+} from "../../shared/types"
 
 /**
  * Default buyer badges to seed
@@ -16,7 +21,7 @@ export const DEFAULT_BUYER_BADGES: Array<{
   description: string
   icon: string
   color: string
-  requirements: any
+  requirements: BadgeRequirements
   display_order: number
 }> = [
   {
@@ -224,8 +229,8 @@ class ImpactMetricsService extends MedusaService({
    */
   private async updateBuyerImpactFromOrder(
     customerId: string,
-    orderImpact: any,
-    producerBreakdown: Array<{ seller_id: string; amount: number }>
+    orderImpact: OrderImpactData,
+    producerBreakdown: ProducerBreakdownItem[]
   ): Promise<void> {
     const buyerImpact = await this.getOrCreateBuyerImpact(customerId)
     

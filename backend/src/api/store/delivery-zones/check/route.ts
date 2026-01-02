@@ -213,7 +213,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       if (inZone) {
         const fee = calculateDeliveryFee(distance, zone)
         const estimatedTime = estimateDeliveryTime(distance)
-        const isOpen = isWithinServiceHours(zone.service_hours as any)
+        const isOpen = isWithinServiceHours(zone.service_hours as Record<string, { open: string; close: string }> | null)
         
         matchingZones.push({
           zone,

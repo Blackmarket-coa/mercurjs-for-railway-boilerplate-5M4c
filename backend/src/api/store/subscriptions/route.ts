@@ -4,6 +4,7 @@ import { SUBSCRIPTION_MODULE } from "../../../modules/subscription"
 import SubscriptionModuleService from "../../../modules/subscription/service"
 import { SubscriptionInterval, SubscriptionType, SubscriptionStatus } from "../../../modules/subscription/types"
 import { createSubscriptionWorkflow } from "../../../workflows/subscription"
+import { requireCustomerId, validationError } from "../../../shared"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -25,12 +26,8 @@ const createSubscriptionSchema = z.object({
 
 export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   try {
-    const customerId = req.auth_context.actor_id
-
-    if (!customerId) {
-      res.status(401).json({ message: "Authentication required" })
-      return
-    }
+    const customerId = requireCustomerId(req, res)
+    if (!customerId) return
 
     const subscriptionService = req.scope.resolve<SubscriptionModuleService>(SUBSCRIPTION_MODULE)
     
@@ -60,12 +57,8 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
 
 export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   try {
-    const customerId = req.auth_context.actor_id
-
-    if (!customerId) {
-      res.status(401).json({ message: "Authentication required" })
-      return
-    }
+    const customerId = requireCustomerId(req, res)
+    if (!customerId) return
 
     const data = createSubscriptionSchema.parse(req.body)
 

@@ -1,6 +1,11 @@
 import { SingleProductMeasurement } from '@/types/product';
 
-export const ProdutMeasurementRow = ({
+/**
+ * ProductMeasurementRow - Displays product dimensions in a row format
+ * 
+ * Note: This component was renamed from ProdutMeasurementRow (typo fix)
+ */
+export const ProductMeasurementRow = ({
   measurement,
 }: {
   measurement: SingleProductMeasurement;
@@ -14,3 +19,7 @@ export const ProdutMeasurementRow = ({
     </div>
   );
 };
+
+// Backward compatibility alias (deprecated - will be removed in future version)
+/** @deprecated Use ProductMeasurementRow instead */
+export const ProdutMeasurementRow = ProductMeasurementRow;

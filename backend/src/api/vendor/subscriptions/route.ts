@@ -2,6 +2,7 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/
 import { SUBSCRIPTION_MODULE } from "../../../modules/subscription"
 import SubscriptionModuleService from "../../../modules/subscription/service"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { requireSellerId } from "../../../shared"
 
 // ===========================================
 // GET /vendor/subscriptions
@@ -10,12 +11,8 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   try {
-    const sellerId = req.auth_context.actor_id
-
-    if (!sellerId) {
-      res.status(401).json({ message: "Unauthorized" })
-      return
-    }
+    const sellerId = requireSellerId(req, res)
+    if (!sellerId) return
 
     const subscriptionService = req.scope.resolve<SubscriptionModuleService>(SUBSCRIPTION_MODULE)
     const queryService = req.scope.resolve(ContainerRegistrationKeys.QUERY)

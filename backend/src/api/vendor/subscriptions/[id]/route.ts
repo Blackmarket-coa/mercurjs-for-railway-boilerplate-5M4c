@@ -1,6 +1,7 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { SUBSCRIPTION_MODULE } from "../../../../modules/subscription"
 import SubscriptionModuleService from "../../../../modules/subscription/service"
+import { requireSellerId, notFound, forbidden } from "../../../../shared"
 
 // ===========================================
 // GET /vendor/subscriptions/:id
@@ -12,12 +13,8 @@ export async function GET(
   res: MedusaResponse
 ) {
   try {
-    const sellerId = req.auth_context.actor_id
-
-    if (!sellerId) {
-      res.status(401).json({ message: "Unauthorized" })
-      return
-    }
+    const sellerId = requireSellerId(req, res)
+    if (!sellerId) return
 
     const { id } = req.params
     const subscriptionService = req.scope.resolve<SubscriptionModuleService>(SUBSCRIPTION_MODULE)

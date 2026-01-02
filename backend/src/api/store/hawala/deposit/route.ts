@@ -1,19 +1,18 @@
-import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { HAWALA_LEDGER_MODULE } from "../../../../modules/hawala-ledger"
 import HawalaLedgerModuleService from "../../../../modules/hawala-ledger/service"
 import { createStripeAchService } from "../../../../modules/hawala-ledger/stripe-ach"
+import { requireCustomerId } from "../../../../shared"
 
 /**
  * POST /store/hawala/deposit
  * Deposit funds via ACH from linked bank account
  */
-export async function POST(req: MedusaRequest, res: MedusaResponse) {
+export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   const hawalaService = req.scope.resolve<HawalaLedgerModuleService>(HAWALA_LEDGER_MODULE)
 
-  const customerId = (req as any).auth_context?.actor_id
-  if (!customerId) {
-    return res.status(401).json({ error: "Authentication required" })
-  }
+  const customerId = requireCustomerId(req, res)
+  if (!customerId) return
 
   const { bank_account_id, amount } = req.body as {
     bank_account_id: string

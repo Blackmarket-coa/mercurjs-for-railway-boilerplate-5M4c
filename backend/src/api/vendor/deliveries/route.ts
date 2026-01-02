@@ -3,6 +3,7 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework"
 import { FOOD_DISTRIBUTION_MODULE } from "../../../modules/food-distribution"
 import type FoodDistributionService from "../../../modules/food-distribution/service"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { requireSellerId, notFound, validationError } from "../../../shared"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -45,12 +46,9 @@ const listDeliveriesQuerySchema = z.object({
 
 export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   try {
-    // Get seller from auth context
-    const sellerId = req.auth_context?.actor_id
-    if (!sellerId) {
-      res.status(401).json({ message: "Unauthorized" })
-      return
-    }
+    // Get seller from auth context using shared helper
+    const sellerId = requireSellerId(req, res)
+    if (!sellerId) return
 
     const query = listDeliveriesQuerySchema.parse(req.query)
     const queryService = req.scope.resolve(ContainerRegistrationKeys.QUERY)

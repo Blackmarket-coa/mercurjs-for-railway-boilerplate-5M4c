@@ -2,6 +2,7 @@ import { z } from "zod"
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { FOOD_DISTRIBUTION_MODULE } from "../../../../modules/food-distribution"
 import type FoodDistributionService from "../../../../modules/food-distribution/service"
+import { requireSellerId, notFound, validationError } from "../../../../shared"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -46,11 +47,8 @@ export async function GET(
   res: MedusaResponse
 ) {
   try {
-    const sellerId = req.auth_context.actor_id
-    if (!sellerId) {
-      res.status(401).json({ message: "Unauthorized" })
-      return
-    }
+    const sellerId = requireSellerId(req, res)
+    if (!sellerId) return
 
     const { id } = req.params
     const foodDistribution = req.scope.resolve<FoodDistributionService>(FOOD_DISTRIBUTION_MODULE)
@@ -78,11 +76,8 @@ export async function POST(
   res: MedusaResponse
 ) {
   try {
-    const sellerId = req.auth_context.actor_id
-    if (!sellerId) {
-      res.status(401).json({ message: "Unauthorized" })
-      return
-    }
+    const sellerId = requireSellerId(req, res)
+    if (!sellerId) return
 
     const { id } = req.params
     const data = updateZoneSchema.parse(req.body)
@@ -131,11 +126,8 @@ export async function DELETE(
   res: MedusaResponse
 ) {
   try {
-    const sellerId = req.auth_context.actor_id
-    if (!sellerId) {
-      res.status(401).json({ message: "Unauthorized" })
-      return
-    }
+    const sellerId = requireSellerId(req, res)
+    if (!sellerId) return
 
     const { id } = req.params
     const foodDistribution = req.scope.resolve<FoodDistributionService>(FOOD_DISTRIBUTION_MODULE)

@@ -3,13 +3,7 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/
 import { FOOD_DISTRIBUTION_MODULE } from "../../../../modules/food-distribution"
 import type FoodDistributionService from "../../../../modules/food-distribution/service"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-
-type StatusHistoryEntry = {
-  status: string
-  timestamp: string
-  note?: string
-  actor: string
-}
+import { requireSellerId, notFound, forbidden, validationError, type StatusHistoryEntry } from "../../../../shared"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -35,11 +29,8 @@ export async function GET(
   res: MedusaResponse
 ) {
   try {
-    const sellerId = req.auth_context.actor_id
-    if (!sellerId) {
-      res.status(401).json({ message: "Unauthorized" })
-      return
-    }
+    const sellerId = requireSellerId(req, res)
+    if (!sellerId) return
 
     const { id } = req.params
     const queryService = req.scope.resolve(ContainerRegistrationKeys.QUERY)
@@ -91,11 +82,8 @@ export async function POST(
   res: MedusaResponse
 ) {
   try {
-    const sellerId = req.auth_context.actor_id
-    if (!sellerId) {
-      res.status(401).json({ message: "Unauthorized" })
-      return
-    }
+    const sellerId = requireSellerId(req, res)
+    if (!sellerId) return
 
     const { id } = req.params
     const data = updateDeliveryStatusSchema.parse(req.body)

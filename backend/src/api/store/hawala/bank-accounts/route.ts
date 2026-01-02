@@ -1,20 +1,19 @@
-import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { HAWALA_LEDGER_MODULE } from "../../../../modules/hawala-ledger"
 import HawalaLedgerModuleService from "../../../../modules/hawala-ledger/service"
 import { createStripeAchService } from "../../../../modules/hawala-ledger/stripe-ach"
 import { linkBankAccountSchema, validateInput } from "../../../hawala-validation"
+import { requireCustomerId } from "../../../../shared"
 
 /**
  * GET /store/hawala/bank-accounts
  * List customer's linked bank accounts
  */
-export async function GET(req: MedusaRequest, res: MedusaResponse) {
+export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   const hawalaService = req.scope.resolve<HawalaLedgerModuleService>(HAWALA_LEDGER_MODULE)
 
-  const customerId = (req as any).auth_context?.actor_id
-  if (!customerId) {
-    return res.status(401).json({ error: "Authentication required" })
-  }
+  const customerId = requireCustomerId(req, res)
+  if (!customerId) return
 
   try {
     const bankAccounts = await hawalaService.listBankAccounts({
@@ -32,13 +31,11 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
  * POST /store/hawala/bank-accounts
  * Start bank account linking process
  */
-export async function POST(req: MedusaRequest, res: MedusaResponse) {
+export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   const hawalaService = req.scope.resolve<HawalaLedgerModuleService>(HAWALA_LEDGER_MODULE)
 
-  const customerId = (req as any).auth_context?.actor_id
-  if (!customerId) {
-    return res.status(401).json({ error: "Authentication required" })
-  }
+  const customerId = requireCustomerId(req, res)
+  if (!customerId) return
 
   // Validate input
   const validation = validateInput(linkBankAccountSchema, req.body)
