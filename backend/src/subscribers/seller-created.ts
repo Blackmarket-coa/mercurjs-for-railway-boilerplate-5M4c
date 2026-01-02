@@ -26,7 +26,7 @@ export default async function sellerCreatedHandler({
       container,
       input: {
         seller_id: sellerId,
-        vendor_type: VendorType.RETAIL, // Default type
+        vendor_type: VendorType.PRODUCER, // Default type
       },
     })
 
