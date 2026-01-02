@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react"
 import { useMe } from "../../hooks/api"
 
 interface RocketChatContextType {
@@ -8,6 +8,10 @@ interface RocketChatContextType {
   isLoading: boolean
   unreadCount: number
   seller: any
+  // Helper functions for messaging
+  getChannelUrl: (channelName: string) => string | null
+  getDirectMessageUrl: (username: string) => string | null
+  getOrderChannelUrl: (orderId: string) => string | null
 }
 
 const RocketChatContext = createContext<RocketChatContextType>({
@@ -17,6 +21,9 @@ const RocketChatContext = createContext<RocketChatContextType>({
   isLoading: true,
   unreadCount: 0,
   seller: null,
+  getChannelUrl: () => null,
+  getDirectMessageUrl: () => null,
+  getOrderChannelUrl: () => null,
 })
 
 export const useRocketChat = () => useContext(RocketChatContext)
@@ -34,9 +41,16 @@ export const RocketChatProvider = ({ children }: { children: ReactNode }) => {
     if (url) {
       setIsConfigured(true)
       setRocketChatUrl(url)
-      setIframeUrl(`${url}/channel/general`)
+      // Use seller-specific channel if available, otherwise home
+      if (seller?.id) {
+        // Seller channel name: vendor-{seller_handle or id}
+        const sellerChannel = seller.handle || seller.id.replace('seller_', '')
+        setIframeUrl(`${url}/channel/vendor-${sellerChannel}`)
+      } else {
+        setIframeUrl(`${url}/home`)
+      }
     }
-  }, [])
+  }, [seller])
 
   // Listen for messages from Rocket.Chat iframe for unread count
   useEffect(() => {
@@ -48,6 +62,26 @@ export const RocketChatProvider = ({ children }: { children: ReactNode }) => {
 
     window.addEventListener('message', handleMessage)
     return () => window.removeEventListener('message', handleMessage)
+  }, [rocketChatUrl])
+
+  // Helper function to get a specific channel URL
+  const getChannelUrl = useCallback((channelName: string) => {
+    if (!rocketChatUrl) return null
+    return `${rocketChatUrl}/channel/${channelName}`
+  }, [rocketChatUrl])
+
+  // Helper function to get direct message URL
+  const getDirectMessageUrl = useCallback((username: string) => {
+    if (!rocketChatUrl) return null
+    return `${rocketChatUrl}/direct/${username}`
+  }, [rocketChatUrl])
+
+  // Helper function to get order-specific channel URL
+  const getOrderChannelUrl = useCallback((orderId: string) => {
+    if (!rocketChatUrl) return null
+    // Order channels use format: order-{order_id}
+    const cleanOrderId = orderId.replace('order_', '')
+    return `${rocketChatUrl}/channel/order-${cleanOrderId}`
   }, [rocketChatUrl])
 
   if (isPending) {
@@ -63,6 +97,9 @@ export const RocketChatProvider = ({ children }: { children: ReactNode }) => {
         isLoading: isPending,
         unreadCount,
         seller,
+        getChannelUrl,
+        getDirectMessageUrl,
+        getOrderChannelUrl,
       }}
     >
       {children}

@@ -1,25 +1,65 @@
-import { Container, Heading, Text } from "@medusajs/ui"
+import { Container, Heading, Text, Badge } from "@medusajs/ui"
 import { useRocketChat } from "../../providers/rocketchat-provider"
 
 export const Messages = () => {
-  const { isConfigured, iframeUrl, rocketChatUrl } = useRocketChat()
+  const { 
+    isConfigured, 
+    iframeUrl, 
+    rocketChatUrl, 
+    unreadCount,
+    seller,
+    getChannelUrl 
+  } = useRocketChat()
+
+  // Quick links to common channels
+  const quickLinks = [
+    { label: "My Store", url: seller?.handle ? getChannelUrl(`vendor-${seller.handle}`) : null },
+    { label: "Support", url: getChannelUrl("support") },
+    { label: "General", url: getChannelUrl("general") },
+  ].filter(link => link.url)
 
   return (
     <Container className="divide-y p-0 min-h-[700px]">
       <div className="flex items-center justify-between px-6 py-4">
-        <div>
+        <div className="flex items-center gap-3">
           <Heading>Messages</Heading>
+          {unreadCount > 0 && (
+            <Badge color="red" size="small">
+              {unreadCount} unread
+            </Badge>
+          )}
         </div>
-        {isConfigured && rocketChatUrl && (
-          <a 
-            href={rocketChatUrl} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-ui-fg-interactive text-sm hover:underline"
-          >
-            Open in new tab
-          </a>
-        )}
+        <div className="flex items-center gap-4">
+          {/* Quick channel links */}
+          {quickLinks.length > 0 && (
+            <div className="flex items-center gap-2 text-sm">
+              {quickLinks.map((link, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    const iframe = document.querySelector('iframe[title="Rocket.Chat Messages"]') as HTMLIFrameElement
+                    if (iframe && link.url) {
+                      iframe.src = link.url
+                    }
+                  }}
+                  className="text-ui-fg-subtle hover:text-ui-fg-base transition-colors"
+                >
+                  {link.label}
+                </button>
+              ))}
+            </div>
+          )}
+          {isConfigured && rocketChatUrl && (
+            <a 
+              href={rocketChatUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-ui-fg-interactive text-sm hover:underline"
+            >
+              Open in new tab
+            </a>
+          )}
+        </div>
       </div>
 
       <div className="px-6 py-4 h-[655px]">

@@ -14,7 +14,21 @@ export const useTalkJS = () => {
   return { ...talkJs, isLoading };
 };
 
+// Get RocketChat URL from environment variable first, fallback to API
+const ROCKETCHAT_URL = import.meta.env.VITE_ROCKETCHAT_URL || "";
+
 export const useRocketChat = () => {
+  // If we have the URL from env, use it directly without API call
+  if (ROCKETCHAT_URL) {
+    return {
+      isConfigured: true,
+      rocketChatUrl: ROCKETCHAT_URL,
+      iframeUrl: `${ROCKETCHAT_URL}/home`,
+      isLoading: false,
+    };
+  }
+
+  // Fallback to API call
   const { data: rocketChat, isLoading } = useQuery({
     queryKey: ["rocket-chat"],
     queryFn: () =>
@@ -23,6 +37,7 @@ export const useRocketChat = () => {
         .catch((err) => ({
           message: err,
         })),
+    enabled: !ROCKETCHAT_URL, // Only fetch if no env var
   });
 
   return {
