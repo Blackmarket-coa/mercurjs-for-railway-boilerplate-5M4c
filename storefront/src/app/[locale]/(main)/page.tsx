@@ -161,12 +161,13 @@ export default async function Home({
       />
 
       <Hero
+        variant="mission"
         image="/images/hero/Image.jpg"
-        heading="Farm Fresh. Community Powered."
-        paragraph="Welcome to the BMC Community Market — a direct-to-consumer marketplace connecting you with local farmers, food artisans, and producers. Know exactly where your food comes from with full harvest traceability, support regenerative agriculture, and keep your dollars in the community. Vendors pay just 3% (or under 1% as Coalition members), meaning more goes directly to the people growing your food. Shop by producer, explore seasonal harvests, and join a food system that works for everyone."
+        heading="Buy directly from local producers. Support what you believe in."
+        paragraph="Food, goods, and community projects — transparently sourced, fairly paid, locally rooted. Vendors pay just 3%, meaning more goes directly to the people growing your food."
         buttons={[
-          { label: "Shop Products", path: "/categories" },
-          { label: "Meet Our Producers", path: "/producers" },
+          { label: "Shop the Market", path: "/categories" },
+          { label: "Explore Producers", path: "/producers" },
         ]}
       />
       <div className="px-4 lg:px-8 w-full">

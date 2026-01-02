@@ -3,6 +3,7 @@
 import PaymentButton from "./PaymentButton"
 import { CartItems } from "./CartItems"
 import { CartSummary } from "@/components/organisms"
+import { TrustWidget } from "@/components/sections/TrustWidget"
 
 const Review = ({ cart }: { cart: any }) => {
   const paidByGiftcard =
@@ -12,6 +13,9 @@ const Review = ({ cart }: { cart: any }) => {
     cart.shipping_address &&
     cart.shipping_methods.length > 0 &&
     (cart.payment_collection || paidByGiftcard)
+
+  // Get producer name from first cart item's seller if available
+  const firstSeller = cart?.items?.[0]?.product?.seller?.name
 
   return (
     <div>
@@ -26,6 +30,18 @@ const Review = ({ cart }: { cart: any }) => {
           currency_code={cart?.currency_code || ""}
           tax={cart?.tax_total || 0}
           discount_total={cart?.discount_total || 0}
+        />
+      </div>
+
+      {/* Trust Widget - Where Your Money Goes */}
+      <div className="w-full mb-6">
+        <TrustWidget
+          cartTotal={cart?.total || 0}
+          currencyCode={cart?.currency_code || "USD"}
+          producerName={firstSeller}
+          producerPercentage={75}
+          platformPercentage={20}
+          communityFundPercentage={5}
         />
       </div>
 

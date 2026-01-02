@@ -13,6 +13,8 @@ import { AlgoliaProductsListing } from "./ProductListing/AlgoliaProductsListing"
 import { OrdersPagination } from "../organisms/OrdersPagination/OrdersPagination"
 import { ProducersPage } from "./ProducersPage/ProducersPage"
 import { ProducerDetailPage } from "./ProducerDetailPage/ProducerDetailPage"
+import { GardensLandingPage, GardenDetailPage } from "./GardensPage"
+import { TrustWidget } from "./TrustWidget"
 
 export {
   Hero,
@@ -30,4 +32,7 @@ export {
   OrdersPagination,
   ProducersPage,
   ProducerDetailPage,
+  GardensLandingPage,
+  GardenDetailPage,
+  TrustWidget,
 }

@@ -14,6 +14,8 @@ import {
   SunIcon,
   LeafIcon,
   DropletsIcon,
+  HeartIcon,
+  RefreshIcon,
 } from "@/icons"
 
 // Growing practice labels and icons
@@ -81,6 +83,10 @@ interface Producer {
   verified?: boolean
   harvests?: Harvest[]
   products?: Product[]
+  // Support options
+  accepts_direct_support?: boolean
+  subscription_available?: boolean
+  impact_tag?: string
 }
 
 interface ProducerDetailPageProps {
@@ -88,11 +94,13 @@ interface ProducerDetailPageProps {
   locale: string
 }
 
+type TabValue = "buy" | "subscribe" | "support"
+
 export function ProducerDetailPage({ handle, locale }: ProducerDetailPageProps) {
   const [producer, setProducer] = useState<Producer | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<"story" | "harvests" | "products">("story")
+  const [activeTab, setActiveTab] = useState<TabValue>("buy")
 
   useEffect(() => {
     async function fetchProducer() {
@@ -284,63 +292,218 @@ export function ProducerDetailPage({ handle, locale }: ProducerDetailPageProps) 
         )}
       </div>
 
-      {/* Tabs */}
+      {/* Three-Tab Layout: Buy / Subscribe / Support */}
       <div className="border-b border-gray-200 mb-6">
-        <div className="flex gap-6">
+        <div className="flex gap-0">
           <button
-            onClick={() => setActiveTab("story")}
-            className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === "story"
+            onClick={() => setActiveTab("buy")}
+            className={`flex-1 pb-4 text-sm font-medium border-b-2 transition-colors flex items-center justify-center gap-2 ${
+              activeTab === "buy"
                 ? "border-green-600 text-green-700"
                 : "border-transparent text-gray-500 hover:text-gray-700"
             }`}
           >
-            Our Story
+            <CartIcon className="w-4 h-4" />
+            Buy
           </button>
-          {producer.harvests && producer.harvests.length > 0 && (
-            <button
-              onClick={() => setActiveTab("harvests")}
-              className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === "harvests"
-                  ? "border-green-600 text-green-700"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              Recent Harvests ({producer.harvests.length})
-            </button>
-          )}
-          {producer.products && producer.products.length > 0 && (
-            <button
-              onClick={() => setActiveTab("products")}
-              className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === "products"
-                  ? "border-green-600 text-green-700"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              Products ({producer.products.length})
-            </button>
-          )}
+          <button
+            onClick={() => setActiveTab("subscribe")}
+            className={`flex-1 pb-4 text-sm font-medium border-b-2 transition-colors flex items-center justify-center gap-2 ${
+              activeTab === "subscribe"
+                ? "border-green-600 text-green-700"
+                : "border-transparent text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            <RefreshIcon className="w-4 h-4" />
+            Subscribe
+          </button>
+          <button
+            onClick={() => setActiveTab("support")}
+            className={`flex-1 pb-4 text-sm font-medium border-b-2 transition-colors flex items-center justify-center gap-2 ${
+              activeTab === "support"
+                ? "border-green-600 text-green-700"
+                : "border-transparent text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            <HeartIcon className="w-4 h-4" />
+            Support
+          </button>
         </div>
       </div>
 
       {/* Tab Content */}
-      {activeTab === "story" && (
-        <div className="prose prose-green max-w-none">
+      
+      {/* BUY TAB - Products Grid */}
+      {activeTab === "buy" && (
+        <div>
+          {/* Producer Story (condensed) */}
           {producer.description && (
-            <p className="text-lg text-gray-700 mb-6">{producer.description}</p>
-          )}
-          {producer.story && (
-            <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Our Story</h3>
-              <p className="text-gray-700 whitespace-pre-line">{producer.story}</p>
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+              <p className="text-gray-700">{producer.description}</p>
             </div>
           )}
           
+          {producer.products && producer.products.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {producer.products.map((product) => (
+                <Link
+                  key={product.id}
+                  href={`/products/${product.handle}`}
+                  className="group bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md hover:border-green-200 transition-all"
+                >
+                  <div className="relative aspect-square">
+                    {product.thumbnail ? (
+                      <Image
+                        src={product.thumbnail}
+                        alt={product.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                        <CartIcon className="w-8 h-8 text-gray-400" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <p className="text-xs text-green-700 font-medium mb-1">{producer.name}</p>
+                    <h4 className="font-medium text-gray-900 text-sm group-hover:text-green-700 transition-colors line-clamp-2">
+                      {product.title}
+                    </h4>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-gray-50 rounded-lg">
+              <CartIcon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-600 font-medium">No products available yet</p>
+              <p className="text-sm text-gray-500 mt-1">Check back soon or subscribe to get notified</p>
+            </div>
+          )}
+          
+          {/* Harvests section (collapsed) */}
+          {producer.harvests && producer.harvests.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Harvests</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {producer.harvests.slice(0, 4).map((harvest) => (
+                  <div
+                    key={harvest.id}
+                    className="bg-green-50 rounded-lg p-3 border border-green-100"
+                  >
+                    <h4 className="font-medium text-gray-900 text-sm">{harvest.crop_name}</h4>
+                    {harvest.variety && (
+                      <p className="text-xs text-gray-500">{harvest.variety}</p>
+                    )}
+                    {harvest.growing_method && (
+                      <span className="inline-block mt-1 text-xs bg-white text-green-700 px-2 py-0.5 rounded">
+                        {harvest.growing_method}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* SUBSCRIBE TAB - Subscription Options / Harvest Shares */}
+      {activeTab === "subscribe" && (
+        <div className="max-w-2xl">
+          <div className="bg-blue-50 rounded-xl p-6 border border-blue-200 mb-6">
+            <h2 className="text-lg font-semibold text-blue-900 mb-2">
+              Subscribe to {producer.name}
+            </h2>
+            <p className="text-blue-800 mb-4">
+              Get regular deliveries of seasonal produce, exclusive access to harvests, 
+              and support consistent income for this producer.
+            </p>
+          </div>
+
+          {/* Subscription Options */}
+          <div className="space-y-4">
+            <div className="border border-gray-200 rounded-lg p-4 hover:border-green-200 transition-colors cursor-pointer">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-semibold text-gray-900">Weekly Harvest Box</h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Fresh seasonal selection delivered weekly
+                  </p>
+                </div>
+                <span className="text-lg font-semibold text-gray-900">$35/week</span>
+              </div>
+              <button className="mt-4 w-full bg-green-700 text-white py-2 rounded-lg font-medium hover:bg-green-800 transition-colors">
+                Subscribe
+              </button>
+            </div>
+
+            <div className="border border-gray-200 rounded-lg p-4 hover:border-green-200 transition-colors cursor-pointer">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-semibold text-gray-900">Seasonal Share</h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Full season commitment with savings
+                  </p>
+                </div>
+                <span className="text-lg font-semibold text-gray-900">$400/season</span>
+              </div>
+              <button className="mt-4 w-full bg-white text-green-800 py-2 rounded-lg font-medium border border-green-200 hover:bg-green-50 transition-colors">
+                Learn More
+              </button>
+            </div>
+          </div>
+
+          <p className="text-sm text-gray-500 mt-6 text-center">
+            Subscriptions support stable income for producers and ensure you get the freshest food.
+          </p>
+        </div>
+      )}
+
+      {/* SUPPORT TAB - Direct Support / Seasonal Funding */}
+      {activeTab === "support" && (
+        <div className="max-w-2xl">
+          <div className="bg-amber-50 rounded-xl p-6 border border-amber-200 mb-6">
+            <h2 className="text-lg font-semibold text-amber-900 mb-2">
+              Support {producer.name}
+            </h2>
+            <p className="text-amber-800 mb-4">
+              Contribute directly to help with seasonal expenses, equipment, 
+              or infrastructure. 100% goes to the producer.
+            </p>
+          </div>
+
+          {/* Direct Support Options */}
+          <div className="space-y-4 mb-8">
+            <button className="w-full bg-amber-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-amber-700 transition-colors flex items-center justify-center gap-2">
+              <HeartIcon className="w-5 h-5" />
+              Make a Direct Contribution
+            </button>
+            <button className="w-full bg-white text-amber-800 py-3 px-4 rounded-lg font-medium border border-amber-300 hover:bg-amber-50 transition-colors">
+              Fund a Specific Need
+            </button>
+          </div>
+
+          {/* Producer Story */}
+          {producer.story && (
+            <div className="bg-white rounded-lg p-6 border border-gray-200">
+              <h3 className="font-semibold text-gray-900 mb-3">Our Story</h3>
+              <p className="text-gray-700 whitespace-pre-line">{producer.story}</p>
+            </div>
+          )}
+
+          {/* Impact Tag */}
+          {producer.impact_tag && (
+            <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200 text-center">
+              <span className="text-green-800 font-medium">{producer.impact_tag}</span>
+            </div>
+          )}
+
           {/* Gallery */}
           {producer.gallery && producer.gallery.length > 0 && (
             <div className="mt-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Gallery</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">From the Farm</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {producer.gallery.map((url, idx) => (
                   <div key={idx} className="relative aspect-square rounded-lg overflow-hidden">
@@ -355,82 +518,6 @@ export function ProducerDetailPage({ handle, locale }: ProducerDetailPageProps) 
               </div>
             </div>
           )}
-        </div>
-      )}
-
-      {activeTab === "harvests" && producer.harvests && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {producer.harvests.map((harvest) => (
-            <div
-              key={harvest.id}
-              className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-            >
-              {harvest.photo && (
-                <div className="relative h-32">
-                  <Image
-                    src={harvest.photo}
-                    alt={harvest.crop_name}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              )}
-              <div className="p-4">
-                <h4 className="font-medium text-gray-900">{harvest.crop_name}</h4>
-                {harvest.variety && (
-                  <p className="text-sm text-gray-500">{harvest.variety}</p>
-                )}
-                <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
-                  {harvest.season && (
-                    <span>{SEASON_LABELS[harvest.season] || harvest.season}</span>
-                  )}
-                  {harvest.year && <span>{harvest.year}</span>}
-                  {harvest.harvest_date && (
-                    <span>
-                      Harvested {new Date(harvest.harvest_date).toLocaleDateString()}
-                    </span>
-                  )}
-                </div>
-                {harvest.growing_method && (
-                  <span className="inline-block mt-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">
-                    {harvest.growing_method}
-                  </span>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {activeTab === "products" && producer.products && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {producer.products.map((product) => (
-            <Link
-              key={product.id}
-              href={`/products/${product.handle}`}
-              className="group bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md hover:border-green-200 transition-all"
-            >
-              <div className="relative aspect-square">
-                {product.thumbnail ? (
-                  <Image
-                    src={product.thumbnail}
-                    alt={product.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                    <CartIcon className="w-8 h-8 text-gray-400" />
-                  </div>
-                )}
-              </div>
-              <div className="p-3">
-                <h4 className="font-medium text-gray-900 text-sm group-hover:text-green-700 transition-colors line-clamp-2">
-                  {product.title}
-                </h4>
-              </div>
-            </Link>
-          ))}
         </div>
       )}
     </div>
