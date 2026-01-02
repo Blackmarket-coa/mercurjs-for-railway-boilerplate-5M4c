@@ -9,6 +9,61 @@ import type {
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 /**
+ * Rate Limiter Store - In-memory rate limiting
+ * For production, consider using Redis for distributed rate limiting
+ */
+const rateLimitStore = new Map<string, { count: number; resetAt: number }>()
+
+/**
+ * Create a rate limiter middleware
+ * @param windowMs - Time window in milliseconds
+ * @param max - Maximum requests per window
+ */
+function createRateLimiter(options: { windowMs: number; max: number; keyPrefix?: string }) {
+  return async (req: MedusaRequest, res: MedusaResponse, next: MedusaNextFunction) => {
+    const ip = req.ip || req.headers["x-forwarded-for"] || "unknown"
+    const key = `${options.keyPrefix || "default"}:${ip}`
+    const now = Date.now()
+    
+    let record = rateLimitStore.get(key)
+    if (!record || now > record.resetAt) {
+      record = { count: 0, resetAt: now + options.windowMs }
+      rateLimitStore.set(key, record)
+    }
+    
+    record.count++
+    
+    // Set rate limit headers
+    res.set("X-RateLimit-Limit", String(options.max))
+    res.set("X-RateLimit-Remaining", String(Math.max(0, options.max - record.count)))
+    res.set("X-RateLimit-Reset", String(Math.ceil(record.resetAt / 1000)))
+    
+    if (record.count > options.max) {
+      return res.status(429).json({
+        message: "Too many requests, please try again later",
+        type: "rate_limit_exceeded",
+        retry_after: Math.ceil((record.resetAt - now) / 1000)
+      })
+    }
+    
+    next()
+  }
+}
+
+// Rate limiters for different endpoints
+const authRateLimiter = createRateLimiter({ 
+  windowMs: 60_000, // 1 minute
+  max: 10, // 10 attempts per minute per IP
+  keyPrefix: "auth"
+})
+
+const strictAuthRateLimiter = createRateLimiter({ 
+  windowMs: 300_000, // 5 minutes
+  max: 5, // 5 attempts per 5 minutes for password reset
+  keyPrefix: "auth-strict"
+})
+
+/**
  * Middleware: Normalize and Validate Email
  * 
  * Ensures email signups and logins are case-insensitive by normalizing
@@ -48,15 +103,21 @@ async function normalizeEmailMiddleware(
 
 export default defineMiddlewares({
   routes: [
-    // Auth routes - register and login for all actor types
+    // Auth routes - register and login for all actor types (rate limited)
     {
       matcher: "/auth/*",
-      middlewares: [normalizeEmailMiddleware],
+      middlewares: [authRateLimiter, normalizeEmailMiddleware],
+    },
+    // Password reset - stricter rate limit
+    {
+      matcher: "/auth/*/reset-password",
+      method: "POST",
+      middlewares: [strictAuthRateLimiter, normalizeEmailMiddleware],
     },
     // Store customer routes
     {
       matcher: "/store/customers",
-      middlewares: [normalizeEmailMiddleware],
+      middlewares: [authRateLimiter, normalizeEmailMiddleware],
     },
     // Vendor seller routes  
     {
