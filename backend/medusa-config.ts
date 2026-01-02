@@ -164,6 +164,7 @@ module.exports = defineConfig({
                     accessKey: process.env.MINIO_ACCESS_KEY,
                     secretKey: process.env.MINIO_SECRET_KEY,
                     bucket: process.env.MINIO_BUCKET,
+                    publicUrl: process.env.MINIO_PUBLIC_URL, // Optional: custom public URL for file access
                   },
                 },
               ]

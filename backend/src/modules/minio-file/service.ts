@@ -21,6 +21,7 @@ interface MinioServiceConfig {
   accessKey: string
   secretKey: string
   bucket?: string
+  publicUrl?: string
 }
 
 export interface MinioFileProviderOptions {
@@ -28,6 +29,7 @@ export interface MinioFileProviderOptions {
   accessKey: string
   secretKey: string
   bucket?: string
+  publicUrl?: string  // Optional: Use a different URL for public file access
 }
 
 const DEFAULT_BUCKET = 'medusa-media'
@@ -42,6 +44,7 @@ class MinioFileProviderService extends AbstractFileProviderService {
   protected client: Client
   protected readonly bucket: string
   protected readonly useSSL: boolean
+  protected readonly publicUrl: string | null
 
   constructor({ logger }: InjectedDependencies, options: MinioFileProviderOptions) {
     super()
@@ -77,13 +80,18 @@ class MinioFileProviderService extends AbstractFileProviderService {
       endPoint: endPoint,
       accessKey: options.accessKey,
       secretKey: options.secretKey,
-      bucket: options.bucket
+      bucket: options.bucket,
+      publicUrl: options.publicUrl
     }
 
     // Use provided bucket or default
     this.bucket = this.config_.bucket || DEFAULT_BUCKET
     this.useSSL = useSSL
-    this.logger_.info(`MinIO service initialized with bucket: ${this.bucket}, endpoint: ${endPoint}, port: ${port}, SSL: ${useSSL}`)
+    
+    // Parse public URL if provided (for custom CDN or public-facing URL)
+    this.publicUrl = options.publicUrl ? options.publicUrl.replace(/\/$/, '') : null
+    
+    this.logger_.info(`MinIO service initialized with bucket: ${this.bucket}, endpoint: ${endPoint}, port: ${port}, SSL: ${useSSL}${this.publicUrl ? `, publicUrl: ${this.publicUrl}` : ''}`)
 
     // Initialize Minio client with parsed settings
     this.client = new Client({
@@ -222,11 +230,16 @@ class MinioFileProviderService extends AbstractFileProviderService {
         }
       )
 
-      // Generate URL using the endpoint and bucket with correct protocol
-      const protocol = this.useSSL ? 'https' : 'http'
-      const url = `${protocol}://${this.config_.endPoint}/${this.bucket}/${fileKey}`
+      // Generate URL using publicUrl if set, otherwise use endpoint
+      let url: string
+      if (this.publicUrl) {
+        url = `${this.publicUrl}/${this.bucket}/${fileKey}`
+      } else {
+        const protocol = this.useSSL ? 'https' : 'http'
+        url = `${protocol}://${this.config_.endPoint}/${this.bucket}/${fileKey}`
+      }
 
-      this.logger_.info(`Successfully uploaded file ${fileKey} to MinIO bucket ${this.bucket}`)
+      this.logger_.info(`Successfully uploaded file ${fileKey} to MinIO bucket ${this.bucket}, URL: ${url}`)
 
       return {
         url,
