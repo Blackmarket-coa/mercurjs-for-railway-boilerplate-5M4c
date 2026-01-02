@@ -16,6 +16,7 @@ import {
   Heart,
   Newspaper,
   SquaresPlus,
+  MapPin,
 } from "@medusajs/icons"
 import { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
@@ -192,9 +193,19 @@ export function useVendorNavigation() {
         },
       ],
     },
+    // Delivery orders for restaurants and mutual aid
+    {
+      icon: <ShoppingCart />,
+      label: "Delivery Orders",
+      to: "/deliveries",
+      showFor: (f) => f.hasDeliveryZones,
+      labelByType: {
+        mutual_aid: "Distribution Runs",
+      },
+    },
     // Delivery zones for restaurants and mutual aid
     {
-      icon: <Buildings />,
+      icon: <MapPin />,
       label: "Delivery Zones",
       to: "/delivery-zones",
       showFor: (f) => f.hasDeliveryZones,

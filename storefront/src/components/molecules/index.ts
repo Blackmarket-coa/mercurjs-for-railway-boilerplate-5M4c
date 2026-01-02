@@ -32,6 +32,7 @@ import { ParcelAccordion } from "./ParcelAccordion/ParcelAccordion"
 import { AddressForm } from "./AddressForm/AddressForm"
 import { ReviewForm } from "./ReviewForm/ReviewForm"
 import { ProfileDetails } from "./ProfileDetails/ProfileDetails"
+import { DeliveryCheck } from "./DeliveryCheck/DeliveryCheck"
 
 export {
   PrimeCategoryNavbar,
@@ -68,4 +69,5 @@ export {
   AddressForm,
   ReviewForm,
   ProfileDetails,
+  DeliveryCheck,
 }

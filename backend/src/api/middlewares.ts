@@ -1,4 +1,4 @@
-import { defineMiddlewares } from "@medusajs/framework/http"
+import { defineMiddlewares, authenticate } from "@medusajs/framework/http"
 import type {
   MedusaRequest,
   MedusaResponse,
@@ -59,6 +59,25 @@ export default defineMiddlewares({
     {
       matcher: "/admin/invites",
       middlewares: [normalizeEmailMiddleware],
+    },
+    // Vendor delivery routes - seller authentication
+    {
+      matcher: "/vendor/deliveries/*",
+      middlewares: [authenticate("seller", "bearer")],
+    },
+    {
+      matcher: "/vendor/delivery-zones/*",
+      middlewares: [authenticate("seller", "bearer")],
+    },
+    // Driver routes - driver authentication
+    {
+      matcher: "/driver/*",
+      middlewares: [authenticate("driver", "bearer")],
+    },
+    // Courier routes for food distribution
+    {
+      matcher: "/store/couriers/me/*",
+      middlewares: [authenticate("customer", ["bearer", "session"])],
     },
   ],
 })

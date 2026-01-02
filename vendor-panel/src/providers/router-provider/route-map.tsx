@@ -1034,6 +1034,80 @@ export const RouteMap: RouteObject[] = [
                 ],
               },
             ],
+          },
+          {
+            path: "/deliveries",
+            errorElement: <ErrorBoundary />,
+            handle: {
+              breadcrumb: () => "Deliveries",
+            },
+            children: [
+              {
+                path: "",
+                lazy: async () => {
+                  const { DeliveryList } = await import(
+                    "../../routes/deliveries/delivery-list"
+                  )
+                  return { Component: DeliveryList }
+                },
+              },
+              {
+                path: ":id",
+                handle: {
+                  breadcrumb: () => "Delivery Details",
+                },
+                lazy: async () => {
+                  const { DeliveryList } = await import(
+                    "../../routes/deliveries/delivery-list"
+                  )
+                  // TODO: Create delivery detail page
+                  return { Component: DeliveryList }
+                },
+              },
+            ],
+          },
+          {
+            path: "/delivery-zones",
+            errorElement: <ErrorBoundary />,
+            handle: {
+              breadcrumb: () => "Delivery Zones",
+            },
+            children: [
+              {
+                path: "",
+                lazy: async () => {
+                  const { DeliveryZoneList } = await import(
+                    "../../routes/delivery-zones/delivery-zone-list"
+                  )
+                  return { Component: DeliveryZoneList }
+                },
+              },
+              {
+                path: "create",
+                handle: {
+                  breadcrumb: () => "Create Zone",
+                },
+                lazy: async () => {
+                  const { DeliveryZoneCreate } = await import(
+                    "../../routes/delivery-zones/delivery-zone-create"
+                  )
+                  return { Component: DeliveryZoneCreate }
+                },
+              },
+              {
+                path: ":id/edit",
+                handle: {
+                  breadcrumb: () => "Edit Zone",
+                },
+                lazy: async () => {
+                  const { DeliveryZoneCreate } = await import(
+                    "../../routes/delivery-zones/delivery-zone-create"
+                  )
+                  // TODO: Create zone edit component
+                  return { Component: DeliveryZoneCreate }
+                },
+              },
+            ],
           },{
             path: "/venues",
             errorElement: <ErrorBoundary />,
