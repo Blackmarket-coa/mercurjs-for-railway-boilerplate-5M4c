@@ -34,7 +34,6 @@ export const GardenVote = model.define("garden_vote", {
   previous_vote: model.enum(["for", "against", "abstain"]).nullable(),
   
   voted_at: model.dateTime(),
-  updated_at: model.dateTime().nullable(),
   
   metadata: model.json().nullable(),
 })

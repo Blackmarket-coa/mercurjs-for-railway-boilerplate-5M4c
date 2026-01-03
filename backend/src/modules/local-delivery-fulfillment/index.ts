@@ -1,7 +1,7 @@
 import { ModuleProviderExports } from "@medusajs/framework/types"
-import InternalDeliveryFulfillmentService from "./service"
+import LocalDeliveryFulfillmentService from "./service"
 
-const services = [InternalDeliveryFulfillmentService]
+const services = [LocalDeliveryFulfillmentService]
 
 const providerExport: ModuleProviderExports = {
   services,

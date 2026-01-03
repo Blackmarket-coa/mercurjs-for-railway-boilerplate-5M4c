@@ -4,7 +4,7 @@ A comprehensive module for managing food distribution operations in the solidari
 
 ## Overview
 
-This module extends beyond traditional restaurant delivery to support the full spectrum of food distribution:
+This module extends beyond traditional local delivery to support the full spectrum of food distribution:
 
 ### Producer Types
 - **RESTAURANT** - Full-service restaurants

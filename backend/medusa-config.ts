@@ -184,7 +184,7 @@ module.exports = defineConfig({
         ],
       },
     },
-    // Fulfillment providers (manual + internal delivery + shipstation)
+    // Fulfillment providers (manual + local delivery + shipstation)
     {
       resolve: '@medusajs/medusa/fulfillment',
       options: {
@@ -194,8 +194,8 @@ module.exports = defineConfig({
             id: 'manual',
           },
           {
-            resolve: './src/modules/internal-delivery-fulfillment',
-            id: 'internal-delivery',
+            resolve: './src/modules/local-delivery-fulfillment',
+            id: 'local-delivery',
           },
           {
             resolve: './src/modules/digital-product-fulfillment',

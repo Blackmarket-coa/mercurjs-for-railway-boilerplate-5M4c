@@ -8,13 +8,13 @@ import {
 } from "@medusajs/framework/types"
 
 /**
- * Internal Delivery Fulfillment Provider
+ * Local Delivery Fulfillment Provider
  * 
  * This provider handles fulfillment for orders that will be delivered
- * by the vendor's own internal delivery service (their own drivers/couriers).
+ * by the vendor's own local delivery service (their own drivers/couriers).
  */
-class InternalDeliveryFulfillmentService extends AbstractFulfillmentProviderService {
-  static identifier = "internal-delivery"
+class LocalDeliveryFulfillmentService extends AbstractFulfillmentProviderService {
+  static identifier = "local-delivery"
 
   constructor() {
     super()
@@ -23,23 +23,23 @@ class InternalDeliveryFulfillmentService extends AbstractFulfillmentProviderServ
   async getFulfillmentOptions(): Promise<FulfillmentOption[]> {
     return [
       {
-        id: "internal-delivery-standard",
-        name: "Standard Internal Delivery",
+        id: "local-delivery-standard",
+        name: "Standard Local Delivery",
         is_return: false,
       },
       {
-        id: "internal-delivery-express",
-        name: "Express Internal Delivery",
+        id: "local-delivery-express",
+        name: "Express Local Delivery",
         is_return: false,
       },
       {
-        id: "internal-delivery-same-day",
-        name: "Same Day Internal Delivery",
+        id: "local-delivery-same-day",
+        name: "Same Day Local Delivery",
         is_return: false,
       },
       {
-        id: "internal-delivery-return",
-        name: "Internal Return Pickup",
+        id: "local-delivery-return",
+        name: "Local Return Pickup",
         is_return: true,
       },
     ]
@@ -63,12 +63,12 @@ class InternalDeliveryFulfillmentService extends AbstractFulfillmentProviderServ
     order: Partial<FulfillmentOrderDTO> | undefined,
     fulfillment: Partial<Omit<FulfillmentDTO, "provider_id" | "data" | "items">>
   ): Promise<CreateFulfillmentResult> {
-    // Internal delivery - vendor manages the delivery themselves
-    // This could be enhanced to integrate with internal delivery tracking systems
+    // Local delivery - vendor manages the delivery themselves
+    // This could be enhanced to integrate with local delivery tracking systems
     return {
       data: {
         ...data,
-        delivery_type: "internal",
+        delivery_type: "local",
         created_at: new Date().toISOString(),
       },
       labels: [],
@@ -76,7 +76,7 @@ class InternalDeliveryFulfillmentService extends AbstractFulfillmentProviderServ
   }
 
   async cancelFulfillment(fulfillment: Record<string, unknown>): Promise<any> {
-    // Handle cancellation of internal delivery
+    // Handle cancellation of local delivery
     return {
       cancelled: true,
       cancelled_at: new Date().toISOString(),
@@ -86,12 +86,12 @@ class InternalDeliveryFulfillmentService extends AbstractFulfillmentProviderServ
   async createReturnFulfillment(
     fulfillment: Record<string, unknown>
   ): Promise<any> {
-    // Handle return pickup by internal delivery service
+    // Handle return pickup by local delivery service
     return {
-      return_type: "internal_pickup",
+      return_type: "local_pickup",
       created_at: new Date().toISOString(),
     }
   }
 }
 
-export default InternalDeliveryFulfillmentService
+export default LocalDeliveryFulfillmentService
