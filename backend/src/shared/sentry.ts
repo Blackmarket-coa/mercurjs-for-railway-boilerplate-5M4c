@@ -28,12 +28,33 @@
  * ```
  */
 
+/// <reference path="../types/optional-deps.d.ts" />
+
 import { createLogger } from "./logger"
 
 const logger = createLogger("Sentry")
 
+// Sentry types - defined inline since @sentry/node is optional
+interface SentryModule {
+  init: (options: Record<string, unknown>) => void
+  withScope: <T>(callback: (scope: SentryScope) => T) => T
+  captureException: (error: unknown) => string
+  captureMessage: (message: string, level?: string) => string
+  setUser: (user: SentryUser | null) => void
+  addBreadcrumb: (breadcrumb: Record<string, unknown>) => void
+  startInactiveSpan: (options: Record<string, unknown>) => { finish: () => void }
+  flush: (timeout: number) => Promise<boolean>
+}
+
+interface SentryScope {
+  setTag: (key: string, value: string) => void
+  setExtra: (key: string, value: unknown) => void
+  setUser: (user: SentryUser) => void
+  setLevel: (level: string) => void
+}
+
 // Sentry is optional - we use a mock if not installed or configured
-let Sentry: typeof import("@sentry/node") | null = null
+let Sentry: SentryModule | null = null
 
 interface SentryUser {
   id?: string
@@ -73,7 +94,13 @@ export async function initSentry(config: SentryConfig = {}): Promise<boolean> {
 
   try {
     // Dynamic import to avoid requiring @sentry/node as a dependency
-    Sentry = await import("@sentry/node")
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const sentryModule = await import("@sentry/node").catch(() => null)
+    if (!sentryModule) {
+      logger.warn("@sentry/node not installed, error tracking disabled. Install with: pnpm add @sentry/node")
+      return false
+    }
+    Sentry = sentryModule as unknown as SentryModule
 
     const environment = config.environment || process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || "development"
     const release = config.release || process.env.SENTRY_RELEASE || process.env.npm_package_version
