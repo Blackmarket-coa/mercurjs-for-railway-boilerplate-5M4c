@@ -563,16 +563,20 @@ class HawalaLedgerModuleService extends MedusaService({
     }
 
     // Audit log
-    auditFinancialTransaction({
-      action: "REFUND_PROCESSED",
-      order_id: data.order_id,
-      amount: refundAmount,
-      seller_refund: sellerRefund,
-      fee_refund: feeRefund,
-      reason: data.reason,
-      entries_created: refundEntries.length,
-      entries_reversed: originalEntries.length,
-    })
+    auditFinancialTransaction(
+      "REFUND_INITIATED",
+      "SYSTEM",
+      "SYSTEM",
+      data.order_id,
+      refundAmount,
+      {
+        seller_refund: sellerRefund,
+        fee_refund: feeRefund,
+        reason: data.reason,
+        entries_created: refundEntries.length,
+        entries_reversed: originalEntries.length,
+      }
+    )
 
     console.log(
       `[Hawala] Refund processed for order ${data.order_id}: ` +
