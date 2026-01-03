@@ -4,6 +4,8 @@
  * Validates environment variables at startup with clear error messages.
  * Provides type-safe access to configuration throughout the application.
  * 
+ * Build timestamp: 2026-01-03T01:50:00Z (force rebuild)
+ * 
  * Usage:
  * ```typescript
  * import { config } from "../shared/config"
