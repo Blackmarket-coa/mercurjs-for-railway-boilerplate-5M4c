@@ -564,12 +564,13 @@ class HawalaLedgerModuleService extends MedusaService({
 
     // Audit log
     auditFinancialTransaction(
-      "REFUND_INITIATED",
+      "TRANSFER_COMPLETED",
       "SYSTEM",
       "SYSTEM",
       data.order_id,
       refundAmount,
       {
+        type: "REFUND",
         seller_refund: sellerRefund,
         fee_refund: feeRefund,
         reason: data.reason,
