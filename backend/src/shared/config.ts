@@ -4,7 +4,7 @@
  * Validates environment variables at startup with clear error messages.
  * Provides type-safe access to configuration throughout the application.
  * 
- * Build timestamp: 2026-01-03T02:00:00Z (fix z.union for optional URLs)
+ * Build timestamp: 2026-01-03T02:05:00Z (simplify optional URL handling)
  * 
  * Usage:
  * ```typescript
@@ -21,30 +21,12 @@ import { createLogger } from "./logger"
 const logger = createLogger("Config")
 
 /**
- * Helper for optional URL env vars
- * Accepts: valid URL string, empty string, undefined
- * Returns: URL string or undefined (empty strings become undefined)
+ * Helper for optional string env vars - converts empty strings to undefined
  */
-const optionalUrl = z
-  .union([
-    z.string().url(),
-    z.literal(""),
-    z.undefined(),
-  ])
-  .transform((val) => (val === "" ? undefined : val))
-
-/**
- * Helper for optional email env vars
- * Accepts: valid email string, empty string, undefined
- * Returns: email string or undefined (empty strings become undefined)
- */
-const optionalEmail = z
-  .union([
-    z.string().email(),
-    z.literal(""),
-    z.undefined(),
-  ])
-  .transform((val) => (val === "" ? undefined : val))
+const optionalString = z
+  .string()
+  .optional()
+  .transform((val) => (val === "" || val === undefined ? undefined : val))
 
 /**
  * Environment variable schema with validation rules
@@ -56,15 +38,15 @@ const envSchema = z.object({
   // Database (required)
   DATABASE_URL: z.string().url("DATABASE_URL must be a valid URL"),
   
-  // Redis (optional but recommended for production)
-  REDIS_URL: optionalUrl,
+  // Redis (optional - no URL validation since it may be empty)
+  REDIS_URL: optionalString,
   
   // Server configuration
   PORT: z.string().transform(Number).default("9000"),
-  BACKEND_URL: optionalUrl,
-  STOREFRONT_URL: optionalUrl,
-  ADMIN_URL: optionalUrl,
-  VENDOR_URL: optionalUrl,
+  BACKEND_URL: optionalString,
+  STOREFRONT_URL: optionalString,
+  ADMIN_URL: optionalString,
+  VENDOR_URL: optionalString,
   
   // Authentication
   JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters").optional(),
@@ -78,19 +60,19 @@ const envSchema = z.object({
   STRIPE_API_KEY: z.string().startsWith("sk_", "STRIPE_API_KEY must start with 'sk_'").optional(),
   STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_").optional(),
   
-  // External services (optional - empty strings treated as undefined)
-  ROCKETCHAT_URL: optionalUrl,
-  APPRISE_API_URL: optionalUrl,
-  RESEND_API_KEY: z.string().optional(),
-  RESEND_FROM_EMAIL: optionalEmail,
+  // External services (optional - just strings, no URL validation)
+  ROCKETCHAT_URL: optionalString,
+  APPRISE_API_URL: optionalString,
+  RESEND_API_KEY: optionalString,
+  RESEND_FROM_EMAIL: optionalString,
   
   // Algolia search
-  ALGOLIA_APP_ID: z.string().optional(),
-  ALGOLIA_ADMIN_KEY: z.string().optional(),
+  ALGOLIA_APP_ID: optionalString,
+  ALGOLIA_ADMIN_KEY: optionalString,
   
   // OpenTelemetry
   OTEL_ENABLED: z.string().transform(v => v === "true").default("false"),
-  OTEL_EXPORTER_OTLP_ENDPOINT: optionalUrl,
+  OTEL_EXPORTER_OTLP_ENDPOINT: optionalString,
   OTEL_SERVICE_NAME: z.string().default("freeblackmarket-backend"),
   
   // Feature flags
