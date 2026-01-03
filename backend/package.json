@@ -66,6 +66,7 @@
     "my-plugin": "file:.yalc/my-plugin",
     "pg": "^8.13.0",
     "qrcode": "^1.5.4",
+    "redis": "^5.10.0",
     "resend": "^6.6.0",
     "stripe": "^17.7.0",
     "ulid": "^2.3.0",

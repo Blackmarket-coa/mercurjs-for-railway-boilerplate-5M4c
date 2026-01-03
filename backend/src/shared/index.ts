@@ -59,6 +59,23 @@ export {
   loggers,
 } from "./logger"
 
+// Caching
+export {
+  cache,
+  CacheService,
+  cacheKeys,
+  cacheTTL,
+} from "./cache"
+
+// Configuration
+export {
+  config,
+  isProduction,
+  isDevelopment,
+  isTest,
+  features,
+} from "./config"
+
 // Validation
 export {
   // Email

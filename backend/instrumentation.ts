@@ -1,24 +1,46 @@
-// Uncomment this file to enable instrumentation and observability using OpenTelemetry
-// Refer to the docs for installation instructions: https://docs.medusajs.com/learn/debugging-and-testing/instrumentation
+/**
+ * OpenTelemetry Instrumentation for FreeBlackMarket
+ * 
+ * Enables distributed tracing, metrics, and observability.
+ * Exports to OTLP collector (Jaeger, Grafana Tempo, etc.) or Zipkin.
+ * 
+ * Environment variables:
+ * - OTEL_ENABLED: Set to "true" to enable (default: false in dev, true in prod)
+ * - OTEL_EXPORTER_OTLP_ENDPOINT: OTLP collector URL (e.g., "http://localhost:4318")
+ * - OTEL_SERVICE_NAME: Service name override (default: "freeblackmarket-backend")
+ * 
+ * Refer to docs: https://docs.medusajs.com/learn/debugging-and-testing/instrumentation
+ */
+import { registerOtel } from "@medusajs/medusa"
 
-// import { registerOtel } from "@medusajs/medusa"
-// // If using an exporter other than Zipkin, require it here.
-// import { ZipkinExporter } from "@opentelemetry/exporter-zipkin"
+// Determine if OpenTelemetry should be enabled
+const isProduction = process.env.NODE_ENV === "production"
+const otelEnabled = process.env.OTEL_ENABLED === "true" || (isProduction && process.env.OTEL_ENABLED !== "false")
 
-// // If using an exporter other than Zipkin, initialize it here.
-// const exporter = new ZipkinExporter({
-//   serviceName: 'my-medusa-project',
-// })
+export function register() {
+  if (!otelEnabled) {
+    console.log("[OTEL] OpenTelemetry disabled. Set OTEL_ENABLED=true to enable.")
+    return
+  }
 
-// export function register() {
-//   registerOtel({
-//     serviceName: 'medusajs',
-//     // pass exporter
-//     exporter,
-//     instrument: {
-//       http: true,
-//       workflows: true,
-//       query: true
-//     },
-//   })
-// }
+  const serviceName = process.env.OTEL_SERVICE_NAME || "freeblackmarket-backend"
+  
+  console.log(`[OTEL] Initializing OpenTelemetry for service: ${serviceName}`)
+
+  try {
+    registerOtel({
+      serviceName,
+      // OTLP exporter is configured via environment variables:
+      // OTEL_EXPORTER_OTLP_ENDPOINT, OTEL_EXPORTER_OTLP_HEADERS
+      instrument: {
+        http: true,      // Trace HTTP requests
+        workflows: true, // Trace Medusa workflows
+        query: true,     // Trace database queries
+      },
+    })
+    
+    console.log("[OTEL] OpenTelemetry initialized successfully")
+  } catch (error) {
+    console.error("[OTEL] Failed to initialize OpenTelemetry:", error)
+  }
+}

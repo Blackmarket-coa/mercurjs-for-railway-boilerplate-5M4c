@@ -3,22 +3,181 @@ import type {
   MedusaResponse,
   MedusaNextFunction,
 } from "@medusajs/framework/http"
+import { createClient, RedisClientType } from "redis"
+import { createLogger } from "./logger"
+
+const logger = createLogger("RateLimiter")
 
 /**
- * Rate Limiter Store - In-memory rate limiting
- * For production with multiple instances, consider using Redis
+ * Rate Limiter Store Interface
  */
-const rateLimitStore = new Map<string, { count: number; resetAt: number }>()
+interface RateLimitRecord {
+  count: number
+  resetAt: number
+}
 
-// Clean up expired entries periodically (every 5 minutes)
-setInterval(() => {
-  const now = Date.now()
-  for (const [key, record] of rateLimitStore.entries()) {
-    if (now > record.resetAt) {
-      rateLimitStore.delete(key)
+interface RateLimitStore {
+  get(key: string): Promise<RateLimitRecord | null>
+  set(key: string, record: RateLimitRecord): Promise<void>
+  increment(key: string, windowMs: number): Promise<RateLimitRecord>
+}
+
+/**
+ * In-memory rate limiting store (fallback)
+ */
+class MemoryStore implements RateLimitStore {
+  private store = new Map<string, RateLimitRecord>()
+
+  constructor() {
+    // Clean up expired entries periodically (every 5 minutes)
+    setInterval(() => {
+      const now = Date.now()
+      for (const [key, record] of this.store.entries()) {
+        if (now > record.resetAt) {
+          this.store.delete(key)
+        }
+      }
+    }, 5 * 60 * 1000)
+  }
+
+  async get(key: string): Promise<RateLimitRecord | null> {
+    return this.store.get(key) || null
+  }
+
+  async set(key: string, record: RateLimitRecord): Promise<void> {
+    this.store.set(key, record)
+  }
+
+  async increment(key: string, windowMs: number): Promise<RateLimitRecord> {
+    const now = Date.now()
+    let record = this.store.get(key)
+    
+    if (!record || now > record.resetAt) {
+      record = { count: 0, resetAt: now + windowMs }
+    }
+    
+    record.count++
+    this.store.set(key, record)
+    return record
+  }
+}
+
+/**
+ * Redis rate limiting store (production)
+ * Uses atomic INCR operations for distributed rate limiting
+ */
+class RedisStore implements RateLimitStore {
+  private client: RedisClientType | null = null
+  private connecting: Promise<void> | null = null
+  private connected = false
+  private prefix: string
+
+  constructor(prefix = "rl:") {
+    this.prefix = prefix
+  }
+
+  private async connect(): Promise<boolean> {
+    if (this.connected && this.client) return true
+    if (!process.env.REDIS_URL) return false
+
+    if (this.connecting) {
+      await this.connecting
+      return this.connected
+    }
+
+    this.connecting = (async () => {
+      try {
+        this.client = createClient({
+          url: process.env.REDIS_URL,
+          socket: { connectTimeout: 3000 },
+        })
+        this.client.on("error", () => {}) // Suppress error logs
+        await this.client.connect()
+        this.connected = true
+        logger.info("Redis rate limiter connected")
+      } catch (error) {
+        logger.warn("Redis rate limiter unavailable, using memory store")
+        this.connected = false
+      }
+    })()
+
+    await this.connecting
+    this.connecting = null
+    return this.connected
+  }
+
+  async get(key: string): Promise<RateLimitRecord | null> {
+    if (!await this.connect()) return null
+
+    try {
+      const data = await this.client!.get(this.prefix + key)
+      return data ? JSON.parse(data) : null
+    } catch {
+      return null
     }
   }
-}, 5 * 60 * 1000)
+
+  async set(key: string, record: RateLimitRecord): Promise<void> {
+    if (!await this.connect()) return
+
+    try {
+      const ttl = Math.ceil((record.resetAt - Date.now()) / 1000)
+      if (ttl > 0) {
+        await this.client!.setEx(this.prefix + key, ttl, JSON.stringify(record))
+      }
+    } catch {
+      // Ignore errors
+    }
+  }
+
+  async increment(key: string, windowMs: number): Promise<RateLimitRecord> {
+    if (!await this.connect()) {
+      // Fallback behavior - create new record
+      return { count: 1, resetAt: Date.now() + windowMs }
+    }
+
+    const redisKey = this.prefix + key
+    const now = Date.now()
+    const resetAt = now + windowMs
+    const ttlSeconds = Math.ceil(windowMs / 1000)
+
+    try {
+      // Use atomic increment with TTL
+      const count = await this.client!.incr(redisKey)
+      
+      // Set expiry on first increment
+      if (count === 1) {
+        await this.client!.expire(redisKey, ttlSeconds)
+      }
+
+      // Get actual TTL to calculate resetAt
+      const ttl = await this.client!.ttl(redisKey)
+      const actualResetAt = ttl > 0 ? now + (ttl * 1000) : resetAt
+
+      return { count, resetAt: actualResetAt }
+    } catch {
+      return { count: 1, resetAt }
+    }
+  }
+}
+
+// Initialize appropriate store based on environment
+let rateLimitStore: RateLimitStore
+
+function getStore(): RateLimitStore {
+  if (!rateLimitStore) {
+    // Use Redis in production if available, memory in development
+    if (process.env.REDIS_URL && process.env.NODE_ENV === "production") {
+      rateLimitStore = new RedisStore()
+    } else {
+      rateLimitStore = new MemoryStore()
+      if (process.env.NODE_ENV === "production") {
+        logger.warn("Using in-memory rate limiter - set REDIS_URL for distributed rate limiting")
+      }
+    }
+  }
+  return rateLimitStore
+}
 
 export interface RateLimiterOptions {
   /** Time window in milliseconds */
@@ -46,6 +205,7 @@ export interface RateLimiterOptions {
  */
 export function createRateLimiter(options: RateLimiterOptions) {
   const { windowMs, max, keyPrefix = "default", keyGenerator } = options
+  const store = getStore()
 
   return async (
     req: MedusaRequest,
@@ -57,15 +217,10 @@ export function createRateLimiter(options: RateLimiterOptions) {
       : req.ip || (req.headers["x-forwarded-for"] as string) || "unknown"
     
     const key = `${keyPrefix}:${ip}`
+
+    // Use atomic increment from store
+    const record = await store.increment(key, windowMs)
     const now = Date.now()
-
-    let record = rateLimitStore.get(key)
-    if (!record || now > record.resetAt) {
-      record = { count: 0, resetAt: now + windowMs }
-      rateLimitStore.set(key, record)
-    }
-
-    record.count++
 
     // Set rate limit headers
     res.set("X-RateLimit-Limit", String(max))
