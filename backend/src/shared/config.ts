@@ -19,6 +19,23 @@ import { createLogger } from "./logger"
 const logger = createLogger("Config")
 
 /**
+ * Helper for optional URL env vars that treats empty strings as undefined
+ * Uses preprocess to convert empty/whitespace strings to undefined BEFORE validation
+ */
+const optionalUrl = z.preprocess(
+  (val) => (typeof val === "string" && val.trim() === "" ? undefined : val),
+  z.string().url().optional()
+)
+
+/**
+ * Helper for optional email env vars that treats empty strings as undefined
+ */
+const optionalEmail = z.preprocess(
+  (val) => (typeof val === "string" && val.trim() === "" ? undefined : val),
+  z.string().email().optional()
+)
+
+/**
  * Environment variable schema with validation rules
  */
 const envSchema = z.object({
@@ -29,14 +46,14 @@ const envSchema = z.object({
   DATABASE_URL: z.string().url("DATABASE_URL must be a valid URL"),
   
   // Redis (optional but recommended for production)
-  REDIS_URL: z.string().url().optional(),
+  REDIS_URL: optionalUrl,
   
   // Server configuration
   PORT: z.string().transform(Number).default("9000"),
-  BACKEND_URL: z.string().url().optional(),
-  STOREFRONT_URL: z.string().url().optional(),
-  ADMIN_URL: z.string().url().optional(),
-  VENDOR_URL: z.string().url().optional(),
+  BACKEND_URL: optionalUrl,
+  STOREFRONT_URL: optionalUrl,
+  ADMIN_URL: optionalUrl,
+  VENDOR_URL: optionalUrl,
   
   // Authentication
   JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters").optional(),
@@ -51,10 +68,10 @@ const envSchema = z.object({
   STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_").optional(),
   
   // External services (optional - empty strings treated as undefined)
-  ROCKETCHAT_URL: z.string().optional().transform(v => v || undefined).pipe(z.string().url().optional()),
-  APPRISE_API_URL: z.string().optional().transform(v => v || undefined).pipe(z.string().url().optional()),
+  ROCKETCHAT_URL: optionalUrl,
+  APPRISE_API_URL: optionalUrl,
   RESEND_API_KEY: z.string().optional(),
-  RESEND_FROM_EMAIL: z.string().optional().transform(v => v || undefined).pipe(z.string().email().optional()),
+  RESEND_FROM_EMAIL: optionalEmail,
   
   // Algolia search
   ALGOLIA_APP_ID: z.string().optional(),
@@ -62,7 +79,7 @@ const envSchema = z.object({
   
   // OpenTelemetry
   OTEL_ENABLED: z.string().transform(v => v === "true").default("false"),
-  OTEL_EXPORTER_OTLP_ENDPOINT: z.string().optional().transform(v => v || undefined).pipe(z.string().url().optional()),
+  OTEL_EXPORTER_OTLP_ENDPOINT: optionalUrl,
   OTEL_SERVICE_NAME: z.string().default("freeblackmarket-backend"),
   
   // Feature flags
