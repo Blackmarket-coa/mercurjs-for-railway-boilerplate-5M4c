@@ -134,6 +134,40 @@ module.exports = defineConfig({
       resolve: './src/modules/vendor-rules',
     },
     
+    // === Community Garden & Solidarity Economy Modules ===
+    // Garden module (community gardens, plots, soil zones)
+    {
+      resolve: './src/modules/garden',
+    },
+    // Governance module (democratic voting, proposals)
+    {
+      resolve: './src/modules/governance',
+    },
+    // Harvest module (harvest tracking, allocation pools)
+    {
+      resolve: './src/modules/harvest',
+    },
+    // Season module (growing seasons, plantings)
+    {
+      resolve: './src/modules/season',
+    },
+    // Volunteer module (time banking, work parties)
+    {
+      resolve: './src/modules/volunteer',
+    },
+    // Food Distribution module (solidarity economy transactions)
+    {
+      resolve: './src/modules/food-distribution',
+    },
+    // Odoo ERP integration module (optional)
+    ...(process.env.ODOO_URL
+      ? [
+          {
+            resolve: './src/modules/odoo',
+          },
+        ]
+      : []),
+    
     // Payment providers (Stripe + system default)
     {
       resolve: '@medusajs/medusa/payment',
@@ -150,7 +184,7 @@ module.exports = defineConfig({
         ],
       },
     },
-    // Fulfillment providers (manual + internal delivery)
+    // Fulfillment providers (manual + internal delivery + shipstation)
     {
       resolve: '@medusajs/medusa/fulfillment',
       options: {
@@ -167,6 +201,19 @@ module.exports = defineConfig({
             resolve: './src/modules/digital-product-fulfillment',
             id: 'digital',
           },
+          // ShipStation fulfillment (optional)
+          ...(process.env.SHIPSTATION_API_KEY && process.env.SHIPSTATION_API_SECRET
+            ? [
+                {
+                  resolve: './src/modules/shipstation',
+                  id: 'shipstation',
+                  options: {
+                    apiKey: process.env.SHIPSTATION_API_KEY,
+                    apiSecret: process.env.SHIPSTATION_API_SECRET,
+                  },
+                },
+              ]
+            : []),
         ],
       },
     },
