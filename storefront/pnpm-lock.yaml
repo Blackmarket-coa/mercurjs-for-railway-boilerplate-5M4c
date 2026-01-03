@@ -21,6 +21,9 @@ importers:
       '@medusajs/js-sdk':
         specifier: ^2.2.0
         version: 2.11.3
+      '@medusajs/types':
+        specifier: ^2.11.3
+        version: 2.12.3
       '@medusajs/ui':
         specifier: ^4.0.7
         version: 4.0.27(@types/react-dom@19.2.3(@types/react@19.2.5))(@types/react@19.2.5)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
@@ -1412,6 +1415,18 @@ packages:
   '@medusajs/js-sdk@2.11.3':
     resolution: {integrity: sha512-AbIwi5BhIqmD4VS+T5WhA/VvMj2W7iuHVMV7TgPU+nIyioOCiz++M1ky+YxUthgzyf0TgwGbHKRVjawB9NAO1g==}
     engines: {node: '>=20'}
+
+  '@medusajs/types@2.12.3':
+    resolution: {integrity: sha512-GkvgiDFP8XDugO8btcti34h4PmlSDwedU3uIWNg2HmxO56fqAUsGx+EUEndEGvtXERH75rNHhIofylxH2TW8tQ==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      ioredis: ^5.4.1
+      vite: ^5.4.21
+    peerDependenciesMeta:
+      ioredis:
+        optional: true
+      vite:
+        optional: true
 
   '@medusajs/ui@4.0.27':
     resolution: {integrity: sha512-yYc5BwLTLDkfdL6CoIps6hEGR5X3AbdXmG+plKk1YRXXSG4kjMog/92ED0QUz9jxHROa+DWzzWWYw/TcJN+c9Q==}
@@ -3559,6 +3574,9 @@ packages:
 
   big.js@5.2.2:
     resolution: {integrity: sha512-vyL2OymJxmarO8gxMr0mhChsO9QGwhynfuu4+MHTAW6czfq9humCB7rKpUjDd9YUiDPU4mzpyupFSvOClAwbmQ==}
+
+  bignumber.js@9.3.1:
+    resolution: {integrity: sha512-Ko0uX15oIUS7wJ3Rb30Fs6SkVbLmPBAKdlm7q9+ak9bbIeFf0MwuBsQV6z7+X768/cHsfg+WlysDWJcmthjsjQ==}
 
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
@@ -7668,6 +7686,10 @@ snapshots:
       fetch-event-stream: 0.1.6
       qs: 6.14.1
 
+  '@medusajs/types@2.12.3':
+    dependencies:
+      bignumber.js: 9.3.1
+
   '@medusajs/ui@4.0.27(@types/react-dom@19.2.3(@types/react@19.2.5))(@types/react@19.2.5)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)':
     dependencies:
       '@dnd-kit/core': 6.3.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -10501,6 +10523,8 @@ snapshots:
       open: 8.4.2
 
   big.js@5.2.2: {}
+
+  bignumber.js@9.3.1: {}
 
   binary-extensions@2.3.0: {}
 
