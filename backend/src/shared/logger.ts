@@ -51,6 +51,19 @@ const LOG_COLORS: Record<LogLevel, string> = {
 
 const RESET_COLOR = "\x1b[0m"
 
+/**
+ * Get log level from environment variable
+ * Supports: debug, info, warn, error
+ */
+function getLogLevelFromEnv(): LogLevel {
+  const envLevel = process.env.LOG_LEVEL?.toLowerCase()
+  if (envLevel && envLevel in LOG_LEVELS) {
+    return envLevel as LogLevel
+  }
+  // Default: debug in development, info in production
+  return process.env.NODE_ENV === "production" ? "info" : "debug"
+}
+
 class Logger {
   private prefix: string
   private minLevel: LogLevel
@@ -59,7 +72,7 @@ class Logger {
   constructor(prefix = "FBM", minLevel?: LogLevel) {
     this.prefix = prefix
     this.isProduction = process.env.NODE_ENV === "production"
-    this.minLevel = minLevel || (this.isProduction ? "info" : "debug")
+    this.minLevel = minLevel || getLogLevelFromEnv()
   }
 
   private shouldLog(level: LogLevel): boolean {

@@ -75,6 +75,15 @@ const envSchema = z.object({
   OTEL_EXPORTER_OTLP_ENDPOINT: optionalString,
   OTEL_SERVICE_NAME: z.string().default("freeblackmarket-backend"),
   
+  // Sentry Error Tracking
+  SENTRY_DSN: optionalString,
+  SENTRY_ENVIRONMENT: optionalString,
+  SENTRY_RELEASE: optionalString,
+  SENTRY_SAMPLE_RATE: z.string().transform(v => parseFloat(v) || 0.1).default("0.1"),
+  
+  // Logging
+  LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
+  
   // Feature flags
   ENABLE_STELLAR_SETTLEMENT: z.string().transform(v => v === "true").default("false"),
   ENABLE_STRIPE_ACH: z.string().transform(v => v === "true").default("false"),
@@ -153,6 +162,7 @@ export const features = {
   stripeACH: () => config.ENABLE_STRIPE_ACH && !!config.STRIPE_API_KEY,
   redis: () => !!config.REDIS_URL,
   openTelemetry: () => config.OTEL_ENABLED,
+  sentry: () => !!config.SENTRY_DSN,
 }
 
 // Export schema for testing
