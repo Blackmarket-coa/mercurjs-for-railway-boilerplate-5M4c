@@ -14,6 +14,7 @@ import { loginFormSchema, LoginFormData } from "./schema"
 import { useState } from "react"
 import { login } from "@/lib/data/customer"
 import { useRouter } from "next/navigation"
+import { Eye, EyeOff } from "lucide-react"
 
 export const LoginForm = () => {
   const methods = useForm<LoginFormData>({
@@ -33,6 +34,7 @@ export const LoginForm = () => {
 
 const Form = () => {
   const [error, setError] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const {
     handleSubmit,
     register,
@@ -67,13 +69,27 @@ const Form = () => {
             error={errors.email as FieldError}
             {...register("email")}
           />
-          <LabeledInput
-            label="Password"
-            placeholder="Your password"
-            type="password"
-            error={errors.password as FieldError}
-            {...register("password")}
-          />
+          <div className="relative">
+            <LabeledInput
+              label="Password"
+              placeholder="Your password"
+              type={showPassword ? "text" : "password"}
+              error={errors.password as FieldError}
+              {...register("password")}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-[38px] text-secondary hover:text-primary transition-colors"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? (
+                <EyeOff className="h-5 w-5" />
+              ) : (
+                <Eye className="h-5 w-5" />
+              )}
+            </button>
+          </div>
           {error && <p className="label-md text-negative">{error}</p>}
           <Button className="w-full" disabled={isSubmitting}>
             Log in

@@ -13,6 +13,7 @@ import { WishlistButton } from "../WishlistButton/WishlistButton"
 import { Wishlist } from "@/types/wishlist"
 import { toast } from "@/lib/helpers/toast"
 import { useCartContext } from "@/components/providers"
+import { MobileStickyAddToCart } from "@/components/molecules/MobileStickyAddToCart/MobileStickyAddToCart"
 
 const optionsAsKeymap = (
   variantOptions: HttpTypes.StoreProductVariant["options"]
@@ -117,6 +118,11 @@ export const ProductDetailsHeader = ({
         quantity: 1,
         countryCode: locale,
       })
+      // Success feedback for user
+      toast.success({
+        title: "Added to cart!",
+        description: `${product.title} has been added to your cart`,
+      })
     } catch (error) {
       toast.error({
         title: "Error adding to cart",
@@ -192,6 +198,17 @@ export const ProductDetailsHeader = ({
           product={product}
         />
       )}
+
+      {/* Mobile Sticky Add to Cart */}
+      <MobileStickyAddToCart
+        product={product}
+        price={variantPrice}
+        variantStock={variantStock}
+        variantHasPrice={variantHasPrice}
+        hasAnyPrice={hasAnyPrice}
+        isAdding={isAdding}
+        onAddToCart={handleAddToCart}
+      />
     </div>
   )
 }

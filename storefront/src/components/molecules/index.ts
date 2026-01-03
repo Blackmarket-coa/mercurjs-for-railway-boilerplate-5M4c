@@ -34,6 +34,8 @@ import { ReviewForm } from "./ReviewForm/ReviewForm"
 import { ProfileDetails } from "./ProfileDetails/ProfileDetails"
 import { DeliveryCheck } from "./DeliveryCheck/DeliveryCheck"
 import { ContactSellerButton } from "./ContactSellerButton/ContactSellerButton"
+import { CheckoutProgress } from "./CheckoutProgress/CheckoutProgress"
+import { MobileStickyAddToCart } from "./MobileStickyAddToCart/MobileStickyAddToCart"
 
 // FreeBlackMarket.com Conversion Copy
 export * from "./ConversionCopy"
@@ -80,4 +82,6 @@ export {
   ProfileDetails,
   DeliveryCheck,
   ContactSellerButton,
+  CheckoutProgress,
+  MobileStickyAddToCart,
 }
