@@ -51,10 +51,10 @@ const envSchema = z.object({
   STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_").optional(),
   
   // External services
-  ROCKETCHAT_URL: z.string().url().optional(),
-  APPRISE_API_URL: z.string().url().optional(),
+  ROCKETCHAT_URL: z.string().url().optional().or(z.literal("")),
+  APPRISE_API_URL: z.string().url().optional().or(z.literal("")),
   RESEND_API_KEY: z.string().optional(),
-  RESEND_FROM_EMAIL: z.string().email().optional(),
+  RESEND_FROM_EMAIL: z.string().email().optional().or(z.literal("")),
   
   // Algolia search
   ALGOLIA_APP_ID: z.string().optional(),
@@ -62,7 +62,7 @@ const envSchema = z.object({
   
   // OpenTelemetry
   OTEL_ENABLED: z.string().transform(v => v === "true").default("false"),
-  OTEL_EXPORTER_OTLP_ENDPOINT: z.string().url().optional(),
+  OTEL_EXPORTER_OTLP_ENDPOINT: z.string().url().optional().or(z.literal("")),
   OTEL_SERVICE_NAME: z.string().default("freeblackmarket-backend"),
   
   // Feature flags
