@@ -4,7 +4,6 @@ import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedL
 const categoryEmojis: Record<string, string> = {
   "apparel": "👕",
   "electronics": "📱",
-  "home-&-garden": "🏡",
   "crafted": "🧵",
   "food-beverage": "🍯",
   "digital-products": "💻",
