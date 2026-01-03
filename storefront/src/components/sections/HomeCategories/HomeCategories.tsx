@@ -17,7 +17,7 @@ export const categories: { id: number; name: string; handle: string; description
   {
     id: 3,
     name: "Home & Garden",
-    handle: "home-&-garden",
+    handle: "home-and-garden",
     description: "Decor, plants & home goods",
   },
   {
