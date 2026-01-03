@@ -212,11 +212,37 @@ module.exports = defineConfig({
       ? [
           {
             resolve: '@medusajs/medusa/event-bus-redis',
-            options: { redisUrl: process.env.REDIS_URL },
+            options: { 
+              redisUrl: process.env.REDIS_URL,
+              redisOptions: {
+                // Enable TLS for Railway Redis (uses rediss:// protocol)
+                ...(process.env.REDIS_URL?.startsWith('rediss://') ? { tls: {} } : {}),
+                // Reconnection settings for stability
+                retryDelayOnFailover: 100,
+                maxRetriesPerRequest: 3,
+                enableReadyCheck: true,
+                connectTimeout: 10000,
+                // Keep connection alive
+                keepAlive: 30000,
+              },
+            },
           },
           {
             resolve: '@medusajs/medusa/workflow-engine-redis',
-            options: { redis: { url: process.env.REDIS_URL } },
+            options: { 
+              redis: { 
+                url: process.env.REDIS_URL,
+                // Enable TLS for Railway Redis (uses rediss:// protocol)
+                ...(process.env.REDIS_URL?.startsWith('rediss://') ? { tls: {} } : {}),
+                // Reconnection settings for stability
+                retryDelayOnFailover: 100,
+                maxRetriesPerRequest: 3,
+                enableReadyCheck: true,
+                connectTimeout: 10000,
+                // Keep connection alive
+                keepAlive: 30000,
+              },
+            },
           },
         ]
       : []),
