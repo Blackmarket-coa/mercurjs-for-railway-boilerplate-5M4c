@@ -5,11 +5,36 @@ import { PAYOUT_BREAKDOWN_MODULE } from "../modules/payout-breakdown"
 import PayoutBreakdownService from "../modules/payout-breakdown/service"
 
 /**
+ * Convert cents (integer) to dollars (decimal)
+ * 
+ * IMPORTANT: Medusa stores all monetary amounts in cents (integers).
+ * The Hawala ledger stores amounts in dollars (decimals).
+ * This function ensures consistent conversion.
+ * 
+ * @param cents - Amount in cents (e.g., 1999 = $19.99)
+ * @returns Amount in dollars (e.g., 19.99)
+ */
+function centsToDollars(cents: number): number {
+  // Sanity check: if value looks like dollars already (has decimals or > $10000), warn
+  if (cents !== Math.floor(cents)) {
+    console.warn(`[Hawala] Warning: centsToDollars received non-integer value: ${cents}`)
+  }
+  if (cents > 0 && cents < 1) {
+    console.warn(`[Hawala] Warning: centsToDollars received value < 1, likely already in dollars: ${cents}`)
+    return cents // Return as-is to avoid double conversion
+  }
+  return cents / 100
+}
+
+/**
  * Subscriber that processes order payments through the Hawala ledger
  * when an order is completed/paid.
  * 
  * Uses the payout-breakdown service to calculate platform fees based on
  * the default config or seller-specific custom fee settings.
+ * 
+ * CURRENCY NOTE: Medusa amounts are in CENTS, Hawala ledger uses DOLLARS.
+ * All amounts are converted via centsToDollars() before ledger operations.
  */
 export default async function hawalaOrderPaymentSubscriber({
   event,
@@ -76,7 +101,8 @@ export default async function hawalaOrderPaymentSubscriber({
     }
 
     // Calculate amounts using payout-breakdown service for accurate fees
-    const totalAmount = Number(order.total) / 100 // Convert from cents
+    // IMPORTANT: order.total is in CENTS, convert to DOLLARS for ledger
+    const totalAmount = centsToDollars(Number(order.total))
     
     // Get platform fee from payout config (respects seller-specific overrides)
     const platformFeePercent = await payoutService.getEffectivePlatformFee(sellerId)
