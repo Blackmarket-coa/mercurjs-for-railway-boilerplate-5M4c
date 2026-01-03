@@ -217,9 +217,8 @@ module.exports = defineConfig({
               redisOptions: {
                 // Enable TLS for Railway Redis (uses rediss:// protocol)
                 ...(process.env.REDIS_URL?.startsWith('rediss://') ? { tls: {} } : {}),
-                // Reconnection settings for stability
-                retryDelayOnFailover: 100,
-                maxRetriesPerRequest: 3,
+                // BullMQ requires maxRetriesPerRequest to be null
+                maxRetriesPerRequest: null,
                 enableReadyCheck: true,
                 connectTimeout: 10000,
                 // Keep connection alive
@@ -234,9 +233,8 @@ module.exports = defineConfig({
                 url: process.env.REDIS_URL,
                 // Enable TLS for Railway Redis (uses rediss:// protocol)
                 ...(process.env.REDIS_URL?.startsWith('rediss://') ? { tls: {} } : {}),
-                // Reconnection settings for stability
-                retryDelayOnFailover: 100,
-                maxRetriesPerRequest: 3,
+                // BullMQ requires maxRetriesPerRequest to be null
+                maxRetriesPerRequest: null,
                 enableReadyCheck: true,
                 connectTimeout: 10000,
                 // Keep connection alive
