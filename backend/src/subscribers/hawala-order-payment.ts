@@ -1,16 +1,22 @@
 import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
 import { HAWALA_LEDGER_MODULE } from "../modules/hawala-ledger"
 import HawalaLedgerModuleService from "../modules/hawala-ledger/service"
+import { PAYOUT_BREAKDOWN_MODULE } from "../modules/payout-breakdown"
+import PayoutBreakdownService from "../modules/payout-breakdown/service"
 
 /**
  * Subscriber that processes order payments through the Hawala ledger
- * when an order is completed/paid
+ * when an order is completed/paid.
+ * 
+ * Uses the payout-breakdown service to calculate platform fees based on
+ * the default config or seller-specific custom fee settings.
  */
 export default async function hawalaOrderPaymentSubscriber({
   event,
   container,
 }: SubscriberArgs<{ id: string }>) {
   const hawalaService = container.resolve<HawalaLedgerModuleService>(HAWALA_LEDGER_MODULE)
+  const payoutService = container.resolve<PayoutBreakdownService>(PAYOUT_BREAKDOWN_MODULE)
   const orderModuleService = container.resolve("order")
 
   const orderId = event.data.id
@@ -69,10 +75,30 @@ export default async function hawalaOrderPaymentSubscriber({
       sellerAccounts = [account]
     }
 
-    // Calculate amounts
+    // Calculate amounts using payout-breakdown service for accurate fees
     const totalAmount = Number(order.total) / 100 // Convert from cents
-    const platformFeePercentage = 0.05 // 5% platform fee
-    const platformFeeAmount = totalAmount * platformFeePercentage
+    
+    // Get platform fee from payout config (respects seller-specific overrides)
+    const platformFeePercent = await payoutService.getEffectivePlatformFee(sellerId)
+    const platformFeeAmount = totalAmount * (platformFeePercent / 100)
+
+    // Store the breakdown for this order (for transparency reporting)
+    try {
+      const breakdown = await payoutService.calculateBreakdown({
+        subtotal: Number(order.subtotal || order.total),
+        sellerId,
+        orderId,
+        currencyCode: order.currency_code,
+      })
+      await payoutService.storeOrderBreakdown(
+        orderId,
+        customerId,
+        breakdown,
+        order.currency_code
+      )
+    } catch (breakdownError) {
+      console.warn(`[Hawala] Could not store breakdown for order ${orderId}:`, breakdownError)
+    }
 
     // Check for auto-invest settings
     const producerId = (order as any).producer_id || null
