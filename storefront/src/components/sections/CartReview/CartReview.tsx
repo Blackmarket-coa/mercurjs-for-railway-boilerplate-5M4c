@@ -39,9 +39,8 @@ const Review = ({ cart }: { cart: any }) => {
           cartTotal={cart?.total || 0}
           currencyCode={cart?.currency_code || "USD"}
           producerName={firstSeller}
-          producerPercentage={75}
-          platformPercentage={20}
-          communityFundPercentage={5}
+          producerPercentage={97}
+          platformPercentage={3}
         />
       </div>
 
