@@ -4,7 +4,7 @@
  * Validates environment variables at startup with clear error messages.
  * Provides type-safe access to configuration throughout the application.
  * 
- * Build timestamp: 2026-01-03T01:50:00Z (force rebuild)
+ * Build timestamp: 2026-01-03T02:00:00Z (fix z.union for optional URLs)
  * 
  * Usage:
  * ```typescript
@@ -21,21 +21,30 @@ import { createLogger } from "./logger"
 const logger = createLogger("Config")
 
 /**
- * Helper for optional URL env vars that treats empty strings as undefined
- * Uses preprocess to convert empty/whitespace strings to undefined BEFORE validation
+ * Helper for optional URL env vars
+ * Accepts: valid URL string, empty string, undefined
+ * Returns: URL string or undefined (empty strings become undefined)
  */
-const optionalUrl = z.preprocess(
-  (val) => (typeof val === "string" && val.trim() === "" ? undefined : val),
-  z.string().url().optional()
-)
+const optionalUrl = z
+  .union([
+    z.string().url(),
+    z.literal(""),
+    z.undefined(),
+  ])
+  .transform((val) => (val === "" ? undefined : val))
 
 /**
- * Helper for optional email env vars that treats empty strings as undefined
+ * Helper for optional email env vars
+ * Accepts: valid email string, empty string, undefined
+ * Returns: email string or undefined (empty strings become undefined)
  */
-const optionalEmail = z.preprocess(
-  (val) => (typeof val === "string" && val.trim() === "" ? undefined : val),
-  z.string().email().optional()
-)
+const optionalEmail = z
+  .union([
+    z.string().email(),
+    z.literal(""),
+    z.undefined(),
+  ])
+  .transform((val) => (val === "" ? undefined : val))
 
 /**
  * Environment variable schema with validation rules
