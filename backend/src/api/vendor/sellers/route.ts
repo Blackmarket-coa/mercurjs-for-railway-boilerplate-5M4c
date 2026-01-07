@@ -12,20 +12,11 @@ import { createSellerSchema, CreateSellerInput } from "./validators"
  * and associated metadata including vendor_type.
  */
 export const POST = async (
-  req: MedusaRequest,
+  req: MedusaRequest<CreateSellerInput>,
   res: MedusaResponse
 ) => {
-  // Validate request body with explicit schema
-  let body: CreateSellerInput
-  try {
-    body = createSellerSchema.parse(req.body)
-  } catch (error: any) {
-    return res.status(400).json({
-      type: "invalid_data",
-      message: error.errors?.[0]?.message || "Invalid request data",
-      errors: error.errors,
-    })
-  }
+  // Body is already validated and transformed by middleware
+  const body = req.body as CreateSellerInput
 
   try {
     // Create the seller using MercurJS workflow
