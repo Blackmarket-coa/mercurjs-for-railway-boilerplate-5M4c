@@ -13,6 +13,9 @@ type CreateSellerMetadataInput = {
   vendor_type?: VendorType
   business_registration_number?: string
   tax_classification?: string
+  website_url?: string | null
+  social_links?: Record<string, any> | null
+  storefront_links?: Record<string, any> | null
   farm_practices?: Record<string, any>
   certifications?: Record<string, any>[]
   growing_region?: string
@@ -40,6 +43,9 @@ const createSellerMetadataStep = createStep(
       vendor_type: input.vendor_type || VendorType.PRODUCER,
       business_registration_number: input.business_registration_number || null,
       tax_classification: input.tax_classification || null,
+      website_url: input.website_url || null,
+      social_links: input.social_links || null,
+      storefront_links: input.storefront_links || null,
       farm_practices: input.farm_practices || null,
       certifications: input.certifications || null,
       growing_region: input.growing_region || null,
