@@ -2,6 +2,7 @@ import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { createSellerWorkflow } from "@mercurjs/b2c-core/workflows"
 import { createSellerMetadataWorkflow } from "../../../workflows/create-seller-metadata"
 import { VendorType } from "../../../modules/seller-extension/models/seller-metadata"
+import { createSellerSchema, CreateSellerInput } from "./validators"
 
 /**
  * POST /vendor/sellers
@@ -14,23 +15,16 @@ export const POST = async (
   req: MedusaRequest,
   res: MedusaResponse
 ) => {
-  const body = req.body as {
-    name: string
-    member: {
-      name: string
-      email: string
-    }
-    vendor_type?: VendorType
-    website_url?: string
-    social_links?: {
-      instagram?: string
-      facebook?: string
-      twitter?: string
-      tiktok?: string
-      youtube?: string
-      linkedin?: string
-      pinterest?: string
-    }
+  // Validate request body with explicit schema
+  let body: CreateSellerInput
+  try {
+    body = createSellerSchema.parse(req.body)
+  } catch (error: any) {
+    return res.status(400).json({
+      type: "invalid_data",
+      message: error.errors?.[0]?.message || "Invalid request data",
+      errors: error.errors,
+    })
   }
 
   try {
