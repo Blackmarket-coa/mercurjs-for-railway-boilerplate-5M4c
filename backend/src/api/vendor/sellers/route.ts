@@ -63,7 +63,7 @@ export const POST = async (
       seller: {
         id: seller.id,
         name: seller.name,
-        member: seller.member,
+        members: seller.members,
       },
     })
   } catch (error: any) {
