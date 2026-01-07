@@ -1,19 +1,33 @@
 import { Migration } from "@mikro-orm/migrations"
 
-export class Migration20251228CreateSellerMetadata extends Migration {
+/**
+ * Cleanup and recreate seller_metadata with correct schema
+ *
+ * This migration drops the existing seller_metadata table and enum,
+ * then recreates them with the correct structure. This is safe for
+ * Railway since we manually applied the schema already, but MikroORM
+ * needs to see a clean migration history.
+ */
+export class Migration20260107CleanupAndRecreate extends Migration {
   async up(): Promise<void> {
-    // Create vendor_type enum with correct lowercase values matching the TypeScript model
+    // Drop existing table and enum
+    this.addSql('DROP TABLE IF EXISTS "seller_metadata" CASCADE;')
+    this.addSql('DROP TYPE IF EXISTS "vendor_type_enum" CASCADE;')
+
+    // Recreate enum with correct values
     this.addSql(`
-      DO $$ BEGIN
-        CREATE TYPE "vendor_type_enum" AS ENUM ('producer', 'garden', 'maker', 'restaurant', 'mutual_aid');
-      EXCEPTION
-        WHEN duplicate_object THEN null;
-      END $$;
+      CREATE TYPE "vendor_type_enum" AS ENUM (
+        'producer',
+        'garden',
+        'maker',
+        'restaurant',
+        'mutual_aid'
+      );
     `)
 
-    // Create seller_metadata table
+    // Recreate table with all correct columns
     this.addSql(`
-      CREATE TABLE IF NOT EXISTS "seller_metadata" (
+      CREATE TABLE "seller_metadata" (
         "id" TEXT NOT NULL,
         "seller_id" TEXT NOT NULL UNIQUE,
         "vendor_type" vendor_type_enum NOT NULL DEFAULT 'producer',
@@ -39,22 +53,22 @@ export class Migration20251228CreateSellerMetadata extends Migration {
       );
     `)
 
-    // Create indexes
+    // Recreate indexes
     this.addSql(`
-      CREATE INDEX IF NOT EXISTS "IDX_seller_metadata_vendor_type" 
-      ON "seller_metadata" ("vendor_type") 
+      CREATE INDEX "IDX_seller_metadata_vendor_type"
+      ON "seller_metadata" ("vendor_type")
       WHERE "deleted_at" IS NULL;
     `)
 
     this.addSql(`
-      CREATE INDEX IF NOT EXISTS "IDX_seller_metadata_featured" 
-      ON "seller_metadata" ("featured") 
+      CREATE INDEX "IDX_seller_metadata_featured"
+      ON "seller_metadata" ("featured")
       WHERE "deleted_at" IS NULL;
     `)
 
     this.addSql(`
-      CREATE INDEX IF NOT EXISTS "IDX_seller_metadata_seller_id" 
-      ON "seller_metadata" ("seller_id") 
+      CREATE INDEX "IDX_seller_metadata_seller_id"
+      ON "seller_metadata" ("seller_id")
       WHERE "deleted_at" IS NULL;
     `)
   }
