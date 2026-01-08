@@ -2,7 +2,7 @@ import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { createSellerWorkflow } from "@mercurjs/b2c-core/workflows"
 import { createSellerMetadataWorkflow } from "../../../workflows/create-seller-metadata"
 import { VendorType } from "../../../modules/seller-extension/models/seller-metadata"
-import { createSellerSchema, CreateSellerInput } from "./validators"
+import { CreateSellerInput } from "./validators"
 
 // Disable automatic authentication to allow public registration
 export const AUTHENTICATE = false
@@ -15,21 +15,11 @@ export const AUTHENTICATE = false
  * and associated metadata including vendor_type.
  */
 export const POST = async (
-  req: MedusaRequest,
+  req: MedusaRequest<CreateSellerInput>,
   res: MedusaResponse
 ) => {
-  // Validate request body directly (no middleware extraction needed)
-  let body: CreateSellerInput;
-  try {
-    body = createSellerSchema.parse(req.body);
-  } catch (validationError: any) {
-    console.error("[POST /vendor/sellers] Validation error:", validationError);
-    return res.status(400).json({
-      type: "invalid_data",
-      message: validationError.errors?.[0]?.message || "Invalid request data",
-      errors: validationError.errors,
-    });
-  }
+  // Body is already validated by middleware and available in validatedBody
+  const body = req.validatedBody
 
   console.log("[POST /vendor/sellers] Validated body:", {
     name: body.name,
