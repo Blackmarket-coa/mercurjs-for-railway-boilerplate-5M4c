@@ -1,7 +1,8 @@
-import { 
-  AuthenticatedMedusaRequest, 
+import {
+  AuthenticatedMedusaRequest,
   MedusaResponse
 } from "@medusajs/framework";
+import { MedusaError } from "@medusajs/framework/utils";
 import {
   createUserWorkflow,
   CreateUserWorkflowInput,
@@ -12,7 +13,14 @@ export const POST = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
-  const { auth_identity_id } = req.auth_context;
+  const auth_identity_id = req.auth_context?.auth_identity_id;
+
+  if (!auth_identity_id) {
+    throw new MedusaError(
+      MedusaError.Types.INVALID_DATA,
+      "Authentication identity ID is required"
+    );
+  }
 
   const validatedBody = createUserSchema.parse(req.body)
 
