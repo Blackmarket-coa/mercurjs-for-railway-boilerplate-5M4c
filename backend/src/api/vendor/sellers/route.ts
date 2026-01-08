@@ -16,24 +16,25 @@ export const POST = async (
   res: MedusaResponse
 ) => {
   // Get extended fields that were extracted by middleware
-  const extendedFields = (req as any).extendedFields || {}
+  const extendedFields = (req as any).extendedFields || {};
+  const requestBody = (req.body || {}) as Record<string, any>;
 
   // Reconstruct full body for validation
   const fullBody = {
-    ...req.body,
+    ...requestBody,
     ...extendedFields,
-  }
+  };
 
   // Manually validate the complete request
-  let body: CreateSellerInput
+  let body: CreateSellerInput;
   try {
-    body = createSellerSchema.parse(fullBody)
+    body = createSellerSchema.parse(fullBody);
   } catch (validationError: any) {
     return res.status(400).json({
       type: "invalid_data",
       message: validationError.errors?.[0]?.message || "Invalid request data",
       errors: validationError.errors,
-    })
+    });
   }
 
   try {
