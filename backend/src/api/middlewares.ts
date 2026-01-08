@@ -65,7 +65,7 @@ const strictAuthRateLimiter = createRateLimiter({
 
 /**
  * Middleware: Normalize and Validate Email
- * 
+ *
  * Ensures email signups and logins are case-insensitive by normalizing
  * the email field to lowercase before processing. Also validates email format.
  */
@@ -76,28 +76,62 @@ async function normalizeEmailMiddleware(
 ) {
   if (req.body && typeof req.body === "object") {
     const body = req.body as Record<string, unknown>
-    
+
     // Normalize and validate email field
     if (body.email && typeof body.email === "string") {
       const normalizedEmail = body.email.toLowerCase().trim()
-      
+
       // Validate email format
       if (!EMAIL_REGEX.test(normalizedEmail)) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           message: "Invalid email format",
           type: "invalid_data"
         })
       }
-      
+
       body.email = normalizedEmail
     }
-    
+
     // Also handle identifier field (used in password reset)
     if (body.identifier && typeof body.identifier === "string") {
       body.identifier = body.identifier.toLowerCase().trim()
     }
   }
-  
+
+  next()
+}
+
+/**
+ * Middleware: Handle Vendor Type Field
+ *
+ * Extracts vendor_type and other extended fields from the request body
+ * before Medusa's automatic validation sees them, then restores them
+ * for the route handler to use.
+ */
+async function handleVendorTypeField(
+  req: MedusaRequest,
+  res: MedusaResponse,
+  next: MedusaNextFunction
+) {
+  if (req.body && typeof req.body === "object") {
+    const body = req.body as Record<string, unknown>
+
+    // Extract extended fields that aren't part of the core seller workflow
+    const extendedFields = {
+      vendor_type: body.vendor_type,
+      website_url: body.website_url,
+      social_links: body.social_links,
+    }
+
+    // Store extended fields in request for route handler to access
+    (req as any).extendedFields = extendedFields
+
+    // Remove from body to prevent auto-validation errors
+    delete body.vendor_type
+    delete body.website_url
+    delete body.social_links
+  }
+
   next()
 }
 
@@ -119,10 +153,11 @@ export default defineMiddlewares({
       matcher: "/store/customers",
       middlewares: [authRateLimiter, normalizeEmailMiddleware],
     },
-    // Vendor seller routes - validation handled by route-level POST_VALIDATION_SCHEMA export
+    // Vendor seller routes - extract extended fields before auto-validation
     {
       matcher: "/vendor/sellers",
-      middlewares: [normalizeEmailMiddleware],
+      method: "POST",
+      middlewares: [handleVendorTypeField, normalizeEmailMiddleware],
     },
     // Admin user routes
     {

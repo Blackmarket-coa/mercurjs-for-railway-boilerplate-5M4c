@@ -5,12 +5,6 @@ import { VendorType } from "../../../modules/seller-extension/models/seller-meta
 import { createSellerSchema, CreateSellerInput } from "./validators"
 
 /**
- * Export validation schema for Medusa to use
- * This tells Medusa's automatic validation to use our custom schema
- */
-export const POST_VALIDATION_SCHEMA = createSellerSchema
-
-/**
  * POST /vendor/sellers
  *
  * Create a new seller during vendor registration.
@@ -18,11 +12,29 @@ export const POST_VALIDATION_SCHEMA = createSellerSchema
  * and associated metadata including vendor_type.
  */
 export const POST = async (
-  req: MedusaRequest<CreateSellerInput>,
+  req: MedusaRequest,
   res: MedusaResponse
 ) => {
-  // Body is already validated and transformed by middleware
-  const body = req.body as CreateSellerInput
+  // Get extended fields that were extracted by middleware
+  const extendedFields = (req as any).extendedFields || {}
+
+  // Reconstruct full body for validation
+  const fullBody = {
+    ...req.body,
+    ...extendedFields,
+  }
+
+  // Manually validate the complete request
+  let body: CreateSellerInput
+  try {
+    body = createSellerSchema.parse(fullBody)
+  } catch (validationError: any) {
+    return res.status(400).json({
+      type: "invalid_data",
+      message: validationError.errors?.[0]?.message || "Invalid request data",
+      errors: validationError.errors,
+    })
+  }
 
   try {
     // Create the seller using MercurJS workflow
