@@ -1,10 +1,9 @@
-import { defineMiddlewares, authenticate, validateAndTransformBody } from "@medusajs/framework/http"
+import { defineMiddlewares, authenticate } from "@medusajs/framework/http"
 import type {
   MedusaRequest,
   MedusaResponse,
   MedusaNextFunction,
 } from "@medusajs/framework/http"
-import { createSellerSchema } from "./vendor/sellers/validators"
 
 // Basic email validation regex
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -120,14 +119,10 @@ export default defineMiddlewares({
       matcher: "/store/customers",
       middlewares: [authRateLimiter, normalizeEmailMiddleware],
     },
-    // Vendor seller routes - with validation for vendor_type
+    // Vendor seller routes - validation handled by route-level POST_VALIDATION_SCHEMA export
     {
       matcher: "/vendor/sellers",
-      method: "POST",
-      middlewares: [
-        validateAndTransformBody(createSellerSchema),
-        normalizeEmailMiddleware,
-      ],
+      middlewares: [normalizeEmailMiddleware],
     },
     // Admin user routes
     {

@@ -5,6 +5,12 @@ import { VendorType } from "../../../modules/seller-extension/models/seller-meta
 import { createSellerSchema, CreateSellerInput } from "./validators"
 
 /**
+ * Export validation schema for Medusa to use
+ * This tells Medusa's automatic validation to use our custom schema
+ */
+export const POST_VALIDATION_SCHEMA = createSellerSchema
+
+/**
  * POST /vendor/sellers
  *
  * Create a new seller during vendor registration.
