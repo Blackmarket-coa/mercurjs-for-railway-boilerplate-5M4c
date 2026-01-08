@@ -28,7 +28,7 @@ const sellerMetadataLink = SellerModule
         isList: false,
       },
       {
-        linkable: SellerExtensionModule.linkable.seller_metadata,
+        linkable: SellerExtensionModule.linkable.sellerMetadata,
         isList: false,
       }
     )
