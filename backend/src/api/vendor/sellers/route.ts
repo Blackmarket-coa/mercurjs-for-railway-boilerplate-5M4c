@@ -2,7 +2,7 @@ import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { createSellerWorkflow } from "@mercurjs/b2c-core/workflows"
 import { createSellerMetadataWorkflow } from "../../../workflows/create-seller-metadata"
 import { VendorType } from "../../../modules/seller-extension/models/seller-metadata"
-import { CreateSellerInput } from "./validators"
+import { createSellerSchema, CreateSellerInput } from "./validators"
 
 // Disable automatic authentication to allow public registration
 export const AUTHENTICATE = false
