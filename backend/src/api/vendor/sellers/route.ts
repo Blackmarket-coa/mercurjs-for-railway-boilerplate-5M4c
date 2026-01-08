@@ -69,8 +69,11 @@ export const POST = async (
       seller_id: seller.id,
     })
 
+    // Cast vendor_type string to VendorType enum (values are identical)
+    const vendorType = (body.vendor_type || VendorType.PRODUCER) as VendorType
+
     const metadataInput = {
-      vendor_type: body.vendor_type || VendorType.PRODUCER,
+      vendor_type: vendorType,
       website_url: body.website_url || null,
       social_links: body.social_links || null,
     }
@@ -80,7 +83,9 @@ export const POST = async (
       console.log(`[POST /vendor/sellers] Updating existing metadata for seller ${seller.id}`)
       await sellerExtensionService.updateSellerMetadatas({
         id: existingMetadata[0].id,
-        ...metadataInput,
+        vendor_type: vendorType,
+        website_url: metadataInput.website_url,
+        social_links: metadataInput.social_links,
       })
     } else {
       // No metadata exists - create it
