@@ -313,4 +313,10 @@ module.exports = defineConfig({
         ]
       : []),
   ],
+  links: [
+    // Link seller to seller metadata for vendor_type and extended fields
+    {
+      resolve: './src/links/seller-metadata',
+    },
+  ],
 })
