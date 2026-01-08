@@ -97,7 +97,7 @@ export const Register = () => {
   }
 
   const handleSubmit = form.handleSubmit(
-    async ({ name, email, password, confirmPassword, website_url, instagram, facebook }) => {
+    async ({ name, email, password, confirmPassword }) => {
       if (password !== confirmPassword) {
         form.setError("password", {
           type: "manual",
@@ -111,21 +111,13 @@ export const Register = () => {
         return null
       }
 
-      // Build social links object if any are provided
-      const social_links = (instagram || facebook) ? {
-        instagram: instagram || undefined,
-        facebook: facebook || undefined,
-      } : undefined
-
+      // Only send core registration fields - vendor_type is set by admin later
       await mutateAsync(
         {
           name,
           email,
           password,
           confirmPassword,
-          vendor_type: selectedType || undefined,
-          website_url: website_url || undefined,
-          social_links,
         },
         {
           onError: (error) => {

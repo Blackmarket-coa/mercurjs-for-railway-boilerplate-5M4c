@@ -2,8 +2,6 @@ import { FetchError } from "@medusajs/js-sdk"
 import { HttpTypes } from "@medusajs/types"
 import { UseMutationOptions, useMutation } from "@tanstack/react-query"
 import { fetchQuery, sdk } from "../../lib/client"
-import { SocialLinks } from "../../types/user"
-import { VendorType } from "../../providers/vendor-type-provider"
 
 export const useSignInWithEmailPass = (
   options?: UseMutationOptions<
@@ -34,32 +32,25 @@ export const useSignUpWithEmailPass = (
     HttpTypes.AdminSignInWithEmailPassword & {
       confirmPassword: string
       name: string
-      vendor_type?: VendorType
-      website_url?: string
-      social_links?: SocialLinks
     }
   >
 ) => {
   return useMutation({
     mutationFn: (payload) => {
-      // Only pass fields that the auth.register endpoint accepts
-      const { vendor_type, website_url, social_links, ...authPayload } = payload
       return sdk.auth.register("seller", "emailpass", {
-        ...authPayload,
+        ...payload,
         email: payload.email.toLowerCase().trim(),
       })
     },
     onSuccess: async (_, variables) => {
       const normalizedEmail = variables.email.toLowerCase().trim()
+      // Only send core seller fields - metadata is created by subscriber
       const seller = {
         name: variables.name,
         member: {
           name: variables.name,
           email: normalizedEmail,
         },
-        vendor_type: variables.vendor_type,
-        website_url: variables.website_url,
-        social_links: variables.social_links,
       }
       await fetchQuery("/vendor/sellers", {
         method: "POST",
