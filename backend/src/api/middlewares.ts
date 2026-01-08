@@ -101,65 +101,13 @@ async function normalizeEmailMiddleware(
   next()
 }
 
-/**
- * Middleware: Handle Vendor Type Field
- *
- * Extracts vendor_type and other extended fields from the request body
- * before Medusa's automatic validation sees them, then restores them
- * for the route handler to use.
- *
- * CRITICAL: This must run BEFORE any body parsing/validation middleware
- */
-async function handleVendorTypeField(
-  req: MedusaRequest,
-  res: MedusaResponse,
-  next: MedusaNextFunction
-) {
-  console.log('[handleVendorTypeField] Middleware called for:', req.method, req.path);
-
-  // Only process for POST requests to /vendor/sellers
-  if (req.method === 'POST' && req.path === '/vendor/sellers') {
-    console.log('[handleVendorTypeField] Processing vendor/sellers POST request');
-    console.log('[handleVendorTypeField] Original body keys:', Object.keys(req.body || {}));
-
-    // Access raw body before it's parsed and validated
-    const rawBody = req.body;
-
-    if (rawBody && typeof rawBody === "object") {
-      const body = rawBody as Record<string, any>;
-
-      // Extract extended fields that aren't part of the core seller workflow
-      const extendedFields: Record<string, any> = {
-        vendor_type: body.vendor_type,
-        website_url: body.website_url,
-        social_links: body.social_links,
-      };
-
-      console.log('[handleVendorTypeField] Extracted fields:', extendedFields);
-
-      // Store extended fields in request for route handler to access
-      (req as any).extendedFields = extendedFields;
-
-      // Remove from body to prevent auto-validation errors
-      delete body.vendor_type;
-      delete body.website_url;
-      delete body.social_links;
-
-      console.log('[handleVendorTypeField] Modified body keys:', Object.keys(body));
-    }
-  }
-
-  next();
-}
-
 export default defineMiddlewares({
   routes: [
-    // CRITICAL: This MUST be first to run before any validation
-    // Handle vendor_type field extraction for /vendor/sellers
+    // Vendor seller routes - normalize email
     {
       matcher: "/vendor/sellers",
       method: "POST",
-      middlewares: [handleVendorTypeField, normalizeEmailMiddleware],
+      middlewares: [normalizeEmailMiddleware],
     },
     // Auth routes - register and login for all actor types (rate limited)
     {

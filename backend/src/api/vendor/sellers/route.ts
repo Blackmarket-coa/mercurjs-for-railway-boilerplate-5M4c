@@ -18,27 +18,25 @@ export const POST = async (
   req: MedusaRequest,
   res: MedusaResponse
 ) => {
-  // Get extended fields that were extracted by middleware
-  const extendedFields = (req as any).extendedFields || {};
-  const requestBody = (req.body || {}) as Record<string, any>;
-
-  // Reconstruct full body for validation
-  const fullBody = {
-    ...requestBody,
-    ...extendedFields,
-  };
-
-  // Manually validate the complete request
+  // Validate request body directly (no middleware extraction needed)
   let body: CreateSellerInput;
   try {
-    body = createSellerSchema.parse(fullBody);
+    body = createSellerSchema.parse(req.body);
   } catch (validationError: any) {
+    console.error("[POST /vendor/sellers] Validation error:", validationError);
     return res.status(400).json({
       type: "invalid_data",
       message: validationError.errors?.[0]?.message || "Invalid request data",
       errors: validationError.errors,
     });
   }
+
+  console.log("[POST /vendor/sellers] Validated body:", {
+    name: body.name,
+    vendor_type: body.vendor_type,
+    hasWebsiteUrl: !!body.website_url,
+    hasSocialLinks: !!body.social_links,
+  });
 
   try {
     // Create the seller using MercurJS workflow
