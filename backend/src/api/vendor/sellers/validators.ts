@@ -19,6 +19,9 @@ const socialLinksSchema = z.object({
  *
  * Validates the request body for POST /vendor/sellers
  * Accepts all fields needed for seller creation + metadata
+ *
+ * Note: Uses .passthrough() to allow extra fields that may be added
+ * in the future without breaking the validation.
  */
 export const createSellerSchema = z.object({
   // Core seller fields
@@ -34,6 +37,6 @@ export const createSellerSchema = z.object({
   vendor_type: z.nativeEnum(VendorType).optional(),
   website_url: z.string().url().optional().nullable(),
   social_links: socialLinksSchema,
-})
+}).passthrough()
 
 export type CreateSellerInput = z.infer<typeof createSellerSchema>
