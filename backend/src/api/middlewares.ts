@@ -114,25 +114,25 @@ async function handleVendorTypeField(
   next: MedusaNextFunction
 ) {
   if (req.body && typeof req.body === "object") {
-    const body = req.body as Record<string, unknown>
+    const body = req.body as Record<string, any>;
 
     // Extract extended fields that aren't part of the core seller workflow
-    const extendedFields = {
+    const extendedFields: Record<string, any> = {
       vendor_type: body.vendor_type,
       website_url: body.website_url,
       social_links: body.social_links,
-    }
+    };
 
     // Store extended fields in request for route handler to access
-    (req as any).extendedFields = extendedFields
+    (req as any).extendedFields = extendedFields;
 
     // Remove from body to prevent auto-validation errors
-    delete body.vendor_type
-    delete body.website_url
-    delete body.social_links
+    delete body.vendor_type;
+    delete body.website_url;
+    delete body.social_links;
   }
 
-  next()
+  next();
 }
 
 export default defineMiddlewares({
