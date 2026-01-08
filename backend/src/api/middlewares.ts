@@ -159,7 +159,7 @@ export default defineMiddlewares({
     {
       matcher: "/vendor/sellers",
       method: "POST",
-      middlewares: [handleVendorTypeField],
+      middlewares: [handleVendorTypeField, normalizeEmailMiddleware],
     },
     // Auth routes - register and login for all actor types (rate limited)
     {
@@ -176,11 +176,6 @@ export default defineMiddlewares({
     {
       matcher: "/store/customers",
       middlewares: [authRateLimiter, normalizeEmailMiddleware],
-    },
-    // Vendor seller routes - normalize email (vendor_type handled above)
-    {
-      matcher: "/vendor/sellers",
-      middlewares: [normalizeEmailMiddleware],
     },
     // Admin user routes
     {

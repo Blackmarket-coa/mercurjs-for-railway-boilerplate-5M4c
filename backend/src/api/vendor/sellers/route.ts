@@ -4,6 +4,9 @@ import { createSellerMetadataWorkflow } from "../../../workflows/create-seller-m
 import { VendorType } from "../../../modules/seller-extension/models/seller-metadata"
 import { createSellerSchema, CreateSellerInput } from "./validators"
 
+// Disable automatic authentication to allow public registration
+export const AUTHENTICATE = false
+
 /**
  * POST /vendor/sellers
  *
