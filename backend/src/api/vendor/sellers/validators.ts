@@ -31,7 +31,7 @@ export const createSellerSchema = z.object({
   }),
 
   // Extended metadata fields
-  vendor_type: z.nativeEnum(VendorType).optional(),
+  vendor_type: z.enum(["producer", "garden", "maker", "restaurant", "mutual_aid"]).optional(),
   website_url: z.string().url().optional().nullable(),
   social_links: socialLinksSchema,
 })

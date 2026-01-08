@@ -1,10 +1,9 @@
-import { defineMiddlewares, authenticate, validateAndTransformBody } from "@medusajs/framework/http"
+import { defineMiddlewares, authenticate } from "@medusajs/framework/http"
 import type {
   MedusaRequest,
   MedusaResponse,
   MedusaNextFunction,
 } from "@medusajs/framework/http"
-import { createSellerSchema } from "./vendor/sellers/validators"
 
 // Basic email validation regex
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -104,11 +103,11 @@ async function normalizeEmailMiddleware(
 
 export default defineMiddlewares({
   routes: [
-    // Vendor seller routes - normalize email and validate body
+    // Vendor seller routes - normalize email only, validation done in route handler
     {
       matcher: "/vendor/sellers",
       method: "POST",
-      middlewares: [normalizeEmailMiddleware, validateAndTransformBody(createSellerSchema)],
+      middlewares: [normalizeEmailMiddleware],
     },
     // Auth routes - register and login for all actor types (rate limited)
     {
