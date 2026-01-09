@@ -54,7 +54,7 @@ export const POST = async (
 
     // Create a seller creation REQUEST using MercurJS requests workflow
     // This will appear in the admin panel for approval
-    const { result } = await createSellerCreationRequestWorkflow.run({
+    const workflowResult = await createSellerCreationRequestWorkflow.run({
       container: req.scope,
       input: {
         type: "seller",
@@ -73,13 +73,16 @@ export const POST = async (
       },
     })
 
-    // The workflow returns an array of requests
+    console.log("[POST /vendor/sellers] Workflow result:", JSON.stringify(workflowResult, null, 2))
+
+    // Handle different result structures from the workflow
+    const result = workflowResult?.result
     const sellerRequest = Array.isArray(result) ? result[0] : result
 
     return res.status(201).json({
       request: {
-        id: sellerRequest.id,
-        status: sellerRequest.status,
+        id: sellerRequest?.id || "unknown",
+        status: sellerRequest?.status || "pending",
         message: "Your seller registration request has been submitted and is pending approval.",
       },
     })
