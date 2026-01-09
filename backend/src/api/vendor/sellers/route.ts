@@ -1,6 +1,6 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { Modules } from "@medusajs/framework/utils"
-import { createSellerWorkflow } from "@mercurjs/b2c-core/workflows"
+import { createSellerCreationRequestWorkflow } from "@mercurjs/requests/workflows"
 import { createSellerSchema, CreateSellerInput } from "./validators"
 
 // Disable automatic authentication to allow public registration
@@ -9,9 +9,10 @@ export const AUTHENTICATE = false
 /**
  * POST /vendor/sellers
  *
- * Create a new seller during vendor registration.
- * This endpoint is called after the auth registration to create the seller entity.
- * Seller metadata (including vendor_type) is created by the seller-created subscriber.
+ * Create a seller creation REQUEST during vendor registration.
+ * This endpoint is called after the auth registration to submit a seller creation request.
+ * The request will appear in the admin panel for approval.
+ * Once approved, the seller entity will be created automatically.
  */
 export const POST = async (
   req: MedusaRequest,
@@ -30,7 +31,7 @@ export const POST = async (
     })
   }
 
-  console.log("[POST /vendor/sellers] Creating seller:", body.name)
+  console.log("[POST /vendor/sellers] Creating seller request:", body.name)
 
   try {
     // Look up the auth identity by email (created during auth registration)
@@ -51,36 +52,44 @@ export const POST = async (
 
     console.log("[POST /vendor/sellers] Found auth identity:", authIdentity.id)
 
-    // Create the seller using MercurJS workflow
-    // The seller-created subscriber will automatically create metadata with default vendor_type
-    const { result: seller } = await createSellerWorkflow.run({
+    // Create a seller creation REQUEST using MercurJS requests workflow
+    // This will appear in the admin panel for approval
+    const { result } = await createSellerCreationRequestWorkflow.run({
       container: req.scope,
       input: {
-        auth_identity_id: authIdentity.id,
-        member: {
-          name: body.member.name,
-          email: body.member.email,
+        type: "seller",
+        data: {
+          auth_identity_id: authIdentity.id,
+          member: {
+            name: body.member.name,
+            email: body.member.email,
+          },
+          seller: {
+            name: body.name,
+          },
+          provider_identity_id: body.member.email,
         },
-        seller: {
-          name: body.name,
-        },
+        submitter_id: authIdentity.id,
       },
     })
 
+    // The workflow returns an array of requests
+    const sellerRequest = Array.isArray(result) ? result[0] : result
+
     return res.status(201).json({
-      seller: {
-        id: seller.id,
-        name: seller.name,
-        members: seller.members,
+      request: {
+        id: sellerRequest.id,
+        status: sellerRequest.status,
+        message: "Your seller registration request has been submitted and is pending approval.",
       },
     })
   } catch (error: any) {
-    console.error("Failed to create seller:", error)
+    console.error("Failed to create seller request:", error)
 
     // Return proper error response
     return res.status(400).json({
       type: "invalid_data",
-      message: error.message || "Failed to create seller",
+      message: error.message || "Failed to submit seller registration request",
     })
   }
 }
