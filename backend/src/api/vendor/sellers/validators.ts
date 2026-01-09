@@ -4,8 +4,9 @@ import { z } from "zod"
  * Create Seller Request Schema
  *
  * Validates the request body for POST /vendor/sellers
- * Accepts core fields needed for seller creation.
- * Metadata (including vendor_type) is created by the seller-created subscriber.
+ * Accepts core fields needed for seller registration request.
+ * The request will be submitted for admin approval.
+ * Once approved, the seller entity and metadata will be created.
  */
 export const createSellerSchema = z.object({
   // Core seller fields
