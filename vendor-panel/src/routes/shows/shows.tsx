@@ -66,7 +66,7 @@ const Shows = () => {
             <ReceiptPercent className="mx-auto h-12 w-12 text-ui-fg-subtle mb-4" />
             <Heading level="h3">No shows yet</Heading>
             <Text className="text-ui-fg-subtle">
-              Create your first show to start selling tickets
+              Create your first show to start offering tickets
             </Text>
           </div>
         ) : (

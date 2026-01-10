@@ -236,7 +236,7 @@ function CompletionStep() {
           <Tag className="w-6 h-6 text-ui-fg-muted group-hover:text-ui-fg-base mb-2" />
           <Text className="font-medium">Add Your First Product</Text>
           <Text size="small" className="text-ui-fg-subtle">
-            Start selling right away
+            Start offering right away
           </Text>
         </button>
       </div>

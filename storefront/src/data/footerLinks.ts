@@ -7,7 +7,7 @@ const links = {
   ],
   about: [
     { label: 'About Us', path: 'https://www.blackmarketcoa.com' },
-    { label: 'Sell on FreeBlackMarket', path: '/sell' },
+    { label: 'Join FreeBlackMarket', path: '/sell' },
     { label: 'How It Works', path: 'https://www.blackmarketcoa.com' },
   ],
   connect: [

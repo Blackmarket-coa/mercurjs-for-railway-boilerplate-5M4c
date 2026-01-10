@@ -181,7 +181,7 @@ const BADGE_CONFIG: Record<
 }
 
 const VERIFICATION_LABELS: Record<VerificationLevel, { label: string; color: string }> = {
-  UNVERIFIED: { label: "New Producer", color: "#6B7280" },
+  UNVERIFIED: { label: "New Provider", color: "#6B7280" },
   SELF_REPORTED: { label: "Self-Reported", color: "#F59E0B" },
   VERIFIED: { label: "Verified", color: "#10B981" },
   AUDITED: { label: "Audited", color: "#3B82F6" },
@@ -280,19 +280,19 @@ export const VerificationBadge = ({ level, trustScore, showScore = false }: Veri
             <h4 className="font-semibold text-gray-900 mb-2">What does this mean?</h4>
             <div className="space-y-2 text-sm text-gray-600">
               {level === "UNVERIFIED" && (
-                <p>This is a new producer who hasn't completed our verification process yet.</p>
+                <p>This is a new provider who hasn't completed our verification process yet.</p>
               )}
               {level === "SELF_REPORTED" && (
-                <p>This producer has submitted their information but it hasn't been independently verified.</p>
+                <p>This provider has submitted their information but it hasn't been independently verified.</p>
               )}
               {level === "VERIFIED" && (
-                <p>We've verified this producer's identity, location, and basic business information.</p>
+                <p>We've verified this provider's identity, location, and basic information.</p>
               )}
               {level === "AUDITED" && (
-                <p>This producer has undergone an audit of their practices and operations.</p>
+                <p>This provider has undergone an audit of their practices and operations.</p>
               )}
               {level === "CERTIFIED" && (
-                <p>This producer holds recognized third-party certifications that we've verified.</p>
+                <p>This provider holds recognized third-party certifications that we've verified.</p>
               )}
               
               {trustScore !== undefined && (

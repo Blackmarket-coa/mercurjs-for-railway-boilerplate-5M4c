@@ -399,7 +399,7 @@
   "products": {
     "domain": "Products",
     "list": {
-      "noRecordsMessage": "Create your first product to start selling."
+      "noRecordsMessage": "Create your first product to start offering."
     },
     "edit": {
       "header": "Edit Product",
@@ -2477,7 +2477,7 @@
   },
   "regions": {
     "domain": "Regions",
-    "subtitle": "A region is an area that you sell products in. It can cover multiple countries, and has different tax rates, providers, and currency.",
+    "subtitle": "A region is an area that you offer products in. It can cover multiple countries, and has different tax rates, providers, and currency.",
     "createRegion": "Create Region",
     "createRegionHint": "Manage tax rates and providers for a set of countries.",
     "addCountries": "Add countries",
@@ -2498,7 +2498,7 @@
     "flatRate": "Flat Rate",
     "calculated": "Calculated",
     "list": {
-      "noRecordsMessage": "Create a region for the areas that you sell in."
+      "noRecordsMessage": "Create a region for the areas that you serve."
     },
     "toast": {
       "delete": "Region deleted successfully",
@@ -2599,7 +2599,7 @@
   },
   "salesChannels": {
     "domain": "Sales Channels",
-    "subtitle": "Manage the online and offline channels you sell products on.",
+    "subtitle": "Manage the online and offline channels you offer products on.",
     "list": {
       "empty": {
         "heading": "No sales channels found",
@@ -2611,7 +2611,7 @@
       }
     },
     "createSalesChannel": "Create Sales Channel",
-    "createSalesChannelHint": "Create a new sales channel to sell your products on.",
+    "createSalesChannelHint": "Create a new sales channel to offer your products on.",
     "enabledHint": "Specify whether the sales channel is enabled.",
     "removeProductsWarning_one": "You are about to remove {{count}} product from {{sales_channel}}.",
     "removeProductsWarning_other": "You are about to remove {{count}} products from {{sales_channel}}.",
@@ -3186,7 +3186,7 @@
   },
   "requests": {
     "domain": "Requests",
-    "seller": "Seller",
+    "seller": "Provider",
     "product": "Product",
     "review-remove": "Review Remove",
     "return": "Order Return",
@@ -3197,7 +3197,7 @@
     "product-update": "Product Update"
   },
   "sellers": {
-    "domain": "Sellers",
+    "domain": "Providers",
     "fields": {
       "name": "Name",
       "email": "Email",
@@ -3211,8 +3211,8 @@
       "tax_id": "Tax ID"
     },
     "edit": {
-      "header": "Edit Seller",
-      "successToast": "Seller {{name}} was successfully updated."
+      "header": "Edit Provider",
+      "successToast": "Provider {{name}} was successfully updated."
     }
   },
   "producers": {
@@ -3229,7 +3229,7 @@
       "location": "Location",
       "practices": "Growing Practices",
       "status": "Status",
-      "seller": "Linked Seller",
+      "seller": "Linked Provider",
       "description": "Description",
       "region": "Region",
       "state": "State",
@@ -3273,11 +3273,11 @@
       "overview": "Overview",
       "certifications": "Certifications",
       "media": "Media",
-      "seller": "Linked Seller"
+      "seller": "Linked Provider"
     },
     "empty": {
       "title": "No producers yet",
-      "description": "Producers will appear here when sellers create their farm profiles"
+      "description": "Producers will appear here when providers create their farm profiles"
     },
     "toast": {
       "verifySuccess": "Producer has been verified",

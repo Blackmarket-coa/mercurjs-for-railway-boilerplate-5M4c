@@ -73,7 +73,7 @@ export const ContactSellerButton = ({
 }: ContactSellerButtonProps) => {
   const [showChat, setShowChat] = useState(false)
 
-  const displayName = sellerName || "Seller"
+  const displayName = sellerName || "Provider"
 
   if (!ROCKETCHAT_URL) {
     return null

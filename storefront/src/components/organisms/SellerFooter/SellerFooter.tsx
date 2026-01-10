@@ -15,7 +15,7 @@ export const SellerFooter = ({ seller }: { seller: SellerProps }) => {
         {/* {seller.verified && (
           <div className="flex items-center gap-2">
             <DoneIcon size={20} />
-            Verified seller
+            Verified provider
           </div>
         )} */}
         <Divider square />
@@ -32,7 +32,7 @@ export const SellerFooter = ({ seller }: { seller: SellerProps }) => {
         Report
       </Button>
       {openModal && (
-        <Modal heading="Report seller" onClose={() => setOpenModal(false)}>
+        <Modal heading="Report provider" onClose={() => setOpenModal(false)}>
           <ReportSellerForm onClose={() => setOpenModal(false)} />
         </Modal>
       )}

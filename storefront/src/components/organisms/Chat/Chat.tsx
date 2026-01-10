@@ -43,7 +43,7 @@ export const Chat = ({
         onClick={() => setModal(true)}
         className={buttonClassNames}
       >
-        {icon ? <MessageIcon size={20} /> : "Write to seller"}
+        {icon ? <MessageIcon size={20} /> : "Write to provider"}
       </Button>
       {modal && (
         <Modal heading="Chat" onClose={() => setModal(false)}>
@@ -51,7 +51,7 @@ export const Chat = ({
             <div className="w-full h-[500px]">
               <iframe
                 src={iframeUrl}
-                title={`Chat with ${seller?.name || 'Seller'}`}
+                title={`Chat with ${seller?.name || 'Provider'}`}
                 className="w-full h-full border-0 rounded-lg"
                 allow="camera; microphone; fullscreen; display-capture"
               />

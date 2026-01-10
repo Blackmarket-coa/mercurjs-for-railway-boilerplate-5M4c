@@ -94,7 +94,7 @@ const Form: React.FC<Props> = ({ handleClose, seller }) => {
                 "w-full px-4 py-3 h-32 border rounded-sm bg-component-secondary focus:border-primary focus:outline-none focus:ring-0 relative",
                 error && "border-negative focus:border-negative"
               )}
-              placeholder="Write your opinion about this seller..."
+              placeholder="Write your opinion about this provider..."
               {...register("opinion")}
             />
             <div
