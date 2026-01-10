@@ -322,7 +322,7 @@ module.exports = defineConfig({
     {
       resolve: './src/links/seller-metadata',
     },
-    // Note: wishlist-customer link removed to avoid alias conflict
-    // The customer_id field in CustomerWishlist model handles the relationship
+    // Note: Wishlist model renamed from customer_wishlist to shopper_wishlist
+    // to avoid alias collision with the Customer module
   ],
 })
