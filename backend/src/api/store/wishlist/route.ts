@@ -27,7 +27,7 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
     const query = req.scope.resolve("query")
 
     // Get wishlists with items using the module service
-    const wishlists = await wishlistService.listCustomerWishlists(
+    const wishlists = await wishlistService.listShopperWishlists(
       { customer_id: customerId },
       { relations: ["items"] }
     )

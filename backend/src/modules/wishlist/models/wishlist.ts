@@ -1,18 +1,19 @@
 import { model } from "@medusajs/framework/utils"
-import CustomerWishlistItem from "./wishlist-item"
+import ShopperWishlistItem from "./wishlist-item"
 
 /**
- * CustomerWishlist Model
+ * ShopperWishlist Model
  *
  * Represents a customer's wishlist. Each customer can have one wishlist
  * containing multiple products.
  *
- * Named "customer_wishlist" to avoid conflict with existing wishlist services.
+ * Named "shopper_wishlist" to avoid naming conflict with Customer module
+ * which was causing alias collision errors.
  */
-const CustomerWishlist = model.define("customer_wishlist", {
+const ShopperWishlist = model.define("shopper_wishlist", {
   id: model.id().primaryKey(),
   customer_id: model.text(),
-  items: model.hasMany(() => CustomerWishlistItem, {
+  items: model.hasMany(() => ShopperWishlistItem, {
     mappedBy: "wishlist",
   }),
 })
@@ -23,4 +24,4 @@ const CustomerWishlist = model.define("customer_wishlist", {
   },
 ])
 
-export default CustomerWishlist
+export default ShopperWishlist

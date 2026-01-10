@@ -1,18 +1,18 @@
 import { model } from "@medusajs/framework/utils"
-import CustomerWishlist from "./wishlist"
+import ShopperWishlist from "./wishlist"
 
 /**
- * CustomerWishlistItem Model
+ * ShopperWishlistItem Model
  *
  * Represents a product in a customer's wishlist.
  * Uses product_id (not variant_id) to match storefront expectations.
  *
- * Named "customer_wishlist_item" to avoid conflict with existing wishlist services.
+ * Named "shopper_wishlist_item" to avoid naming conflict with Customer module.
  */
-const CustomerWishlistItem = model.define("customer_wishlist_item", {
+const ShopperWishlistItem = model.define("shopper_wishlist_item", {
   id: model.id().primaryKey(),
   product_id: model.text(),
-  wishlist: model.belongsTo(() => CustomerWishlist, {
+  wishlist: model.belongsTo(() => ShopperWishlist, {
     mappedBy: "items",
   }),
 })
@@ -23,4 +23,4 @@ const CustomerWishlistItem = model.define("customer_wishlist_item", {
   },
 ])
 
-export default CustomerWishlistItem
+export default ShopperWishlistItem

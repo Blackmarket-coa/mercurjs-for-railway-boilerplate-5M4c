@@ -18,7 +18,7 @@ export async function DELETE(req: AuthenticatedMedusaRequest, res: MedusaRespons
     const wishlistService = req.scope.resolve<WishlistModuleService>(WISHLIST_MODULE)
 
     // Verify the wishlist belongs to this customer
-    const wishlists = await wishlistService.listCustomerWishlists({
+    const wishlists = await wishlistService.listShopperWishlists({
       id: wishlistId,
       customer_id: customerId,
     })
