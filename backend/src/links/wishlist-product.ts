@@ -3,14 +3,14 @@ import WishlistModule from "../modules/wishlist"
 import ProductModule from "@medusajs/medusa/product"
 
 /**
- * Link WishlistItem to Product
+ * Link CustomerWishlistItem to Product
  *
- * Creates a read-only link between wishlist items and products
+ * Creates a read-only link between customer wishlist items and products
  * for querying purposes.
  */
 export default defineLink(
   {
-    linkable: WishlistModule.linkable.wishlistItem,
+    linkable: WishlistModule.linkable.customerWishlistItem,
     field: "product_id",
   },
   ProductModule.linkable.product,

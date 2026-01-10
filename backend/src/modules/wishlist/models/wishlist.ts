@@ -1,16 +1,18 @@
 import { model } from "@medusajs/framework/utils"
-import WishlistItem from "./wishlist-item"
+import CustomerWishlistItem from "./wishlist-item"
 
 /**
- * Wishlist Model
+ * CustomerWishlist Model
  *
  * Represents a customer's wishlist. Each customer can have one wishlist
  * containing multiple products.
+ *
+ * Named "customer_wishlist" to avoid conflict with existing wishlist services.
  */
-const Wishlist = model.define("wishlist", {
+const CustomerWishlist = model.define("customer_wishlist", {
   id: model.id().primaryKey(),
   customer_id: model.text(),
-  items: model.hasMany(() => WishlistItem, {
+  items: model.hasMany(() => CustomerWishlistItem, {
     mappedBy: "wishlist",
   }),
 })
@@ -21,4 +23,4 @@ const Wishlist = model.define("wishlist", {
   },
 ])
 
-export default Wishlist
+export default CustomerWishlist

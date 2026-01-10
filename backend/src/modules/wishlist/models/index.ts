@@ -1,2 +1,2 @@
-export { default as Wishlist } from "./wishlist"
-export { default as WishlistItem } from "./wishlist-item"
+export { default as CustomerWishlist } from "./wishlist"
+export { default as CustomerWishlistItem } from "./wishlist-item"
