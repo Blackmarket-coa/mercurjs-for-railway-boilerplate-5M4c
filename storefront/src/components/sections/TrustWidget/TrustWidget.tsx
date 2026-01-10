@@ -6,7 +6,7 @@ import { CollapseIcon, HeartIcon } from "@/icons"
 interface TrustWidgetProps {
   /** Percentage going to the producer (0-100) */
   producerPercentage?: number
-  /** Percentage going to platform operations (0-100) */
+  /** Percentage going to the coalition (0-100) */
   platformPercentage?: number
   /** Cart total in cents */
   cartTotal?: number
@@ -118,7 +118,7 @@ export function TrustWidget({
       description: "Directly supports the grower and their sustainable practices",
     },
     {
-      label: "Platform & Operations",
+      label: "Coalition",
       percentage: platformPercentage,
       amount: platformAmount,
       icon: (
@@ -137,7 +137,7 @@ export function TrustWidget({
         </svg>
       ),
       color: "bg-blue-100",
-      description: "Keeps the marketplace running and connects you to producers",
+      description: "Keeps the marketplace running—no additional fees",
     },
   ]
 
@@ -223,7 +223,7 @@ export function TrustWidget({
             <div
               className="bg-blue-500 transition-all"
               style={{ width: `${platformPercentage}%` }}
-              title={`Platform: ${platformPercentage}%`}
+              title={`Coalition: ${platformPercentage}%`}
             />
           </div>
 

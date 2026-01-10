@@ -121,15 +121,15 @@ interface ProducerPriceExplanationProps {
 }
 
 export const ProducerPriceExplanation = ({
-  producerEarnings = 90,
-  platformFee = 10,
+  producerEarnings = 97,
+  platformFee = 3,
   currency = "$",
 }: ProducerPriceExplanationProps) => (
   <div className="text-sm text-gray-600 mt-2">
     <span className="font-medium text-green-700">
       {producerEarnings}% goes to the producer.
     </span>
-    {" "}{platformFee}% platform fee keeps the marketplace running.
+    {" "}{platformFee}% coalition fee keeps the marketplace running.
   </div>
 )
 

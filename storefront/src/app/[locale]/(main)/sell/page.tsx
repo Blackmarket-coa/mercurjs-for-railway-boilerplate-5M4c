@@ -79,7 +79,7 @@ export default function SellPage() {
     {
       icon: CurrencyDollarIcon,
       title: "Keep 97% of Every Sale",
-      description: "Our 3% platform fee is one of the lowest in the industry. No hidden fees, no monthly charges, no listing fees.",
+      description: "Just a 3% coalition fee—that's it. No hidden fees, no monthly charges, no listing fees, no payment processing fees passed to you.",
     },
     {
       icon: UserGroupIcon,
@@ -128,7 +128,7 @@ export default function SellPage() {
   const faqs = [
     {
       question: "How much does it cost to join?",
-      answer: "Nothing upfront. We take a 3% commission only when you make a transaction. No monthly fees, no listing fees, no hidden charges. If you don't transact, you don't pay.",
+      answer: "Nothing upfront. Just 3% to the coalition when you make a sale—that's it. No subscriptions, no monthly fees, no listing fees, no payment processing fees, no hidden charges. If you don't sell, you don't pay.",
     },
     {
       question: "Do I need a commercial kitchen?",
@@ -174,15 +174,15 @@ export default function SellPage() {
             <div className="flex flex-wrap gap-4 mb-10">
               <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
                 <CheckCircleIcon className="w-5 h-5 text-green-300" />
-                <span>3% Platform Fee</span>
+                <span>Just 3% Coalition Fee</span>
               </div>
               <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
                 <CheckCircleIcon className="w-5 h-5 text-green-300" />
-                <span>No Monthly Fees</span>
+                <span>No Subscriptions</span>
               </div>
               <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
                 <CheckCircleIcon className="w-5 h-5 text-green-300" />
-                <span>You Own Your Data</span>
+                <span>No Additional Fees</span>
               </div>
             </div>
 
@@ -279,20 +279,17 @@ export default function SellPage() {
                     <span className="text-2xl font-bold">$15.00</span>
                   </div>
                   <div className="flex justify-between items-center border-b border-green-700 pb-4">
-                    <span>Our platform fee (3%)</span>
+                    <span>Coalition fee (3%)</span>
                     <span className="text-xl text-green-300">-$0.45</span>
-                  </div>
-                  <div className="flex justify-between items-center border-b border-green-700 pb-4">
-                    <span>Payment processing (~2.9%)</span>
-                    <span className="text-xl text-green-300">-$0.44</span>
                   </div>
                   <div className="flex justify-between items-center pt-2">
                     <span className="text-xl">You receive</span>
-                    <span className="text-3xl font-bold text-green-300">$14.11</span>
+                    <span className="text-3xl font-bold text-green-300">$14.55</span>
                   </div>
                 </div>
                 <p className="mt-6 text-green-200 text-sm">
-                  Compare that to farmers markets (often 30-40% in fees and time) or 
+                  That's it. No payment processing fees, no hidden charges.
+                  Compare that to farmers markets (often 30-40% in fees and time) or
                   grocery stores (where producers see only 10-20% of the retail price).
                 </p>
               </div>
@@ -309,39 +306,32 @@ export default function SellPage() {
               Radical Transparency
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              We believe you should know exactly how this platform works and where every dollar goes.
+              We believe you should know exactly how this works and where every dollar goes.
             </p>
           </div>
-          
-          <div className="grid md:grid-cols-3 gap-8">
+
+          <div className="grid md:grid-cols-2 gap-12 max-w-3xl mx-auto">
             <div className="text-center">
-              <div className="text-5xl font-bold text-green-400 mb-2">97%</div>
+              <div className="text-6xl font-bold text-green-400 mb-2">97%</div>
               <div className="text-xl mb-2">Goes to You</div>
               <p className="text-gray-400">
                 The producer. The person who did the actual work.
               </p>
             </div>
             <div className="text-center">
-              <div className="text-5xl font-bold text-green-400 mb-2">2%</div>
-              <div className="text-xl mb-2">Platform Operations</div>
+              <div className="text-6xl font-bold text-green-400 mb-2">3%</div>
+              <div className="text-xl mb-2">Goes to the Coalition</div>
               <p className="text-gray-400">
-                Servers, development, support, and making this all work.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="text-5xl font-bold text-green-400 mb-2">1%</div>
-              <div className="text-xl mb-2">Community Fund</div>
-              <p className="text-gray-400">
-                Reinvested in producer grants, education, and local food access.
+                Keeps the marketplace running, pays for development, and supports the community.
               </p>
             </div>
           </div>
 
           <div className="mt-16 text-center">
             <p className="text-gray-300 max-w-2xl mx-auto">
-              Unlike venture-backed platforms that burn cash to gain market share then raise fees, 
-              we're building something sustainable. We don't have investors demanding growth at any cost. 
-              We have producers who need a fair marketplace.
+              That's it. No subscriptions. No additional fees. No payment processing fees passed to you.
+              Unlike venture-backed platforms that burn cash to gain market share then raise fees,
+              we're building something sustainable for our community.
             </p>
           </div>
         </div>
