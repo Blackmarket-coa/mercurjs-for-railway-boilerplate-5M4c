@@ -18,7 +18,7 @@ const CustomerWishlistItem = model.define("customer_wishlist_item", {
 })
 .indexes([
   {
-    on: ["product_id", "customer_wishlist_id"],
+    on: ["product_id", "wishlist_id"],
     unique: true,
   },
 ])
