@@ -4,9 +4,9 @@ import { BlogCard } from '@/components/organisms';
 export const blogPosts: BlogPost[] = [
   {
     id: 1,
-    title: "Find something for the occasion",
+    title: "Find something for every occasion",
     excerpt:
-      "If you can ship it, you can sell it. Your money funds real farmers, restaurants, and skilled workers. NOT venture capital. We continually find new points of sale for coalition members.",
+      "From handcrafted goods and electronics to digital downloads and professional services—your money supports real makers, creators, and entrepreneurs. NOT venture capital.",
     image: '/images/blog/post-1.jpg',
     category: 'ACCESSORIES',
     href: '#',
@@ -21,8 +21,8 @@ export const blogPosts: BlogPost[] = [
   },
   {
     id: 3,
-    title: 'Find local producers',
-    excerpt: 'Local pickup hosting options are available for FREE.',
+    title: 'Find local creators',
+    excerpt: 'Browse products and services from verified independent creators. Local pickup options available for FREE.',
     image: '/images/blog/post-3.jpg',
     category: 'TRENDS',
     href: '#',
