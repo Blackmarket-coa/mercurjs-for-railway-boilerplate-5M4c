@@ -111,7 +111,11 @@ module.exports = defineConfig({
     {
       resolve: './src/modules/subscription',
     },
-    
+    // Wishlist module (customer product wishlists)
+    {
+      resolve: './src/modules/wishlist',
+    },
+
     // === FreeBlackMarket.com Feature Modules ===
     // Vendor Verification module (trust badges, verification levels)
     {
@@ -317,6 +321,13 @@ module.exports = defineConfig({
     // Link seller to seller metadata for vendor_type and extended fields
     {
       resolve: './src/links/seller-metadata',
+    },
+    // Wishlist links for customer and product relationships
+    {
+      resolve: './src/links/wishlist-customer',
+    },
+    {
+      resolve: './src/links/wishlist-product',
     },
   ],
 })
