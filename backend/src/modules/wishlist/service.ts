@@ -1,5 +1,5 @@
 import { MedusaService } from "@medusajs/framework/utils"
-import { Wishlist, WishlistItem } from "./models"
+import { CustomerWishlist, CustomerWishlistItem } from "./models"
 
 /**
  * Wishlist Module Service
@@ -8,14 +8,14 @@ import { Wishlist, WishlistItem } from "./models"
  * Supports the storefront wishlist feature where customers can save products.
  */
 class WishlistModuleService extends MedusaService({
-  Wishlist,
-  WishlistItem,
+  CustomerWishlist,
+  CustomerWishlistItem,
 }) {
   /**
    * Get or create a wishlist for a customer
    */
   async getOrCreateWishlist(customerId: string) {
-    const existing = await this.listWishlists({
+    const existing = await this.listCustomerWishlists({
       customer_id: customerId,
     })
 
@@ -23,7 +23,7 @@ class WishlistModuleService extends MedusaService({
       return existing[0]
     }
 
-    return this.createWishlists({
+    return this.createCustomerWishlists({
       customer_id: customerId,
     })
   }
@@ -35,8 +35,8 @@ class WishlistModuleService extends MedusaService({
     const wishlist = await this.getOrCreateWishlist(customerId)
 
     // Check if product already exists in wishlist
-    const existingItems = await this.listWishlistItems({
-      wishlist_id: wishlist.id,
+    const existingItems = await this.listCustomerWishlistItems({
+      customer_wishlist_id: wishlist.id,
       product_id: productId,
     })
 
@@ -44,8 +44,8 @@ class WishlistModuleService extends MedusaService({
       return wishlist
     }
 
-    await this.createWishlistItems({
-      wishlist_id: wishlist.id,
+    await this.createCustomerWishlistItems({
+      customer_wishlist_id: wishlist.id,
       product_id: productId,
     })
 
@@ -56,13 +56,13 @@ class WishlistModuleService extends MedusaService({
    * Remove a product from a customer's wishlist
    */
   async removeProductFromWishlist(wishlistId: string, productId: string) {
-    const items = await this.listWishlistItems({
-      wishlist_id: wishlistId,
+    const items = await this.listCustomerWishlistItems({
+      customer_wishlist_id: wishlistId,
       product_id: productId,
     })
 
     if (items.length > 0) {
-      await this.deleteWishlistItems(items[0].id)
+      await this.deleteCustomerWishlistItems(items[0].id)
     }
 
     return { success: true }
@@ -72,7 +72,7 @@ class WishlistModuleService extends MedusaService({
    * Get wishlists for a customer with items
    */
   async getCustomerWishlists(customerId: string) {
-    return this.listWishlists(
+    return this.listCustomerWishlists(
       { customer_id: customerId },
       { relations: ["items"] }
     )

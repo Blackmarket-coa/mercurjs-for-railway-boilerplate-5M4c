@@ -27,7 +27,7 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
 
     // Query wishlists with items and linked products
     const { data: wishlists } = await query.graph({
-      entity: "wishlist",
+      entity: "customer_wishlist",
       fields: ["id", "customer_id", "items.*", "items.product.*"],
       filters: {
         customer_id: customerId,
