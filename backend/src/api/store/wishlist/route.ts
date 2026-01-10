@@ -23,22 +23,41 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
     const customerId = requireCustomerId(req, res)
     if (!customerId) return
 
+    const wishlistService = req.scope.resolve<WishlistModuleService>(WISHLIST_MODULE)
     const query = req.scope.resolve("query")
 
-    // Query wishlists with items and linked products
-    const { data: wishlists } = await query.graph({
-      entity: "customer_wishlist",
-      fields: ["id", "customer_id", "items.*", "items.product.*"],
-      filters: {
-        customer_id: customerId,
-      },
-    })
+    // Get wishlists with items using the module service
+    const wishlists = await wishlistService.listCustomerWishlists(
+      { customer_id: customerId },
+      { relations: ["items"] }
+    )
+
+    // Collect all product IDs from wishlist items
+    const productIds = wishlists.flatMap((wishlist: any) =>
+      (wishlist.items || []).map((item: any) => item.product_id)
+    ).filter(Boolean)
+
+    // Fetch products if there are any
+    let productsMap: Record<string, any> = {}
+    if (productIds.length > 0) {
+      const { data: products } = await query.graph({
+        entity: "product",
+        fields: ["*", "variants.*", "images.*"],
+        filters: {
+          id: productIds,
+        },
+      })
+      productsMap = products.reduce((acc: Record<string, any>, product: any) => {
+        acc[product.id] = product
+        return acc
+      }, {})
+    }
 
     // Transform data to match storefront expectations
     const transformedWishlists = wishlists.map((wishlist: any) => ({
       id: wishlist.id,
       products: (wishlist.items || [])
-        .map((item: any) => item.product)
+        .map((item: any) => productsMap[item.product_id])
         .filter(Boolean),
     }))
 
