@@ -36,7 +36,7 @@ class WishlistModuleService extends MedusaService({
 
     // Check if product already exists in wishlist
     const existingItems = await this.listCustomerWishlistItems({
-      customer_wishlist_id: wishlist.id,
+      wishlist_id: wishlist.id,
       product_id: productId,
     })
 
@@ -45,7 +45,7 @@ class WishlistModuleService extends MedusaService({
     }
 
     await this.createCustomerWishlistItems({
-      customer_wishlist_id: wishlist.id,
+      wishlist_id: wishlist.id,
       product_id: productId,
     })
 
@@ -57,7 +57,7 @@ class WishlistModuleService extends MedusaService({
    */
   async removeProductFromWishlist(wishlistId: string, productId: string) {
     const items = await this.listCustomerWishlistItems({
-      customer_wishlist_id: wishlistId,
+      wishlist_id: wishlistId,
       product_id: productId,
     })
 
