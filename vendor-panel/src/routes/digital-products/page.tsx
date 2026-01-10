@@ -59,7 +59,7 @@ const DigitalProductsPage = () => {
             <DocumentText className="mx-auto h-12 w-12 text-ui-fg-subtle mb-4" />
             <Heading level="h3">No digital products yet</Heading>
             <Text className="text-ui-fg-subtle">
-              Create your first digital product to start selling downloadable content
+              Create your first digital product to start offering downloadable content
             </Text>
           </div>
         ) : (

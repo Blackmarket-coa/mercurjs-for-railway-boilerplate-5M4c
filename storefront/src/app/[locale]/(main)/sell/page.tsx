@@ -49,12 +49,15 @@ const ChartBarIcon = ({ className = "" }: { className?: string }) => (
 const VENDOR_PANEL_URL = process.env.NEXT_PUBLIC_VENDOR_PANEL_URL || "https://vendor.freeblackmarket.com"
 
 /**
- * Sell on Free Black Market - Vendor Signup Landing Page
- * 
+ * Join Free Black Market - Community Provider Signup Landing Page
+ *
  * Designed following freeblackmarket.com conversion copy principles:
  * - Safety first messaging
- * - Radical transparency 
+ * - Radical transparency
  * - Community over conversion
+ *
+ * Inclusive of: Farmers, Community Gardens, Mutual Aid Organizations,
+ * Community Kitchens, Food Producers, and more
  */
 export default function SellPage() {
   const [email, setEmail] = useState("")
@@ -105,8 +108,11 @@ export default function SellPage() {
     },
   ]
 
-  const producerTypes = [
+  const providerTypes = [
     "Urban Farmers & Gardeners",
+    "Community Gardens",
+    "Mutual Aid Organizations",
+    "Community Kitchens",
     "Home Bakers & Cooks",
     "Artisan Food Makers",
     "Beekeepers",
@@ -116,12 +122,13 @@ export default function SellPage() {
     "Small-Scale Ranchers",
     "Wildcrafters & Foragers",
     "Aquaponic/Hydroponic Growers",
+    "Food Co-ops & Collectives",
   ]
 
   const faqs = [
     {
-      question: "How much does it cost to sell?",
-      answer: "Nothing upfront. We take a 3% commission only when you make a sale. No monthly fees, no listing fees, no hidden charges. If you don't sell, you don't pay.",
+      question: "How much does it cost to join?",
+      answer: "Nothing upfront. We take a 3% commission only when you make a transaction. No monthly fees, no listing fees, no hidden charges. If you don't transact, you don't pay.",
     },
     {
       question: "Do I need a commercial kitchen?",
@@ -141,7 +148,7 @@ export default function SellPage() {
     },
     {
       question: "Is this really different from other platforms?",
-      answer: "Yes. We're producer-owned and operated. Our governance gives vendors voting rights. We don't compete with you, we work for you. When you succeed, we succeed—that's literally our business model.",
+      answer: "Yes. We're community-owned and operated. Our governance gives providers voting rights. We don't compete with you, we work for you. When you succeed, we succeed—that's literally our business model.",
     },
   ]
 
@@ -153,14 +160,14 @@ export default function SellPage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-              Sell What You Grow.
+              Share What You Grow.
               <br />
               <span className="text-green-300">Keep What You Earn.</span>
             </h1>
             <p className="text-xl md:text-2xl text-green-100 mb-8 leading-relaxed">
-              Join a marketplace built by producers, for producers. 
-              No middlemen taking half your profit. No algorithms hiding your products. 
-              Just direct connections to people who value what you make.
+              Join a marketplace built by the community, for the community.
+              Whether you're a farmer, community garden, mutual aid group, or community kitchen—
+              connect directly with people who value what you provide.
             </p>
             
             {/* Trust Indicators */}
@@ -195,7 +202,7 @@ export default function SellPage() {
                   disabled={isSubmitting}
                   className="px-8 py-4 bg-green-500 hover:bg-green-400 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 whitespace-nowrap"
                 >
-                  {isSubmitting ? "Starting..." : "Start Selling"}
+                  {isSubmitting ? "Starting..." : "Get Started"}
                 </button>
               </form>
             ) : (
@@ -207,7 +214,7 @@ export default function SellPage() {
             )}
             
             <p className="mt-4 text-sm text-green-200">
-              Free to join. No credit card required. Start selling in under 10 minutes.
+              Free to join. No credit card required. Get started in under 10 minutes.
             </p>
           </div>
         </div>
@@ -244,15 +251,16 @@ export default function SellPage() {
           <div className="lg:flex lg:items-center lg:gap-16">
             <div className="lg:w-1/2 mb-12 lg:mb-0">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                If You Make It, You Can Sell It
+                If You Grow It or Make It, You Belong Here
               </h2>
               <p className="text-xl text-gray-600 mb-8">
-                Whether you have a backyard garden with extra tomatoes or you're running a 
-                small farm, there's a place for you here. We believe everyone who produces 
-                food deserves a dignified way to reach customers.
+                Whether you're a backyard gardener with extra tomatoes, a community kitchen
+                feeding your neighbors, a mutual aid group distributing food, or a farmer
+                running a small operation—there's a place for you here. We believe everyone
+                who provides food deserves a dignified way to reach their community.
               </p>
               <div className="flex flex-wrap gap-3">
-                {producerTypes.map((type, index) => (
+                {providerTypes.map((type, index) => (
                   <span 
                     key={index}
                     className="px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium"
@@ -267,7 +275,7 @@ export default function SellPage() {
                 <h3 className="text-2xl font-bold mb-4">The Math That Matters</h3>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center border-b border-green-700 pb-4">
-                    <span>You sell a jar of honey for</span>
+                    <span>You offer a jar of honey for</span>
                     <span className="text-2xl font-bold">$15.00</span>
                   </div>
                   <div className="flex justify-between items-center border-b border-green-700 pb-4">
@@ -361,18 +369,19 @@ export default function SellPage() {
       <section className="py-20 bg-green-900 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Ready to Sell on Your Terms?
+            Ready to Join on Your Terms?
           </h2>
           <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
-            Join a growing community of producers who are building something different. 
-            No contracts, no commitments, no catch. Just a fair marketplace.
+            Join a growing community of farmers, gardeners, mutual aid groups, and food
+            makers who are building something different. No contracts, no commitments,
+            no catch. Just a fair marketplace.
           </p>
-          
+
           <Link
             href={`${VENDOR_PANEL_URL}/register`}
             className="inline-block px-8 py-4 bg-white text-green-900 font-semibold rounded-lg hover:bg-green-50 transition-colors text-lg"
           >
-            Create Your Producer Account
+            Create Your Community Provider Account
           </Link>
           
           <p className="mt-6 text-green-200">

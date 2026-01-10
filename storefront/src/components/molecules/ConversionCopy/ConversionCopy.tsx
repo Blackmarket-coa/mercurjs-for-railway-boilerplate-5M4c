@@ -314,16 +314,16 @@ export const ShopLocalCTA = ({ href = "/categories", className }: ShopLocalCTAPr
 export const BecomeProducerCTA = () => (
   <div className="bg-gradient-to-br from-amber-50 to-green-50 rounded-lg p-8 text-center">
     <h3 className="text-xl font-semibold text-warm-900 mb-2">
-      Are you a producer?
+      Are you a producer, farmer, or community organization?
     </h3>
     <p className="text-gray-600 mb-4">
-      Sell on your terms. Keep your customers. Get paid clearly and on time.
+      Share on your terms. Build your community. Get compensated fairly.
     </p>
     <Link
       href="/sell"
       className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-green-800 border-2 border-green-200 rounded-lg font-medium hover:border-green-300 hover:bg-green-50 transition-colors"
     >
-      Start Selling
+      Get Started
     </Link>
   </div>
 )

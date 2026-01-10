@@ -397,7 +397,7 @@
     "domain": "Products",
     "list": {
       "noRecordsTitle": "No products yet",
-      "noRecordsMessage": "Create products to start selling on the marketplace"
+      "noRecordsMessage": "Create products to start offering on the marketplace"
     },
     "edit": {
       "header": "Edit Product",
@@ -2373,7 +2373,7 @@
   },
   "regions": {
     "domain": "Regions",
-    "subtitle": "A region is an area that you sell products in. It can cover multipe countries, and has different tax rates, providers, and currency.",
+    "subtitle": "A region is an area that you offer products in. It can cover multiple countries, and has different tax rates, providers, and currency.",
     "createRegion": "Create Region",
     "createRegionHint": "Manage tax rates and providers for a set of countries.",
     "addCountries": "Add countries",
@@ -2394,7 +2394,7 @@
     "flatRate": "Flat Rate",
     "calculated": "Calculated",
     "list": {
-      "noRecordsMessage": "Create a region for the areas that you sell in."
+      "noRecordsMessage": "Create a region for the areas that you serve."
     },
     "toast": {
       "delete": "Region deleted successfully",
@@ -2496,7 +2496,7 @@
   },
   "salesChannels": {
     "domain": "Sales Channels",
-    "subtitle": "Manage the online and offline channels you sell products on.",
+    "subtitle": "Manage the online and offline channels you offer products on.",
     "list": {
       "empty": {
         "heading": "No sales channels found",
@@ -2508,7 +2508,7 @@
       }
     },
     "createSalesChannel": "Create Sales Channel",
-    "createSalesChannelHint": "Create a new sales channel to sell your products on.",
+    "createSalesChannelHint": "Create a new sales channel to offer your products on.",
     "enabledHint": "Specify whether the sales channel is enabled.",
     "removeProductsWarning_one": "You are about to remove {{count}} product from {{sales_channel}}.",
     "removeProductsWarning_other": "You are about to remove {{count}} products from {{sales_channel}}.",
@@ -2650,17 +2650,17 @@
   },
   "login": {
     "forgotPassword": "Forgot password? - <0>Reset</0>",
-    "title": "Welcome to Mercur Seller Panel",
+    "title": "Welcome to the Provider Portal",
     "hint": "Sign in to access the account area",
-    "notSellerYet": "Not a seller yet? - <0>Create an account</0>"
+    "notSellerYet": "Not a provider yet? - <0>Create an account</0>"
   },
   "register": {
-    "title": "Join Mercur Seller Panel",
-    "hint": "Sign up to start selling",
+    "title": "Join the Provider Portal",
+    "hint": "Sign up to get started",
     "alreadySeller": "Already have an account? - <0>Sign In</0>"
   },
   "invite": {
-    "title": "Welcome to Mercur Seller Panel",
+    "title": "Welcome to the Provider Portal",
     "hint": "Create your account below",
     "backToLogin": "Back to login",
     "createAccount": "Create account",

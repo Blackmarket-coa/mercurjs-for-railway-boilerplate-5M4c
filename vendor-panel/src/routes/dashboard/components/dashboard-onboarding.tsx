@@ -52,7 +52,7 @@ const ICON_MAP: Record<string, any> = {
 const HELP_RESOURCES = [
   {
     title: "Getting Started Guide",
-    description: "Learn the basics of selling on our marketplace",
+    description: "Learn the basics of offering products on our marketplace",
     link: "#",
     icon: BookOpen,
   },

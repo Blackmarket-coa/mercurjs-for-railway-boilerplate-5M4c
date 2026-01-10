@@ -122,7 +122,7 @@ export function getOnboardingSteps(type: VendorType, features: VendorFeatures) {
         : type === "maker"
         ? "Add your first creation"
         : "Add your first product",
-      description: "Start selling by adding items to your store",
+      description: "Get started by adding items to your store",
       to: "/products/create",
       icon: "Tag",
     })

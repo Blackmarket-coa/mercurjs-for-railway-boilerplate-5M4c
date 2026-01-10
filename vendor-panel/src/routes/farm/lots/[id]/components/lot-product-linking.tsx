@@ -225,7 +225,7 @@ export const LotProductLinking = ({ lotId, suggestedPrice, unit }: LotProductLin
             <div className="w-16 h-16 rounded-full bg-purple-50 flex items-center justify-center">
               <ShoppingCart className="w-8 h-8 text-purple-600" />
             </div>
-            <Heading level="h3">Ready to start selling?</Heading>
+            <Heading level="h3">Ready to get started?</Heading>
             <Text className="text-ui-fg-subtle text-center max-w-md">
               Link this lot to a product in your store. When customers purchase the product, 
               inventory will be automatically tracked from this lot.
@@ -261,7 +261,7 @@ export const LotProductLinking = ({ lotId, suggestedPrice, unit }: LotProductLin
                 <div className="flex items-start gap-3">
                   <div className="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-sm font-medium flex-shrink-0">✓</div>
                   <div>
-                    <Text className="font-medium text-sm">Start selling</Text>
+                    <Text className="font-medium text-sm">Start offering</Text>
                     <Text className="text-ui-fg-subtle text-xs">Inventory syncs automatically with orders</Text>
                   </div>
                 </div>

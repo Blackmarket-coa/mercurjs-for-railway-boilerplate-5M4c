@@ -104,7 +104,7 @@ export const ReportSellerForm = ({
               type='submit'
               className='w-full py-3 uppercase'
             >
-              Report Seller
+              Report Provider
             </Button>
           </div>
         </form>
