@@ -38,13 +38,13 @@ const HeartIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
 
 export const HomePageTagline = () => (
   <p className="text-lg md:text-xl text-warm-600 max-w-xl leading-relaxed">
-    Buy directly from producers. Not corporations. Not middlemen.
+    Buy directly from creators. Not corporations. Not middlemen.
   </p>
 )
 
 export const HomePageHeadline = () => (
   <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-warm-900 leading-tight">
-    Every dollar you spend here goes straight to a producer who made it.
+    Every dollar you spend here goes straight to the creator who made it.
   </h1>
 )
 
@@ -58,9 +58,9 @@ export const ValueProposition = ({ className }: ValuePropositionProps) => (
       <div className="w-12 h-12 mx-auto md:mx-0 bg-green-100 rounded-lg flex items-center justify-center mb-4">
         <CurrencyDollarIcon className="w-6 h-6 text-green-600" />
       </div>
-      <h3 className="font-semibold text-lg mb-2">Direct to Producer</h3>
+      <h3 className="font-semibold text-lg mb-2">Direct to Creator</h3>
       <p className="text-gray-600">
-        No middlemen. No markups. Producers set their own prices and keep what they earn.
+        No middlemen. No markups. Creators set their own prices and keep what they earn.
       </p>
     </div>
     <div className="text-center md:text-left">
@@ -69,7 +69,7 @@ export const ValueProposition = ({ className }: ValuePropositionProps) => (
       </div>
       <h3 className="font-semibold text-lg mb-2">Verified Sources</h3>
       <p className="text-gray-600">
-        Every producer is verified. See exactly where your food comes from and who made it.
+        Every creator is verified. See exactly where your products come from and who made them.
       </p>
     </div>
     <div className="text-center md:text-left">
@@ -78,7 +78,7 @@ export const ValueProposition = ({ className }: ValuePropositionProps) => (
       </div>
       <h3 className="font-semibold text-lg mb-2">Build Community</h3>
       <p className="text-gray-600">
-        Your purchase supports real people and builds a different kind of food system.
+        Your purchase supports real people and builds a different kind of economy.
       </p>
     </div>
   </div>
@@ -202,13 +202,13 @@ export const OrderConfirmationMessage = ({
 }: OrderConfirmationMessageProps) => (
   <div className={`bg-green-50 border border-green-200 rounded-lg p-6 text-center ${className}`}>
     <p className="text-xl font-semibold text-green-800 mb-2">
-      Thank you for supporting local producers!
+      Thank you for supporting independent creators!
     </p>
     <p className="text-green-700">
-      {amount} will go directly to {producerName || "your producer"} once delivery is confirmed.
+      {amount} will go directly to {producerName || "your creator"} once delivery is confirmed.
     </p>
     <p className="text-sm text-green-600 mt-4">
-      You&apos;re part of a movement that pays producers fairly and cuts out the middlemen.
+      You&apos;re part of a movement that pays creators fairly and cuts out the middlemen.
     </p>
   </div>
 )
@@ -230,7 +230,7 @@ export const CartImpactSummary = ({
 }: CartImpactSummaryProps) => (
   <div className={`bg-amber-50 border border-amber-200 rounded-lg p-4 ${className}`}>
     <p className="text-amber-800 font-medium">
-      🌟 Your cart supports {producerCount} local producer{producerCount !== 1 ? "s" : ""}
+      Your cart supports {producerCount} independent creator{producerCount !== 1 ? "s" : ""}
     </p>
     <p className="text-amber-700 text-sm mt-1">
       {totalToProducers} goes directly to the people who made your products.
@@ -297,7 +297,7 @@ export const ShopLocalCTA = ({ href = "/categories", className }: ShopLocalCTAPr
       Ready to buy direct?
     </h2>
     <p className="text-gray-600 mb-6 max-w-md mx-auto">
-      Browse products from verified local producers. Every purchase supports someone building something real.
+      Browse products and services from verified independent creators. Every purchase supports someone building something real.
     </p>
     <Link
       href={href}
@@ -314,10 +314,10 @@ export const ShopLocalCTA = ({ href = "/categories", className }: ShopLocalCTAPr
 export const BecomeProducerCTA = () => (
   <div className="bg-gradient-to-br from-amber-50 to-green-50 rounded-lg p-8 text-center">
     <h3 className="text-xl font-semibold text-warm-900 mb-2">
-      Are you a producer, farmer, or community organization?
+      Are you a maker, creator, or community organization?
     </h3>
     <p className="text-gray-600 mb-4">
-      Share on your terms. Build your community. Get compensated fairly.
+      Sell products, offer services, or share digital content—on your terms. Build your community. Get compensated fairly.
     </p>
     <Link
       href="/sell"
@@ -345,7 +345,7 @@ export const MissionStatement = () => (
   </div>
 )
 
-export const ImpactStats = ({ 
+export const ImpactStats = ({
   totalToProducers = "$1.8M",
   producerCount = 247,
   customerCount = 12580,
@@ -353,11 +353,11 @@ export const ImpactStats = ({
   <div className="grid grid-cols-3 gap-8 text-center">
     <div>
       <p className="text-3xl font-bold text-green-600">{totalToProducers}</p>
-      <p className="text-sm text-gray-600">Paid to Producers</p>
+      <p className="text-sm text-gray-600">Paid to Creators</p>
     </div>
     <div>
       <p className="text-3xl font-bold text-blue-600">{producerCount}</p>
-      <p className="text-sm text-gray-600">Active Producers</p>
+      <p className="text-sm text-gray-600">Active Creators</p>
     </div>
     <div>
       <p className="text-3xl font-bold text-amber-600">{customerCount.toLocaleString()}</p>

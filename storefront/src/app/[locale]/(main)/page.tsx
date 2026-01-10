@@ -51,7 +51,7 @@ export async function generateMetadata({
 
   const title = "Home"
   const description =
-    "Buy directly from producers. Not corporations. Not middlemen. Every dollar you spend goes straight to verified local producers. Transparent pricing, real community impact."
+    "Buy directly from creators. Not corporations. Not middlemen. Discover handcrafted goods, fresh produce, electronics, digital products, and professional services—all from verified independent makers and entrepreneurs."
   const ogImage = "/B2C_Storefront_Open_Graph.png"
   const canonical = `${baseUrl}/${locale}`
 
@@ -164,11 +164,11 @@ export default async function Home({
       <Hero
         variant="mission"
         image="/images/hero/Image.jpg"
-        heading="Buy directly from producers. Not corporations. Not middlemen."
-        paragraph="Every dollar you spend here goes straight to a producer who made it. Transparent pricing. Verified sources. Real community impact."
+        heading="Buy directly from creators. Not corporations. Not middlemen."
+        paragraph="From handcrafted goods and fresh produce to digital products and professional services—every purchase supports independent makers, artists, and entrepreneurs. Transparent pricing. Verified sources. Real community impact."
         buttons={[
           { label: "Shop the Market", path: "/categories" },
-          { label: "Explore Producers", path: "/producers" },
+          { label: "Meet Our Creators", path: "/producers" },
         ]}
       />
       {/* FreeBlackMarket.com Value Proposition */}
