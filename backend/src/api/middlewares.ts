@@ -1,4 +1,4 @@
-import { defineMiddlewares, authenticate, validateAndTransformQuery } from "@medusajs/framework/http"
+import { defineMiddlewares, authenticate, validateAndTransformQuery, validateAndTransformBody } from "@medusajs/framework/http"
 import type {
   MedusaRequest,
   MedusaResponse,
@@ -108,6 +108,40 @@ const productFeedQuerySchema = z.object({
   country_code: z.string().min(2).max(3).optional().default("us"),
 })
 
+// Rental configuration body schema
+const PostRentalConfigBodySchema = z.object({
+  min_rental_days: z.number().optional(),
+  max_rental_days: z.number().nullable().optional(),
+  status: z.enum(["active", "inactive"]).optional(),
+})
+
+// Rental status body schema
+const PostRentalStatusBodySchema = z.object({
+  status: z.enum(["active", "returned", "cancelled"]),
+})
+
+// Rental availability query schema
+const GetRentalAvailabilitySchema = z.object({
+  variant_id: z.string(),
+  start_date: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: "start_date must be a valid date string (YYYY-MM-DD)",
+  }),
+  end_date: z
+    .string()
+    .optional()
+    .refine((val) => val === undefined || !isNaN(Date.parse(val)), {
+      message: "end_date must be a valid date string (YYYY-MM-DD)",
+    }),
+  currency_code: z.string().optional(),
+})
+
+// Cart rental items body schema
+const PostCartItemsRentalsBody = z.object({
+  variant_id: z.string(),
+  quantity: z.number(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+})
+
 export default defineMiddlewares({
   routes: [
     // Product feed - public XML feed for Google Shopping/Facebook
@@ -186,6 +220,36 @@ export default defineMiddlewares({
     {
       matcher: "/vendor/subscriptions/*",
       middlewares: [authenticate("seller", "bearer")],
+    },
+    // Rental routes - admin
+    {
+      matcher: "/admin/products/:id/rental-config",
+      method: "POST",
+      middlewares: [
+        validateAndTransformBody(PostRentalConfigBodySchema)
+      ]
+    },
+    {
+      matcher: "/admin/rentals/:id",
+      method: "POST",
+      middlewares: [
+        validateAndTransformBody(PostRentalStatusBodySchema)
+      ]
+    },
+    // Rental routes - store
+    {
+      matcher: "/store/products/:id/rental-availability",
+      method: "GET",
+      middlewares: [
+        validateAndTransformQuery(GetRentalAvailabilitySchema, {})
+      ]
+    },
+    {
+      matcher: "/store/carts/:id/line-items/rentals",
+      method: "POST",
+      middlewares: [
+        validateAndTransformBody(PostCartItemsRentalsBody)
+      ]
     },
   ],
 })
