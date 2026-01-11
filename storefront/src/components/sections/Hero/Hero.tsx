@@ -14,15 +14,17 @@ type HeroProps = {
 }
 
 export const Hero = ({ image, heading, paragraph, buttons, variant = "default" }: HeroProps) => {
-  // Mission-first variant: clean, values-focused above the fold
+  // Mission-first variant: clean, values-focused solarpunk aesthetic
   if (variant === "mission") {
     return (
-      <section className="w-full min-h-[60vh] flex flex-col justify-center px-6 lg:px-12 bg-gradient-to-br from-amber-50 via-white to-green-50">
-        <div className="max-w-3xl">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-warm-900 leading-tight">
+      <section className="w-full min-h-[60vh] flex flex-col justify-center px-6 lg:px-12 bg-gradient-nature relative overflow-hidden">
+        {/* Subtle decorative leaf pattern overlay */}
+        <div className="absolute inset-0 leaf-pattern opacity-50 pointer-events-none" />
+        <div className="max-w-3xl relative z-10">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-primary leading-tight">
             {heading}
           </h1>
-          <p className="mt-6 text-lg md:text-xl text-warm-600 max-w-xl leading-relaxed">
+          <p className="mt-6 text-lg md:text-xl text-secondary max-w-xl leading-relaxed">
             {paragraph}
           </p>
           <div className="mt-10 flex flex-wrap gap-4">
@@ -30,15 +32,15 @@ export const Hero = ({ image, heading, paragraph, buttons, variant = "default" }
               <Link
                 key={path}
                 href={path}
-                className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                className={`inline-flex items-center gap-2 px-6 py-3 rounded-sm font-medium transition-all duration-300 ${
                   idx === 0
-                    ? "bg-green-700 text-white hover:bg-green-800 shadow-lg hover:shadow-xl"
-                    : "bg-white text-green-800 border-2 border-green-200 hover:border-green-300 hover:bg-green-50"
+                    ? "bg-action text-action-on-primary hover:bg-action-hover shadow-solarpunk-md hover:shadow-solarpunk-lg"
+                    : "bg-primary text-action border-2 border-action hover:bg-action-secondary"
                 }`}
               >
                 {label}
                 <ArrowRightIcon
-                  color={idx === 0 ? "#fff" : tailwindConfig.theme.extend.backgroundColor.primary}
+                  color={idx === 0 ? "#fffdfA" : "#268751"}
                   className="w-4 h-4"
                   aria-hidden
                 />

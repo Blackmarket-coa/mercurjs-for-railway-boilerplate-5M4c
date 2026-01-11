@@ -1,90 +1,110 @@
 :root {
-    /* Neutral colors are the foundation of the color system. Almost everything in UI design — text, fields, backgrounds, dividers — are usually gray. */
-    --neutral-0: 255, 255, 255;
-    --neutral-25: 247, 247, 247;
-    --neutral-50: 238, 238, 238;
-    --neutral-100: 226, 226, 226;
-    --neutral-200: 198, 198, 198;
-    --neutral-300: 163, 163, 163;
-    --neutral-400: 115, 115, 115;
-    --neutral-500: 82, 82, 82;
-    --neutral-600: 64, 64, 64;
-    --neutral-700: 38, 38, 38;
-    --neutral-800: 27, 27, 27;
-    --neutral-900: 22, 22, 22;
-    --neutral-1000: 9, 9, 9;
+    /*
+     * SOLARPUNK THEME
+     * A nature-inspired, sustainable future aesthetic
+     * Featuring lush greens, warm ambers, and organic earth tones
+     */
 
-    /* Brand colors - Black Market Coalition Theme */
-    /* Dark Forest Green (#0B3D2C) to Light Teal (#5FD4C4) scale */
-    --brand-25: 239, 252, 249;    /* Very light teal tint */
-    --brand-50: 223, 249, 243;    /* Light teal tint */
-    --brand-100: 191, 243, 231;   /* Lighter teal */
-    --brand-200: 159, 237, 219;   /* Light teal */
-    --brand-300: 127, 230, 207;   /* Medium-light teal */
-    --brand-400: 95, 212, 196;    /* Primary teal (#5FD4C4) */
-    --brand-500: 76, 169, 157;    /* Medium teal */
-    --brand-600: 57, 127, 118;    /* Dark teal */
-    --brand-700: 38, 84, 79;      /* Darker teal */
-    --brand-800: 19, 61, 54;      /* Forest green-teal */
-    --brand-900: 11, 61, 44;      /* Dark forest green (#0B3D2C) */
-    
-    /* Red colors are used across error states and in "destructive" actions. */
-    --red-25: 254, 243, 242;
-    --red-50: 254, 228, 226;
-    --red-100: 255, 205, 201;
-    --red-200: 253, 170, 164;
-    --red-300: 250, 121, 111;
-    --red-400: 241, 78, 66;
-    --red-500: 217, 45, 32;
-    --red-600: 187, 37, 26;
-    --red-700: 155, 34, 25;
-    --red-800: 128, 35, 28;
-    --red-900: 70, 13, 9;
+    /* Neutral colors - Warm, organic tones instead of pure grays */
+    --neutral-0: 255, 253, 250;     /* Warm cream white */
+    --neutral-25: 250, 247, 241;    /* Light cream */
+    --neutral-50: 244, 240, 231;    /* Soft parchment */
+    --neutral-100: 235, 229, 217;   /* Warm light gray */
+    --neutral-200: 214, 206, 190;   /* Sandy tan */
+    --neutral-300: 180, 170, 152;   /* Warm gray */
+    --neutral-400: 140, 130, 112;   /* Medium earth gray */
+    --neutral-500: 100, 92, 76;     /* Deep warm gray */
+    --neutral-600: 75, 69, 56;      /* Dark earth */
+    --neutral-700: 55, 50, 40;      /* Rich brown */
+    --neutral-800: 40, 36, 28;      /* Deep brown */
+    --neutral-900: 32, 29, 22;      /* Very dark brown */
+    --neutral-1000: 24, 22, 16;     /* Almost black with warmth */
 
-    /* Green colors communicate a positive action, positive trend, or a successful confirmation. */
-    --green-25: 239, 253, 244;
-    --green-50: 220, 252, 231;
-    --green-100: 187, 247, 208;
-    --green-200: 135, 239, 172;
-    --green-300: 73, 222, 128;
-    --green-400: 34, 197, 93;
-    --green-500: 23, 163, 74;
-    --green-600: 23, 128, 61;
-    --green-700: 22, 101, 52;
-    --green-800: 20, 83, 45;
-    --green-900: 5, 46, 22;
+    /* Brand colors - Lush Solarpunk Greens */
+    /* From light sage/mint to deep forest green */
+    --brand-25: 245, 253, 247;      /* Lightest mint tint */
+    --brand-50: 232, 250, 237;      /* Very light sage */
+    --brand-100: 209, 245, 220;     /* Light mint green */
+    --brand-200: 167, 233, 188;     /* Soft sage */
+    --brand-300: 120, 218, 153;     /* Fresh green */
+    --brand-400: 72, 187, 120;      /* Primary moss green - main action color */
+    --brand-500: 52, 163, 98;       /* Medium forest green */
+    --brand-600: 38, 135, 78;       /* Dark forest green */
+    --brand-700: 32, 108, 63;       /* Deep jungle green */
+    --brand-800: 28, 85, 52;        /* Rich forest */
+    --brand-900: 22, 68, 41;        /* Darkest forest green */
 
-    /* Yellow colors may indicate a problem or that an action is potentially destructive or "on-hold". */
-    --yellow-25: 255, 251, 237;
-    --yellow-50: 255, 247, 212;
-    --yellow-100: 255, 235, 168;
-    --yellow-200: 255, 218, 113;
-    --yellow-300: 255, 191, 56;
-    --yellow-400: 253, 167, 18;
-    --yellow-500: 247, 144, 9;
-    --yellow-600: 197, 106, 9;
-    --yellow-700: 157, 83, 15;
-    --yellow-800: 126, 69, 16;
-    --yellow-900: 68, 33, 6;
+    /* Amber/Gold accent colors - Solar energy and warmth */
+    --amber-25: 255, 252, 240;      /* Lightest honey tint */
+    --amber-50: 255, 248, 220;      /* Very light gold */
+    --amber-100: 255, 240, 185;     /* Soft butter */
+    --amber-200: 255, 225, 140;     /* Light honey */
+    --amber-300: 255, 205, 90;      /* Warm gold */
+    --amber-400: 245, 180, 50;      /* Primary amber - accent color */
+    --amber-500: 220, 155, 40;      /* Deep gold */
+    --amber-600: 190, 125, 30;      /* Burnt amber */
+    --amber-700: 155, 95, 25;       /* Dark amber */
+    --amber-800: 120, 75, 20;       /* Deep burnt orange */
+    --amber-900: 85, 50, 15;        /* Darkest amber */
 
-    /* Blue colors are used to provide users with information about any actions or states of an application or system. */
+    /* Red colors - Terracotta/clay tones for destructive actions */
+    --red-25: 255, 245, 243;
+    --red-50: 254, 232, 226;
+    --red-100: 253, 212, 200;
+    --red-200: 250, 180, 160;
+    --red-300: 240, 140, 115;
+    --red-400: 220, 100, 75;        /* Terracotta red */
+    --red-500: 195, 75, 55;         /* Warm red */
+    --red-600: 170, 60, 45;         /* Deep terracotta */
+    --red-700: 140, 50, 40;         /* Dark red clay */
+    --red-800: 115, 42, 35;         /* Rich clay */
+    --red-900: 80, 28, 22;          /* Darkest terracotta */
+
+    /* Green colors - Success states (using brand greens) */
+    --green-25: 245, 253, 247;
+    --green-50: 232, 250, 237;
+    --green-100: 209, 245, 220;
+    --green-200: 167, 233, 188;
+    --green-300: 120, 218, 153;
+    --green-400: 72, 187, 120;
+    --green-500: 52, 163, 98;
+    --green-600: 38, 135, 78;
+    --green-700: 32, 108, 63;
+    --green-800: 28, 85, 52;
+    --green-900: 22, 68, 41;
+
+    /* Yellow colors - Warning states (warm amber-influenced) */
+    --yellow-25: 255, 252, 240;
+    --yellow-50: 255, 248, 220;
+    --yellow-100: 255, 240, 185;
+    --yellow-200: 255, 225, 140;
+    --yellow-300: 255, 205, 90;
+    --yellow-400: 245, 180, 50;
+    --yellow-500: 220, 155, 40;
+    --yellow-600: 190, 125, 30;
+    --yellow-700: 155, 95, 25;
+    --yellow-800: 120, 75, 20;
+    --yellow-900: 85, 50, 15;
+
+    /* Blue colors - Information states (soft sky blue) */
     --blue-25: 245, 250, 255;
-    --blue-50: 235, 244, 255;
-    --blue-100: 204, 228, 255;
-    --blue-200: 173, 211, 255;
-    --blue-300: 148, 198, 255;
-    --blue-400: 112, 179, 255;
-    --blue-500: 77, 160, 255;
-    --blue-600: 44, 138, 245;
-    --blue-700: 12, 102, 204;
-    --blue-800: 0, 67, 143;
-    --blue-900: 0, 24, 51;
+    --blue-50: 232, 244, 255;
+    --blue-100: 200, 225, 250;
+    --blue-200: 165, 205, 245;
+    --blue-300: 130, 185, 235;
+    --blue-400: 95, 165, 220;       /* Sky blue */
+    --blue-500: 70, 140, 195;       /* Medium sky */
+    --blue-600: 55, 115, 165;       /* Deeper sky */
+    --blue-700: 45, 95, 140;        /* Ocean blue */
+    --blue-800: 35, 75, 115;        /* Deep ocean */
+    --blue-900: 25, 50, 80;         /* Darkest blue */
 }
 
 :root {
+    /* Background colors */
     --bg-primary: var(--neutral-0);
     --bg-secondary: var(--neutral-25);
-    --bg-tertiary: var(--brand-900);        /* Dark forest green for tertiary backgrounds */
+    --bg-tertiary: var(--brand-900);        /* Deep forest green for tertiary backgrounds */
 
     --bg-component-primary: var(--neutral-0);
     --bg-component-primary-hover: var(--neutral-25);
@@ -93,16 +113,18 @@
     --bg-component-secondary-hover: var(--neutral-50);
     --bg-component-secondary-pressed: var(--neutral-100);
 
-    --bg-action-primary: var(--brand-400);           /* Teal primary action */
-    --bg-action-primary-hover: var(--brand-500);     /* Darker teal on hover */
-    --bg-action-primary-pressed: var(--brand-600);   /* Even darker on press */
-    --bg-action-secondary: rgba(var(--brand-400), 0.1);
-    --bg-action-secondary-hover: rgba(var(--brand-400), 0.15);
-    --bg-action-secondary-pressed: rgba(var(--brand-400), 0.25);
-    --bg-action-tertiary: rgba(var(--brand-400), 0.05);
-    --bg-action-tertiary-hover: rgba(var(--brand-400), 0.1);
-    --bg-action-tertiary-pressed: rgba(var(--brand-400), 0.2);
+    /* Primary action - Vibrant moss green */
+    --bg-action-primary: var(--brand-400);
+    --bg-action-primary-hover: var(--brand-500);
+    --bg-action-primary-pressed: var(--brand-600);
+    --bg-action-secondary: rgba(var(--brand-400), 0.12);
+    --bg-action-secondary-hover: rgba(var(--brand-400), 0.18);
+    --bg-action-secondary-pressed: rgba(var(--brand-400), 0.28);
+    --bg-action-tertiary: rgba(var(--brand-400), 0.06);
+    --bg-action-tertiary-hover: rgba(var(--brand-400), 0.12);
+    --bg-action-tertiary-pressed: rgba(var(--brand-400), 0.22);
 
+    /* Negative/Destructive - Terracotta */
     --bg-negative-primary: var(--red-600);
     --bg-negative-primary-hover: var(--red-700);
     --bg-negative-primary-pressed: var(--red-800);
@@ -110,55 +132,78 @@
     --bg-negative-secondary-hover: var(--red-100);
     --bg-negative-secondary-pressed: var(--red-200);
 
-    --bg-positive-primary: var(--green-700);
-    --bg-positive-primary-hover: var(--green-800);
-    --bg-positive-primary-pressed: var(--green-900);
+    /* Positive - Success greens */
+    --bg-positive-primary: var(--green-600);
+    --bg-positive-primary-hover: var(--green-700);
+    --bg-positive-primary-pressed: var(--green-800);
     --bg-positive-secondary: var(--green-50);
     --bg-positive-secondary-hover: var(--green-100);
     --bg-positive-secondary-pressed: var(--green-200);
 
-    --bg-warning-primary: var(--yellow-700);
-    --bg-warning-primary-hover: var(--yellow-800);
-    --bg-warning-primary-pressed: var(--yellow-900);
-    --bg-warning-secondary: var(--yellow-50);
-    --bg-warning-secondary-hover: var(--yellow-100);
-    --bg-warning-secondary-pressed: var(--yellow-200);
+    /* Warning - Warm amber */
+    --bg-warning-primary: var(--amber-600);
+    --bg-warning-primary-hover: var(--amber-700);
+    --bg-warning-primary-pressed: var(--amber-800);
+    --bg-warning-secondary: var(--amber-50);
+    --bg-warning-secondary-hover: var(--amber-100);
+    --bg-warning-secondary-pressed: var(--amber-200);
 
     --bg-disabled: var(--neutral-200);
 
+    /* Accent background for special highlights */
+    --bg-accent-primary: var(--amber-400);
+    --bg-accent-primary-hover: var(--amber-500);
+    --bg-accent-primary-pressed: var(--amber-600);
+    --bg-accent-secondary: rgba(var(--amber-400), 0.12);
+    --bg-accent-secondary-hover: rgba(var(--amber-400), 0.18);
+    --bg-accent-secondary-pressed: rgba(var(--amber-400), 0.28);
+
+    /* Content/Text colors */
     --content-primary: var(--neutral-1000);
     --content-secondary: var(--neutral-500);
     --content-tertiary: var(--neutral-0);
 
-    --content-action-primary: var(--brand-400);           /* Teal text for primary actions */
-    --content-action-primary-hover: var(--brand-500);     /* Darker teal on hover */
-    --content-action-primary-pressed: var(--brand-600);   /* Even darker on press */
-    --content-action-on-primary: var(--neutral-1000);     /* Black text on teal buttons */
-    --content-action-on-secondary: var(--brand-400);      /* Teal text for secondary actions */
+    --content-action-primary: var(--brand-600);
+    --content-action-primary-hover: var(--brand-700);
+    --content-action-primary-pressed: var(--brand-800);
+    --content-action-on-primary: var(--neutral-0);        /* White text on green buttons */
+    --content-action-on-secondary: var(--brand-700);      /* Dark green text for secondary actions */
     --content-action-on-tertiary: var(--neutral-0);
 
-    --content-positive-primary: var(--green-800);
+    --content-positive-primary: var(--green-700);
     --content-positive-on-primary: var(--neutral-0);
-    --content-positive-on-secondary: var(--green-800);
+    --content-positive-on-secondary: var(--green-700);
 
-    --content-negative-primary: var(--red-700);
+    --content-negative-primary: var(--red-600);
     --content-negative-on-primary: var(--neutral-0);
-    --content-negative-on-secondary: var(--red-800);
+    --content-negative-on-secondary: var(--red-700);
 
-    --content-warning-primary: var(--yellow-800);
-    --content-warning-on-primary: var(--neutral-0);
-    --content-warning-on-secondary: var(--yellow-800);
+    --content-warning-primary: var(--amber-700);
+    --content-warning-on-primary: var(--neutral-900);
+    --content-warning-on-secondary: var(--amber-800);
+
+    --content-accent-primary: var(--amber-600);
+    --content-accent-on-primary: var(--neutral-900);
+    --content-accent-on-secondary: var(--amber-700);
 
     --content-disabled: var(--neutral-400);
 
-    --border-primary: var(--neutral-50);
-    --border-secondary: var(--neutral-800);
-    --border-action: var(--brand-400);                    /* Teal border for actions */
-    --border-negative-primary: var(--red-700);
+    /* Border colors */
+    --border-primary: var(--neutral-100);
+    --border-secondary: var(--neutral-700);
+    --border-action: var(--brand-400);
+    --border-accent: var(--amber-400);
+    --border-negative-primary: var(--red-600);
     --border-negative-secondary: var(--red-200);
-    --border-positive-primary: var(--green-800);
+    --border-positive-primary: var(--green-600);
     --border-positive-secondary: var(--green-200);
-    --border-warning-primary: var(--yellow-800);
-    --border-warning-secondary: var(--yellow-50);
+    --border-warning-primary: var(--amber-600);
+    --border-warning-secondary: var(--amber-200);
     --border-disabled: var(--neutral-400);
+
+    /* Solarpunk special gradients */
+    --gradient-solarpunk: linear-gradient(135deg, rgba(var(--brand-400), 1) 0%, rgba(var(--amber-400), 1) 100%);
+    --gradient-forest: linear-gradient(180deg, rgba(var(--brand-600), 1) 0%, rgba(var(--brand-900), 1) 100%);
+    --gradient-sunrise: linear-gradient(180deg, rgba(var(--amber-300), 1) 0%, rgba(var(--amber-500), 1) 100%);
+    --gradient-nature: linear-gradient(135deg, rgba(var(--brand-300), 0.3) 0%, rgba(var(--amber-200), 0.3) 100%);
 }

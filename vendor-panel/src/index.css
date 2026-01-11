@@ -30,25 +30,239 @@
   :root {
     @apply bg-ui-bg-subtle text-ui-fg-base antialiased;
     text-rendering: optimizeLegibility;
+
+    /*
+     * SOLARPUNK THEME OVERRIDES
+     * Overriding Medusa UI preset colors with nature-inspired solarpunk palette
+     */
+
+    /* Primary/Brand Colors - Lush Forest Green */
+    --fg-interactive: #268751;
+    --fg-interactive-hover: #206c3f;
+    --fg-on-inverted: #fffdfA;
+
+    /* Background Colors - Warm Creams */
+    --bg-base: #fffdfA;
+    --bg-subtle: #faf7f1;
+    --bg-subtle-hover: #f4f0e7;
+    --bg-subtle-pressed: #ebe5d9;
+    --bg-component: #faf7f1;
+    --bg-field: #fffdfA;
+    --bg-field-hover: #faf7f1;
+    --bg-field-component: #f4f0e7;
+    --bg-field-component-hover: #ebe5d9;
+    --bg-interactive: #48bb78;
+    --bg-highlight: rgba(72, 187, 120, 0.12);
+    --bg-highlight-hover: rgba(72, 187, 120, 0.18);
+    --bg-overlay: rgba(24, 22, 16, 0.7);
+
+    /* Border Colors */
+    --border-base: #ebe5d9;
+    --border-strong: #d6cebe;
+    --border-interactive: #48bb78;
+    --border-error: #aa3c2d;
+    --border-danger: #aa3c2d;
+    --border-transparent: transparent;
+
+    /* Foreground/Text Colors */
+    --fg-base: #181610;
+    --fg-subtle: #645c4c;
+    --fg-muted: #8c8270;
+    --fg-disabled: #b4aa98;
+    --fg-on-color: #fffdfA;
+    --fg-error: #8c3228;
+
+    /* Button Colors - Primary Green */
+    --button-inverted: #164429;
+    --button-inverted-hover: #206c3f;
+    --button-inverted-pressed: #268751;
+    --button-neutral: #fffdfA;
+    --button-neutral-hover: #faf7f1;
+    --button-neutral-pressed: #f4f0e7;
+    --button-transparent: transparent;
+    --button-transparent-hover: rgba(72, 187, 120, 0.08);
+    --button-transparent-pressed: rgba(72, 187, 120, 0.15);
+    --button-danger: #aa3c2d;
+    --button-danger-hover: #8c3228;
+    --button-danger-pressed: #732a23;
+
+    /* Tag/Badge Colors - Solarpunk variants */
+    --tag-neutral-bg: #ebe5d9;
+    --tag-neutral-bg-hover: #d6cebe;
+    --tag-neutral-text: #373228;
+    --tag-neutral-icon: #645c4c;
+    --tag-neutral-border: #d6cebe;
+    --tag-purple-bg: #f3e8ff;
+    --tag-purple-bg-hover: #e9d5ff;
+    --tag-purple-text: #7c3aed;
+    --tag-purple-icon: #8b5cf6;
+    --tag-purple-border: #ddd6fe;
+    --tag-blue-bg: #e8f4ff;
+    --tag-blue-bg-hover: #c8e4ff;
+    --tag-blue-text: #3773b5;
+    --tag-blue-icon: #5fa3dc;
+    --tag-blue-border: #a5cffa;
+    --tag-green-bg: #e8faf0;
+    --tag-green-bg-hover: #d1f5dc;
+    --tag-green-text: #268751;
+    --tag-green-icon: #48bb78;
+    --tag-green-border: #a7e8bc;
+    --tag-orange-bg: #fff8f0;
+    --tag-orange-bg-hover: #ffefdc;
+    --tag-orange-text: #be7d1e;
+    --tag-orange-icon: #f5b432;
+    --tag-orange-border: #ffdca8;
+    --tag-red-bg: #fef3f2;
+    --tag-red-bg-hover: #fde8e6;
+    --tag-red-text: #8c3228;
+    --tag-red-icon: #aa3c2d;
+    --tag-red-border: #fac5c0;
+
+    /* Code Colors */
+    --code-bg-base: #164429;
+    --code-bg-subtle: #206c3f;
+    --code-fg-base: #e8faf0;
+    --code-fg-subtle: #a7e8bc;
+    --code-fg-muted: #78da9a;
+    --code-border: #268751;
+
+    /* Contrast/Inverted */
+    --contrast-bg-base: #181610;
+    --contrast-bg-base-hover: #282418;
+    --contrast-bg-base-pressed: #373228;
+    --contrast-bg-subtle: #282418;
+    --contrast-bg-highlight: rgba(72, 187, 120, 0.2);
+    --contrast-fg-primary: #fffdfA;
+    --contrast-fg-secondary: #d6cebe;
+    --contrast-border-base: #373228;
+
+    /* Focus ring */
+    --focus-ring: rgba(72, 187, 120, 0.5);
+  }
+
+  /* Dark mode - Deep Forest Theme */
+  .dark {
+    --fg-interactive: #78da9a;
+    --fg-interactive-hover: #48bb78;
+    --fg-on-inverted: #181610;
+
+    /* Background Colors - Deep Forest */
+    --bg-base: #181610;
+    --bg-subtle: #201d16;
+    --bg-subtle-hover: #282418;
+    --bg-subtle-pressed: #373228;
+    --bg-component: #282418;
+    --bg-field: #201d16;
+    --bg-field-hover: #282418;
+    --bg-field-component: #373228;
+    --bg-field-component-hover: #474030;
+    --bg-interactive: #34a362;
+    --bg-highlight: rgba(72, 187, 120, 0.15);
+    --bg-highlight-hover: rgba(72, 187, 120, 0.22);
+    --bg-overlay: rgba(0, 0, 0, 0.75);
+
+    /* Border Colors */
+    --border-base: #373228;
+    --border-strong: #4a4438;
+    --border-interactive: #48bb78;
+    --border-error: #dc6458;
+    --border-danger: #dc6458;
+    --border-transparent: transparent;
+
+    /* Foreground/Text Colors */
+    --fg-base: #faf7f1;
+    --fg-subtle: #b4aa98;
+    --fg-muted: #8c8270;
+    --fg-disabled: #645c4c;
+    --fg-on-color: #181610;
+    --fg-error: #fa8a80;
+
+    /* Button Colors */
+    --button-inverted: #e8faf0;
+    --button-inverted-hover: #d1f5dc;
+    --button-inverted-pressed: #a7e8bc;
+    --button-neutral: #282418;
+    --button-neutral-hover: #373228;
+    --button-neutral-pressed: #474030;
+    --button-transparent: transparent;
+    --button-transparent-hover: rgba(72, 187, 120, 0.12);
+    --button-transparent-pressed: rgba(72, 187, 120, 0.2);
+    --button-danger: #dc6458;
+    --button-danger-hover: #c4574c;
+    --button-danger-pressed: #aa3c2d;
+
+    /* Tag/Badge Colors - Dark variants */
+    --tag-neutral-bg: #373228;
+    --tag-neutral-bg-hover: #474030;
+    --tag-neutral-text: #d6cebe;
+    --tag-neutral-icon: #b4aa98;
+    --tag-neutral-border: #4a4438;
+    --tag-purple-bg: rgba(139, 92, 246, 0.2);
+    --tag-purple-bg-hover: rgba(139, 92, 246, 0.3);
+    --tag-purple-text: #c4b5fd;
+    --tag-purple-icon: #a78bfa;
+    --tag-purple-border: rgba(139, 92, 246, 0.4);
+    --tag-blue-bg: rgba(95, 163, 220, 0.2);
+    --tag-blue-bg-hover: rgba(95, 163, 220, 0.3);
+    --tag-blue-text: #a5cffa;
+    --tag-blue-icon: #5fa3dc;
+    --tag-blue-border: rgba(95, 163, 220, 0.4);
+    --tag-green-bg: rgba(72, 187, 120, 0.2);
+    --tag-green-bg-hover: rgba(72, 187, 120, 0.3);
+    --tag-green-text: #78da9a;
+    --tag-green-icon: #48bb78;
+    --tag-green-border: rgba(72, 187, 120, 0.4);
+    --tag-orange-bg: rgba(245, 180, 50, 0.2);
+    --tag-orange-bg-hover: rgba(245, 180, 50, 0.3);
+    --tag-orange-text: #ffd88c;
+    --tag-orange-icon: #f5b432;
+    --tag-orange-border: rgba(245, 180, 50, 0.4);
+    --tag-red-bg: rgba(220, 100, 88, 0.2);
+    --tag-red-bg-hover: rgba(220, 100, 88, 0.3);
+    --tag-red-text: #fa8a80;
+    --tag-red-icon: #dc6458;
+    --tag-red-border: rgba(220, 100, 88, 0.4);
+
+    /* Code Colors */
+    --code-bg-base: #164429;
+    --code-bg-subtle: #1a5a35;
+    --code-fg-base: #e8faf0;
+    --code-fg-subtle: #a7e8bc;
+    --code-fg-muted: #78da9a;
+    --code-border: #268751;
+
+    /* Contrast/Inverted */
+    --contrast-bg-base: #faf7f1;
+    --contrast-bg-base-hover: #f4f0e7;
+    --contrast-bg-base-pressed: #ebe5d9;
+    --contrast-bg-subtle: #f4f0e7;
+    --contrast-bg-highlight: rgba(72, 187, 120, 0.25);
+    --contrast-fg-primary: #181610;
+    --contrast-fg-secondary: #4a4438;
+    --contrast-border-base: #d6cebe;
+
+    /* Focus ring */
+    --focus-ring: rgba(120, 218, 153, 0.5);
   }
 }
 
 @layer components {
   .worfklow-grid {
-    background-image: radial-gradient(black 1px, transparent 0);
+    background-image: radial-gradient(rgba(72, 187, 120, 0.3) 1px, transparent 0);
     background-size: 40px 40px;
     background: repeat;
   }
 }
 
 .worfklow-grid {
-  background-image: radial-gradient(black 1px, transparent 0);
+  background-image: radial-gradient(rgba(72, 187, 120, 0.3) 1px, transparent 0);
   background-size: 40px 40px;
   background: repeat;
 }
 
+/* Date picker dark mode fixes with solarpunk colors */
 .dark .rdp-selected {
-  background-color: rgba(255, 255, 255, 0.3) !important;
+  background-color: rgba(72, 187, 120, 0.3) !important;
 }
 
 .dark .rdp-range_end {
@@ -59,4 +273,44 @@
 .dark .rdp-range_start {
   border-radius: 50% 0 0 50% !important;
   background-image: none;
+}
+
+/* Solarpunk accent utilities */
+.solarpunk-accent {
+  background: linear-gradient(135deg, #48bb78 0%, #f5b432 100%);
+}
+
+.solarpunk-glow {
+  box-shadow: 0 0 20px rgba(72, 187, 120, 0.3);
+}
+
+/* Custom scrollbar for solarpunk theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-subtle);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--fg-interactive);
+}
+
+/* Selection styling */
+::selection {
+  background: rgba(72, 187, 120, 0.3);
+  color: #164429;
+}
+
+.dark ::selection {
+  background: rgba(72, 187, 120, 0.4);
+  color: #e8faf0;
 }
