@@ -41,6 +41,17 @@ function WelcomeStep({ onComplete, vendorType }: {
             "Share harvests with your community",
           ],
         }
+      case "kitchen":
+        return {
+          title: "Welcome, Kitchen! 🍳",
+          subtitle: "Let's set up your community kitchen",
+          description: "We'll help you manage your shared-use kitchen facility. This wizard will guide you through setting up stations, scheduling, and member access.",
+          benefits: [
+            "Manage kitchen stations and equipment",
+            "Coordinate member scheduling and bookings",
+            "Support food entrepreneurs in your community",
+          ],
+        }
       case "maker":
         return {
           title: "Welcome, Maker! ✨",
@@ -140,6 +151,11 @@ function StoreProfileStep({ onComplete, onBack }: { onComplete: () => void; onBa
         return {
           title: "Describe Your Garden",
           fields: ["Garden name", "Mission", "Location", "Hours"],
+        }
+      case "kitchen":
+        return {
+          title: "Describe Your Kitchen",
+          fields: ["Kitchen name", "Facility type", "Equipment available", "Operating hours"],
         }
       default:
         return {

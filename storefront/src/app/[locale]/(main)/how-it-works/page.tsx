@@ -533,23 +533,43 @@ export default function HowItWorksPage() {
             </div>
           </div>
 
-          {/* Community Gardens */}
-          <div className="mt-8 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-8 border border-emerald-100">
-            <div className="md:flex md:items-center md:gap-8">
-              <div className="md:flex-1">
+          {/* Community Infrastructure */}
+          <div className="mt-8 space-y-6">
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Community Infrastructure</h3>
+              <p className="text-gray-600">Shared spaces that strengthen local food systems and support community self-determination</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Community Gardens */}
+              <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl p-6 border border-emerald-100">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center">
-                    <GlobeIcon className="w-6 h-6 text-emerald-600" />
+                  <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                    <GlobeIcon className="w-5 h-5 text-emerald-600" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900">Community Gardens</h3>
+                  <h4 className="text-xl font-bold text-gray-900">Community Gardens</h4>
                 </div>
-                <p className="text-gray-700 mb-6">
-                  Connect with local community gardens. Find plots, join work parties,
-                  participate in governance, and access fresh produce from collective growing spaces.
+                <p className="text-gray-700 mb-4 text-sm">
+                  Connect with local gardens. Find plots, join work parties,
+                  participate in democratic governance, and access fresh produce from collective growing spaces.
                 </p>
+                <div className="grid grid-cols-2 gap-2 mb-4 text-center">
+                  <div className="bg-white/60 rounded-lg p-2">
+                    <div className="text-sm font-bold text-emerald-600">Plot Access</div>
+                  </div>
+                  <div className="bg-white/60 rounded-lg p-2">
+                    <div className="text-sm font-bold text-emerald-600">Work Parties</div>
+                  </div>
+                  <div className="bg-white/60 rounded-lg p-2">
+                    <div className="text-sm font-bold text-emerald-600">Governance</div>
+                  </div>
+                  <div className="bg-white/60 rounded-lg p-2">
+                    <div className="text-sm font-bold text-emerald-600">Harvests</div>
+                  </div>
+                </div>
                 <Link
                   href="/gardens"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors text-sm"
                 >
                   Explore Gardens
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -557,25 +577,44 @@ export default function HowItWorksPage() {
                   </svg>
                 </Link>
               </div>
-              <div className="mt-6 md:mt-0 md:flex-shrink-0">
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div className="bg-white/60 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-emerald-600">Plot Access</div>
-                    <p className="text-sm text-gray-600">Grow your own</p>
+
+              {/* Community Kitchens */}
+              <div className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-2xl p-6 border border-teal-100">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
                   </div>
-                  <div className="bg-white/60 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-emerald-600">Work Parties</div>
-                    <p className="text-sm text-gray-600">Volunteer hours</p>
+                  <h4 className="text-xl font-bold text-gray-900">Community Kitchens</h4>
+                </div>
+                <p className="text-gray-700 mb-4 text-sm">
+                  Find shared-use commercial kitchen space. Book time, access equipment,
+                  and grow your food business alongside other community food entrepreneurs.
+                </p>
+                <div className="grid grid-cols-2 gap-2 mb-4 text-center">
+                  <div className="bg-white/60 rounded-lg p-2">
+                    <div className="text-sm font-bold text-teal-600">Book Time</div>
                   </div>
-                  <div className="bg-white/60 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-emerald-600">Governance</div>
-                    <p className="text-sm text-gray-600">Democratic voice</p>
+                  <div className="bg-white/60 rounded-lg p-2">
+                    <div className="text-sm font-bold text-teal-600">Equipment</div>
                   </div>
-                  <div className="bg-white/60 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-emerald-600">Harvests</div>
-                    <p className="text-sm text-gray-600">Share produce</p>
+                  <div className="bg-white/60 rounded-lg p-2">
+                    <div className="text-sm font-bold text-teal-600">Incubation</div>
+                  </div>
+                  <div className="bg-white/60 rounded-lg p-2">
+                    <div className="text-sm font-bold text-teal-600">Community</div>
                   </div>
                 </div>
+                <Link
+                  href="/kitchens"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 text-white font-medium rounded-lg hover:bg-teal-700 transition-colors text-sm"
+                >
+                  Explore Kitchens
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
               </div>
             </div>
           </div>

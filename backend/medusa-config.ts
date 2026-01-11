@@ -138,10 +138,14 @@ module.exports = defineConfig({
       resolve: './src/modules/vendor-rules',
     },
     
-    // === Community Garden & Solidarity Economy Modules ===
+    // === Community Infrastructure & Solidarity Economy Modules ===
     // Garden module (community gardens, plots, soil zones)
     {
       resolve: './src/modules/garden',
+    },
+    // Kitchen module (commercial community kitchens, shared-use facilities)
+    {
+      resolve: './src/modules/kitchen',
     },
     // Governance module (democratic voting, proposals)
     {

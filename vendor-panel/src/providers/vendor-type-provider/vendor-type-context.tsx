@@ -4,9 +4,10 @@ import { useMe } from "../../hooks/api/users"
 /**
  * Vendor Types supported by the platform
  */
-export type VendorType = 
+export type VendorType =
   | "producer"      // Farms, food producers
   | "garden"        // Community gardens
+  | "kitchen"       // Commercial community kitchens
   | "maker"         // Artisans, crafters
   | "restaurant"    // Restaurants, ghost kitchens
   | "mutual_aid"    // Mutual aid networks
@@ -76,6 +77,20 @@ function getFeaturesByType(type: VendorType): VendorFeatures {
       hasPlots: true,
       hasRequests: false,
     },
+    kitchen: {
+      hasProducts: true,  // Prepared foods, catering items
+      hasInventory: true,  // Kitchen supplies, ingredients
+      hasSeasons: false,
+      hasVolunteers: true,
+      hasMenu: true,  // Food preparation capabilities
+      hasDeliveryZones: true,  // Service areas
+      hasDonations: true,
+      hasSubscriptions: true,  // Recurring kitchen time
+      hasSupport: true,
+      hasHarvests: false,
+      hasPlots: false,
+      hasRequests: true,  // Kitchen time requests
+    },
     maker: {
       hasProducts: true,
       hasInventory: true,
@@ -144,6 +159,7 @@ function getTypeLabels(type: VendorType): { label: string; plural: string } {
   const labels: Record<VendorType, { label: string; plural: string }> = {
     producer: { label: "Producer", plural: "Producers" },
     garden: { label: "Community Garden", plural: "Community Gardens" },
+    kitchen: { label: "Community Kitchen", plural: "Community Kitchens" },
     maker: { label: "Maker", plural: "Makers" },
     restaurant: { label: "Restaurant", plural: "Restaurants" },
     mutual_aid: { label: "Mutual Aid Network", plural: "Mutual Aid Networks" },
@@ -161,7 +177,7 @@ export function VendorTypeProvider({ children }: { children: ReactNode }) {
   // Get vendor type from seller or default
   const vendorType: VendorType = useMemo(() => {
     const type = seller?.vendor_type as VendorType
-    if (type && ["producer", "garden", "maker", "restaurant", "mutual_aid"].includes(type)) {
+    if (type && ["producer", "garden", "kitchen", "maker", "restaurant", "mutual_aid"].includes(type)) {
       return type
     }
     return "default"
