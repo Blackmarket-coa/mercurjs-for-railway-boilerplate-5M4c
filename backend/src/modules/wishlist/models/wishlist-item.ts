@@ -12,9 +12,7 @@ import ShopperWishlist from "./wishlist"
 const ShopperWishlistItem = model.define("shopper_wishlist_item", {
   id: model.id().primaryKey(),
   product_id: model.text(),
-  wishlist: model.belongsTo(() => ShopperWishlist, {
-    mappedBy: "items",
-  }),
+  wishlist: model.belongsTo(() => ShopperWishlist),
 })
 .indexes([
   {
