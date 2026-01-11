@@ -1,9 +1,10 @@
-import { defineMiddlewares, authenticate } from "@medusajs/framework/http"
+import { defineMiddlewares, authenticate, validateAndTransformQuery } from "@medusajs/framework/http"
 import type {
   MedusaRequest,
   MedusaResponse,
   MedusaNextFunction,
 } from "@medusajs/framework/http"
+import { z } from "zod"
 
 // Basic email validation regex
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -101,8 +102,22 @@ async function normalizeEmailMiddleware(
   next()
 }
 
+// Product feed query validation schema
+const productFeedQuerySchema = z.object({
+  currency_code: z.string().length(3).optional().default("usd"),
+  country_code: z.string().min(2).max(3).optional().default("us"),
+})
+
 export default defineMiddlewares({
   routes: [
+    // Product feed - public XML feed for Google Shopping/Facebook
+    {
+      matcher: "/product-feed",
+      method: "GET",
+      middlewares: [
+        validateAndTransformQuery(productFeedQuerySchema, {})
+      ],
+    },
     // Vendor seller routes - normalize email only, validation done in route handler
     {
       matcher: "/vendor/sellers",
