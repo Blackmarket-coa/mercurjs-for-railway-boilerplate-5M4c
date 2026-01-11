@@ -167,6 +167,10 @@ module.exports = defineConfig({
     {
       resolve: './src/modules/food-distribution',
     },
+    // Rental module (product rentals)
+    {
+      resolve: './src/modules/rental',
+    },
     // Odoo ERP integration module (optional)
     ...(process.env.ODOO_URL
       ? [
@@ -328,5 +332,22 @@ module.exports = defineConfig({
     },
     // Note: Wishlist model renamed from customer_wishlist to shopper_wishlist
     // to avoid alias collision with the Customer module
+
+    // Rental module links
+    {
+      resolve: './src/links/product-rental-config',
+    },
+    {
+      resolve: './src/links/rental-variant',
+    },
+    {
+      resolve: './src/links/rental-order',
+    },
+    {
+      resolve: './src/links/rental-line-item',
+    },
+    {
+      resolve: './src/links/customer-rental',
+    },
   ],
 })
