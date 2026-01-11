@@ -7,8 +7,10 @@ const links = {
   ],
   about: [
     { label: 'About Us', path: 'https://www.blackmarketcoa.com' },
-    { label: 'Join FreeBlackMarket', path: '/sell' },
-    { label: 'How It Works', path: 'https://www.blackmarketcoa.com' },
+    { label: 'How It Works', path: '/how-it-works' },
+    { label: 'Become a Seller', path: '/sell' },
+    { label: 'Community Gardens', path: '/gardens' },
+    { label: 'Invest', path: '/invest' },
   ],
   connect: [
     { label: 'TikTok', path: 'https://www.tiktok.com/@blackmarketcoa' },
