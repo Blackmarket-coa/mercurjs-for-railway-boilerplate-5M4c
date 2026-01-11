@@ -15,6 +15,7 @@ import { ProducersPage } from "./ProducersPage/ProducersPage"
 import { ProducerDetailPage } from "./ProducerDetailPage/ProducerDetailPage"
 import { GardensLandingPage, GardenDetailPage } from "./GardensPage"
 import { TrustWidget } from "./TrustWidget"
+import { ProductFeed, ProductFeedItem, ProductFeedServer } from "./ProductFeed"
 
 export {
   Hero,
@@ -35,4 +36,7 @@ export {
   GardensLandingPage,
   GardenDetailPage,
   TrustWidget,
+  ProductFeed,
+  ProductFeedItem,
+  ProductFeedServer,
 }
