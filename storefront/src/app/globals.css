@@ -1,4 +1,4 @@
-/* Defined colors variables */
+/* Solarpunk Theme - Defined colors variables */
 @import "colors.css";
 
 @tailwind base;
@@ -109,18 +109,72 @@ button:disabled svg path {
   @apply fill-primary;
 }
 
+/* Solarpunk Gradient Backgrounds */
+.gradient-solarpunk {
+  background: var(--gradient-solarpunk);
+}
+.gradient-forest {
+  background: var(--gradient-forest);
+}
+.gradient-sunrise {
+  background: var(--gradient-sunrise);
+}
+.gradient-nature {
+  background: var(--gradient-nature);
+}
+
+/* Solarpunk multi-gradient - nature-inspired */
 .multi-gradient {
   background: conic-gradient(
     from 180deg at 50% 50%,
-    #00438f 0deg,
-    #4da0ff 50.4deg,
-    #17a34a 108deg,
-    #ffbf38 165.6deg,
-    #c56a09 217.8deg,
-    #d92d20 282.6deg,
-    #00438f 360deg
+    rgb(22, 68, 41) 0deg,      /* Dark forest green */
+    rgb(72, 187, 120) 72deg,    /* Moss green */
+    rgb(245, 180, 50) 144deg,   /* Golden amber */
+    rgb(220, 155, 40) 216deg,   /* Deep gold */
+    rgb(52, 163, 98) 288deg,    /* Forest green */
+    rgb(22, 68, 41) 360deg      /* Dark forest green */
   );
 }
+
+/* Nature-inspired decorative elements */
+.leaf-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5C20 15 15 25 15 35c0 10 6.7 15 15 15s15-5 15-15c0-10-5-20-15-30z' fill='rgba(72,187,120,0.05)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+/* Organic card styling */
+.card-organic {
+  @apply rounded-md border border-primary bg-primary shadow-sm;
+  box-shadow: 0 2px 8px rgba(22, 68, 41, 0.08);
+}
+
+.card-organic:hover {
+  box-shadow: 0 4px 16px rgba(22, 68, 41, 0.12);
+}
+
+/* Solarpunk highlight effect */
+.highlight-solarpunk {
+  position: relative;
+}
+.highlight-solarpunk::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-solarpunk);
+  border-radius: 2px;
+}
+
+/* Accent badge styling */
+.badge-accent {
+  @apply px-2 py-0.5 rounded-xs text-xs font-medium;
+  background: rgba(var(--amber-400), 0.15);
+  color: rgb(var(--amber-700));
+}
+
+/* Scrollbar styling */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -128,6 +182,24 @@ button:disabled svg path {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Custom scrollbar with solarpunk colors */
+.solarpunk-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.solarpunk-scrollbar::-webkit-scrollbar-track {
+  background: rgba(var(--neutral-100), 1);
+  border-radius: 4px;
+}
+.solarpunk-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(var(--brand-400), 0.5);
+  border-radius: 4px;
+}
+.solarpunk-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--brand-500), 0.7);
+}
+
 .product-details {
   @apply text-md;
 }
@@ -150,4 +222,39 @@ button:disabled svg path {
 }
 .no-arrows-number-input {
   -moz-appearance: textfield;
+}
+
+/* Focus states with solarpunk styling */
+.focus-solarpunk:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(var(--brand-400), 0.4);
+}
+
+.focus-solarpunk:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(var(--brand-400), 0.6);
+}
+
+/* Link styling */
+a.link-solarpunk {
+  color: rgb(var(--brand-600));
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+a.link-solarpunk:hover {
+  color: rgb(var(--brand-700));
+  text-decoration: underline;
+}
+
+/* Glass morphism effect for overlay elements */
+.glass-solarpunk {
+  background: rgba(var(--neutral-0), 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(var(--neutral-100), 0.8);
+}
+
+/* Selection styling */
+::selection {
+  background: rgba(var(--brand-300), 0.4);
+  color: rgb(var(--brand-900));
 }

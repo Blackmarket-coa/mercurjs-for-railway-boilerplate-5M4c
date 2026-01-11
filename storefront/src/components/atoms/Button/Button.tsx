@@ -18,7 +18,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const baseClasses =
-    "text-md button-text rounded-sm disabled:bg-disabled disabled:text-disabled dark:bg-action-tertiary dark:hover:bg-action-tertiary-hover dark:active:bg-action-tertiary-pressed dark:disabled:bg-disabled"
+    "text-md button-text rounded-sm disabled:bg-disabled disabled:text-disabled dark:bg-action-tertiary dark:hover:bg-action-tertiary-hover dark:active:bg-action-tertiary-pressed dark:disabled:bg-disabled transition-all duration-200"
 
   const variantClasses = {
     filled: `bg-action text-action-on-primary hover:bg-action-hover active:bg-action-pressed ${
