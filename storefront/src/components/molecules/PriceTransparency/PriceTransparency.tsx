@@ -102,6 +102,7 @@ export const PriceTransparencyWidget = ({
       case "PRODUCER_PRICE":
         return UserIcon
       case "PLATFORM_FEE":
+      case "COALITION_FEE":
         return BuildingStorefrontIcon
       case "DELIVERY_FEE":
         return TruckIcon
@@ -252,10 +253,10 @@ export const WhereYourMoneyGoes = ({
             style={{ width: `${producerPercent}%` }}
             title={`${producerPercent}% to producer`}
           />
-          <div 
+          <div
             className="bg-blue-400 transition-all"
             style={{ width: `${platformPercent}%` }}
-            title={`${platformPercent}% platform fee`}
+            title={`${platformPercent}% coalition fee`}
           />
           {deliveryPercent > 0 && (
             <div 
@@ -301,7 +302,7 @@ export const WhereYourMoneyGoes = ({
               <div className="flex items-center justify-between text-sm">
                 <span className="flex items-center gap-2">
                   <span className="w-3 h-3 rounded-full bg-blue-400" />
-                  Platform
+                  Coalition
                 </span>
                 <span className="font-medium">{platformPercent}%</span>
               </div>
