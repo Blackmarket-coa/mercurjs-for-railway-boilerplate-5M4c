@@ -2,13 +2,14 @@ import { model } from "@medusajs/framework/utils"
 
 /**
  * Vendor Type Enum
- * 
- * Defines the category of seller for feature gating, 
+ *
+ * Defines the category of seller for feature gating,
  * UI specialization, and commission logic.
- * 
+ *
  * Types:
  * - producer: Farms, food producers, ranchers
  * - garden: Community gardens, urban farms
+ * - kitchen: Commercial community kitchens, shared-use kitchens
  * - maker: Artisans, crafters, cottage food producers
  * - restaurant: Restaurants, ghost kitchens, food trucks
  * - mutual_aid: Mutual aid networks, community organizations
@@ -16,6 +17,7 @@ import { model } from "@medusajs/framework/utils"
 export enum VendorType {
   PRODUCER = "producer",
   GARDEN = "garden",
+  KITCHEN = "kitchen",
   MAKER = "maker",
   RESTAURANT = "restaurant",
   MUTUAL_AID = "mutual_aid",

@@ -10,6 +10,7 @@ const links = {
     { label: 'How It Works', path: '/how-it-works' },
     { label: 'Become a Seller', path: '/sell' },
     { label: 'Community Gardens', path: '/gardens' },
+    { label: 'Community Kitchens', path: '/kitchens' },
     { label: 'Invest', path: '/invest' },
   ],
   connect: [

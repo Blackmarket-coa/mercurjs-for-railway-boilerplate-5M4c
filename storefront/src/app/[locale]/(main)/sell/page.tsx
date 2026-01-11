@@ -113,6 +113,7 @@ export default function SellPage() {
     "Community Gardens",
     "Mutual Aid Organizations",
     "Community Kitchens",
+    "Shared-Use Kitchen Operators",
     "Home Bakers & Cooks",
     "Artisan Food Makers",
     "Beekeepers",
@@ -123,6 +124,7 @@ export default function SellPage() {
     "Wildcrafters & Foragers",
     "Aquaponic/Hydroponic Growers",
     "Food Co-ops & Collectives",
+    "Kitchen Incubators",
   ]
 
   const faqs = [
@@ -166,8 +168,8 @@ export default function SellPage() {
             </h1>
             <p className="text-xl md:text-2xl text-green-100 mb-8 leading-relaxed">
               Join a marketplace built by the community, for the community.
-              Whether you're a farmer, community garden, mutual aid group, or community kitchen—
-              connect directly with people who value what you provide.
+              Whether you're a farmer, community garden, shared-use kitchen, mutual aid group,
+              or any kind of community food infrastructure—connect directly with people who value what you provide.
             </p>
             
             {/* Trust Indicators */}
@@ -254,10 +256,11 @@ export default function SellPage() {
                 If You Grow It or Make It, You Belong Here
               </h2>
               <p className="text-xl text-gray-600 mb-8">
-                Whether you're a backyard gardener with extra tomatoes, a community kitchen
-                feeding your neighbors, a mutual aid group distributing food, or a farmer
-                running a small operation—there's a place for you here. We believe everyone
-                who provides food deserves a dignified way to reach their community.
+                Whether you're a backyard gardener with extra tomatoes, a shared-use kitchen
+                supporting food entrepreneurs, a community garden feeding your neighbors,
+                a mutual aid group distributing food, or a farmer running a small operation—
+                there's a place for you here. We believe everyone who grows food, prepares food,
+                or builds food infrastructure deserves a dignified way to reach their community.
               </p>
               <div className="flex flex-wrap gap-3">
                 {providerTypes.map((type, index) => (
@@ -362,9 +365,9 @@ export default function SellPage() {
             Ready to Join on Your Terms?
           </h2>
           <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
-            Join a growing community of farmers, gardeners, mutual aid groups, and food
-            makers who are building something different. No contracts, no commitments,
-            no catch. Just a fair marketplace.
+            Join a growing community of farmers, gardeners, community kitchens, mutual aid
+            groups, and food makers who are building something different. No contracts,
+            no commitments, no catch. Just a fair marketplace.
           </p>
 
           <Link
