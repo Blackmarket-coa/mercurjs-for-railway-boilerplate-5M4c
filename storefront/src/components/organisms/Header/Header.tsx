@@ -15,6 +15,7 @@ import { listRegions } from "@/lib/data/regions"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { MessageButton } from "@/components/molecules/MessageButton/MessageButton"
 import { SellNowButton } from "@/components/cells/SellNowButton/SellNowButton"
+import { getCmsTaxonomy, FALLBACK_TYPES } from "@/lib/data/cms-taxonomy"
 
 export const Header = async () => {
   const user = await retrieveCustomer()
@@ -35,6 +36,10 @@ export const Header = async () => {
     parentCategories: HttpTypes.StoreProductCategory[]
   }
 
+  // Fetch CMS taxonomy for type-based navigation
+  const cmsTaxonomy = await getCmsTaxonomy()
+  const cmsTypes = cmsTaxonomy.taxonomy.length > 0 ? cmsTaxonomy.taxonomy : FALLBACK_TYPES
+
   return (
     <header>
       <div className="flex py-2 lg:px-8 px-4">
@@ -42,6 +47,7 @@ export const Header = async () => {
           <MobileNavbar
             parentCategories={parentCategories}
             childrenCategories={categories}
+            cmsTypes={cmsTypes}
           />
           <div className="hidden lg:block">
             <SellNowButton />
@@ -76,7 +82,7 @@ export const Header = async () => {
           <CartDropdown />
         </div>
       </div>
-      <Navbar categories={categories} />
+      <Navbar categories={categories} cmsTypes={cmsTypes} />
     </header>
   )
 }
