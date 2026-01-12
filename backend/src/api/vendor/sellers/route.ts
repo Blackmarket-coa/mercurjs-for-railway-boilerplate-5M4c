@@ -1,10 +1,16 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { Modules } from "@medusajs/framework/utils"
-import { createSellerCreationRequestWorkflow } from "@mercurjs/requests/workflows"
+import { REQUEST_MODULE } from "../../../modules/request"
+import RequestModuleService from "../../../modules/request/service"
 import { createSellerSchema, CreateSellerInput } from "./validators"
 
 // Disable automatic authentication to allow public registration
 export const AUTHENTICATE = false
+
+/**
+ * Request type identifier for seller creation requests
+ */
+const SELLER_REQUEST_TYPE = "seller_creation"
 
 /**
  * POST /vendor/sellers
@@ -12,7 +18,7 @@ export const AUTHENTICATE = false
  * Create a seller creation REQUEST during vendor registration.
  * This endpoint is called after the auth registration to submit a seller creation request.
  * The request will appear in the admin panel for approval.
- * Once approved, the seller entity will be created automatically.
+ * Once approved, the seller entity will be created via the admin approval endpoint.
  */
 export const POST = async (
   req: MedusaRequest,
@@ -52,37 +58,32 @@ export const POST = async (
 
     console.log("[POST /vendor/sellers] Found auth identity:", authIdentity.id)
 
-    // Create a seller creation REQUEST using MercurJS requests workflow
+    // Create a seller creation REQUEST using the custom Request module
     // This will appear in the admin panel for approval
-    const workflowResult = await createSellerCreationRequestWorkflow.run({
-      container: req.scope,
-      input: {
-        type: "seller",
-        data: {
-          auth_identity_id: authIdentity.id,
-          member: {
-            name: body.member.name,
-            email: body.member.email,
-          },
-          seller: {
-            name: body.name,
-          },
-          provider_identity_id: body.member.email,
+    const requestService = req.scope.resolve<RequestModuleService>(REQUEST_MODULE)
+
+    const sellerRequest = await requestService.createRequest({
+      requester_id: authIdentity.id,
+      payload: {
+        type: SELLER_REQUEST_TYPE,
+        auth_identity_id: authIdentity.id,
+        member: {
+          name: body.member.name,
+          email: body.member.email,
         },
-        submitter_id: authIdentity.id,
+        seller: {
+          name: body.name,
+        },
       },
+      notes: `Seller registration request for "${body.name}" by ${body.member.email}`,
     })
 
-    console.log("[POST /vendor/sellers] Workflow result:", JSON.stringify(workflowResult, null, 2))
-
-    // Handle different result structures from the workflow
-    const result = workflowResult?.result
-    const sellerRequest = Array.isArray(result) ? result[0] : result
+    console.log("[POST /vendor/sellers] Created seller request:", sellerRequest)
 
     return res.status(201).json({
       request: {
-        id: sellerRequest?.id || "unknown",
-        status: sellerRequest?.status || "pending",
+        id: sellerRequest.id,
+        status: sellerRequest.status || "pending",
         message: "Your seller registration request has been submitted and is pending approval.",
       },
     })

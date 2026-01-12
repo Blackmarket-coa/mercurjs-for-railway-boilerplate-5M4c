@@ -58,17 +58,14 @@ export async function PATCH(req: AuthenticatedMedusaRequest, res: MedusaResponse
       return
     }
 
-    const updateData: Record<string, unknown> = {
-      id,
-      updated_at: new Date(),
-    }
+    const updateData: Record<string, unknown> = {}
 
     if (data.status) updateData.status = data.status
     if (data.provider_id !== undefined) updateData.provider_id = data.provider_id
     if (data.payload) updateData.payload = data.payload
     if (data.notes !== undefined) updateData.notes = data.notes
 
-    const updated = await requestService.updateRequests(updateData)
+    const updated = await requestService.updateRequests({ id }, updateData)
 
     res.json({
       request: updated,
