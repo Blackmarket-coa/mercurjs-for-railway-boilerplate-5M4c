@@ -57,8 +57,7 @@ module.exports = defineConfig({
       : []),
     { resolve: '@mercurjs/reviews', options: {} },
     { resolve: '@mercurjs/requests', options: {} },
-    { resolve: '@mercurjs/resend', options: {} },
-  ],
+      ],
   modules: [
     // Phase 1: Domain Architecture Modules
     // Seller Extension module (vendor_type, certifications, etc.)
