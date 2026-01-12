@@ -4,7 +4,7 @@ import footerLinks from "@/data/footerLinks"
 export function Footer() {
   return (
     <footer className="bg-primary container">
-      <div className="grid grid-cols-1 lg:grid-cols-3">
+      <div className="grid grid-cols-1 lg:grid-cols-2">
         {/* Customer Services Column */}
         <div className="p-6 border rounded-sm hover:shadow-solarpunk-sm transition-shadow duration-300">
           <h2 className="heading-sm text-primary mb-3 uppercase">
@@ -12,22 +12,6 @@ export function Footer() {
           </h2>
           <nav className="space-y-3" aria-label="Customer services navigation">
             {footerLinks.customerServices.map(({ label, path }) => (
-              <LocalizedClientLink
-                key={label}
-                href={path}
-                className="block label-md hover:text-action transition-colors duration-200"
-              >
-                {label}
-              </LocalizedClientLink>
-            ))}
-          </nav>
-        </div>
-
-        {/* About Column */}
-        <div className="p-6 border rounded-sm hover:shadow-solarpunk-sm transition-shadow duration-300">
-          <h2 className="heading-sm text-primary mb-3 uppercase">About</h2>
-          <nav className="space-y-3" aria-label="About navigation">
-            {footerLinks.about.map(({ label, path }) => (
               <LocalizedClientLink
                 key={label}
                 href={path}
