@@ -1,6 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { CMS_BLUEPRINT_MODULE, CmsBlueprintServiceType } from "../../../../modules/cms-blueprint"
+import { TagType } from "../../../../modules/cms-blueprint/models/cms-tag"
 
 /**
  * GET /admin/cms-tags/:id
@@ -57,17 +58,19 @@ export const PUT = async (req: MedusaRequest, res: MedusaResponse) => {
     metadata?: Record<string, unknown>
   }
 
-  const tag = await cmsBlueprintService.updateCmsTags({
-    id,
-    handle,
-    name,
-    description,
-    tag_type,
-    icon,
-    color,
-    is_active,
-    metadata,
-  })
+  const tag = await cmsBlueprintService.updateCmsTags(
+    { id },
+    {
+      handle,
+      name,
+      description,
+      tag_type: tag_type ? (tag_type as TagType) : undefined,
+      icon,
+      color,
+      is_active,
+      metadata,
+    }
+  )
 
   return res.json({ tag })
 }

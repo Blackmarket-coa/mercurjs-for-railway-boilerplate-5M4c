@@ -1,6 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys, generateEntityId } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { CMS_BLUEPRINT_MODULE, CmsBlueprintServiceType } from "../../../modules/cms-blueprint"
+import { TagType } from "../../../modules/cms-blueprint/models/cms-tag"
 
 /**
  * GET /admin/cms-tags
@@ -85,11 +86,10 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   }
 
   const tag = await cmsBlueprintService.createCmsTags({
-    id: generateEntityId("", "cms_tag"),
     handle,
     name,
     description,
-    tag_type: tag_type || "availability",
+    tag_type: (tag_type as TagType) || TagType.AVAILABILITY,
     icon,
     color,
     is_active: is_active ?? true,
