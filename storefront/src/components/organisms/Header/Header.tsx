@@ -15,7 +15,17 @@ import { listRegions } from "@/lib/data/regions"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { MessageButton } from "@/components/molecules/MessageButton/MessageButton"
 import { SellNowButton } from "@/components/cells/SellNowButton/SellNowButton"
-import { getCmsTaxonomy, FALLBACK_TYPES } from "@/lib/data/cms-taxonomy"
+import { getCmsTaxonomy, FALLBACK_TYPES, CmsType } from "@/lib/data/cms-taxonomy"
+
+// Inline fallback for testing
+const INLINE_FALLBACK: CmsType[] = [
+  { id: "1", handle: "food-produce", name: "Food & Produce", description: null, icon: "🥬", display_order: 1, is_active: true, categories: [] },
+  { id: "2", handle: "prepared-foods-meals", name: "Prepared Foods", description: null, icon: "🍽️", display_order: 2, is_active: true, categories: [] },
+  { id: "3", handle: "supplies-goods", name: "Supplies & Goods", description: null, icon: "📦", display_order: 3, is_active: true, categories: [] },
+  { id: "4", handle: "services-delivery", name: "Services", description: null, icon: "🚚", display_order: 4, is_active: true, categories: [] },
+  { id: "5", handle: "organizations-partnerships", name: "Organizations", description: null, icon: "🤝", display_order: 5, is_active: true, categories: [] },
+  { id: "6", handle: "equipment-tools", name: "Equipment", description: null, icon: "🔧", display_order: 6, is_active: true, categories: [] },
+]
 
 export const Header = async () => {
   const user = await retrieveCustomer()
@@ -36,18 +46,9 @@ export const Header = async () => {
     parentCategories: HttpTypes.StoreProductCategory[]
   }
 
-  // Fetch CMS taxonomy for type-based navigation
-  // Always use FALLBACK_TYPES until CMS is fully set up
-  let cmsTypes = FALLBACK_TYPES
-  try {
-    const cmsTaxonomy = await getCmsTaxonomy()
-    if (cmsTaxonomy?.taxonomy && cmsTaxonomy.taxonomy.length > 0) {
-      cmsTypes = cmsTaxonomy.taxonomy
-    }
-  } catch (error) {
-    // Use fallback types on error
-    console.error("CMS taxonomy fetch failed, using fallback:", error)
-  }
+  // Use inline fallback types for now - CMS API not yet available
+  // TODO: Re-enable getCmsTaxonomy() once backend CMS module is deployed
+  const cmsTypes = INLINE_FALLBACK
 
   return (
     <header>
