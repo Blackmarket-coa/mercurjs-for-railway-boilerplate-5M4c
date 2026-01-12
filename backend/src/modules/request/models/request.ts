@@ -28,8 +28,6 @@ const Request = model.define("request", {
   status: model.enum(RequestStatus).default(RequestStatus.PENDING),
   payload: model.json().default({}),
   notes: model.text().nullable(),
-  created_at: model.dateTime().default(() => new Date()),
-  updated_at: model.dateTime().default(() => new Date()),
 })
 .indexes([
   {
