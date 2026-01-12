@@ -16,7 +16,10 @@
     "overrides": {
       "glob": ">=10.5.0",
       "qs": ">=6.14.1",
-      "jws": ">=3.2.3"
+      "jws": ">=3.2.3",
+      "@medusajs/core-flows": "2.11.3",
+      "@medusajs/orchestration": "2.11.3",
+      "@medusajs/workflows-sdk": "2.11.3"
     }
   },
   "scripts": {
@@ -32,15 +35,15 @@
   "dependencies": {
     "@bmc/restaurant-marketplace": "file:.yalc/@bmc/restaurant-marketplace",
     "@medusajs/admin-sdk": "2.11.3",
-    "@medusajs/cart": "^2.12.3",
+    "@medusajs/cart": "2.11.3",
     "@medusajs/cli": "2.11.3",
-    "@medusajs/core-flows": "^2.11.3",
+    "@medusajs/core-flows": "2.11.3",
     "@medusajs/framework": "2.11.3",
     "@medusajs/icons": "2.11.3",
-    "@medusajs/order": "^2.12.3",
-    "@medusajs/product": "^2.12.3",
+    "@medusajs/order": "2.11.3",
+    "@medusajs/product": "2.11.3",
     "@medusajs/ui": "4.0.27",
-    "@medusajs/utils": "^2.11.3",
+    "@medusajs/utils": "2.11.3",
     "@mercurjs/b2c-core": "^1.4.5",
     "@mercurjs/commission": "^1.4.5",
     "@mercurjs/framework": "^1.4.5",
