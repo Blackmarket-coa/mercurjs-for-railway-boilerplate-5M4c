@@ -1,6 +1,6 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { CMS_BLUEPRINT_MODULE } from "../../../../modules/cms-blueprint"
+import { CMS_BLUEPRINT_MODULE, CmsBlueprintServiceType } from "../../../../modules/cms-blueprint"
 
 /**
  * GET /admin/cms-tags/:id
@@ -44,7 +44,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
  */
 export const PUT = async (req: MedusaRequest, res: MedusaResponse) => {
   const { id } = req.params
-  const cmsBlueprintService = req.scope.resolve(CMS_BLUEPRINT_MODULE)
+  const cmsBlueprintService = req.scope.resolve<CmsBlueprintServiceType>(CMS_BLUEPRINT_MODULE)
 
   const { handle, name, description, tag_type, icon, color, is_active, metadata } = req.body as {
     handle?: string
@@ -78,7 +78,7 @@ export const PUT = async (req: MedusaRequest, res: MedusaResponse) => {
  */
 export const DELETE = async (req: MedusaRequest, res: MedusaResponse) => {
   const { id } = req.params
-  const cmsBlueprintService = req.scope.resolve(CMS_BLUEPRINT_MODULE)
+  const cmsBlueprintService = req.scope.resolve<CmsBlueprintServiceType>(CMS_BLUEPRINT_MODULE)
 
   await cmsBlueprintService.softDeleteCmsTags(id)
 

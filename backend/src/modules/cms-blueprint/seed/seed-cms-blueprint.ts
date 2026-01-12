@@ -8,6 +8,7 @@ import {
   CMS_CATEGORY_TAG_MAPPINGS,
   CMS_CATEGORY_ATTRIBUTE_MAPPINGS,
 } from "./cms-blueprint-data"
+import { CMS_BLUEPRINT_MODULE, CmsBlueprintServiceType } from "../index"
 
 /**
  * Seed the CMS Blueprint data
@@ -31,7 +32,7 @@ export async function seedCmsBlueprint(container: MedusaContainer) {
   }
 
   // Get the CMS Blueprint service
-  const cmsBlueprintService = container.resolve("cms-blueprint")
+  const cmsBlueprintService = container.resolve<CmsBlueprintServiceType>(CMS_BLUEPRINT_MODULE)
 
   // 1. Seed CMS Types
   logger.info("Seeding CMS Types...")

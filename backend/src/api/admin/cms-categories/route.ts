@@ -1,6 +1,6 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys, generateEntityId } from "@medusajs/framework/utils"
-import { CMS_BLUEPRINT_MODULE } from "../../../modules/cms-blueprint"
+import { CMS_BLUEPRINT_MODULE, CmsBlueprintServiceType } from "../../../modules/cms-blueprint"
 
 /**
  * GET /admin/cms-categories
@@ -51,7 +51,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
  * Create a new CMS category
  */
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
-  const cmsBlueprintService = req.scope.resolve(CMS_BLUEPRINT_MODULE)
+  const cmsBlueprintService = req.scope.resolve<CmsBlueprintServiceType>(CMS_BLUEPRINT_MODULE)
 
   const { type_id, handle, name, description, icon, image_url, display_order, is_active, metadata } = req.body as {
     type_id: string
