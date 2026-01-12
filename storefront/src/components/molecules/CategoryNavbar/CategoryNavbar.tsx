@@ -4,6 +4,8 @@ import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedL
 import { cn } from "@/lib/utils"
 import { useParams, usePathname } from "next/navigation"
 import { CollapseIcon } from "@/icons"
+import { useState, useRef, useEffect } from "react"
+import footerLinks from "@/data/footerLinks"
 
 export const CategoryNavbar = ({
   categories,
@@ -16,6 +18,19 @@ export const CategoryNavbar = ({
   const pathname = usePathname()
   const isGardensActive = pathname?.includes("/gardens")
   const isProducersActive = pathname?.includes("/producers")
+  const isAboutActive = pathname?.includes("/how-it-works") || pathname?.includes("/sell") || pathname?.includes("/kitchens") || pathname?.includes("/invest")
+  const [showAboutDropdown, setShowAboutDropdown] = useState(false)
+  const aboutDropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (aboutDropdownRef.current && !aboutDropdownRef.current.contains(event.target as Node)) {
+        setShowAboutDropdown(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
 
   return (
     <nav className="flex md:items-center flex-col md:flex-row">
@@ -62,6 +77,53 @@ export const CategoryNavbar = ({
           <CollapseIcon size={18} className="-rotate-90 md:hidden" />
         </LocalizedClientLink>
       ))}
+
+      {/* About Dropdown */}
+      <div className="relative" ref={aboutDropdownRef}>
+        <button
+          onClick={() => setShowAboutDropdown(!showAboutDropdown)}
+          className={cn(
+            "label-md uppercase px-4 my-3 md:my-0 flex items-center justify-between gap-1",
+            isAboutActive && "md:border-b md:border-primary"
+          )}
+        >
+          About
+          <CollapseIcon size={18} className={cn("transition-transform", showAboutDropdown ? "rotate-180" : "")} />
+        </button>
+        {showAboutDropdown && (
+          <div className="md:absolute left-0 top-full bg-primary border border-primary rounded-sm z-20 min-w-[180px] shadow-solarpunk-sm">
+            {footerLinks.about.map(({ label, path }) => (
+              path.startsWith('http') ? (
+                <a
+                  key={label}
+                  href={path}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => {
+                    setShowAboutDropdown(false)
+                    onClose?.(false)
+                  }}
+                  className="block label-md px-4 py-2 hover:bg-secondary transition-colors duration-200"
+                >
+                  {label}
+                </a>
+              ) : (
+                <LocalizedClientLink
+                  key={label}
+                  href={path}
+                  onClick={() => {
+                    setShowAboutDropdown(false)
+                    onClose?.(false)
+                  }}
+                  className="block label-md px-4 py-2 hover:bg-secondary transition-colors duration-200"
+                >
+                  {label}
+                </LocalizedClientLink>
+              )
+            ))}
+          </div>
+        )}
+      </div>
     </nav>
   )
 }
