@@ -50,11 +50,10 @@ class RequestModuleService extends MedusaService({
    * Update request status
    */
   async updateRequestStatus(requestId: string, status: RequestStatus) {
-    return this.updateRequests({
-      id: requestId,
-      status,
-      updated_at: new Date(),
-    })
+    return this.updateRequests(
+      { id: requestId },
+      { status }
+    )
   }
 
   /**
