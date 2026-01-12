@@ -9,15 +9,14 @@ export const Navbar = ({
   categories: HttpTypes.StoreProductCategory[]
   cmsTypes: CmsType[]
 }) => {
+  // Debug: Log what we receive
+  const hasTypes = cmsTypes && Array.isArray(cmsTypes) && cmsTypes.length > 0
+
   return (
     <div className="flex border py-4 justify-between px-6">
       <div className="hidden md:flex items-center">
-        {/* Use TypeNavbar if CMS types are available, otherwise fall back to CategoryNavbar */}
-        {cmsTypes && cmsTypes.length > 0 ? (
-          <TypeNavbar types={cmsTypes} />
-        ) : (
-          <CategoryNavbar categories={categories} />
-        )}
+        {/* Always use TypeNavbar with the types we have */}
+        <TypeNavbar types={cmsTypes || []} />
       </div>
 
       <NavbarSearch />

@@ -37,8 +37,17 @@ export const Header = async () => {
   }
 
   // Fetch CMS taxonomy for type-based navigation
-  const cmsTaxonomy = await getCmsTaxonomy()
-  const cmsTypes = cmsTaxonomy.taxonomy.length > 0 ? cmsTaxonomy.taxonomy : FALLBACK_TYPES
+  // Always use FALLBACK_TYPES until CMS is fully set up
+  let cmsTypes = FALLBACK_TYPES
+  try {
+    const cmsTaxonomy = await getCmsTaxonomy()
+    if (cmsTaxonomy?.taxonomy && cmsTaxonomy.taxonomy.length > 0) {
+      cmsTypes = cmsTaxonomy.taxonomy
+    }
+  } catch (error) {
+    // Use fallback types on error
+    console.error("CMS taxonomy fetch failed, using fallback:", error)
+  }
 
   return (
     <header>

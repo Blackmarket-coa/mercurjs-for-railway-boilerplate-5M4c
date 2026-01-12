@@ -83,7 +83,7 @@ export const TypeNavbar = ({
       </LocalizedClientLink>
 
       {/* Type Dropdowns */}
-      {types?.filter(t => t.is_active).sort((a, b) => a.display_order - b.display_order).map((type) => (
+      {(types || []).filter(t => t.is_active !== false).sort((a, b) => (a.display_order || 0) - (b.display_order || 0)).map((type) => (
         <div
           key={type.id}
           className="relative"
