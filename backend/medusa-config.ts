@@ -171,6 +171,10 @@ module.exports = defineConfig({
     {
       resolve: './src/modules/rental',
     },
+    // CMS Blueprint module (types, categories, tags, attributes)
+    {
+      resolve: './src/modules/cms-blueprint',
+    },
     // Odoo ERP integration module (optional)
     ...(process.env.ODOO_URL
       ? [
