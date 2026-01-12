@@ -4,6 +4,7 @@ import {
   Modules,
   ProductStatus,
 } from "@medusajs/framework/utils";
+import { seedCmsBlueprint } from "../modules/cms-blueprint/seed";
 import {
   createApiKeysWorkflow,
   createInventoryLevelsWorkflow,
@@ -989,4 +990,17 @@ export default async function seedDemoData({ container }: ExecArgs) {
   });
 
   logger.info("Finished seeding inventory levels data.");
+
+  // Seed CMS Blueprint data (types, categories, tags, attributes)
+  logger.info("Seeding CMS Blueprint data...");
+  try {
+    await seedCmsBlueprint(container);
+    logger.info("Finished seeding CMS Blueprint data.");
+  } catch (error: any) {
+    if (error.message?.includes("already exists")) {
+      logger.info("CMS Blueprint data already exists, skipping...");
+    } else {
+      logger.warn(`Warning seeding CMS Blueprint data: ${error.message}`);
+    }
+  }
 }
