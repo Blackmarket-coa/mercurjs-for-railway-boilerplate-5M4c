@@ -1,0 +1,1 @@
+export { TypeNavbar } from "./TypeNavbar"

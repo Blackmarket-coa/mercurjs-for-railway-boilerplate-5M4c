@@ -1,5 +1,6 @@
 import { CategoryNavbar } from "./CategoryNavbar/CategoryNavbar"
 import { PrimeCategoryNavbar } from "./PrimeCategoryNavbar/PrimeCategoryNavbar"
+import { TypeNavbar } from "./TypeNavbar/TypeNavbar"
 import { SelectField } from "./SelectField/SelectField"
 import { Accordion } from "./Accordion/Accordion"
 import { FilterCheckboxOption } from "./FilterCheckboxOption/FilterCheckboxOption"
@@ -47,6 +48,7 @@ export * from "./ImpactDashboard"
 export {
   PrimeCategoryNavbar,
   CategoryNavbar,
+  TypeNavbar,
   SelectField,
   Accordion,
   FilterCheckboxOption,

@@ -5,24 +5,30 @@ import {
   CategoryNavbar,
   HeaderCategoryNavbar,
 } from '@/components/molecules';
-import { CloseIcon, HamburgerMenuIcon, SearchIcon } from '@/icons';
+import { CloseIcon, HamburgerMenuIcon, SearchIcon, CollapseIcon } from '@/icons';
 import { useState } from 'react';
 import LocalizedClientLink from '@/components/molecules/LocalizedLink/LocalizedLink';
 import { useRouter } from 'next/navigation';
+import { CmsType, CmsCategory } from '@/lib/data/cms-taxonomy';
+import { cn } from '@/lib/utils';
 
 export const MobileNavbar = ({
   childrenCategories,
   parentCategories,
+  cmsTypes,
 }: {
   childrenCategories: HttpTypes.StoreProductCategory[];
   parentCategories: HttpTypes.StoreProductCategory[];
+  cmsTypes?: CmsType[];
 }) => {
   const [openMenu, setOpenMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [expandedType, setExpandedType] = useState<string | null>(null);
   const router = useRouter();
 
   const closeMenuHandler = () => {
     setOpenMenu(false);
+    setExpandedType(null);
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -33,9 +39,15 @@ export const MobileNavbar = ({
     }
   };
 
+  const toggleType = (typeId: string) => {
+    setExpandedType(expandedType === typeId ? null : typeId);
+  };
+
+  const hasCmsTypes = cmsTypes && cmsTypes.length > 0;
+
   return (
     <div className='lg:hidden'>
-      <button 
+      <button
         onClick={() => setOpenMenu(true)}
         aria-label="Open navigation menu"
         className="p-1"
@@ -46,7 +58,7 @@ export const MobileNavbar = ({
         <div className='fixed w-full h-full bg-primary p-4 top-0 left-0 z-50 overflow-y-auto'>
           <div className='flex justify-between items-center mb-4'>
             <span className="font-semibold text-lg">Menu</span>
-            <button 
+            <button
               onClick={() => closeMenuHandler()}
               aria-label="Close navigation menu"
               className="p-1"
@@ -68,50 +80,117 @@ export const MobileNavbar = ({
               />
             </div>
           </form>
-          
+
           {/* Quick Links */}
-          <div className='border rounded-sm mb-4 p-4'>
+          <div className='border rounded-lg mb-4 p-4'>
             <div className='flex flex-col gap-3'>
-              <LocalizedClientLink 
-                href="/categories" 
+              <LocalizedClientLink
+                href="/categories"
                 onClick={closeMenuHandler}
-                className="font-medium text-primary hover:text-green-700"
+                className="font-medium text-primary hover:text-green-700 flex items-center gap-2"
               >
-                🛒 Shop All Products
+                <span className="text-lg">🛒</span> Shop All Products
               </LocalizedClientLink>
-              <LocalizedClientLink 
-                href="/producers" 
+              <LocalizedClientLink
+                href="/producers"
                 onClick={closeMenuHandler}
-                className="font-medium text-primary hover:text-green-700"
+                className="font-medium text-primary hover:text-green-700 flex items-center gap-2"
               >
-                👨‍🌾 Our Producers
+                <span className="text-lg">👨‍🌾</span> Our Producers
               </LocalizedClientLink>
-              <LocalizedClientLink 
-                href="/sell" 
+              <LocalizedClientLink
+                href="/sell"
                 onClick={closeMenuHandler}
-                className="font-medium text-green-700 hover:text-green-800"
+                className="font-medium text-green-700 hover:text-green-800 flex items-center gap-2"
               >
-                ✨ Sell on FreeBlackMarket
+                <span className="text-lg">✨</span> Sell on FreeBlackMarket
               </LocalizedClientLink>
             </div>
           </div>
 
-          {/* Categories */}
-          <div className='border rounded-sm'>
-            <div className='p-3 border-b'>
-              <span className='text-sm font-medium text-gray-500 uppercase'>Categories</span>
+          {/* CMS Type-Based Navigation */}
+          {hasCmsTypes ? (
+            <div className='border rounded-lg'>
+              <div className='p-3 border-b bg-gray-50'>
+                <span className='text-sm font-medium text-gray-600 uppercase tracking-wide'>Browse by Category</span>
+              </div>
+              <div className='divide-y'>
+                {cmsTypes
+                  .filter(type => type.is_active)
+                  .sort((a, b) => a.display_order - b.display_order)
+                  .map((type) => (
+                    <div key={type.id} className=''>
+                      {/* Type Header */}
+                      <button
+                        onClick={() => toggleType(type.id)}
+                        className='w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors'
+                      >
+                        <span className='flex items-center gap-3'>
+                          {type.icon && <span className='text-xl'>{type.icon}</span>}
+                          <span className='font-medium'>{type.name}</span>
+                        </span>
+                        <CollapseIcon
+                          size={18}
+                          className={cn(
+                            'transition-transform text-gray-400',
+                            expandedType === type.id ? 'rotate-180' : ''
+                          )}
+                        />
+                      </button>
+
+                      {/* Expanded Categories */}
+                      {expandedType === type.id && type.categories && (
+                        <div className='bg-gray-50 border-t'>
+                          {/* View All Link */}
+                          <LocalizedClientLink
+                            href={`/type/${type.handle}`}
+                            onClick={closeMenuHandler}
+                            className='block px-4 py-3 text-sm font-medium text-green-700 hover:bg-gray-100 border-b border-gray-200'
+                          >
+                            View All {type.name} →
+                          </LocalizedClientLink>
+
+                          {/* Category Links */}
+                          {type.categories
+                            .filter((cat: CmsCategory) => cat.is_active)
+                            .sort((a: CmsCategory, b: CmsCategory) => a.display_order - b.display_order)
+                            .map((category: CmsCategory) => (
+                              <LocalizedClientLink
+                                key={category.id}
+                                href={`/category/${category.handle}`}
+                                onClick={closeMenuHandler}
+                                className='block px-4 py-3 text-sm hover:bg-gray-100 transition-colors'
+                              >
+                                <span className='flex items-center gap-2 pl-4'>
+                                  {category.icon && <span className='text-base'>{category.icon}</span>}
+                                  {category.name}
+                                </span>
+                              </LocalizedClientLink>
+                            ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+              </div>
             </div>
-            <HeaderCategoryNavbar
-              onClose={closeMenuHandler}
-              categories={parentCategories}
-            />
-            <div className='border-t pt-2'>
-              <CategoryNavbar
+          ) : (
+            // Fallback to legacy categories
+            <div className='border rounded-sm'>
+              <div className='p-3 border-b'>
+                <span className='text-sm font-medium text-gray-500 uppercase'>Categories</span>
+              </div>
+              <HeaderCategoryNavbar
                 onClose={closeMenuHandler}
-                categories={childrenCategories}
+                categories={parentCategories}
               />
+              <div className='border-t pt-2'>
+                <CategoryNavbar
+                  onClose={closeMenuHandler}
+                  categories={childrenCategories}
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>
