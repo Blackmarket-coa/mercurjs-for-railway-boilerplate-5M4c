@@ -1,6 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys, generateEntityId } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { CMS_BLUEPRINT_MODULE, CmsBlueprintServiceType } from "../../../modules/cms-blueprint"
+import { AttributeInputType, AttributeDisplayType } from "../../../modules/cms-blueprint/models/cms-attribute"
 
 /**
  * GET /admin/cms-attributes
@@ -145,15 +146,14 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   }
 
   const attribute = await cmsBlueprintService.createCmsAttributes({
-    id: generateEntityId("", "cms_attr"),
     handle,
     name,
     description,
-    input_type: input_type || "text",
-    display_type: display_type || "text_input",
+    input_type: (input_type as AttributeInputType) || AttributeInputType.TEXT,
+    display_type: (display_type as AttributeDisplayType) || AttributeDisplayType.TEXT_INPUT,
     unit,
-    options,
-    validation,
+    options: options as Record<string, unknown> | null,
+    validation: validation as Record<string, unknown> | null,
     is_filterable: is_filterable ?? true,
     is_required: is_required ?? false,
     display_order: display_order ?? 0,

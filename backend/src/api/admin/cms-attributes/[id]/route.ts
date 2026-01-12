@@ -1,6 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { CMS_BLUEPRINT_MODULE, CmsBlueprintServiceType } from "../../../../modules/cms-blueprint"
+import { AttributeInputType, AttributeDisplayType } from "../../../../modules/cms-blueprint/models/cms-attribute"
 
 /**
  * GET /admin/cms-attributes/:id
@@ -81,22 +82,24 @@ export const PUT = async (req: MedusaRequest, res: MedusaResponse) => {
     metadata?: Record<string, unknown>
   }
 
-  const attribute = await cmsBlueprintService.updateCmsAttributes({
-    id,
-    handle,
-    name,
-    description,
-    input_type,
-    display_type,
-    unit,
-    options,
-    validation,
-    is_filterable,
-    is_required,
-    display_order,
-    is_active,
-    metadata,
-  })
+  const attribute = await cmsBlueprintService.updateCmsAttributes(
+    { id },
+    {
+      handle,
+      name,
+      description,
+      input_type: input_type ? (input_type as AttributeInputType) : undefined,
+      display_type: display_type ? (display_type as AttributeDisplayType) : undefined,
+      unit,
+      options: options as Record<string, unknown> | null | undefined,
+      validation: validation as Record<string, unknown> | null | undefined,
+      is_filterable,
+      is_required,
+      display_order,
+      is_active,
+      metadata,
+    }
+  )
 
   return res.json({ attribute })
 }
