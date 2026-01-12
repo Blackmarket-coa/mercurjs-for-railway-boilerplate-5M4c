@@ -1,7 +1,7 @@
 import { Module } from "@medusajs/framework/utils"
 import CmsBlueprintService from "./service"
 
-export const CMS_BLUEPRINT_MODULE = "cms-blueprint"
+export const CMS_BLUEPRINT_MODULE = "cms_blueprint"
 
 export type CmsBlueprintServiceType = InstanceType<typeof CmsBlueprintService>
 
