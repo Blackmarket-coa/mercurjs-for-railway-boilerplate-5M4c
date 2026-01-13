@@ -77,20 +77,21 @@ export const RequestSellerList = () => {
             {requests?.map((request) => {
               const requestData = request.payload as Record<string, unknown> | undefined;
 
+              // Handle both old and new payload formats
+              const sellerName =
+                ((requestData?.seller as Record<string, unknown> | undefined)?.name as string) ||
+                (requestData?.name as string) ||
+                "N/A";
+
+              const memberEmail =
+                ((requestData?.member as Record<string, unknown> | undefined)?.email as string) ||
+                (requestData?.email as string) ||
+                "N/A";
+
               return (
                 <Table.Row key={request.id}>
-                  <Table.Cell>
-                    {
-                      ((requestData?.seller as Record<string, unknown> | undefined)
-                        ?.name as string) ?? "N/A"
-                    }
-                  </Table.Cell>
-                  <Table.Cell>
-                    {
-                      ((requestData?.member as Record<string, unknown> | undefined)
-                        ?.email as string) ?? "N/A"
-                    }
-                  </Table.Cell>
+                  <Table.Cell>{sellerName}</Table.Cell>
+                  <Table.Cell>{memberEmail}</Table.Cell>
                   <Table.Cell>
                     <div className="flex items-center gap-2">
                       <History />
