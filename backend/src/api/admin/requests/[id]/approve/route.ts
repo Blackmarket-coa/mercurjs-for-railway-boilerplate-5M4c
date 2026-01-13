@@ -87,7 +87,7 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
         await createSellerMetadataWorkflow.run({
           container: req.scope,
           input: {
-            seller_id: createdSeller.seller.id,
+            seller_id: createdSeller.id,
             vendor_type: vendorTypeEnum,
           },
         })
