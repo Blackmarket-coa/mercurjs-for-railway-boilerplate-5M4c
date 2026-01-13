@@ -75,19 +75,19 @@ export const RequestSellerList = () => {
           </Table.Header>
           <Table.Body>
             {requests?.map((request) => {
-              const requestData = request.payload as Record<string, unknown>;
+              const requestData = request.payload as Record<string, unknown> | undefined;
 
               return (
                 <Table.Row key={request.id}>
                   <Table.Cell>
                     {
-                      (requestData.seller as Record<string, unknown>)
-                        ?.name as string
+                      ((requestData?.seller as Record<string, unknown> | undefined)
+                        ?.name as string) ?? "N/A"
                     }
                   </Table.Cell>
                   <Table.Cell>
                     {
-                      ((requestData.member as Record<string, unknown>)
+                      ((requestData?.member as Record<string, unknown> | undefined)
                         ?.email as string) ?? "N/A"
                     }
                   </Table.Cell>
