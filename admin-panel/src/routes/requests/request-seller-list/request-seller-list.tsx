@@ -75,7 +75,7 @@ export const RequestSellerList = () => {
           </Table.Header>
           <Table.Body>
             {requests?.map((request) => {
-              const requestData = request.data as Record<string, unknown>;
+              const requestData = request.payload as Record<string, unknown>;
 
               return (
                 <Table.Row key={request.id}>
@@ -86,7 +86,10 @@ export const RequestSellerList = () => {
                     }
                   </Table.Cell>
                   <Table.Cell>
-                    {(requestData.provider_identity_id as string) ?? "N/A"}
+                    {
+                      ((requestData.member as Record<string, unknown>)
+                        ?.email as string) ?? "N/A"
+                    }
                   </Table.Cell>
                   <Table.Cell>
                     <div className="flex items-center gap-2">

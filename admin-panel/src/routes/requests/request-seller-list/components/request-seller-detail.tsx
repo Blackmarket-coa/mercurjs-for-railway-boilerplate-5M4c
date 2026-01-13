@@ -19,7 +19,7 @@ export function RequestSellerDetail({ request, open, close }: Props) {
   if (!request) {
     return null;
   }
-  const requestData = request.data;
+  const requestData = request.payload;
 
   const [promptOpen, setPromptOpen] = useState(false);
   const [requestAccept, setRequestAccept] = useState(false);
@@ -62,7 +62,13 @@ export function RequestSellerDetail({ request, open, close }: Props) {
           <fieldset className="mt-2">
             <legend className="mb-2">Email</legend>
             <Container>
-              <Text>{requestData?.provider_identity_id ?? "N/A"}</Text>
+              <Text>{requestData?.member?.email ?? "N/A"}</Text>
+            </Container>
+          </fieldset>
+          <fieldset className="mt-2">
+            <legend className="mb-2">Vendor Type</legend>
+            <Container>
+              <Text className="capitalize">{requestData?.vendor_type ?? "producer"}</Text>
             </Container>
           </fieldset>
           <Container className="mt-4">
