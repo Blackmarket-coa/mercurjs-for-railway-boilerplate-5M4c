@@ -84,6 +84,6 @@ export interface AdminSellerRequest extends RequestDTO {
     auth_identity_id: string;
     member: MemberDTO;
     seller: SellerDTO;
-    vendor_type?: "producer" | "garden" | "maker" | "restaurant" | "mutual_aid";
+    vendor_type?: "producer" | "garden" | "kitchen" | "maker" | "restaurant" | "mutual_aid";
   };
 }

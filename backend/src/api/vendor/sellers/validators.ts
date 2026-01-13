@@ -2,10 +2,12 @@ import { z } from "zod"
 
 /**
  * Vendor types available for sellers
+ * Must match VendorType enum in seller-extension module
  */
 export const vendorTypeEnum = z.enum([
   "producer",
   "garden",
+  "kitchen",
   "maker",
   "restaurant",
   "mutual_aid",
