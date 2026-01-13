@@ -77,6 +77,35 @@ export const RequestSellerList = () => {
             {requests?.map((request) => {
               const requestData = request.payload as Record<string, unknown> | undefined;
 
+              // Handle legacy requests with no payload data
+              if (!requestData || Object.keys(requestData).length === 0) {
+                return (
+                  <Table.Row key={request.id}>
+                    <Table.Cell className="text-ui-fg-muted italic">
+                      Legacy request - no data
+                    </Table.Cell>
+                    <Table.Cell className="text-ui-fg-muted italic">
+                      Legacy request - no data
+                    </Table.Cell>
+                    <Table.Cell>
+                      <div className="flex items-center gap-2">
+                        <History />
+                        {formatDate(request.created_at!)}
+                      </div>
+                    </Table.Cell>
+                    <Table.Cell>
+                      {getRequestStatusBadge(request.status!)}
+                    </Table.Cell>
+                    <Table.Cell>
+                      <RequestMenu
+                        handleDetail={handleDetail}
+                        request={request}
+                      />
+                    </Table.Cell>
+                  </Table.Row>
+                );
+              }
+
               // Handle both old and new payload formats
               const sellerName =
                 ((requestData?.seller as Record<string, unknown> | undefined)?.name as string) ||
