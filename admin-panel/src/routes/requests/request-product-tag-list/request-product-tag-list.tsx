@@ -75,7 +75,7 @@ export const RequestProductTagList = () => {
           </Table.Header>
           <Table.Body>
             {requests?.map((request) => {
-              const requestData = request.data as ProductTagDTO;
+              const requestData = request.payload as ProductTagDTO;
 
               return (
                 <Table.Row key={request.id}>
