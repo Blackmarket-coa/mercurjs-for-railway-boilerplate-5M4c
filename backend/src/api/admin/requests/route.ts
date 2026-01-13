@@ -44,6 +44,16 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
       take: query.limit,
     })
 
+    // Debug logging for first request to see payload structure
+    if (requests.length > 0) {
+      console.log("[GET /admin/requests] Sample request:", {
+        id: requests[0].id,
+        payload: requests[0].payload,
+        payload_type: typeof requests[0].payload,
+        payload_keys: requests[0].payload ? Object.keys(requests[0].payload) : [],
+      })
+    }
+
     res.json({
       requests,
       count: requests.length,
