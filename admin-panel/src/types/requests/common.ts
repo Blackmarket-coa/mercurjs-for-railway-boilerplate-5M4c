@@ -3,7 +3,7 @@ import type { MemberDTO, SellerDTO } from "@custom-types/seller";
 export type RequestDTO = {
   id: string;
   type: string;
-  data: Record<string, unknown>;
+  payload: Record<string, unknown>;
   submitter_id: string;
   reviewer_id: string;
   reviewer_note: string;
@@ -16,7 +16,7 @@ export interface AdminRequest {
   created_at?: string;
   updated_at?: string;
   type?: string;
-  data?: object;
+  payload?: object;
   submitter_id?: string;
   reviewer_id?: string | null;
   reviewer_note?: string | null;
@@ -79,9 +79,11 @@ export interface AdminUpdateOrderReturnRequest {
 }
 
 export interface AdminSellerRequest extends RequestDTO {
-  data: {
+  payload: {
+    type: "seller_creation";
+    auth_identity_id: string;
     member: MemberDTO;
     seller: SellerDTO;
-    provider_identity_id?: string;
+    vendor_type?: "producer" | "garden" | "maker" | "restaurant" | "mutual_aid";
   };
 }
