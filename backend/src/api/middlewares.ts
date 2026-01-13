@@ -5,6 +5,7 @@ import type {
   MedusaNextFunction,
 } from "@medusajs/framework/http"
 import { z } from "zod"
+import { defaultSecurityHeaders } from "../shared/security-headers"
 
 // Basic email validation regex
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -144,6 +145,11 @@ const PostCartItemsRentalsBody = z.object({
 
 export default defineMiddlewares({
   routes: [
+    // Apply security headers to all routes
+    {
+      matcher: "/*",
+      middlewares: [defaultSecurityHeaders],
+    },
     // Product feed - public XML feed for Google Shopping/Facebook
     {
       matcher: "/product-feed",
