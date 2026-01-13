@@ -1,6 +1,17 @@
 import { z } from "zod"
 
 /**
+ * Vendor types available for sellers
+ */
+export const vendorTypeEnum = z.enum([
+  "producer",
+  "garden",
+  "maker",
+  "restaurant",
+  "mutual_aid",
+])
+
+/**
  * Create Seller Request Schema
  *
  * Validates the request body for POST /vendor/sellers
@@ -11,6 +22,9 @@ import { z } from "zod"
 export const createSellerSchema = z.object({
   // Core seller fields
   name: z.string().min(1, "Seller name is required"),
+
+  // Vendor type selection (optional, defaults to "producer" if not provided)
+  vendor_type: vendorTypeEnum.optional(),
 
   // Member information
   member: z.object({
