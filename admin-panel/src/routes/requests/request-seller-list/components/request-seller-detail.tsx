@@ -21,25 +21,32 @@ export function RequestSellerDetail({ request, open, close }: Props) {
   }
   const requestData = request.payload;
 
+  // Check if this is a legacy request with no payload
+  const isLegacyRequest = !requestData || Object.keys(requestData).length === 0;
+
   // Handle both old and new payload formats
-  const sellerName =
-    requestData?.seller?.name ||
-    requestData?.name ||
-    "-";
+  const sellerName = isLegacyRequest
+    ? "Legacy request - no data available"
+    : (requestData?.seller?.name ||
+       requestData?.name ||
+       "-");
 
-  const memberName =
-    requestData?.member?.name ||
-    requestData?.name ||
-    "-";
+  const memberName = isLegacyRequest
+    ? "Legacy request - no data available"
+    : (requestData?.member?.name ||
+       requestData?.name ||
+       "-");
 
-  const memberEmail =
-    requestData?.member?.email ||
-    requestData?.email ||
-    "N/A";
+  const memberEmail = isLegacyRequest
+    ? "Legacy request - no data available"
+    : (requestData?.member?.email ||
+       requestData?.email ||
+       "N/A");
 
-  const vendorType =
-    requestData?.vendor_type ||
-    "producer";
+  const vendorType = isLegacyRequest
+    ? "unknown"
+    : (requestData?.vendor_type ||
+       "producer");
 
   const [promptOpen, setPromptOpen] = useState(false);
   const [requestAccept, setRequestAccept] = useState(false);
@@ -67,6 +74,16 @@ export function RequestSellerDetail({ request, open, close }: Props) {
           <Drawer.Title>Review seller request</Drawer.Title>
         </Drawer.Header>
         <Drawer.Body className="p-4">
+          {isLegacyRequest && (
+            <Container className="mb-4 bg-ui-bg-subtle border border-ui-border-base">
+              <div className="flex items-center gap-2">
+                <InformationCircle className="text-ui-fg-muted" />
+                <Text className="text-ui-fg-muted">
+                  <strong>Legacy Request:</strong> This request was created before the current data structure was implemented. Request details are not available.
+                </Text>
+              </div>
+            </Container>
+          )}
           <fieldset>
             <legend className="mb-2">Seller name</legend>
             <Container>
