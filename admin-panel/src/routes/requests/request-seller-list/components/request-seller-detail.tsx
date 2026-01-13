@@ -21,6 +21,26 @@ export function RequestSellerDetail({ request, open, close }: Props) {
   }
   const requestData = request.payload;
 
+  // Handle both old and new payload formats
+  const sellerName =
+    requestData?.seller?.name ||
+    requestData?.name ||
+    "-";
+
+  const memberName =
+    requestData?.member?.name ||
+    requestData?.name ||
+    "-";
+
+  const memberEmail =
+    requestData?.member?.email ||
+    requestData?.email ||
+    "N/A";
+
+  const vendorType =
+    requestData?.vendor_type ||
+    "producer";
+
   const [promptOpen, setPromptOpen] = useState(false);
   const [requestAccept, setRequestAccept] = useState(false);
 
@@ -50,25 +70,25 @@ export function RequestSellerDetail({ request, open, close }: Props) {
           <fieldset>
             <legend className="mb-2">Seller name</legend>
             <Container>
-              <Text>{requestData?.seller?.name ?? "-"}</Text>
+              <Text>{sellerName}</Text>
             </Container>
           </fieldset>
           <fieldset className="mt-2">
             <legend className="mb-2">Member</legend>
             <Container>
-              <Text>{requestData?.member?.name ?? "-"}</Text>
+              <Text>{memberName}</Text>
             </Container>
           </fieldset>
           <fieldset className="mt-2">
             <legend className="mb-2">Email</legend>
             <Container>
-              <Text>{requestData?.member?.email ?? "N/A"}</Text>
+              <Text>{memberEmail}</Text>
             </Container>
           </fieldset>
           <fieldset className="mt-2">
             <legend className="mb-2">Vendor Type</legend>
             <Container>
-              <Text className="capitalize">{requestData?.vendor_type ?? "producer"}</Text>
+              <Text className="capitalize">{vendorType}</Text>
             </Container>
           </fieldset>
           <Container className="mt-4">
