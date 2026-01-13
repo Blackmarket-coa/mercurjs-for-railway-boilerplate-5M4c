@@ -11,10 +11,12 @@ export const REQUEST_TYPES = {
 
 /**
  * Vendor types available for sellers
+ * Must match VendorType enum in seller-extension module
  */
 const vendorTypeEnum = z.enum([
   "producer",
   "garden",
+  "kitchen",
   "maker",
   "restaurant",
   "mutual_aid",
