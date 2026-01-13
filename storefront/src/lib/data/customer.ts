@@ -60,11 +60,40 @@ export const updateCustomer = async (body: HttpTypes.StoreUpdateCustomer) => {
   return updateRes
 }
 
+/**
+ * Helper function to extract meaningful error messages from various error types
+ */
+function getErrorMessage(error: any): string {
+  // Handle errors with a message property
+  if (error?.message) {
+    return error.message
+  }
+
+  // Handle errors with a response body (API errors)
+  if (error?.body?.message) {
+    return error.body.message
+  }
+
+  // Handle validation errors
+  if (error?.errors && Array.isArray(error.errors)) {
+    return error.errors.map((e: any) => e.message || e).join(", ")
+  }
+
+  // Handle string errors
+  if (typeof error === "string") {
+    return error
+  }
+
+  // Fallback to generic error message
+  console.error("Unhandled error structure:", error)
+  return "An unexpected error occurred. Please try again."
+}
+
 export async function signup(formData: FormData) {
   const password = formData.get("password") as string
   const rawEmail = formData.get("email") as string
   const normalizedEmail = rawEmail.toLowerCase().trim()
-  
+
   const customerForm = {
     email: normalizedEmail,
     first_name: formData.get("first_name") as string,
@@ -104,7 +133,8 @@ export async function signup(formData: FormData) {
 
     return createdCustomer
   } catch (error: any) {
-    return error.toString()
+    console.error("Signup error:", error)
+    return getErrorMessage(error)
   }
 }
 
@@ -122,13 +152,16 @@ export async function login(formData: FormData) {
         revalidateTag(customerCacheTag)
       })
   } catch (error: any) {
-    return error.toString()
+    console.error("Login error:", error)
+    return getErrorMessage(error)
   }
 
   try {
     await transferCart()
   } catch (error: any) {
-    return error.toString()
+    console.error("Cart transfer error:", error)
+    // Don't block login if cart transfer fails
+    console.warn("Failed to transfer cart, but login succeeded")
   }
 }
 

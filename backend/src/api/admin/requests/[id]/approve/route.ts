@@ -3,6 +3,8 @@ import { REQUEST_MODULE } from "../../../../../modules/request"
 import RequestModuleService from "../../../../../modules/request/service"
 import { RequestStatus } from "../../../../../modules/request/models"
 import { createSellerWorkflow } from "@mercurjs/b2c-core/workflows"
+import { createSellerMetadataWorkflow } from "../../../../../workflows/create-seller-metadata"
+import { VendorType } from "../../../../../modules/seller-extension/models/seller-metadata"
 
 /**
  * Request type identifier for seller creation requests
@@ -47,6 +49,7 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
       const authIdentityId = payload.auth_identity_id as string
       const member = payload.member as { name: string; email: string }
       const seller = payload.seller as { name: string }
+      const vendorType = (payload.vendor_type as string) || "producer"
 
       if (!authIdentityId || !member || !seller) {
         res.status(400).json({
@@ -55,7 +58,7 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
         return
       }
 
-      console.log(`[Approve] Creating seller "${seller.name}" for ${member.email}`)
+      console.log(`[Approve] Creating seller "${seller.name}" for ${member.email} with vendor_type: ${vendorType}`)
 
       // Create the seller using MercurJS workflow
       const { result: createdSeller } = await createSellerWorkflow.run({
@@ -73,6 +76,28 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
       })
 
       console.log(`[Approve] Seller created:`, createdSeller)
+
+      // Create seller metadata with the correct vendor_type from registration
+      // Note: The subscriber will also try to create metadata, but we create it here first
+      // with the correct vendor_type to preserve the user's selection
+      try {
+        // Map string vendor_type to VendorType enum
+        const vendorTypeEnum = VendorType[vendorType.toUpperCase() as keyof typeof VendorType] || VendorType.PRODUCER
+
+        await createSellerMetadataWorkflow.run({
+          container: req.scope,
+          input: {
+            seller_id: createdSeller.seller.id,
+            vendor_type: vendorTypeEnum,
+          },
+        })
+
+        console.log(`[Approve] Seller metadata created with vendor_type: ${vendorTypeEnum}`)
+      } catch (error: any) {
+        console.error(`[Approve] Failed to create seller metadata:`, error)
+        // Don't fail the entire request if metadata creation fails
+        // The subscriber will create it with default type as fallback
+      }
 
       // Mark request as accepted
       await requestService.acceptRequest(id)

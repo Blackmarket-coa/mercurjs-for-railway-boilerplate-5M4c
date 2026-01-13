@@ -1,5 +1,6 @@
 import { MedusaService } from "@medusajs/framework/utils"
 import { Request, RequestStatus } from "./models"
+import { validateRequestPayload } from "./validators"
 
 /**
  * Request Module Service
@@ -12,17 +13,40 @@ class RequestModuleService extends MedusaService({
 }) {
   /**
    * Create a new request from a customer to a provider
+   * @param data - Request data including payload
+   * @param options - Additional options
+   * @param options.validatePayload - Whether to validate the payload (default: true)
    */
-  async createRequest(data: {
-    requester_id: string
-    provider_id?: string
-    payload?: Record<string, unknown>
-    notes?: string
-  }) {
+  async createRequest(
+    data: {
+      requester_id: string
+      provider_id?: string
+      payload?: Record<string, unknown>
+      notes?: string
+    },
+    options?: {
+      validatePayload?: boolean
+    }
+  ) {
+    const shouldValidate = options?.validatePayload !== false
+
+    // Validate payload if enabled and payload has a type field
+    let validatedPayload: Record<string, unknown> = data.payload || {}
+
+    if (shouldValidate && data.payload && 'type' in data.payload) {
+      try {
+        validatedPayload = validateRequestPayload(data.payload) as Record<string, unknown>
+        console.log("[RequestService] Payload validation passed:", validatedPayload.type)
+      } catch (error: any) {
+        console.error("[RequestService] Payload validation failed:", error)
+        throw new Error(`Invalid request payload: ${error.message}`)
+      }
+    }
+
     return this.createRequests({
       requester_id: data.requester_id,
       provider_id: data.provider_id || null,
-      payload: data.payload || {},
+      payload: validatedPayload,
       notes: data.notes || null,
       status: RequestStatus.PENDING,
     })

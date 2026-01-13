@@ -74,6 +74,8 @@ export const POST = async (
         seller: {
           name: body.name,
         },
+        // Store vendor_type selection (defaults to "producer" if not provided)
+        vendor_type: body.vendor_type || "producer",
       },
       notes: `Seller registration request for "${body.name}" by ${body.member.email}`,
     })
