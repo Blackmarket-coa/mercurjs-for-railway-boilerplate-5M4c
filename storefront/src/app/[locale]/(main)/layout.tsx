@@ -8,21 +8,37 @@ import { redirect } from "next/navigation"
 export default async function RootLayout({
   children,
   params,
-}: Readonly<{
+}: {
   children: React.ReactNode
-  params: Promise<{ locale: string }>
-}>) {
+  params: { locale: string }
+}) {
   const ROCKETCHAT_URL = process.env.NEXT_PUBLIC_ROCKETCHAT_URL
-  const { locale } = await params
+  const { locale } = params
 
-  const user = await retrieveCustomer()
-  const regionCheck = await checkRegion(locale)
+  let user = null
+  let regionIsValid = false
 
-  if (!regionCheck) {
-    return redirect("/")
+  // --- Region validation (must never crash) ---
+  try {
+    regionIsValid = await checkRegion(locale)
+  } catch (error) {
+    console.error("[RootLayout] Region check failed:", error)
   }
 
-  if (!ROCKETCHAT_URL || !user)
+  if (!regionIsValid) {
+    redirect("/")
+  }
+
+  // --- Customer retrieval (anonymous-safe) ---
+  try {
+    user = await retrieveCustomer()
+  } catch {
+    // Expected for logged-out users
+    user = null
+  }
+
+  // --- Default layout (no RocketChat) ---
+  if (!ROCKETCHAT_URL || !user) {
     return (
       <>
         <Header />
@@ -31,7 +47,9 @@ export default async function RootLayout({
         <BackToTop />
       </>
     )
+  }
 
+  // --- Authenticated layout with RocketChat ---
   return (
     <>
       <RocketChatProvider>
