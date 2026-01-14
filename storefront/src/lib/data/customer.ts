@@ -14,188 +14,185 @@ import {
   setAuthToken,
 } from "./cookies"
 
+/* ---------------------------------------------
+ * SAFE CUSTOMER FETCH (SERVER-COMPONENT SAFE)
+ * -------------------------------------------- */
 export const retrieveCustomer =
   async (): Promise<HttpTypes.StoreCustomer | null> => {
-    const authHeaders = await getAuthHeaders()
+    try {
+      const authHeaders = await getAuthHeaders()
+      if (!authHeaders) return null
 
-    if (!authHeaders) return null
-
-    const headers = {
-      ...authHeaders,
-    }
-
-    const next = {
-      ...(await getCacheOptions("customers")),
-    }
-
-    return await sdk.client
-      .fetch<{ customer: HttpTypes.StoreCustomer }>(`/store/customers/me`, {
+      const { customer } = await sdk.client.fetch<{
+        customer: HttpTypes.StoreCustomer
+      }>(`/store/customers/me`, {
         method: "GET",
-        query: {
-          fields: "*orders",
-        },
-        headers,
-        next,
-        cache: "force-cache",
+        headers: authHeaders,
+        cache: "no-store", // 🔴 NEVER cache auth
       })
-      .then(({ customer }) => customer)
-      .catch(() => null)
+
+      return customer ?? null
+    } catch {
+      return null
+    }
   }
 
-export const updateCustomer = async (body: HttpTypes.StoreUpdateCustomer) => {
-  const headers = {
-    ...(await getAuthHeaders()),
+/* ---------------------------------------------
+ * UPDATE CUSTOMER
+ * -------------------------------------------- */
+export const updateCustomer = async (
+  body: HttpTypes.StoreUpdateCustomer
+) => {
+  const authHeaders = await getAuthHeaders()
+  if (!authHeaders) {
+    throw new Error("Not authenticated")
   }
 
-  const updateRes = await sdk.store.customer
-    .update(body, {}, headers)
+  const customer = await sdk.store.customer
+    .update(body, {}, authHeaders)
     .then(({ customer }) => customer)
-    .catch((err) => {
-      throw new Error(err.message)
-    })
 
   const cacheTag = await getCacheTag("customers")
   revalidateTag(cacheTag)
 
-  return updateRes
+  return customer
 }
 
-/**
- * Helper function to extract meaningful error messages from various error types
- */
+/* ---------------------------------------------
+ * ERROR NORMALIZER
+ * -------------------------------------------- */
 function getErrorMessage(error: any): string {
-  // Handle errors with a message property
-  if (error?.message) {
-    return error.message
-  }
-
-  // Handle errors with a response body (API errors)
-  if (error?.body?.message) {
-    return error.body.message
-  }
-
-  // Handle validation errors
-  if (error?.errors && Array.isArray(error.errors)) {
+  if (error?.message) return error.message
+  if (error?.body?.message) return error.body.message
+  if (Array.isArray(error?.errors)) {
     return error.errors.map((e: any) => e.message || e).join(", ")
   }
-
-  // Handle string errors
-  if (typeof error === "string") {
-    return error
-  }
-
-  // Fallback to generic error message
-  console.error("Unhandled error structure:", error)
+  if (typeof error === "string") return error
+  console.error("Unhandled error:", error)
   return "An unexpected error occurred. Please try again."
 }
 
+/* ---------------------------------------------
+ * SIGNUP (FIXED — NO TOKEN CHURN)
+ * -------------------------------------------- */
 export async function signup(formData: FormData) {
-  const password = formData.get("password") as string
-  const rawEmail = formData.get("email") as string
-  const normalizedEmail = rawEmail.toLowerCase().trim()
+  const email = String(formData.get("email") || "")
+    .toLowerCase()
+    .trim()
+  const password = String(formData.get("password") || "")
 
   const customerForm = {
-    email: normalizedEmail,
+    email,
     first_name: formData.get("first_name") as string,
     last_name: formData.get("last_name") as string,
     phone: formData.get("phone") as string,
   }
 
   try {
+    // 1️⃣ Register (this already authenticates)
     const token = await sdk.auth.register("customer", "emailpass", {
-      email: normalizedEmail,
-      password: password,
+      email,
+      password,
     })
 
     await setAuthToken(token as string)
 
-    const headers = {
-      ...(await getAuthHeaders()),
+    // 2️⃣ Create customer using SAME token
+    const authHeaders = await getAuthHeaders()
+    if (!authHeaders) {
+      throw new Error("Authentication failed after signup")
     }
 
-    const { customer: createdCustomer } = await sdk.store.customer.create(
+    const { customer } = await sdk.store.customer.create(
       customerForm,
       {},
-      headers
+      authHeaders
     )
 
-    const loginToken = await sdk.auth.login("customer", "emailpass", {
-      email: normalizedEmail,
-      password,
-    })
-
-    await setAuthToken(loginToken as string)
-
+    // 3️⃣ Cache + cart
     const customerCacheTag = await getCacheTag("customers")
     revalidateTag(customerCacheTag)
 
     await transferCart()
 
-    return createdCustomer
-  } catch (error: any) {
+    return customer
+  } catch (error) {
     console.error("Signup error:", error)
     return getErrorMessage(error)
   }
 }
 
+/* ---------------------------------------------
+ * LOGIN
+ * -------------------------------------------- */
 export async function login(formData: FormData) {
-  const rawEmail = formData.get("email") as string
-  const email = rawEmail.toLowerCase().trim()
-  const password = formData.get("password") as string
+  const email = String(formData.get("email") || "")
+    .toLowerCase()
+    .trim()
+  const password = String(formData.get("password") || "")
 
   try {
-    await sdk.auth
-      .login("customer", "emailpass", { email, password })
-      .then(async (token) => {
-        await setAuthToken(token as string)
-        const customerCacheTag = await getCacheTag("customers")
-        revalidateTag(customerCacheTag)
-      })
-  } catch (error: any) {
+    const token = await sdk.auth.login("customer", "emailpass", {
+      email,
+      password,
+    })
+
+    await setAuthToken(token as string)
+
+    const customerCacheTag = await getCacheTag("customers")
+    revalidateTag(customerCacheTag)
+  } catch (error) {
     console.error("Login error:", error)
     return getErrorMessage(error)
   }
 
   try {
     await transferCart()
-  } catch (error: any) {
-    console.error("Cart transfer error:", error)
-    // Don't block login if cart transfer fails
-    console.warn("Failed to transfer cart, but login succeeded")
+  } catch {
+    console.warn("Cart transfer failed — continuing login")
   }
 }
 
+/* ---------------------------------------------
+ * SIGNOUT
+ * -------------------------------------------- */
 export async function signout() {
-  await sdk.auth.logout()
+  try {
+    await sdk.auth.logout()
+  } catch {}
 
   await removeAuthToken()
-
-  const customerCacheTag = await getCacheTag("customers")
-  revalidateTag(customerCacheTag)
-
   await removeCartId()
 
-  const cartCacheTag = await getCacheTag("carts")
-  revalidateTag(cartCacheTag)
-  redirect(`/`)
+  revalidateTag(await getCacheTag("customers"))
+  revalidateTag(await getCacheTag("carts"))
+
+  redirect("/")
 }
 
+/* ---------------------------------------------
+ * CART TRANSFER
+ * -------------------------------------------- */
 export async function transferCart() {
   const cartId = await getCartId()
+  if (!cartId) return
 
-  if (!cartId) {
-    return
-  }
+  const authHeaders = await getAuthHeaders()
+  if (!authHeaders) return
 
-  const headers = await getAuthHeaders()
-
-  await sdk.store.cart.transferCart(cartId, {}, headers)
+  await sdk.store.cart.transferCart(cartId, {}, authHeaders)
 
   const cartCacheTag = await getCacheTag("carts")
   revalidateTag(cartCacheTag)
 }
 
-export const addCustomerAddress = async (formData: FormData): Promise<any> => {
+/* ---------------------------------------------
+ * ADDRESS HELPERS
+ * -------------------------------------------- */
+export const addCustomerAddress = async (formData: FormData) => {
+  const authHeaders = await getAuthHeaders()
+  if (!authHeaders) return { success: false, error: "Not authenticated" }
+
   const address = {
     address_name: formData.get("address_name") as string,
     first_name: formData.get("first_name") as string,
@@ -211,51 +208,35 @@ export const addCustomerAddress = async (formData: FormData): Promise<any> => {
     is_default_shipping: Boolean(formData.get("isDefaultShipping")),
   }
 
-  const headers = {
-    ...(await getAuthHeaders()),
+  try {
+    await sdk.store.customer.createAddress(address, {}, authHeaders)
+    revalidateTag(await getCacheTag("customers"))
+    return { success: true, error: null }
+  } catch (err) {
+    return { success: false, error: err.toString() }
   }
-
-  return sdk.store.customer
-    .createAddress(address, {}, headers)
-    .then(async ({ customer }) => {
-      const customerCacheTag = await getCacheTag("customers")
-      revalidateTag(customerCacheTag)
-      return { success: true, error: null }
-    })
-    .catch((err) => {
-      return { success: false, error: err.toString() }
-    })
 }
 
-export const deleteCustomerAddress = async (
-  addressId: string
-): Promise<void> => {
-  const headers = {
-    ...(await getAuthHeaders()),
-  }
+export const deleteCustomerAddress = async (addressId: string) => {
+  const authHeaders = await getAuthHeaders()
+  if (!authHeaders) return
 
-  await sdk.store.customer
-    .deleteAddress(addressId, headers)
-    .then(async () => {
-      const customerCacheTag = await getCacheTag("customers")
-      revalidateTag(customerCacheTag)
-      return { success: true, error: null }
-    })
-    .catch((err) => {
-      return { success: false, error: err.toString() }
-    })
+  await sdk.store.customer.deleteAddress(addressId, authHeaders)
+  revalidateTag(await getCacheTag("customers"))
 }
 
-export const updateCustomerAddress = async (
-  formData: FormData
-): Promise<any> => {
+export const updateCustomerAddress = async (formData: FormData) => {
+  const authHeaders = await getAuthHeaders()
+  if (!authHeaders) {
+    return { success: false, error: "Not authenticated" }
+  }
+
   const addressId = formData.get("addressId") as string
-
   if (!addressId) {
     return { success: false, error: "Address ID is required" }
   }
 
-  const address = {
+  const address: HttpTypes.StoreUpdateCustomerAddress = {
     address_name: formData.get("address_name") as string,
     first_name: formData.get("first_name") as string,
     last_name: formData.get("last_name") as string,
@@ -266,69 +247,28 @@ export const updateCustomerAddress = async (
     postal_code: formData.get("postal_code") as string,
     province: formData.get("province") as string,
     country_code: formData.get("country_code") as string,
-  } as HttpTypes.StoreUpdateCustomerAddress
-
-  const phone = formData.get("phone") as string
-
-  if (phone) {
-    address.phone = phone
+    phone: formData.get("phone") as string,
   }
 
-  const headers = {
-    ...(await getAuthHeaders()),
+  try {
+    await sdk.store.customer.updateAddress(addressId, address, {}, authHeaders)
+    revalidateTag(await getCacheTag("customers"))
+    return { success: true, error: null }
+  } catch (err) {
+    return { success: false, error: err.toString() }
   }
-
-  return sdk.store.customer
-    .updateAddress(addressId, address, {}, headers)
-    .then(async () => {
-      const customerCacheTag = await getCacheTag("customers")
-      revalidateTag(customerCacheTag)
-      return { success: true, error: null }
-    })
-    .catch((err) => {
-      return { success: false, error: err.toString() }
-    })
 }
 
-export const updateCustomerPassword = async (
-  password: string,
-  token: string
-): Promise<any> => {
-  const res = await fetch(
-    `${process.env.MEDUSA_BACKEND_URL}/auth/customer/emailpass/update`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ password }),
-    }
-  )
-    .then(async () => {
-      await removeAuthToken()
-      const customerCacheTag = await getCacheTag("customers")
-      revalidateTag(customerCacheTag)
-      return { success: true, error: null }
-    })
-    .catch((err: any) => {
-      return { success: false, error: err.toString() }
-    })
-
-  return res
-}
-
+/* ---------------------------------------------
+ * PASSWORD RESET
+ * -------------------------------------------- */
 export const sendResetPasswordEmail = async (email: string) => {
-  const res = await sdk.auth
-    .resetPassword("customer", "emailpass", {
+  try {
+    await sdk.auth.resetPassword("customer", "emailpass", {
       identifier: email,
     })
-    .then(() => {
-      return { success: true, error: null }
-    })
-    .catch((err: any) => {
-      return { success: false, error: err.toString() }
-    })
-
-  return res
+    return { success: true, error: null }
+  } catch (err) {
+    return { success: false, error: err.toString() }
+  }
 }
