@@ -38,8 +38,10 @@ export const useSignUpWithEmailPass = (
 ) => {
   return useMutation({
     mutationFn: (payload) => {
+      // Remove fields not accepted by the auth register endpoint
+      const { vendor_type, confirmPassword, ...authPayload } = payload as any
       return sdk.auth.register("seller", "emailpass", {
-        ...payload,
+        ...authPayload,
         email: payload.email.toLowerCase().trim(),
       })
     },

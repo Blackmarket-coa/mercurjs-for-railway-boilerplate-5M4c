@@ -33,10 +33,14 @@ export const useSignUpWithEmailPass = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.auth.register("user", "emailpass", {
-      ...payload,
-      email: payload.email.toLowerCase().trim(),
-    }),
+    mutationFn: (payload) => {
+      // Strip unsupported fields before calling auth.register
+      const { vendor_type, confirmPassword, ...authPayload } = payload as any
+      return sdk.auth.register("user", "emailpass", {
+        ...authPayload,
+        email: payload.email.toLowerCase().trim(),
+      })
+    },
     onSuccess: async (data, variables, context) => {
       options?.onSuccess?.(data, variables, context)
     },
