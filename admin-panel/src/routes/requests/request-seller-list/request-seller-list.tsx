@@ -75,19 +75,52 @@ export const RequestSellerList = () => {
           </Table.Header>
           <Table.Body>
             {requests?.map((request) => {
-              const requestData = request.data as Record<string, unknown>;
+              const requestData = request.payload as Record<string, unknown> | undefined;
+
+              // Handle legacy requests with no payload data
+              if (!requestData || Object.keys(requestData).length === 0) {
+                return (
+                  <Table.Row key={request.id}>
+                    <Table.Cell className="text-ui-fg-muted italic">
+                      Legacy request - no data
+                    </Table.Cell>
+                    <Table.Cell className="text-ui-fg-muted italic">
+                      Legacy request - no data
+                    </Table.Cell>
+                    <Table.Cell>
+                      <div className="flex items-center gap-2">
+                        <History />
+                        {formatDate(request.created_at!)}
+                      </div>
+                    </Table.Cell>
+                    <Table.Cell>
+                      {getRequestStatusBadge(request.status!)}
+                    </Table.Cell>
+                    <Table.Cell>
+                      <RequestMenu
+                        handleDetail={handleDetail}
+                        request={request}
+                      />
+                    </Table.Cell>
+                  </Table.Row>
+                );
+              }
+
+              // Handle both old and new payload formats
+              const sellerName =
+                ((requestData?.seller as Record<string, unknown> | undefined)?.name as string) ||
+                (requestData?.name as string) ||
+                "N/A";
+
+              const memberEmail =
+                ((requestData?.member as Record<string, unknown> | undefined)?.email as string) ||
+                (requestData?.email as string) ||
+                "N/A";
 
               return (
                 <Table.Row key={request.id}>
-                  <Table.Cell>
-                    {
-                      (requestData.seller as Record<string, unknown>)
-                        ?.name as string
-                    }
-                  </Table.Cell>
-                  <Table.Cell>
-                    {(requestData.provider_identity_id as string) ?? "N/A"}
-                  </Table.Cell>
+                  <Table.Cell>{sellerName}</Table.Cell>
+                  <Table.Cell>{memberEmail}</Table.Cell>
                   <Table.Cell>
                     <div className="flex items-center gap-2">
                       <History />

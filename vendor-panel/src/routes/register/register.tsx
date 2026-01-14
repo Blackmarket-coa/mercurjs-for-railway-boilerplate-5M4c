@@ -35,6 +35,9 @@ const RegisterSchema = z.object({
   website_url: urlSchema,
   instagram: urlSchema,
   facebook: urlSchema,
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
 })
 
 /**
@@ -105,26 +108,15 @@ export const Register = () => {
 
   const handleSubmit = form.handleSubmit(
     async ({ name, email, password, confirmPassword }) => {
-      if (password !== confirmPassword) {
-        form.setError("password", {
-          type: "manual",
-          message: "Password and Confirm Password not matched",
-        })
-        form.setError("confirmPassword", {
-          type: "manual",
-          message: "Password and Confirm Password not matched",
-        })
-
-        return null
-      }
-
-      // Only send core registration fields - vendor_type is set by admin later
+      // Password matching is now handled by schema validation
+      // Send registration with vendor_type selection
       await mutateAsync(
         {
           name,
           email,
           password,
           confirmPassword,
+          vendor_type: selectedType || "producer",
         },
         {
           onError: (error) => {
@@ -330,6 +322,7 @@ export const Register = () => {
                             placeholder="Confirm Password"
                           />
                         </Form.Control>
+                        <Form.ErrorMessage />
                       </Form.Item>
                     )
                   }}

@@ -44,20 +44,11 @@ module.exports = defineConfig({
   plugins: [
     { resolve: '@mercurjs/b2c-core', options: {} },
     { resolve: '@mercurjs/commission', options: {} },
-    ...(process.env.ALGOLIA_API_KEY && process.env.ALGOLIA_APP_ID
-      ? [
-          {
-            resolve: '@mercurjs/algolia',
-            options: {
-              apiKey: process.env.ALGOLIA_API_KEY,
-              appId: process.env.ALGOLIA_APP_ID,
-            },
-          },
-        ]
-      : []),
     { resolve: '@mercurjs/reviews', options: {} },
-    { resolve: '@mercurjs/requests', options: {} },
-      ],
+    // @mercurjs/algolia and @mercurjs/requests removed - causing crashes
+    // Algolia: Use Postgres filtering (WHERE name ILIKE) instead
+    // Requests: Replaced with custom Request module at ./src/modules/request
+  ],
   modules: [
     // Phase 1: Domain Architecture Modules
     // Seller Extension module (vendor_type, certifications, etc.)
@@ -173,6 +164,10 @@ module.exports = defineConfig({
     // CMS Blueprint module (types, categories, tags, attributes)
     {
       resolve: './src/modules/cms-blueprint',
+    },
+    // Request module (RFQs, custom orders - replaces @mercurjs/requests)
+    {
+      resolve: './src/modules/request',
     },
     // Odoo ERP integration module (optional)
     ...(process.env.ODOO_URL

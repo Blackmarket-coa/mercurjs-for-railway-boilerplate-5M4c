@@ -32,6 +32,7 @@ export const useSignUpWithEmailPass = (
     HttpTypes.AdminSignInWithEmailPassword & {
       confirmPassword: string
       name: string
+      vendor_type?: string
     }
   >
 ) => {
@@ -44,9 +45,10 @@ export const useSignUpWithEmailPass = (
     },
     onSuccess: async (_, variables) => {
       const normalizedEmail = variables.email.toLowerCase().trim()
-      // Only send core seller fields - metadata is created by subscriber
+      // Send seller registration request with vendor_type selection
       const seller = {
         name: variables.name,
+        vendor_type: variables.vendor_type || "producer",
         member: {
           name: variables.name,
           email: normalizedEmail,

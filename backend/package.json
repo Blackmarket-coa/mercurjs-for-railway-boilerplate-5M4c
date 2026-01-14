@@ -16,14 +16,16 @@
     "overrides": {
       "glob": ">=10.5.0",
       "qs": ">=6.14.1",
-      "jws": ">=3.2.3"
+      "jws": ">=3.2.3",
+      "@medusajs/core-flows": "2.11.3",
+      "@medusajs/orchestration": "2.11.3",
+      "@medusajs/workflows-sdk": "2.11.3"
     }
   },
   "scripts": {
     "build": "medusa build",
     "ib": "init-backend",
-    "init-algolia": "node .medusa/server/src/scripts/init-algolia.js",
-    "start": "pnpm seed && medusa db:migrate --execute-safe-links && init-backend && pnpm init-algolia && cd .medusa/server && medusa start",
+    "start": "pnpm seed && medusa db:migrate --execute-safe-links && init-backend && cd .medusa/server && medusa start",
     "dev": "medusa develop",
     "seed": "medusa exec ./src/scripts/seed.ts",
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
@@ -33,15 +35,19 @@
   "dependencies": {
     "@bmc/restaurant-marketplace": "file:.yalc/@bmc/restaurant-marketplace",
     "@medusajs/admin-sdk": "2.11.3",
-    "@medusajs/cart": "^2.12.3",
+    "@medusajs/cart": "2.11.3",
     "@medusajs/cli": "2.11.3",
-    "@medusajs/core-flows": "^2.11.3",
+    "@medusajs/core-flows": "2.11.3",
     "@medusajs/framework": "2.11.3",
     "@medusajs/icons": "2.11.3",
-    "@medusajs/order": "^2.12.3",
-    "@medusajs/product": "^2.12.3",
+    "@medusajs/order": "2.11.3",
+    "@medusajs/product": "2.11.3",
     "@medusajs/ui": "4.0.27",
+<<<<<<< HEAD
     "@medusajs/utils": "^2.11.3",
+=======
+    "@medusajs/utils": "2.11.3",
+>>>>>>> 9f7f2ad160d28c13fc483be46dd850bd09f0ebd0
     "@mercurjs/b2c-core": "^1.4.5",
     "@mercurjs/commission": "^1.4.5",
     "@mercurjs/framework": "^1.4.5",

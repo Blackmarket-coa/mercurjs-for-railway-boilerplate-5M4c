@@ -15,7 +15,6 @@ import { useState } from "react"
 import { Container } from "@medusajs/ui"
 import Link from "next/link"
 import { PasswordValidator } from "@/components/cells/PasswordValidator/PasswordValidator"
-import { Eye, EyeOff } from "lucide-react"
 
 export const RegisterForm = () => {
   const methods = useForm<RegisterFormData>({
@@ -45,7 +44,6 @@ const Form = () => {
     symbolOrDigit: false,
   })
   const [error, setError] = useState()
-  const [showPassword, setShowPassword] = useState(false)
   const {
     handleSubmit,
     register,
@@ -105,27 +103,15 @@ const Form = () => {
               {...register("phone")}
             />
           </div>
-          <div className="relative">
+          <div>
             <LabeledInput
               className="mb-4"
               label="Password"
               placeholder="Your password"
-              type={showPassword ? "text" : "password"}
+              type="password"
               error={errors.password as FieldError}
               {...register("password")}
             />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-[38px] text-secondary hover:text-primary transition-colors"
-              aria-label={showPassword ? "Hide password" : "Show password"}
-            >
-              {showPassword ? (
-                <EyeOff className="h-5 w-5" />
-              ) : (
-                <Eye className="h-5 w-5" />
-              )}
-            </button>
             <PasswordValidator
               password={watch("password")}
               setError={setPasswordError}

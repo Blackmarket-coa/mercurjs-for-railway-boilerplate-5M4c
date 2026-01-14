@@ -19,7 +19,34 @@ export function RequestSellerDetail({ request, open, close }: Props) {
   if (!request) {
     return null;
   }
-  const requestData = request.data;
+  const requestData = request.payload;
+
+  // Check if this is a legacy request with no payload
+  const isLegacyRequest = !requestData || Object.keys(requestData).length === 0;
+
+  // Handle both old and new payload formats
+  const sellerName = isLegacyRequest
+    ? "Legacy request - no data available"
+    : (requestData?.seller?.name ||
+       requestData?.name ||
+       "-");
+
+  const memberName = isLegacyRequest
+    ? "Legacy request - no data available"
+    : (requestData?.member?.name ||
+       requestData?.name ||
+       "-");
+
+  const memberEmail = isLegacyRequest
+    ? "Legacy request - no data available"
+    : (requestData?.member?.email ||
+       requestData?.email ||
+       "N/A");
+
+  const vendorType = isLegacyRequest
+    ? "unknown"
+    : (requestData?.vendor_type ||
+       "producer");
 
   const [promptOpen, setPromptOpen] = useState(false);
   const [requestAccept, setRequestAccept] = useState(false);
@@ -47,22 +74,38 @@ export function RequestSellerDetail({ request, open, close }: Props) {
           <Drawer.Title>Review seller request</Drawer.Title>
         </Drawer.Header>
         <Drawer.Body className="p-4">
+          {isLegacyRequest && (
+            <Container className="mb-4 bg-ui-bg-subtle border border-ui-border-base">
+              <div className="flex items-center gap-2">
+                <InformationCircle className="text-ui-fg-muted" />
+                <Text className="text-ui-fg-muted">
+                  <strong>Legacy Request:</strong> This request was created before the current data structure was implemented. Request details are not available.
+                </Text>
+              </div>
+            </Container>
+          )}
           <fieldset>
             <legend className="mb-2">Seller name</legend>
             <Container>
-              <Text>{requestData?.seller?.name ?? "-"}</Text>
+              <Text>{sellerName}</Text>
             </Container>
           </fieldset>
           <fieldset className="mt-2">
             <legend className="mb-2">Member</legend>
             <Container>
-              <Text>{requestData?.member?.name ?? "-"}</Text>
+              <Text>{memberName}</Text>
             </Container>
           </fieldset>
           <fieldset className="mt-2">
             <legend className="mb-2">Email</legend>
             <Container>
-              <Text>{requestData?.provider_identity_id ?? "N/A"}</Text>
+              <Text>{memberEmail}</Text>
+            </Container>
+          </fieldset>
+          <fieldset className="mt-2">
+            <legend className="mb-2">Vendor Type</legend>
+            <Container>
+              <Text className="capitalize">{vendorType}</Text>
             </Container>
           </fieldset>
           <Container className="mt-4">
