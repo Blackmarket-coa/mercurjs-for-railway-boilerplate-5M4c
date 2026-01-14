@@ -15,39 +15,42 @@ import Script from "next/script"
 import { listRegions } from "@/lib/data/regions"
 import { toHreflang } from "@/lib/helpers/hreflang"
 
+/* -----------------------------
+   METADATA (SERVER-SAFE)
+------------------------------ */
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ locale: string }>
+  params: { locale: string }
 }): Promise<Metadata> {
-  const { locale } = await params
+  const { locale } = params
 
-  const headersList = await headers()
+  const headersList = headers()
   const host = headersList.get("host")
   const protocol = headersList.get("x-forwarded-proto") || "https"
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
 
-  // Build alternates based on available regions (locales)
-  let languages: Record<string, string> = {}
+  let languages: Record<string, string> = {
+    [toHreflang(locale)]: `${baseUrl}/${locale}`,
+  }
+
   try {
     const regions = await listRegions()
     const locales = Array.from(
       new Set(
-        (regions || [])
-          .map((r) => r.countries?.map((c) => c.iso_2) || [])
-          .flat()
+        (regions ?? [])
+          .flatMap((r) => r.countries?.map((c) => c.iso_2) ?? [])
           .filter(Boolean)
       )
     ) as string[]
 
     languages = locales.reduce<Record<string, string>>((acc, code) => {
-      const hrefLang = toHreflang(code)
-      acc[hrefLang] = `${baseUrl}/${code}`
+      acc[toHreflang(code)] = `${baseUrl}/${code}`
       return acc
     }, {})
-  } catch {
-    // Fallback: only current locale
-    languages = { [toHreflang(locale)]: `${baseUrl}/${locale}` }
+  } catch (error) {
+    console.error("[generateMetadata] listRegions failed:", error)
+    // Safe fallback already set
   }
 
   const title = "Home"
@@ -55,6 +58,9 @@ export async function generateMetadata({
     "Buy directly from creators. Not corporations. Not middlemen. Discover handcrafted goods, fresh produce, electronics, digital products, and professional services—all from verified independent makers and entrepreneurs."
   const ogImage = "/B2C_Storefront_Open_Graph.png"
   const canonical = `${baseUrl}/${locale}`
+  const siteName =
+    process.env.NEXT_PUBLIC_SITE_NAME ||
+    "Black Market Coalition - Direct from Makers"
 
   return {
     title,
@@ -62,13 +68,6 @@ export async function generateMetadata({
     robots: {
       index: true,
       follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        "max-image-preview": "large",
-        "max-video-preview": -1,
-        "max-snippet": -1,
-      },
     },
     alternates: {
       canonical,
@@ -78,24 +77,17 @@ export async function generateMetadata({
       },
     },
     openGraph: {
-      title: `${title} | ${
-        process.env.NEXT_PUBLIC_SITE_NAME ||
-        "Coalition Marketplace"
-      }`,
+      title: `${title} | ${siteName}`,
       description,
       url: canonical,
-      siteName:
-        process.env.NEXT_PUBLIC_SITE_NAME ||
-        "Black Market Coalition - Direct from Makers",
+      siteName,
       type: "website",
       images: [
         {
           url: ogImage.startsWith("http") ? ogImage : `${baseUrl}${ogImage}`,
           width: 1200,
           height: 630,
-          alt:
-            process.env.NEXT_PUBLIC_SITE_NAME ||
-            "Black Market Coalition",
+          alt: siteName,
         },
       ],
     },
@@ -103,19 +95,24 @@ export async function generateMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: [ogImage.startsWith("http") ? ogImage : `${baseUrl}${ogImage}`],
+      images: [
+        ogImage.startsWith("http") ? ogImage : `${baseUrl}${ogImage}`,
+      ],
     },
   }
 }
 
+/* -----------------------------
+   PAGE (SERVER-SAFE)
+------------------------------ */
 export default async function Home({
   params,
 }: {
-  params: Promise<{ locale: string }>
+  params: { locale: string }
 }) {
-  const { locale } = await params
+  const { locale } = params
 
-  const headersList = await headers()
+  const headersList = headers()
   const host = headersList.get("host")
   const protocol = headersList.get("x-forwarded-proto") || "https"
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
@@ -126,13 +123,13 @@ export default async function Home({
 
   return (
     <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start text-primary">
+      {/* Hero preload (safe) */}
       <link
         rel="preload"
         as="image"
         href="/images/hero/Image.jpg"
-        imageSrcSet="/images/hero/Image.jpg 700w"
-        imageSizes="(min-width: 1024px) 50vw, 100vw"
       />
+
       {/* Organization JSON-LD */}
       <Script
         id="ld-org"
@@ -147,6 +144,7 @@ export default async function Home({
           }),
         }}
       />
+
       {/* WebSite JSON-LD */}
       <Script
         id="ld-website"
@@ -172,14 +170,15 @@ export default async function Home({
           { label: "Meet Our Creators", path: "/producers" },
         ]}
       />
-      {/* FreeBlackMarket.com Value Proposition */}
+
       <div className="px-4 lg:px-8 w-full py-12">
         <ValueProposition />
       </div>
+
       <div className="px-4 lg:px-8 w-full">
         <HomeProductSection heading="trending listings" locale={locale} home />
       </div>
-      {/* Product Feed - Just Added */}
+
       <div className="px-4 lg:px-8 w-full">
         <ProductFeedServer
           locale={locale}
@@ -187,19 +186,22 @@ export default async function Home({
           title="Just Added"
           subtitle="Fresh listings from our community of creators"
           limit={8}
-          showLayoutToggle={true}
+          showLayoutToggle
           showFilters={false}
         />
       </div>
+
       <div className="px-4 lg:px-8 w-full">
         <HomeCategories heading="SHOP BY CATEGORY" />
       </div>
+
       <BannerSection />
       <ShopByStyleSection />
-      {/* FreeBlackMarket.com: Producer CTA */}
+
       <div className="px-4 lg:px-8 w-full py-8">
         <BecomeProducerCTA />
       </div>
+
       <BlogSection />
     </main>
   )
