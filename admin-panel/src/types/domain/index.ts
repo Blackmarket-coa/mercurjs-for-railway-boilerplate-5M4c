@@ -11,19 +11,19 @@
  * UI specialization, and commission logic.
  */
 export enum VendorType {
-  FARM = "FARM",
-  RESTAURANT = "RESTAURANT",
-  DISTRIBUTOR = "DISTRIBUTOR",
-  CREATOR = "CREATOR",
-  RETAIL = "RETAIL",
+  PRODUCER = "producer",
+  RESTAURANT = "restaurant",
+  DISTRIBUTOR = "distributor",
+  MAKER = "maker",
+  KITCHEN = "kitchen",
 }
 
 export const VendorTypeLabels: Record<VendorType, string> = {
-  [VendorType.FARM]: "Farm / Producer",
+  [VendorType.PRODUCER]: "Farm / Producer",
   [VendorType.RESTAURANT]: "Restaurant",
   [VendorType.DISTRIBUTOR]: "Distributor / Food Hub",
-  [VendorType.CREATOR]: "Digital Creator",
-  [VendorType.RETAIL]: "Retail Vendor",
+  [VendorType.MAKER]: "Maker",
+  [VendorType.KITCHEN]: "Kitchen",
 }
 
 /**
@@ -318,8 +318,8 @@ export const LotGradeLabels: Record<LotGrade, string> = {
  * Lot Allocation Enum
  */
 export enum LotAllocation {
-  RETAIL = "RETAIL",
-  RESTAURANT = "RESTAURANT",
+  KITCHEN = "kitchen",
+  RESTAURANT = "restaurant",
   WHOLESALE = "WHOLESALE",
   CSA = "CSA",
   COOPERATIVE = "COOPERATIVE",
