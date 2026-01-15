@@ -5,7 +5,7 @@ import Medusa from "@medusajs/js-sdk"
 // on the page before the app bundle to override.
 const runtimeBackend =
   typeof window !== "undefined" && (window as any).__MEDUSA_BACKEND_URL__
-export const backendUrl = runtimeBackend || __BACKEND_URL__ ?? "/"
+export const backendUrl = (runtimeBackend || __BACKEND_URL__) ?? "/"
 export const publishableApiKey = __PUBLISHABLE_API_KEY__ ?? ""
 
 const token = typeof window !== "undefined" ? window.localStorage.getItem("medusa_auth_token") || "" : ""
