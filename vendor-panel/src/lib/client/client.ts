@@ -1,9 +1,14 @@
 import Medusa from "@medusajs/js-sdk"
 
-export const backendUrl = __BACKEND_URL__ ?? "/"
+// Prefer a runtime override when available so deployed static sites can be
+// pointed at a different API without rebuilding. Set `window.__MEDUSA_BACKEND_URL__`
+// on the page before the app bundle to override.
+const runtimeBackend =
+  typeof window !== "undefined" && (window as any).__MEDUSA_BACKEND_URL__
+export const backendUrl = runtimeBackend || __BACKEND_URL__ ?? "/"
 export const publishableApiKey = __PUBLISHABLE_API_KEY__ ?? ""
 
-const token = window.localStorage.getItem("medusa_auth_token") || ""
+const token = typeof window !== "undefined" ? window.localStorage.getItem("medusa_auth_token") || "" : ""
 
 export const sdk = new Medusa({
   baseUrl: backendUrl,

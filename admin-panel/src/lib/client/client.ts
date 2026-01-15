@@ -1,6 +1,7 @@
 import Medusa from "@medusajs/js-sdk";
 
-export const backendUrl = __BACKEND_URL__ ?? "/";
+const runtimeBackend = typeof window !== "undefined" && (window as any).__MEDUSA_BACKEND_URL__
+export const backendUrl = runtimeBackend || __BACKEND_URL__ ?? "/";
 
 export const sdk = new Medusa({
   baseUrl: backendUrl,
