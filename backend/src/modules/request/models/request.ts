@@ -16,14 +16,14 @@ export enum RequestStatus {
  * Request Model
  *
  * Represents a request for quote (RFQ) or custom order request
- * between a requester (customer) and a provider (vendor/seller).
+ * between a submitter (customer) and a provider (vendor/seller).
  *
  * This is a custom implementation replacing @mercurjs/requests
  * for better stability and mutual-aid marketplace fit.
  */
 const Request = model.define("request", {
   id: model.id().primaryKey(),
-  requester_id: model.text().nullable(),
+  submitter_id: model.text().nullable(),
   provider_id: model.text().nullable(),
   status: model.enum(RequestStatus).default(RequestStatus.PENDING),
   payload: model.json().default({}),
@@ -31,7 +31,7 @@ const Request = model.define("request", {
 })
 .indexes([
   {
-    on: ["requester_id"],
+    on: ["submitter_id"],
   },
   {
     on: ["provider_id"],
