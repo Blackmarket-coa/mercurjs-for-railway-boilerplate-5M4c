@@ -63,7 +63,6 @@ export const POST = async (
     const requestService = req.scope.resolve<RequestModuleService>(REQUEST_MODULE)
 
     const sellerRequest = await requestService.createRequest({
-
       submitter_id: authIdentity.id,
       payload: {
         type: SELLER_REQUEST_TYPE,
