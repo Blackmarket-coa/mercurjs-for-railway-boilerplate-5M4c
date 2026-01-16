@@ -19,7 +19,7 @@ class RequestModuleService extends MedusaService({
    */
   async createRequest(
     data: {
-      requester_id: string
+      submitter_id: string
       provider_id?: string
       payload?: Record<string, unknown>
       notes?: string
@@ -44,7 +44,7 @@ class RequestModuleService extends MedusaService({
     }
 
     return this.createRequests({
-      requester_id: data.requester_id,
+      submitter_id: data.submitter_id,
       provider_id: data.provider_id || null,
       payload: validatedPayload,
       notes: data.notes || null,
@@ -53,11 +53,11 @@ class RequestModuleService extends MedusaService({
   }
 
   /**
-   * Get requests made by a specific requester (customer)
+   * Get requests made by a specific submitter (customer)
    */
-  async getRequesterRequests(requesterId: string) {
+  async getSubmitterRequests(submitterId: string) {
     return this.listRequests({
-      requester_id: requesterId,
+      submitter_id: submitterId,
     })
   }
 
@@ -102,7 +102,7 @@ class RequestModuleService extends MedusaService({
   }
 
   /**
-   * Cancel a request (requester action)
+   * Cancel a request (submitter action)
    */
   async cancelRequest(requestId: string) {
     return this.updateRequestStatus(requestId, RequestStatus.CANCELLED)
