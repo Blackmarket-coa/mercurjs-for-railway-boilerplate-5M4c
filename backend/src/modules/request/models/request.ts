@@ -23,7 +23,7 @@ export enum RequestStatus {
  */
 const Request = model.define("request", {
   id: model.id().primaryKey(),
-  requester_id: model.text(),
+  requester_id: model.text().nullable(),
   provider_id: model.text().nullable(),
   status: model.enum(RequestStatus).default(RequestStatus.PENDING),
   payload: model.json().default({}),
