@@ -14,13 +14,11 @@ export const useSignInWithEmailPass = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.auth.login("seller", "emailpass", {
-      ...payload,
-      email: payload.email.toLowerCase().trim(),
-    }),
-    onSuccess: async (data, variables, context) => {
-      options?.onSuccess?.(data, variables, context)
-    },
+    mutationFn: (payload) =>
+      sdk.auth.login("seller", "emailpass", {
+        ...payload,
+        email: payload.email.toLowerCase().trim(),
+      }),
     ...options,
   })
 }
@@ -38,29 +36,32 @@ export const useSignUpWithEmailPass = (
 ) => {
   return useMutation({
     mutationFn: (payload) => {
-      // Remove fields not accepted by the auth register endpoint
-      const { vendor_type, confirmPassword, ...authPayload } = payload as any
+      const { confirmPassword, vendor_type, ...authPayload } = payload as any
+
       return sdk.auth.register("seller", "emailpass", {
         ...authPayload,
         email: payload.email.toLowerCase().trim(),
       })
     },
+
     onSuccess: async (_, variables) => {
       const normalizedEmail = variables.email.toLowerCase().trim()
-      // Send seller registration request with vendor_type selection
-      const seller = {
-        name: variables.name,
-        vendor_type: variables.vendor_type || "producer",
-        member: {
-          name: variables.name,
-          email: normalizedEmail,
-        },
-      }
+
+      // MercurJS vendor endpoint ONLY accepts name + member
       await fetchQuery("/vendor/sellers", {
         method: "POST",
-        body: seller,
+        body: {
+          name: variables.name,
+          member: {
+            name: variables.name,
+            email: normalizedEmail,
+          },
+        },
       })
+
+      options?.onSuccess?.(_, variables, undefined as any)
     },
+
     ...options,
   })
 }
@@ -73,10 +74,11 @@ export const useSignUpForInvite = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.auth.register("seller", "emailpass", {
-      ...payload,
-      email: payload.email.toLowerCase().trim(),
-    }),
+    mutationFn: (payload) =>
+      sdk.auth.register("seller", "emailpass", {
+        ...payload,
+        email: payload.email.toLowerCase().trim(),
+      }),
     ...options,
   })
 }
@@ -89,9 +91,6 @@ export const useResetPasswordForEmailPass = (
       sdk.auth.resetPassword("seller", "emailpass", {
         identifier: payload.email.toLowerCase().trim(),
       }),
-    onSuccess: async (data, variables, context) => {
-      options?.onSuccess?.(data, variables, context)
-    },
     ...options,
   })
 }
@@ -110,9 +109,6 @@ export const useUpdateProviderForEmailPass = (
   return useMutation({
     mutationFn: (payload) =>
       sdk.auth.updateProvider("seller", "emailpass", payload, token),
-    onSuccess: async (data, variables, context) => {
-      options?.onSuccess?.(data, variables, context)
-    },
     ...options,
   })
 }
