@@ -27,7 +27,7 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
     const request = requests[0]
 
     // Ensure the customer owns this request
-    if (request.requester_id !== customerId) {
+    if (request.submitter_id !== customerId) {
       res.status(403).json({ message: "Access denied" })
       return
     }
@@ -62,7 +62,7 @@ export async function DELETE(req: AuthenticatedMedusaRequest, res: MedusaRespons
     const request = requests[0]
 
     // Ensure the customer owns this request
-    if (request.requester_id !== customerId) {
+    if (request.submitter_id !== customerId) {
       res.status(403).json({ message: "Access denied" })
       return
     }
