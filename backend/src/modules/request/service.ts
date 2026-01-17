@@ -1,113 +1,119 @@
 import { MedusaService } from "@medusajs/framework/utils"
-import { Request, RequestStatus } from "./models"
+import Request, { RequestStatus } from "./models/request"
 import { validateRequestPayload } from "./validators"
 
-/**
- * Request Module Service
- *
- * Provides CRUD operations for requests/RFQs.
- * Supports mutual-aid marketplace interactions between customers and vendors.
- */
 class RequestModuleService extends MedusaService({
-  model: Request,
+  Request,
 }) {
   /**
-   * Create a new request from a customer to a provider
-   * @param data - Request data including payload
-   * @param options - Additional options
-   * @param options.validatePayload - Whether to validate the payload (default: true)
+   * Create a new request
    */
-  async createRequest(
-    data: {
-      submitter_id: string
-      provider_id?: string
-      payload?: Record<string, unknown>
-      notes?: string
-    },
-    options?: {
-      validatePayload?: boolean
-    }
-  ) {
-    const shouldValidate = options?.validatePayload !== false
-
-    // Validate payload if enabled and payload has a type field
-    let validatedPayload: Record<string, unknown> = data.payload || {}
-
-    if (shouldValidate && data.payload && 'type' in data.payload) {
-      try {
-        validatedPayload = validateRequestPayload(data.payload) as Record<string, unknown>
-        console.log("[RequestService] Payload validation passed:", validatedPayload.type)
-      } catch (error: any) {
-        console.error("[RequestService] Payload validation failed:", error)
-        throw new Error(`Invalid request payload: ${error.message}`)
-      }
-    }
-
-    return this.createRequests({
-      submitter_id: data.submitter_id,
-      provider_id: data.provider_id || null,
+  async create(payload: any) {
+    // Validate the payload
+    const validatedPayload = validateRequestPayload(payload)
+    
+    // Create the request with validated payload
+    const request = await this.Request.create({
       payload: validatedPayload,
-      notes: data.notes || null,
       status: RequestStatus.PENDING,
     })
+    
+    return request
   }
 
   /**
-   * Get requests made by a specific submitter (customer)
+   * List requests with optional filters
    */
-  async getSubmitterRequests(submitterId: string) {
-    return this.listRequests({
-      submitter_id: submitterId,
+  async list(filters: any = {}) {
+    const requests = await this.Request.list(filters)
+    return requests
+  }
+
+  /**
+   * Update a request
+   */
+  async update(id: string, updateData: any) {
+    const request = await this.Request.update(id, updateData)
+    return request
+  }
+
+  /**
+   * Get a request by ID
+   */
+  async getById(id: string) {
+    const request = await this.Request.findById(id)
+    return request
+  }
+
+  /**
+   * Delete a request
+   */
+  async delete(id: string) {
+    const request = await this.Request.delete(id)
+    return request
+  }
+
+  /**
+   * Accept a request
+   */
+  async accept(id: string) {
+    const request = await this.Request.update(id, {
+      status: RequestStatus.ACCEPTED
     })
+    return request
   }
 
   /**
-   * Get requests assigned to a specific provider (vendor)
+   * Reject a request
    */
-  async getProviderRequests(providerId: string) {
-    return this.listRequests({
-      provider_id: providerId,
+  async reject(id: string) {
+    const request = await this.Request.update(id, {
+      status: RequestStatus.REJECTED
     })
+    return request
   }
 
   /**
-   * Update request status
+   * Get requests by user ID
    */
-  async updateRequestStatus(requestId: string, status: RequestStatus) {
-    return this.updateRequests(
-      { id: requestId },
-      { status }
-    )
+  async findByUserId(userId: string) {
+    const requests = await this.Request.find({
+      where: { userId }
+    })
+    return requests
   }
 
   /**
-   * Accept a request (vendor action)
+   * Get requests by status
    */
-  async acceptRequest(requestId: string) {
-    return this.updateRequestStatus(requestId, RequestStatus.ACCEPTED)
+  async findByStatus(status: string) {
+    const requests = await this.Request.find({
+      where: { status }
+    })
+    return requests
   }
 
   /**
-   * Reject a request (vendor action)
+   * Get requests by type
    */
-  async rejectRequest(requestId: string) {
-    return this.updateRequestStatus(requestId, RequestStatus.REJECTED)
+  async findByType(type: string) {
+    const requests = await this.Request.find({
+      where: { type }
+    })
+    return requests
   }
 
   /**
-   * Complete a request
+   * Get all requests with pagination
    */
-  async completeRequest(requestId: string) {
-    return this.updateRequestStatus(requestId, RequestStatus.COMPLETED)
-  }
-
-  /**
-   * Cancel a request (submitter action)
-   */
-  async cancelRequest(requestId: string) {
-    return this.updateRequestStatus(requestId, RequestStatus.CANCELLED)
+  async listWithPagination(limit: number = 50, offset: number = 0) {
+    const requests = await this.Request.find({
+      skip: offset,
+      take: limit
+    })
+    return requests
   }
 }
 
-export default RequestModuleService
+export default RequestModuleService;
 

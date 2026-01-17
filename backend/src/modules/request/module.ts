@@ -6,4 +6,3 @@ export const REQUEST_MODULE = "requestModuleService"
 export default Module(REQUEST_MODULE, {
   service: RequestModuleService,
 })
-
