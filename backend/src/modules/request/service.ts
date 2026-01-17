@@ -9,7 +9,7 @@ import { validateRequestPayload } from "./validators"
  * Supports mutual-aid marketplace interactions between customers and vendors.
  */
 class RequestModuleService extends MedusaService({
-  Request,
+  model: Request,
 }) {
   /**
    * Create a new request from a customer to a provider
@@ -110,3 +110,4 @@ class RequestModuleService extends MedusaService({
 }
 
 export default RequestModuleService
+
