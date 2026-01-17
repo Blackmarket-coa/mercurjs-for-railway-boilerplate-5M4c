@@ -31,15 +31,13 @@ module.exports = defineConfig({
     http: {
       storeCors: getStoreCors(),
       adminCors: process.env.ADMIN_CORS!,
-      // @ts-expect-error: vendorCors is not a valid config
-      vendorCors: process.env.VENDOR_CORS!,
       authCors: process.env.AUTH_CORS!,
       jwtSecret: process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' ? (() => { throw new Error('JWT_SECRET is required in production') })() : 'dev-only-secret-change-in-prod'),
       cookieSecret: process.env.COOKIE_SECRET || (process.env.NODE_ENV === 'production' ? (() => { throw new Error('COOKIE_SECRET is required in production') })() : 'dev-only-secret-change-in-prod'),
     },
   },
   admin: {
-    disable: true,
+    disabled: true,
   },
   plugins: [
     { resolve: '@mercurjs/b2c-core', options: {} },
