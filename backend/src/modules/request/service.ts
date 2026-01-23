@@ -1,84 +1,93 @@
 import { MedusaService } from "@medusajs/framework/utils"
 import Request, { RequestStatus } from "./models/request"
-import { validateRequestPayload } from "./validators"
 
+/**
+ * RequestModuleService
+ *
+ * Provides CRUD operations for the Request module.
+ * Extends MedusaService which provides:
+ * - createRequests(data)
+ * - listRequests(filters, config)
+ * - updateRequests(selector, data)
+ * - deleteRequests(ids)
+ * - retrieveRequest(id, config)
+ */
 class RequestModuleService extends MedusaService({
   Request,
 }) {
   /**
-   * Create a new request
+   * Create a single request (convenience wrapper)
    */
-  async create(payload: any) {
-    // Validate the payload
-    const validatedPayload = validateRequestPayload(payload)
-    
-    // Create the request with validated payload
-    const request = await this.Request.create({
-      payload: validatedPayload,
+  async createRequest(data: {
+    submitter_id?: string
+    requester_id?: string
+    provider_id?: string
+    payload?: Record<string, unknown>
+    notes?: string
+  }) {
+    // Support both submitter_id and requester_id for backwards compatibility
+    const submitterId = data.submitter_id || data.requester_id
+
+    const [request] = await this.createRequests([{
+      submitter_id: submitterId,
+      provider_id: data.provider_id,
       status: RequestStatus.PENDING,
-    })
-    
+      payload: data.payload || {},
+      notes: data.notes,
+    }])
+
     return request
   }
 
   /**
-   * List requests with optional filters
+   * Accept a request (update status to ACCEPTED)
    */
-  async list(filters: any = {}) {
-    const requests = await this.Request.list(filters)
+  async acceptRequest(id: string) {
+    const [request] = await this.updateRequests(
+      { id },
+      { status: RequestStatus.ACCEPTED }
+    )
+    return request
+  }
+
+  /**
+   * Reject a request (update status to REJECTED)
+   */
+  async rejectRequest(id: string) {
+    const [request] = await this.updateRequests(
+      { id },
+      { status: RequestStatus.REJECTED }
+    )
+    return request
+  }
+
+  /**
+   * Cancel a request (update status to CANCELLED)
+   */
+  async cancelRequest(id: string) {
+    const [request] = await this.updateRequests(
+      { id },
+      { status: RequestStatus.CANCELLED }
+    )
+    return request
+  }
+
+  /**
+   * Get requests by requester/submitter ID
+   */
+  async getRequesterRequests(requesterId: string) {
+    const requests = await this.listRequests({
+      submitter_id: requesterId,
+    })
     return requests
   }
 
   /**
-   * Update a request
+   * Get requests by provider ID
    */
-  async update(id: string, updateData: any) {
-    const request = await this.Request.update(id, updateData)
-    return request
-  }
-
-  /**
-   * Get a request by ID
-   */
-  async getById(id: string) {
-    const request = await this.Request.findById(id)
-    return request
-  }
-
-  /**
-   * Delete a request
-   */
-  async delete(id: string) {
-    const request = await this.Request.delete(id)
-    return request
-  }
-
-  /**
-   * Accept a request
-   */
-  async accept(id: string) {
-    const request = await this.Request.update(id, {
-      status: RequestStatus.ACCEPTED
-    })
-    return request
-  }
-
-  /**
-   * Reject a request
-   */
-  async reject(id: string) {
-    const request = await this.Request.update(id, {
-      status: RequestStatus.REJECTED
-    })
-    return request
-  }
-
-  /**
-   * Get requests by user ID
-   */
-  async findByUserId(userId: string) {
-    const requests = await this.Request.find({
-      where: { userId }
+  async getProviderRequests(providerId: string) {
+    const requests = await this.listRequests({
+      provider_id: providerId,
     })
     return requests
   }
@@ -86,34 +95,12 @@ class RequestModuleService extends MedusaService({
   /**
    * Get requests by status
    */
-  async findByStatus(status: string) {
-    const requests = await this.Request.find({
-      where: { status }
-    })
-    return requests
-  }
-
-  /**
-   * Get requests by type
-   */
-  async findByType(type: string) {
-    const requests = await this.Request.find({
-      where: { type }
-    })
-    return requests
-  }
-
-  /**
-   * Get all requests with pagination
-   */
-  async listWithPagination(limit: number = 50, offset: number = 0) {
-    const requests = await this.Request.find({
-      skip: offset,
-      take: limit
+  async getRequestsByStatus(status: RequestStatus) {
+    const requests = await this.listRequests({
+      status,
     })
     return requests
   }
 }
 
-export default RequestModuleService;
-
+export default RequestModuleService

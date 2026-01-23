@@ -37,7 +37,7 @@ module.exports = defineConfig({
     },
   },
   admin: {
-    disabled: true,
+    disable: true,
   },
   plugins: [
     { resolve: '@mercurjs/b2c-core', options: {} },
