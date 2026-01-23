@@ -41,7 +41,7 @@ export const GET = async (
     entity: "customer_group",
     fields,
     filters: {
-      seller_id: id,
+      seller: { id },
     },
     pagination: {
       skip: req.query.offset ? Number(req.query.offset) : 0,

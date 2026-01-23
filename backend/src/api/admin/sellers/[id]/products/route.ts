@@ -41,7 +41,7 @@ export const GET = async (
     entity: "product",
     fields,
     filters: {
-      seller_id: id,
+      seller: { id },
     },
     pagination: {
       skip: req.query.offset ? Number(req.query.offset) : 0,
