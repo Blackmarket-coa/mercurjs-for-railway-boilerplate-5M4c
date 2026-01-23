@@ -84,6 +84,62 @@ export interface VendorSeller {
   country_code?: string | null;
   tax_id?: string | null;
   members?: VendorMember[];
+  // Extended fields from backend links
+  seller_metadata?: SellerMetadata | null;
+  producer?: ProducerInfo | null;
+}
+
+export interface SellerMetadata {
+  id: string;
+  seller_id: string;
+  vendor_type: string;
+  business_registration_number?: string | null;
+  tax_classification?: string | null;
+  social_links?: Record<string, string> | null;
+  storefront_links?: Record<string, string> | null;
+  website_url?: string | null;
+  farm_practices?: Record<string, any> | null;
+  certifications?: Record<string, any>[] | null;
+  growing_region?: string | null;
+  cuisine_types?: string[] | null;
+  service_types?: string[] | null;
+  featured: boolean;
+  verified: boolean;
+  rating?: number | null;
+  review_count?: number;
+  metadata?: Record<string, any> | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProducerInfo {
+  id: string;
+  seller_id: string;
+  name: string;
+  handle: string;
+  description?: string | null;
+  region?: string | null;
+  state?: string | null;
+  country_code?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  farm_size_acres?: number | null;
+  year_established?: number | null;
+  practices?: string[] | null;
+  certifications?: any[] | null;
+  story?: string | null;
+  photo?: string | null;
+  cover_image?: string | null;
+  gallery?: string[] | null;
+  website?: string | null;
+  social_links?: Record<string, string> | null;
+  public_profile_enabled: boolean;
+  featured: boolean;
+  verified: boolean;
+  verified_at?: string | null;
+  metadata?: Record<string, any> | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface VendorMember {

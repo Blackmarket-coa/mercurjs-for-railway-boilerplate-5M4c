@@ -46,7 +46,6 @@ export const SellersList = () => {
 
   const { sellers, count, isLoading } = useSellers(
     {
-      fields: "id,email,name,created_at,store_status",
       ...searchParams,
     },
     {
