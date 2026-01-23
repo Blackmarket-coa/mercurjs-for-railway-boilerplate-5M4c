@@ -1,3 +1,5 @@
+"use client"
+
 import { ProductPageAccordion } from "@/components/molecules"
 import DOMPurify from "dompurify"
 
