@@ -48,7 +48,7 @@ function groupItemsBySeller(cart: HttpTypes.StoreCart) {
             name: "Fleek",
             id: "fleek",
             photo: "/Logo.svg",
-            created_at: new Date(),
+            created_at: "2024-01-01T00:00:00.000Z", // Static date to prevent hydration mismatch
           },
           items: [],
         }
