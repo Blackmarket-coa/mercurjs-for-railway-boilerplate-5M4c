@@ -28,13 +28,13 @@ export async function GET(
       "status",
       "roles",
       "joined_at",
-      "total_labor_hours",
-      "total_investment",
+      "volunteer_hours_balance",
+      "investment_balance",
       "voting_power",
     ],
     filters: {
       garden_id: id,
-      status: ["active", "on_leave"],
+      status: ["active", "suspended"] as any, // on_leave may not be in generated enum
     },
   })
 

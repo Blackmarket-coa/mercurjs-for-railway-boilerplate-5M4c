@@ -17,9 +17,9 @@
   "dependencies": {
     "@headlessui/react": "^2.2.1",
     "@hookform/resolvers": "^3.10.0",
-    "@medusajs/js-sdk": "^2.2.0",
-    "@medusajs/types": "^2.11.3",
-    "@medusajs/ui": "^4.0.7",
+    "@medusajs/js-sdk": "^2.12.5",
+    "@medusajs/types": "^2.12.5",
+    "@medusajs/ui": "^4.0.28",
     "@stripe/react-stripe-js": "^3.7.0",
     "@stripe/stripe-js": "^7.1.0",
     "@types/js-cookie": "^3.0.6",

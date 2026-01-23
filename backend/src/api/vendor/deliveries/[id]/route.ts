@@ -41,7 +41,7 @@ export async function GET(
       entity: "seller",
       filters: { id: sellerId },
       fields: ["id", "producer.*"],
-    })
+    }) as { data: Array<{ id: string; producer?: { id: string } | null }> }
 
     if (!sellerData.length || !sellerData[0].producer) {
       res.status(404).json({ message: "No producer profile linked to this seller" })
@@ -96,7 +96,7 @@ export async function POST(
       entity: "seller",
       filters: { id: sellerId },
       fields: ["id", "producer.*"],
-    })
+    }) as { data: Array<{ id: string; producer?: { id: string } | null }> }
 
     if (!sellerData.length || !sellerData[0].producer) {
       res.status(404).json({ message: "No producer profile linked to this seller" })

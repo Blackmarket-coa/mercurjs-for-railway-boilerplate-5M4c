@@ -51,7 +51,7 @@ export async function POST(
   res: MedusaResponse
 ) {
   const { id } = req.params
-  const volunteerService = req.scope.resolve(VOLUNTEER_MODULE) as VolunteerServiceType
+  const volunteerService = req.scope.resolve(VOLUNTEER_MODULE) as unknown as VolunteerServiceType
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { customer_id, membership_id, notes } = req.body as Record<string, unknown>

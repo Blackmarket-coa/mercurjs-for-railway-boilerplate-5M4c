@@ -79,7 +79,7 @@ export async function POST(
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const { data: [garden] } = await query.graph({
     entity: "garden",
-    fields: ["id", "total_plots", "available_plots"],
+    fields: ["id", "total_plots"],
     filters: { id },
   })
 
@@ -87,7 +87,6 @@ export async function POST(
     await gardenService.updateGardens({
       id,
       total_plots: ((garden.total_plots as number) || 0) + 1,
-      available_plots: ((garden.available_plots as number) || 0) + 1,
     })
   }
 

@@ -72,7 +72,7 @@ export async function POST(
   // Get the harvest
   const { data: [harvest] } = await query.graph({
     entity: "garden_harvest",
-    fields: ["id", "garden_id", "quantity", "estimated_value"],
+    fields: ["id", "garden_id", "total_quantity", "total_estimated_value"],
     filters: { id },
   })
 
@@ -103,8 +103,8 @@ export async function POST(
         { pool_type: "donation", percentage: 5 },
       ]
 
-  const quantity = harvest.quantity as number
-  const estimatedValue = harvest.estimated_value as number
+  const quantity = harvest.total_quantity as number
+  const estimatedValue = harvest.total_estimated_value as number
 
   // Create allocations
   const allocations = await Promise.all(

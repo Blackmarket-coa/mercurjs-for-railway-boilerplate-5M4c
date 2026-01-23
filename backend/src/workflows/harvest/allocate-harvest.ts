@@ -11,7 +11,7 @@ const HARVEST_MODULE = "harvestModuleService"
 interface HarvestServiceType {
   createHarvestAllocations: (data: Record<string, unknown>) => Promise<{ id: string }>
   deleteHarvestAllocations: (id: string) => Promise<void>
-  updateHarvests: (data: Record<string, unknown>) => Promise<{ id: string }>
+  updateGardenHarvests: (data: Record<string, unknown>) => Promise<{ id: string }>
 }
 
 type PoolType = "investor" | "volunteer" | "plot_holder" | "communal" | "open_market" | "donation"
@@ -52,7 +52,7 @@ const allocateHarvestStep = createStep(
     // Get harvest
     const { data: [harvest] } = await query.graph({
       entity: "garden_harvest",
-      fields: ["id", "garden_id", "quantity", "estimated_value", "allocation_status"],
+      fields: ["id", "garden_id", "total_quantity", "total_estimated_value", "allocation_status"],
       filters: { id: input.harvest_id },
     })
 
@@ -84,8 +84,8 @@ const allocateHarvestStep = createStep(
       { pool_type: "donation", percentage: 5 },
     ]
 
-    const harvestQuantity = harvest.quantity as number
-    const estimatedValue = harvest.estimated_value as number
+    const harvestQuantity = harvest.total_quantity as number
+    const estimatedValue = harvest.total_estimated_value as number
 
     // Create allocations
     const allocationIds: string[] = []
@@ -113,7 +113,7 @@ const allocateHarvestStep = createStep(
     }
 
     // Update harvest status
-    await harvestService.updateHarvests({
+    await harvestService.updateGardenHarvests({
       id: input.harvest_id,
       allocation_status: "allocated",
     })
@@ -135,7 +135,7 @@ const allocateHarvestStep = createStep(
     }
     
     // Revert harvest status
-    await harvestService.updateHarvests({
+    await harvestService.updateGardenHarvests({
       id: context.harvestId,
       allocation_status: "pending",
     })

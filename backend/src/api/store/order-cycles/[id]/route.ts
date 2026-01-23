@@ -69,8 +69,10 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
         
         // Calculate effective price (cycle override or variant price)
         let effectivePrice = cp.override_price
-        if (!effectivePrice && variant?.prices?.length > 0) {
-          effectivePrice = (variant.prices as Array<{ amount: number }>)[0].amount
+        // In Medusa v2, prices are accessed via calculated_price, not prices array
+        const variantWithPrices = variant as typeof variant & { prices?: Array<{ amount: number }> }
+        if (!effectivePrice && variantWithPrices?.prices && variantWithPrices.prices.length > 0) {
+          effectivePrice = variantWithPrices.prices[0].amount
         }
         
         // Calculate remaining quantity

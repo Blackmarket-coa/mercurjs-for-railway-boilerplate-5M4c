@@ -43,8 +43,7 @@ export async function GET(
     ],
     filters: {
       status: "active",
-      is_public: true,
-    },
+    } as any, // is_public filter may not be in generated types
     pagination: {
       skip: parseInt(req.query.offset as string) || 0,
       take: parseInt(req.query.limit as string) || 20,

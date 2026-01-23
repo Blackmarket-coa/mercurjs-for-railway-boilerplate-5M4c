@@ -90,14 +90,14 @@ const logVolunteerHoursStep = createStep(
     // Update membership labor hours (will be finalized upon verification)
     const { data: [membership] } = await query.graph({
       entity: "garden_membership",
-      fields: ["id", "total_labor_hours"],
+      fields: ["id", "volunteer_hours_balance"],
       filters: { id: input.membership_id },
     })
 
     if (membership) {
       await gardenService.updateGardenMemberships({
         id: input.membership_id,
-        total_labor_hours: ((membership.total_labor_hours as number) || 0) + input.hours,
+        volunteer_hours_balance: ((membership.volunteer_hours_balance as number) || 0) + input.hours,
       })
     }
 
@@ -125,14 +125,14 @@ const logVolunteerHoursStep = createStep(
     // Revert membership hours
     const { data: [membership] } = await query.graph({
       entity: "garden_membership",
-      fields: ["id", "total_labor_hours"],
+      fields: ["id", "volunteer_hours_balance"],
       filters: { id: context.membershipId },
     })
 
     if (membership) {
       await gardenService.updateGardenMemberships({
         id: context.membershipId,
-        total_labor_hours: Math.max(0, ((membership.total_labor_hours as number) || 0) - context.hours),
+        volunteer_hours_balance: Math.max(0, ((membership.volunteer_hours_balance as number) || 0) - context.hours),
       })
     }
   }

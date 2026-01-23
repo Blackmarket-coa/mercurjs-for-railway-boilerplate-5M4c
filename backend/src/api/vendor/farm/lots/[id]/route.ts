@@ -84,7 +84,7 @@ export async function GET(
       return res.status(404).json({ message: "Lot not found" })
     }
 
-    const lot = lots[0]
+    const lot = lots[0] as typeof lots[0] & { harvest?: { producer_id: string } | null }
 
     // Verify the lot belongs to this producer's harvest
     if (lot.harvest?.producer_id !== producerId) {

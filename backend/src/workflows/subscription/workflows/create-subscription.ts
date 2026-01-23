@@ -52,7 +52,7 @@ export const createSubscriptionWorkflow = createWorkflow(
         "items.*",
         "items.variant.*",
         "items.variant.product.*",
-        "items.variant.product.seller_id",
+        "items.variant.product.seller.*",
       ],
       filters: {
         id
@@ -76,9 +76,9 @@ export const createSubscriptionWorkflow = createWorkflow(
       (data) => data.existingLinks.length === 0
     )
     .then(() => {
-      // Extract seller_id and product info from first item
-      const firstItem = orders[0].items?.[0]
-      const sellerId = firstItem?.variant?.product?.seller_id
+      // Extract seller and product info from first item
+      const firstItem = orders[0].items?.[0] as any
+      const sellerId = firstItem?.variant?.product?.seller?.id
       const productId = firstItem?.variant?.product?.id
       const variantId = firstItem?.variant?.id
       const quantity = firstItem?.quantity
