@@ -43,26 +43,33 @@ export const useSignUpWithEmailPass = (
         email: payload.email.toLowerCase().trim(),
       })
     },
-
-    onSuccess: async (_, variables) => {
+    // Spread options first so internal onSuccess isn't overwritten
+    ...options,
+    onSuccess: async (data, variables, context) => {
       const normalizedEmail = variables.email.toLowerCase().trim()
 
       // MercurJS vendor endpoint ONLY accepts name + member
-      await fetchQuery("/vendor/sellers", {
-        method: "POST",
-        body: {
-          name: variables.name,
-          member: {
+      // Wrap in try/catch to prevent uncaught fetch errors
+      try {
+        await fetchQuery("/vendor/sellers", {
+          method: "POST",
+          body: {
             name: variables.name,
-            email: normalizedEmail,
+            member: {
+              name: variables.name,
+              email: normalizedEmail,
+            },
           },
-        },
-      })
+        })
+      } catch (error) {
+        // Log the error but don't block registration success
+        // The seller profile can be created later if this fails
+        console.error("Failed to create seller profile:", error)
+      }
 
-      options?.onSuccess?.(_, variables, undefined as any)
+      // Call user's onSuccess callback if provided
+      options?.onSuccess?.(data, variables, context)
     },
-
-    ...options,
   })
 }
 
