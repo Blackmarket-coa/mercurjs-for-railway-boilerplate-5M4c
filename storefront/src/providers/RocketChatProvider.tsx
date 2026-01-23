@@ -28,15 +28,14 @@ interface RocketChatProviderProps {
 
 export const RocketChatProvider = ({ children }: RocketChatProviderProps) => {
   const [unreadCount, setUnreadCount] = useState(0)
-  
-  const rocketChatUrl = typeof window !== "undefined" 
-    ? (process.env.NEXT_PUBLIC_ROCKETCHAT_URL || null)
-    : null
+
+  // NEXT_PUBLIC_ env vars are available on both server and client
+  const rocketChatUrl = process.env.NEXT_PUBLIC_ROCKETCHAT_URL || null
   const isConfigured = Boolean(rocketChatUrl)
 
   // Listen for messages from Rocket.Chat iframe for unread counts
   useEffect(() => {
-    if (typeof window === "undefined") return
+    if (!rocketChatUrl) return
 
     const handleMessage = (event: MessageEvent) => {
       // Verify the origin matches our Rocket.Chat URL

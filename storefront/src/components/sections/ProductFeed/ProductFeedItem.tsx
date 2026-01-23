@@ -7,6 +7,7 @@ import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedL
 import { getProductPrice } from "@/lib/helpers/get-product-price"
 import clsx from "clsx"
 import { FeedLayout } from "./ProductFeed"
+import { useState, useEffect } from "react"
 
 interface ProductFeedItemProps {
   product: HttpTypes.StoreProduct & { seller?: SellerProps }
@@ -22,22 +23,34 @@ export const ProductFeedItem = ({
   const { cheapestPrice } = getProductPrice({ product })
   const productName = product.title || "Product"
   const seller = product.seller
+  const [relativeTime, setRelativeTime] = useState<string>("")
 
-  // Format relative time
-  const getRelativeTime = (dateString?: string): string => {
-    if (!dateString) return ""
-    const date = new Date(dateString)
+  // Calculate relative time on client side only to prevent hydration mismatch
+  useEffect(() => {
+    if (!product.created_at) {
+      setRelativeTime("")
+      return
+    }
+
+    const date = new Date(product.created_at)
     const now = new Date()
     const diffMs = now.getTime() - date.getTime()
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
 
-    if (diffDays === 0) return "Today"
-    if (diffDays === 1) return "Yesterday"
-    if (diffDays < 7) return `${diffDays} days ago`
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`
-    if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`
-    return `${Math.floor(diffDays / 365)} years ago`
-  }
+    if (diffDays === 0) {
+      setRelativeTime("Today")
+    } else if (diffDays === 1) {
+      setRelativeTime("Yesterday")
+    } else if (diffDays < 7) {
+      setRelativeTime(`${diffDays} days ago`)
+    } else if (diffDays < 30) {
+      setRelativeTime(`${Math.floor(diffDays / 7)} weeks ago`)
+    } else if (diffDays < 365) {
+      setRelativeTime(`${Math.floor(diffDays / 30)} months ago`)
+    } else {
+      setRelativeTime(`${Math.floor(diffDays / 365)} years ago`)
+    }
+  }, [product.created_at])
 
   // Grid Layout
   if (layout === "grid" || layout === "masonry") {
@@ -140,7 +153,7 @@ export const ProductFeedItem = ({
             </div>
             {product.created_at && (
               <span className="text-xs text-gray-400">
-                {getRelativeTime(product.created_at)}
+                {relativeTime}
               </span>
             )}
           </div>
@@ -229,7 +242,7 @@ export const ProductFeedItem = ({
               )}
               {product.created_at && (
                 <span className="text-xs text-gray-400">
-                  {getRelativeTime(product.created_at)}
+                  {relativeTime}
                 </span>
               )}
             </LocalizedClientLink>
