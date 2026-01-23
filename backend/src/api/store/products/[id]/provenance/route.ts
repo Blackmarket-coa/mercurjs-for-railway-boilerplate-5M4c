@@ -147,7 +147,29 @@ export async function GET(
     } | null = null
 
     if (availabilityLinks && availabilityLinks.length > 0) {
-      const link = availabilityLinks[0]
+      // Type assertion for linked data
+      const link = availabilityLinks[0] as typeof availabilityLinks[0] & {
+        lot?: {
+          id: string
+          lot_number: string
+          grade: string
+          batch_date: string
+          best_by_date: string
+          harvest?: {
+            id: string
+            crop_name: string
+            variety: string
+            harvest_date: string
+            growing_method: string
+            farmer_notes: string
+            taste_notes: string
+            season: string
+            year: string
+            photo: string
+          } | null
+        } | null
+      }
+
       lot = link.lot ? {
         id: link.lot.id,
         lot_number: link.lot.lot_number,

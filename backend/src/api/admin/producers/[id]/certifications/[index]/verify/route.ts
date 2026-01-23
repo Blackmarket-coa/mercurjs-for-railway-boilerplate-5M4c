@@ -46,7 +46,7 @@ export async function POST(
       return
     }
 
-    const certifications = (producer.certifications as Certification[]) || []
+    const certifications = (producer.certifications as unknown as Certification[]) || []
     
     if (certIndex < 0 || certIndex >= certifications.length) {
       res.status(400).json({

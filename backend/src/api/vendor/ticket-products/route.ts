@@ -25,7 +25,7 @@ export async function GET(
         fields: ["id", "product_id", "venue_id", "dates", "venue.*"],
         filters: {
           seller_id: sellerId
-        },
+        } as any, // seller_id may not be in the generated types yet
       })
       ticketProducts = result.data
       metadata = result.metadata

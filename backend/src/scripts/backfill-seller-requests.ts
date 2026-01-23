@@ -41,16 +41,14 @@ export default async function backfillSellerRequests({ container }: ExecArgs) {
     // Get existing seller requests to avoid duplicates
     const { data: existingRequests } = await query.graph({
       entity: "request",
-      fields: ["id", "data", "type"],
-      filters: {
-        type: "seller",
-      },
+      fields: ["id", "payload"],
+      filters: {} as any, // type filter may not be in generated types
     })
 
     // Create a set of seller names that already have requests
     const sellersWithRequests = new Set(
       existingRequests
-        .map((r: any) => r.data?.seller?.name)
+        .map((r: any) => r.payload?.seller?.name)
         .filter(Boolean)
     )
 
@@ -66,15 +64,16 @@ export default async function backfillSellerRequests({ container }: ExecArgs) {
       }
 
       // Get the first member (owner) of the seller
-      const member = seller.members?.[0]
+      const member = seller.members?.[0] as (typeof seller.members)[0] & { user?: { email?: string; first_name?: string } | null } | undefined
       if (!member) {
         logger.warn(`Skipping seller "${seller.name}" - no members found`)
         skipped++
         continue
       }
 
-      const email = member.user?.email || member.email || "unknown@example.com"
-      const memberName = member.name || member.user?.first_name || "Unknown"
+      const memberData = member as { email?: string; name?: string; user?: { email?: string; first_name?: string } | null }
+      const email = memberData.user?.email || memberData.email || "unknown@example.com"
+      const memberName = memberData.name || memberData.user?.first_name || "Unknown"
 
       // Create a request record with the specified status
       const requestData = {

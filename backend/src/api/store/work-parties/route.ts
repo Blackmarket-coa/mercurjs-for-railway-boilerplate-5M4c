@@ -65,7 +65,7 @@ export async function POST(
   req: MedusaRequest,
   res: MedusaResponse
 ) {
-  const volunteerService = req.scope.resolve(VOLUNTEER_MODULE) as VolunteerServiceType
+  const volunteerService = req.scope.resolve(VOLUNTEER_MODULE) as unknown as VolunteerServiceType
 
   const {
     garden_id,

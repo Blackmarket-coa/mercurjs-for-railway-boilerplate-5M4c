@@ -31,20 +31,20 @@ importers:
         specifier: 3.4.2
         version: 3.4.2(react-hook-form@7.49.1(react@18.3.1))
       '@medusajs/admin-sdk':
-        specifier: ^2.12.3
-        version: 2.12.3
+        specifier: 2.12.5
+        version: 2.12.5
       '@medusajs/admin-shared':
-        specifier: ^2.5.0
-        version: 2.11.3
+        specifier: 2.12.5
+        version: 2.12.5
       '@medusajs/icons':
-        specifier: ^2.5.0
-        version: 2.11.3(react@18.3.1)
+        specifier: 2.12.5
+        version: 2.12.5(react@18.3.1)
       '@medusajs/js-sdk':
-        specifier: ^2.5.0
-        version: 2.11.3
+        specifier: 2.12.5
+        version: 2.12.5
       '@medusajs/ui':
-        specifier: ~4.0.5
-        version: 4.0.27(@types/react-dom@18.3.7(@types/react@18.3.26))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.2.2)
+        specifier: 4.0.28
+        version: 4.0.28(@types/react-dom@18.3.7(@types/react@18.3.26))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.2.2)
       '@tanstack/react-query':
         specifier: 5.64.2
         version: 5.64.2(react@18.3.1)
@@ -131,14 +131,14 @@ importers:
         version: 3.22.4
     devDependencies:
       '@medusajs/admin-vite-plugin':
-        specifier: ^2.5.0
-        version: 2.11.3(picomatch@4.0.3)(vite@5.4.21(@types/node@20.19.25))
+        specifier: 2.12.5
+        version: 2.12.5(picomatch@4.0.3)(vite@5.4.21(@types/node@20.19.25))
       '@medusajs/types':
-        specifier: ^2.5.0
-        version: 2.11.3(vite@5.4.21(@types/node@20.19.25))
+        specifier: 2.12.5
+        version: 2.12.5(vite@5.4.21(@types/node@20.19.25))
       '@medusajs/ui-preset':
-        specifier: ^2.5.0
-        version: 2.11.3(tailwindcss@3.4.18)
+        specifier: 2.12.5
+        version: 2.12.5(tailwindcss@3.4.18)
       '@types/lodash':
         specifier: ^4.17.20
         version: 4.17.20
@@ -706,48 +706,50 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@medusajs/admin-sdk@2.12.3':
-    resolution: {integrity: sha512-8aKf3tm8QCr79OvvX1x+NAw+RLUI/P3YbPnl5yFE/tSRC2/rXADE9ZfPWfYdztNPUitEBDZ0D7Y4Q10CseZfjA==}
+  '@medusajs/admin-sdk@2.12.5':
+    resolution: {integrity: sha512-KxNN/Iuu+o8TgWZHbR4RWxBNZF9bON5UWfBd2VDHvU5pdWewXuizroQSLL+QF+PCWmpxFijQy0v128XzgyHXZg==}
 
-  '@medusajs/admin-shared@2.11.3':
-    resolution: {integrity: sha512-svzguDkuo/k0iG7ce05xkPTtC9+hmSqTWl6cfx/4q0vzpx5RGaVzGvWMcSEHavNnGWj7WhkAHBwvNdOqnN3ETw==}
+  '@medusajs/admin-shared@2.12.5':
+    resolution: {integrity: sha512-LKO7QhMmCsvP0dGibBBjNxjwOhWnBTFYfb4y5zsejzzvrrcFhEn7dn9gg4L5XkqtgDRIuiDkEi45ng3xWPPIpQ==}
 
-  '@medusajs/admin-shared@2.12.3':
-    resolution: {integrity: sha512-R5Jw09WIc5hlvyjt3RIWkseMz/tybR1zRx0PGH3SBf46Njs51tNI8jAcNoLK8e/suI1spowJJjE0pRaRY2kvCw==}
-
-  '@medusajs/admin-vite-plugin@2.11.3':
-    resolution: {integrity: sha512-bZ57bPJT9BP+AreAWqp/yQOWMFgwUasIZd5x5GoYh7FZWPNKiH7CfT/Rc3bLPW/epNfHt911n/V5wmo6F2OEfA==}
+  '@medusajs/admin-vite-plugin@2.12.5':
+    resolution: {integrity: sha512-gbt04lDMvclzBR52ugqid9BfI3okw2dg85Swj37EKvxhhV7788/no4MiQtBrsT1xcVms54V4HIwZ4L5jE9W5Yg==}
     peerDependencies:
-      vite: ^5.4.14
+      vite: ^5.4.21
 
-  '@medusajs/icons@2.11.3':
-    resolution: {integrity: sha512-WV+ZsjZiY3jQVYejPuyC09MbAb15eisQ+bY63GjGvYs4rirjIPxSH2Y6XADWDYQTdKoj3Ffy7c04hL9FgBQV6w==}
+  '@medusajs/icons@2.12.0':
+    resolution: {integrity: sha512-M+mKiTxSxtHOuy0VPgxIuB7y+V23ahXdhXcwpba5F+aG9N7rQ3Tty8KKuXv7M3MLbC7P9BH08E9Lm82j19yg/w==}
     peerDependencies:
       react: ^18.3.1
 
-  '@medusajs/js-sdk@2.11.3':
-    resolution: {integrity: sha512-AbIwi5BhIqmD4VS+T5WhA/VvMj2W7iuHVMV7TgPU+nIyioOCiz++M1ky+YxUthgzyf0TgwGbHKRVjawB9NAO1g==}
+  '@medusajs/icons@2.12.5':
+    resolution: {integrity: sha512-aOhhT2xcIHVYBMGaNjHBCekP592xyM7N0BM9LVWohc9dk3Z5df6tHBn9D8dW7wqnvaDh0BIrAVanmaiOHJPqBg==}
+    peerDependencies:
+      react: ^18.3.1
+
+  '@medusajs/js-sdk@2.12.5':
+    resolution: {integrity: sha512-z7h1xxvx4lc1SMqOgihVAbqnZd0Yxq4u/s1JnI24e4kdr9A+lmbtajvpdD6/9gAf9HfL4qNDOJMb4rl8E+x8sQ==}
     engines: {node: '>=20'}
 
-  '@medusajs/types@2.11.3':
-    resolution: {integrity: sha512-vtPvgUAyNqqSZeHeMA5KuYt0h2YIL5xtOKSc0/lwgThtZq2uM7hU85Jj8G80T/DrUvPGqYQHFqeaSzerm97F3g==}
+  '@medusajs/types@2.12.5':
+    resolution: {integrity: sha512-8VyCFX2JQIHQxbHZla+nr4kAXuJB4d0rhrcGHGvx4h0dYcZlcl4DJWfdtn6/2rvEWMQwb5NDCBzH1tfEvj1lyQ==}
     engines: {node: '>=20'}
     peerDependencies:
       ioredis: ^5.4.1
-      vite: ^5.4.14
+      vite: ^5.4.21
     peerDependenciesMeta:
       ioredis:
         optional: true
       vite:
         optional: true
 
-  '@medusajs/ui-preset@2.11.3':
-    resolution: {integrity: sha512-jixQAzy2BsidBfTZHnMvt17xx4kr6jLvbxop4gJA4rZou7eZIYbu7x/77vP+K9/8bVMVIJ6lCCwf+OTRrjx6Fw==}
+  '@medusajs/ui-preset@2.12.5':
+    resolution: {integrity: sha512-kcZCJijVoLWqpouEDdEvAmju+nQmal9ee5dbHEM8KeyA7SRnopwOwyjlzRDVhYhAHTFY6C1lGVWebMTwexsMAw==}
     peerDependencies:
       tailwindcss: ^3.4.3
 
-  '@medusajs/ui@4.0.27':
-    resolution: {integrity: sha512-yYc5BwLTLDkfdL6CoIps6hEGR5X3AbdXmG+plKk1YRXXSG4kjMog/92ED0QUz9jxHROa+DWzzWWYw/TcJN+c9Q==}
+  '@medusajs/ui@4.0.28':
+    resolution: {integrity: sha512-8bmO2ajhHm69y0zbY5Flauz/4EsJlmNqILdKnHQXIFrezh3ckwYoaopUYG9xVdm/epTjGcV3IN/090LQBa9ZMw==}
     peerDependencies:
       react: ^18.3.1
       react-dom: ^18.3.1
@@ -3822,7 +3824,7 @@ snapshots:
 
   '@babel/parser@7.25.6':
     dependencies:
-      '@babel/types': 7.25.6
+      '@babel/types': 7.28.5
 
   '@babel/parser@7.28.5':
     dependencies:
@@ -3850,9 +3852,9 @@ snapshots:
     dependencies:
       '@babel/code-frame': 7.27.1
       '@babel/generator': 7.28.5
-      '@babel/parser': 7.25.6
+      '@babel/parser': 7.28.5
       '@babel/template': 7.27.2
-      '@babel/types': 7.25.6
+      '@babel/types': 7.28.5
       debug: 4.4.3
       globals: 11.12.0
     transitivePeerDependencies:
@@ -4150,21 +4152,19 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@medusajs/admin-sdk@2.12.3':
+  '@medusajs/admin-sdk@2.12.5':
     dependencies:
-      '@medusajs/admin-shared': 2.12.3
+      '@medusajs/admin-shared': 2.12.5
       zod: 3.25.76
 
-  '@medusajs/admin-shared@2.11.3': {}
+  '@medusajs/admin-shared@2.12.5': {}
 
-  '@medusajs/admin-shared@2.12.3': {}
-
-  '@medusajs/admin-vite-plugin@2.11.3(picomatch@4.0.3)(vite@5.4.21(@types/node@20.19.25))':
+  '@medusajs/admin-vite-plugin@2.12.5(picomatch@4.0.3)(vite@5.4.21(@types/node@20.19.25))':
     dependencies:
       '@babel/parser': 7.25.6
       '@babel/traverse': 7.25.6
       '@babel/types': 7.25.6
-      '@medusajs/admin-shared': 2.11.3
+      '@medusajs/admin-shared': 2.12.5
       chokidar: 3.6.0
       fdir: 6.1.1(picomatch@4.0.3)
       magic-string: 0.30.5
@@ -4175,33 +4175,37 @@ snapshots:
       - picomatch
       - supports-color
 
-  '@medusajs/icons@2.11.3(react@18.3.1)':
+  '@medusajs/icons@2.12.0(react@18.3.1)':
     dependencies:
       react: 18.3.1
 
-  '@medusajs/js-sdk@2.11.3':
+  '@medusajs/icons@2.12.5(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
+
+  '@medusajs/js-sdk@2.12.5':
     dependencies:
       fetch-event-stream: 0.1.6
       qs: 6.14.1
 
-  '@medusajs/types@2.11.3(vite@5.4.21(@types/node@20.19.25))':
+  '@medusajs/types@2.12.5(vite@5.4.21(@types/node@20.19.25))':
     dependencies:
       bignumber.js: 9.3.1
     optionalDependencies:
       vite: 5.4.21(@types/node@20.19.25)
 
-  '@medusajs/ui-preset@2.11.3(tailwindcss@3.4.18)':
+  '@medusajs/ui-preset@2.12.5(tailwindcss@3.4.18)':
     dependencies:
       '@tailwindcss/forms': 0.5.10(tailwindcss@3.4.18)
       tailwindcss: 3.4.18
       tailwindcss-animate: 1.0.7(tailwindcss@3.4.18)
 
-  '@medusajs/ui@4.0.27(@types/react-dom@18.3.7(@types/react@18.3.26))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.2.2)':
+  '@medusajs/ui@4.0.28(@types/react-dom@18.3.7(@types/react@18.3.26))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.2.2)':
     dependencies:
       '@dnd-kit/core': 6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@dnd-kit/sortable': 8.0.0(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       '@dnd-kit/utilities': 3.2.2(react@18.3.1)
-      '@medusajs/icons': 2.11.3(react@18.3.1)
+      '@medusajs/icons': 2.12.0(react@18.3.1)
       '@radix-ui/react-dialog': 1.1.4(@types/react-dom@18.3.7(@types/react@18.3.26))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@radix-ui/react-dismissable-layer': 1.1.4(@types/react-dom@18.3.7(@types/react@18.3.26))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-table': 8.20.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

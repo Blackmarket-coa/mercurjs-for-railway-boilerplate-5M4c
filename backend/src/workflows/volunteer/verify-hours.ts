@@ -71,7 +71,7 @@ const verifyHoursStep = createStep(
     const logMembershipId = log.membership_id as string
     const { data: [membership] } = await query.graph({
       entity: "garden_membership",
-      fields: ["id", "time_credit_balance", "total_labor_hours"],
+      fields: ["id", "harvest_credits_balance", "volunteer_hours_balance"],
       filters: { id: logMembershipId },
     })
 
@@ -99,7 +99,7 @@ const verifyHoursStep = createStep(
 
       await gardenService.updateGardenMemberships({
         id: logMembershipId,
-        total_labor_hours: Math.max(0, ((membership.total_labor_hours as number) || 0) - logHours),
+        volunteer_hours_balance: Math.max(0, ((membership.volunteer_hours_balance as number) || 0) - logHours),
       })
 
       return new StepResponse({
@@ -140,8 +140,8 @@ const verifyHoursStep = createStep(
       const hoursDiff = finalHours - logHours
       await gardenService.updateGardenMemberships({
         id: logMembershipId,
-        time_credit_balance: ((membership.time_credit_balance as number) || 0) + finalCredits,
-        total_labor_hours: ((membership.total_labor_hours as number) || 0) + hoursDiff,
+        harvest_credits_balance: ((membership.harvest_credits_balance as number) || 0) + finalCredits,
+        volunteer_hours_balance: ((membership.volunteer_hours_balance as number) || 0) + hoursDiff,
       })
 
       return new StepResponse({

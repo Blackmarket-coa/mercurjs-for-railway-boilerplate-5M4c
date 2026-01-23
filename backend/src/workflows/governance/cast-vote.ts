@@ -102,24 +102,27 @@ const validateAndCastVoteStep = createStep(
     // Get membership and garden
     const { data: [membership] } = await query.graph({
       entity: "garden_membership",
-      fields: ["id", "voting_power", "total_labor_hours", "total_investment"],
+      fields: ["id", "voting_power", "volunteer_hours_balance", "investment_balance"],
       filters: { id: input.membership_id },
     })
 
     const { data: [garden] } = await query.graph({
       entity: "garden",
-      fields: ["id", "governance_model", "voting_weights"],
+      fields: ["id", "governance_model", "settings"],
       filters: { id: proposal.garden_id },
     })
+
+    // Extract voting weights from garden settings if available
+    const gardenSettings = garden.settings as { voting_weights?: { labor_weight?: number; investment_weight?: number } } | null
 
     // Calculate voting power
     const voting_power = calculateVotingPower({
       governance_model: garden.governance_model as string,
       base_votes: 1,
-      labor_hours: (membership?.total_labor_hours as number) || 0,
-      investment_amount: (membership?.total_investment as number) || 0,
+      labor_hours: (membership?.volunteer_hours_balance as number) || 0,
+      investment_amount: (membership?.investment_balance as number) || 0,
       role_bonus: 0,
-      weights: garden.voting_weights as { labor_weight?: number; investment_weight?: number } | null,
+      weights: gardenSettings?.voting_weights || null,
     })
 
     // Create vote
@@ -132,8 +135,8 @@ const validateAndCastVoteStep = createStep(
       voting_power,
       power_basis: {
         base: 1,
-        labor_hours: (membership?.total_labor_hours as number) || 0,
-        investment: (membership?.total_investment as number) || 0,
+        labor_hours: (membership?.volunteer_hours_balance as number) || 0,
+        investment: (membership?.investment_balance as number) || 0,
       },
       comment: input.comment,
       comment_visibility: input.comment_visibility || "public",

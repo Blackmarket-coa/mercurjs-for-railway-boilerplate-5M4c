@@ -93,9 +93,10 @@ export const getProductFeedItemsStep = createStep(
           const originalPrice = hasOriginalPrice ? calculatedPrice.original_amount : calculatedPrice.calculated_amount
           const salePrice = hasOriginalPrice ? calculatedPrice.calculated_amount : undefined
 
-          // Check inventory status
+          // Check inventory status (inventory_quantity may be on variant if inventory is linked)
+          const variantWithInventory = variant as typeof variant & { inventory_quantity?: number }
           const stockStatus = !variant.manage_inventory ? "in stock" :
-            (variant.inventory_quantity && variant.inventory_quantity > 0) ? "in stock" : "out of stock"
+            (variantWithInventory.inventory_quantity && variantWithInventory.inventory_quantity > 0) ? "in stock" : "out of stock"
 
           // Get brand from collection or default
           const brand = product.collection?.title || "Coalition Marketplace"

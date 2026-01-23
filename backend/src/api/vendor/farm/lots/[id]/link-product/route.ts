@@ -188,15 +188,15 @@ export async function GET(
     })
 
     // Get product details for each linked product
-    const productIds = [...new Set((windows || []).map((w: Record<string, unknown>) => w.product_id).filter(Boolean))]
-    
+    const productIds = [...new Set((windows || []).map((w: Record<string, unknown>) => w.product_id).filter(Boolean))] as string[]
+
     let products: Record<string, unknown>[] = []
     if (productIds.length > 0) {
       const { data: productData } = await query.graph({
         entity: "product",
         fields: ["id", "title", "thumbnail", "status"],
         filters: {
-          id: { $in: productIds },
+          id: { $in: productIds } as any,
         },
       })
       products = productData || []
