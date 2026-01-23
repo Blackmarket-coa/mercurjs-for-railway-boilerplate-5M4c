@@ -1,6 +1,13 @@
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import footerLinks from "@/data/footerLinks"
 
+// Client component for copyright year to prevent hydration mismatch
+function CopyrightYear() {
+  // Use suppressHydrationWarning since new Date().getFullYear() will differ
+  // between server and client render times, but the difference is acceptable
+  return <span suppressHydrationWarning>{new Date().getFullYear()}</span>
+}
+
 export function Footer() {
   return (
     <footer className="bg-primary container">
@@ -47,7 +54,7 @@ export function Footer() {
       {/* Solarpunk-styled footer bottom with gradient accent */}
       <div className="py-6 border rounded-sm relative overflow-hidden">
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-solarpunk" />
-        <p className="text-md text-secondary text-center">© {new Date().getFullYear()} Black Market Coalition LLC</p>
+        <p className="text-md text-secondary text-center">© <CopyrightYear /> Black Market Coalition LLC</p>
       </div>
     </footer>
   )
