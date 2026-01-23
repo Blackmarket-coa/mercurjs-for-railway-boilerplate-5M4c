@@ -1,3 +1,5 @@
+"use client"
+
 import { Input } from "@/components/atoms/Input/Input"
 import CountrySelect from "@/components/cells/CountrySelect/CountrySelect"
 import { HttpTypes } from "@medusajs/types"
