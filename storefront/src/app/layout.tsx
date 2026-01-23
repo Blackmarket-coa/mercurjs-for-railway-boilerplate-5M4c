@@ -36,9 +36,9 @@ export default async function RootLayout({
   params,
 }: Readonly<{
   children: React.ReactNode
-  params: { locale: string }
+  params: Promise<{ locale: string }>
 }>) {
-  const { locale } = params
+  const { locale } = await params
   const cart = await retrieveCart()
   const ALGOLIA_APP = process.env.NEXT_PUBLIC_ALGOLIA_ID
   const htmlLang = locale || "en"

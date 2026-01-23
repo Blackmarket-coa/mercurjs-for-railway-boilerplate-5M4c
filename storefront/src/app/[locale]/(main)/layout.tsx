@@ -10,10 +10,10 @@ export default async function RootLayout({
   params,
 }: {
   children: React.ReactNode
-  params: { locale: string }
+  params: Promise<{ locale: string }>
 }) {
   const ROCKETCHAT_URL = process.env.NEXT_PUBLIC_ROCKETCHAT_URL
-  const { locale } = params
+  const { locale } = await params
 
   let user = null
   let regionIsValid = false
