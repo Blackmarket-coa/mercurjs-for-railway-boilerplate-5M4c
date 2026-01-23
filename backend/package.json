@@ -25,7 +25,7 @@
   "scripts": {
     "build": "medusa build",
     "ib": "init-backend",
-    "start": "pnpm seed && medusa db:migrate --execute-safe-links && init-backend && cd .medusa/server && medusa start",
+    "start": "medusa db:migrate --execute-safe-links && pnpm seed && init-backend && cd .medusa/server && medusa start",
     "dev": "medusa develop",
     "seed": "medusa exec ./src/scripts/seed.ts",
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
