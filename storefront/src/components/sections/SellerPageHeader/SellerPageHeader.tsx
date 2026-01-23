@@ -1,3 +1,5 @@
+"use client"
+
 import { SellerFooter, SellerHeading } from "@/components/organisms"
 import { HttpTypes } from "@medusajs/types"
 import DOMPurify from "dompurify"
