@@ -2,17 +2,24 @@
 
 import { ProductPageAccordion } from "@/components/molecules"
 import DOMPurify from "dompurify"
+import { useState, useEffect } from "react"
 
 export const ProductPageDetails = ({ details }: { details: string }) => {
-  if (!details) return null
+  // State to store sanitized details
+  const [sanitizedDetails, setSanitizedDetails] = useState(details)
 
-  // Sanitize HTML to prevent XSS attacks from user-generated content
-  const sanitizedDetails = typeof window !== "undefined" 
-    ? DOMPurify.sanitize(details, { 
+  // Sanitize on client side only to prevent hydration mismatch
+  useEffect(() => {
+    if (details) {
+      const cleaned = DOMPurify.sanitize(details, {
         ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'span', 'div'],
         ALLOWED_ATTR: ['href', 'target', 'rel', 'class']
       })
-    : details
+      setSanitizedDetails(cleaned)
+    }
+  }, [details])
+
+  if (!details) return null
 
   return (
     <ProductPageAccordion heading="Product details" defaultOpen={false}>
