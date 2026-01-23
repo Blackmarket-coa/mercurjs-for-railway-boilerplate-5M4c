@@ -321,29 +321,6 @@ module.exports = defineConfig({
         ]
       : []),
   ],
-  links: [
-    // Link seller to seller metadata for vendor_type and extended fields
-    {
-      resolve: './src/links/seller-metadata',
-    },
-    // Note: Wishlist model renamed from customer_wishlist to shopper_wishlist
-    // to avoid alias collision with the Customer module
-
-    // Rental module links
-    {
-      resolve: './src/links/product-rental-config',
-    },
-    {
-      resolve: './src/links/rental-variant',
-    },
-    {
-      resolve: './src/links/rental-order',
-    },
-    {
-      resolve: './src/links/rental-line-item',
-    },
-    {
-      resolve: './src/links/customer-rental',
-    },
-  ],
+  // Note: Links are auto-discovered from src/links directory in MedusaJS v2
+  // No explicit registration needed here
 })

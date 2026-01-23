@@ -43,7 +43,7 @@ class RequestModuleService extends MedusaService({
    * Accept a request (update status to ACCEPTED)
    */
   async acceptRequest(id: string) {
-    const [request] = await this.updateRequests(
+    const request = await this.updateRequests(
       { id },
       { status: RequestStatus.ACCEPTED }
     )
@@ -54,7 +54,7 @@ class RequestModuleService extends MedusaService({
    * Reject a request (update status to REJECTED)
    */
   async rejectRequest(id: string) {
-    const [request] = await this.updateRequests(
+    const request = await this.updateRequests(
       { id },
       { status: RequestStatus.REJECTED }
     )
@@ -65,7 +65,7 @@ class RequestModuleService extends MedusaService({
    * Cancel a request (update status to CANCELLED)
    */
   async cancelRequest(id: string) {
-    const [request] = await this.updateRequests(
+    const request = await this.updateRequests(
       { id },
       { status: RequestStatus.CANCELLED }
     )
