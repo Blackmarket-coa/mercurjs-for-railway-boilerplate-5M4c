@@ -11,7 +11,6 @@ import { profileDetailsSchema, ProfileDetailsFormData } from "./schema"
 import { LabeledInput } from "@/components/cells"
 import { Button } from "@/components/atoms"
 import { updateCustomer } from "@/lib/data/customer"
-import { HttpTypes } from "@medusajs/types"
 import { useState } from "react"
 
 interface Props {
@@ -49,15 +48,15 @@ const Form: React.FC<Props> = ({ handleClose }) => {
   } = useFormContext()
 
   const submit = async (data: FieldValues) => {
-    const body = {
-      first_name: data.firstName,
-      last_name: data.lastName,
-      phone: data.phone,
-    }
-    try {
-      await updateCustomer(body as HttpTypes.StoreUpdateCustomer)
-    } catch (err) {
-      setError((err as Error).message)
+    const formData = new FormData()
+    formData.append("first_name", data.firstName)
+    formData.append("last_name", data.lastName)
+    formData.append("phone", data.phone)
+
+    const result = await updateCustomer(formData)
+
+    if (!result.success) {
+      setError(result.error || "Failed to update profile")
       return
     }
 

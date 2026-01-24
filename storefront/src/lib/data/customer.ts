@@ -40,22 +40,30 @@ export const retrieveCustomer =
 /* ---------------------------------------------
  * UPDATE CUSTOMER
  * -------------------------------------------- */
-export const updateCustomer = async (
-  body: HttpTypes.StoreUpdateCustomer
-) => {
+export const updateCustomer = async (formData: FormData) => {
   const authHeaders = await getAuthHeaders()
   if (!authHeaders) {
-    throw new Error("Not authenticated")
+    return { success: false, error: "Not authenticated" }
   }
 
-  const customer = await sdk.store.customer
-    .update(body, {}, authHeaders)
-    .then(({ customer }) => customer)
+  const body: HttpTypes.StoreUpdateCustomer = {
+    first_name: formData.get("first_name") as string,
+    last_name: formData.get("last_name") as string,
+    phone: formData.get("phone") as string,
+  }
 
-  const cacheTag = await getCacheTag("customers")
-  revalidateTag(cacheTag)
+  try {
+    const customer = await sdk.store.customer
+      .update(body, {}, authHeaders)
+      .then(({ customer }) => customer)
 
-  return customer
+    const cacheTag = await getCacheTag("customers")
+    revalidateTag(cacheTag)
+
+    return { success: true, error: null, customer }
+  } catch (err) {
+    return { success: false, error: getErrorMessage(err) }
+  }
 }
 
 /* ---------------------------------------------
