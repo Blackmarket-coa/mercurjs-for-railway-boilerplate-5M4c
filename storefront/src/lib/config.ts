@@ -130,18 +130,3 @@ export async function fetchQuery(
     throw error
   }
 }
-
-  let data
-  try {
-    data = await res.json()
-  } catch {
-    data = { message: res.statusText || "Unknown error" }
-  }
-
-  return {
-    ok: res.ok,
-    status: res.status,
-    error: res.ok ? null : { message: data?.message },
-    data: res.ok ? data : null,
-  }
-}
