@@ -1,6 +1,6 @@
 "use server"
 
-import { sdk } from "../config"
+import { medusaFetch } from "../config"
 import { sortProducts } from "@/lib/helpers/sort-products"
 import { HttpTypes } from "@medusajs/types"
 import { SortOptions } from "@/types/product"
@@ -64,28 +64,27 @@ export const listProducts = async ({
 
   const useCached = forceCache || (limit <= 8 && !category_id && !collection_id)
 
-  return sdk.client
-    .fetch<{
-      products: (HttpTypes.StoreProduct & { seller?: SellerProps })[]
-      count: number
-    }>(`/store/products`, {
-      method: "GET",
-      query: {
-        country_code: countryCode,
-        category_id,
-        collection_id,
-        limit,
-        offset,
-        region_id: region?.id,
-        fields:
-          "*variants.calculated_price,+variants.inventory_quantity,*seller,*variants,*seller.products," +
-          "*seller.reviews,*seller.reviews.customer,*seller.reviews.seller,*seller.products.variants,*attribute_values,*attribute_values.attribute",
-        ...queryParams,
-      },
-      headers,
-      next: useCached ? { revalidate: 60 } : undefined,
-      cache: useCached ? "force-cache" : "no-cache",
-    })
+  return medusaFetch<{
+    products: (HttpTypes.StoreProduct & { seller?: SellerProps })[]
+    count: number
+  }>(`/store/products`, {
+    method: "GET",
+    query: {
+      country_code: countryCode,
+      category_id,
+      collection_id,
+      limit,
+      offset,
+      region_id: region?.id,
+      fields:
+        "*variants.calculated_price,+variants.inventory_quantity,*seller,*variants,*seller.products," +
+        "*seller.reviews,*seller.reviews.customer,*seller.reviews.seller,*seller.products.variants,*attribute_values,*attribute_values.attribute",
+      ...queryParams,
+    },
+    headers,
+    next: useCached ? { revalidate: 60 } : undefined,
+    cache: useCached ? "force-cache" : "no-cache",
+  })
     .then(({ products: productsRaw, count }) => {
       const products = productsRaw.filter(
         (product) => product.seller?.store_status !== "SUSPENDED"
