@@ -156,9 +156,25 @@ async function securityAndCorsMiddleware(
   next: MedusaNextFunction
 ) {
   const isVendorRoute = req.path?.startsWith("/vendor") || false
-  const origin = req.headers.origin || ""
 
-  console.log(`[MIDDLEWARE] Path: ${req.path}, Method: ${req.method}, Origin: ${origin}`)
+  // Extract origin from either Origin header or Referer header
+  let origin = req.headers.origin || ""
+  let referer = req.headers.referer || req.headers.referrer || ""
+
+  // If no origin but we have a referer, extract origin from referer URL
+  if (!origin && referer) {
+    try {
+      const refererUrl = new URL(referer)
+      origin = `${refererUrl.protocol}//${refererUrl.host}`
+    } catch (e) {
+      // Invalid referer URL, ignore
+    }
+  }
+
+  console.log(`[MIDDLEWARE] Path: ${req.path}, Method: ${req.method}`)
+  console.log(`[MIDDLEWARE] Origin header: "${req.headers.origin || '(not set)'}"`)
+  console.log(`[MIDDLEWARE] Referer header: "${referer || '(not set)'}"`)
+  console.log(`[MIDDLEWARE] Computed origin: "${origin}"`)
 
   // ============================================
   // STEP 1: Handle CORS for vendor routes FIRST
@@ -180,9 +196,26 @@ async function securityAndCorsMiddleware(
 
     console.log(`[VENDOR CORS] Allowed origins:`, allowedOrigins)
 
+    // Check if origin matches any allowed origin
+    let matchedOrigin = ""
+    if (origin) {
+      // Exact match
+      if (allowedOrigins.includes(origin)) {
+        matchedOrigin = origin
+      }
+      // Try without trailing slash
+      else if (allowedOrigins.includes(origin.replace(/\/$/, ""))) {
+        matchedOrigin = origin.replace(/\/$/, "")
+      }
+      // Try with trailing slash
+      else if (allowedOrigins.includes(origin + "/")) {
+        matchedOrigin = origin + "/"
+      }
+    }
+
     // Set CORS headers if origin is allowed
-    if (origin && allowedOrigins.includes(origin)) {
-      res.setHeader("Access-Control-Allow-Origin", origin)
+    if (matchedOrigin) {
+      res.setHeader("Access-Control-Allow-Origin", matchedOrigin)
       res.setHeader("Access-Control-Allow-Credentials", "true")
       res.setHeader(
         "Access-Control-Allow-Methods",
@@ -195,10 +228,10 @@ async function securityAndCorsMiddleware(
       res.setHeader("Access-Control-Max-Age", "86400")
       res.setHeader("Vary", "Origin")
 
-      console.log(`[VENDOR CORS] ✓ Headers set for origin: ${origin}`)
+      console.log(`[VENDOR CORS] ✓ Headers set for origin: ${matchedOrigin}`)
     } else {
       console.warn(`[VENDOR CORS] ✗ Origin not allowed: "${origin}"`)
-      console.warn(`[VENDOR CORS] Available origins:`, allowedOrigins)
+      console.warn(`[VENDOR CORS] Allowed origins:`, allowedOrigins)
     }
 
     // Handle preflight OPTIONS requests early
