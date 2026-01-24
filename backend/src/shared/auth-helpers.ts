@@ -145,11 +145,47 @@ export function requireSellerId(req: AuthenticatedRequest, res: MedusaResponse):
 export function requireCustomerId(req: AuthenticatedRequest, res: MedusaResponse): string | null {
   const customerId = req.auth_context?.actor_id
   if (!customerId) {
-    res.status(401).json({ 
+    res.status(401).json({
       message: "Authentication required",
       type: "unauthorized"
     })
     return null
   }
   return customerId
+}
+
+/**
+ * Require admin ID - returns null if not authenticated and sends response
+ * @param req - The authenticated request
+ * @param res - The response object to send error if not authenticated
+ * @returns The admin ID or null if not authenticated
+ */
+export function requireAdminId(req: AuthenticatedRequest, res: MedusaResponse): string | null {
+  const adminId = req.auth_context?.actor_id
+  if (!adminId) {
+    res.status(401).json({
+      message: "Admin authentication required",
+      type: "unauthorized"
+    })
+    return null
+  }
+  return adminId
+}
+
+/**
+ * Require driver ID - returns null if not authenticated and sends response
+ * @param req - The authenticated request
+ * @param res - The response object to send error if not authenticated
+ * @returns The driver ID or null if not authenticated
+ */
+export function requireDriverId(req: AuthenticatedRequest, res: MedusaResponse): string | null {
+  const driverId = req.auth_context?.actor_id
+  if (!driverId) {
+    res.status(401).json({
+      message: "Driver authentication required",
+      type: "unauthorized"
+    })
+    return null
+  }
+  return driverId
 }
