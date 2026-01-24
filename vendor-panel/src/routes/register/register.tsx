@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Alert, Button, Heading, Hint, Input, Text } from "@medusajs/ui"
 import { useForm } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
-import { Link } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 import * as z from "zod"
 
 import { Form } from "../../components/common/form"
@@ -76,12 +76,16 @@ export const Register = () => {
   const [success, setSuccess] = useState(false)
   const [showOptionalFields, setShowOptionalFields] = useState(false)
   const { t } = useTranslation()
+  const [searchParams] = useSearchParams()
+
+  // Extract email from URL parameter if present
+  const emailFromUrl = searchParams.get("email") || ""
 
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
       name: "",
-      email: "",
+      email: emailFromUrl,
       password: "",
       confirmPassword: "",
       website_url: "",
