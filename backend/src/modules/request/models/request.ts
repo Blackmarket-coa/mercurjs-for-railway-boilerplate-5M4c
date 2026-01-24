@@ -23,21 +23,23 @@ export enum RequestStatus {
  */
 const Request = model.define("request", {
   id: model.id().primaryKey(),
-  submitter_id: model.text().nullable(),
-  provider_id: model.text().nullable(),
+  type: model.text(),
+  data: model.json().default({}),
+  submitter_id: model.text(),
+  reviewer_id: model.text().nullable(),
+  reviewer_note: model.text().nullable(),
   status: model.enum(RequestStatus).default(RequestStatus.PENDING),
-  payload: model.json().default({}),
-  notes: model.text().nullable(),
+  requester_id: model.text().nullable(),
 })
 .indexes([
   {
     on: ["submitter_id"],
   },
   {
-    on: ["provider_id"],
+    on: ["status"],
   },
   {
-    on: ["status"],
+    on: ["type"],
   },
 ])
 

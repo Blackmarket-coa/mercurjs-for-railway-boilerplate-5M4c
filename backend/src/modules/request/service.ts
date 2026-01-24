@@ -18,22 +18,27 @@ class RequestModuleService extends MedusaService({
   /**
    * Create a single request (convenience wrapper)
    */
-  async createRequest(data: {
+  async createRequest(input: {
+    type: string
+    data: Record<string, unknown>
     submitter_id?: string
     requester_id?: string
-    provider_id?: string
-    payload?: Record<string, unknown>
-    notes?: string
+    reviewer_note?: string
   }) {
     // Support both submitter_id and requester_id for backwards compatibility
-    const submitterId = data.submitter_id || data.requester_id
+    const submitterId = input.submitter_id || input.requester_id
+
+    if (!submitterId) {
+      throw new Error("submitter_id or requester_id is required")
+    }
 
     const [request] = await this.createRequests([{
+      type: input.type,
+      data: input.data,
       submitter_id: submitterId,
-      provider_id: data.provider_id,
+      requester_id: input.requester_id,
+      reviewer_note: input.reviewer_note,
       status: RequestStatus.PENDING,
-      payload: data.payload || {},
-      notes: data.notes,
     }])
 
     return request
@@ -78,16 +83,6 @@ class RequestModuleService extends MedusaService({
   async getRequesterRequests(requesterId: string) {
     const requests = await this.listRequests({
       submitter_id: requesterId,
-    })
-    return requests
-  }
-
-  /**
-   * Get requests by provider ID
-   */
-  async getProviderRequests(providerId: string) {
-    const requests = await this.listRequests({
-      provider_id: providerId,
     })
     return requests
   }
