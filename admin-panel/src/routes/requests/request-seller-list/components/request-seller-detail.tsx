@@ -19,12 +19,12 @@ export function RequestSellerDetail({ request, open, close }: Props) {
   if (!request) {
     return null;
   }
-  const requestData = request.payload;
+  const requestData = request.data;
 
-  // Check if this is a legacy request with no payload
+  // Check if this is a legacy request with no data
   const isLegacyRequest = !requestData || Object.keys(requestData).length === 0;
 
-  // Handle both old and new payload formats
+  // Handle both old and new data formats
   const sellerName = isLegacyRequest
     ? "Legacy request - no data available"
     : (requestData?.seller?.name ||

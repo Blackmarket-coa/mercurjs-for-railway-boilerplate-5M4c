@@ -75,9 +75,9 @@ export const RequestSellerList = () => {
           </Table.Header>
           <Table.Body>
             {requests?.map((request) => {
-              const requestData = request.payload as Record<string, unknown> | undefined;
+              const requestData = request.data as Record<string, unknown> | undefined;
 
-              // Handle legacy requests with no payload data
+              // Handle legacy requests with no data
               if (!requestData || Object.keys(requestData).length === 0) {
                 return (
                   <Table.Row key={request.id}>
