@@ -40,48 +40,22 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
     if (query.requester_id) filters.requester_id = query.requester_id
     if (query.provider_id) filters.provider_id = query.provider_id
 
-    // When filtering by type, we need to fetch more records initially
-    // because we'll filter by payload.type in memory
-    let requests = await requestService.listRequests(filters, {
-      skip: query.type ? 0 : query.offset,
-      take: query.type ? 1000 : query.limit, // Fetch more when type filter is needed
-    })
-
-    // Map frontend type parameter to payload.type value
-    // Frontend sends "seller" but payload.type is "seller_creation"
+    // Map frontend type parameter to database type value
+    // Frontend sends "seller" but database stores "seller_creation"
+    // Note: type is a direct column in the database, not inside JSON
     const typeMap: Record<string, string> = {
       seller: "seller_creation",
     }
 
-    // Filter by type if provided (filtering on JSON field)
     if (query.type) {
-      const payloadType = typeMap[query.type] || query.type
-      requests = requests.filter((request: any) => {
-        return request.payload?.type === payloadType
-      })
-
-      // Apply pagination after filtering
-      const totalCount = requests.length
-      requests = requests.slice(query.offset, query.offset + query.limit)
-
-      res.json({
-        requests,
-        count: totalCount,
-        offset: query.offset,
-        limit: query.limit,
-      })
-      return
+      const dbType = typeMap[query.type] || query.type
+      filters.type = dbType
     }
 
-    // Debug logging for first request to see payload structure
-    if (requests.length > 0) {
-      console.log("[GET /admin/requests] Sample request:", {
-        id: requests[0].id,
-        payload: requests[0].payload,
-        payload_type: typeof requests[0].payload,
-        payload_keys: requests[0].payload ? Object.keys(requests[0].payload) : [],
-      })
-    }
+    const requests = await requestService.listRequests(filters, {
+      skip: query.offset,
+      take: query.limit,
+    })
 
     res.json({
       requests,
