@@ -1,5 +1,16 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react"
 import { useMe } from "../../hooks/api"
+import { sdk } from "../../lib/client"
+
+interface RocketChatConfig {
+  configured: boolean
+  url?: string
+  iframe_url?: string
+  login?: {
+    token: string
+    username: string
+  }
+}
 
 interface RocketChatContextType {
   isConfigured: boolean
@@ -8,6 +19,8 @@ interface RocketChatContextType {
   isLoading: boolean
   unreadCount: number
   seller: any
+  loginToken: string | null
+  username: string | null
   // Helper functions for messaging
   getChannelUrl: (channelName: string) => string | null
   getDirectMessageUrl: (username: string) => string | null
@@ -21,6 +34,8 @@ const RocketChatContext = createContext<RocketChatContextType>({
   isLoading: true,
   unreadCount: 0,
   seller: null,
+  loginToken: null,
+  username: null,
   getChannelUrl: () => null,
   getDirectMessageUrl: () => null,
   getOrderChannelUrl: () => null,
@@ -34,29 +49,46 @@ export const RocketChatProvider = ({ children }: { children: ReactNode }) => {
   const [rocketChatUrl, setRocketChatUrl] = useState<string | null>(null)
   const [iframeUrl, setIframeUrl] = useState<string | null>(null)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [loginToken, setLoginToken] = useState<string | null>(null)
+  const [username, setUsername] = useState<string | null>(null)
 
   useEffect(() => {
-    // Get Rocket.Chat URL from environment
-    const url = import.meta.env.VITE_ROCKETCHAT_URL
-    if (url) {
-      setIsConfigured(true)
-      setRocketChatUrl(url)
-      // Use seller-specific channel if available, otherwise home
-      if (seller?.id) {
-        // Seller channel name: vendor-{seller_handle or id}
-        const sellerChannel = seller.handle || seller.id.replace('seller_', '')
-        setIframeUrl(`${url}/channel/vendor-${sellerChannel}`)
-      } else {
-        setIframeUrl(`${url}/home`)
+    // Fetch Rocket.Chat configuration from backend
+    const fetchRocketChatConfig = async () => {
+      try {
+        const response = await sdk.client.fetch<RocketChatConfig>("/vendor/rocketchat", {
+          method: "GET",
+        })
+
+        if (response.configured && response.url) {
+          setIsConfigured(true)
+          setRocketChatUrl(response.url)
+          setIframeUrl(response.iframe_url || `${response.url}/home`)
+
+          // Store login credentials if provided
+          if (response.login) {
+            setLoginToken(response.login.token)
+            setUsername(response.login.username)
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch RocketChat config:", error)
+        setIsConfigured(false)
       }
     }
-  }, [seller])
+
+    if (!isPending && seller) {
+      fetchRocketChatConfig()
+    }
+  }, [seller, isPending])
 
   // Listen for messages from Rocket.Chat iframe for unread count
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.origin === rocketChatUrl && event.data?.type === 'unread-count') {
-        setUnreadCount(event.data.count || 0)
+      if (rocketChatUrl && event.origin === new URL(rocketChatUrl).origin) {
+        if (event.data?.type === 'unread-count') {
+          setUnreadCount(event.data.count || 0)
+        }
       }
     }
 
@@ -97,6 +129,8 @@ export const RocketChatProvider = ({ children }: { children: ReactNode }) => {
         isLoading: isPending,
         unreadCount,
         seller,
+        loginToken,
+        username,
         getChannelUrl,
         getDirectMessageUrl,
         getOrderChannelUrl,

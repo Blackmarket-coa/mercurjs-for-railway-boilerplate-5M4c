@@ -2,14 +2,31 @@ import { Container, Heading, Text, Badge } from "@medusajs/ui"
 import { useRocketChat } from "../../providers/rocketchat-provider"
 
 export const Messages = () => {
-  const { 
-    isConfigured, 
-    iframeUrl, 
-    rocketChatUrl, 
+  const {
+    isConfigured,
+    iframeUrl,
+    rocketChatUrl,
     unreadCount,
     seller,
-    getChannelUrl 
+    loginToken,
+    getChannelUrl
   } = useRocketChat()
+
+  // Build iframe URL with auto-login token
+  const getIframeUrl = () => {
+    if (!iframeUrl) return null
+
+    // If we have a login token, add it to the URL for auto-login
+    if (loginToken) {
+      const url = new URL(iframeUrl)
+      url.searchParams.set('resumeToken', loginToken)
+      return url.toString()
+    }
+
+    return iframeUrl
+  }
+
+  const finalIframeUrl = getIframeUrl()
 
   // Quick links to common channels
   const quickLinks = [
@@ -63,9 +80,9 @@ export const Messages = () => {
       </div>
 
       <div className="px-6 py-4 h-[655px]">
-        {isConfigured && iframeUrl ? (
+        {isConfigured && finalIframeUrl ? (
           <iframe
-            src={iframeUrl}
+            src={finalIframeUrl}
             className="w-full h-full border-0 rounded-lg"
             title="Rocket.Chat Messages"
             allow="camera; microphone; fullscreen; display-capture; autoplay"

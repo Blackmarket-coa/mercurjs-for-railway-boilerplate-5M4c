@@ -57,6 +57,7 @@
     "@stellar/stellar-sdk": "^13.1.0",
     "algoliasearch": "^5.44.0",
     "awilix": "^8.0.1",
+    "axios": "^1.13.2",
     "express": "^4.21.2",
     "json-rpc-2.0": "^1.7.1",
     "medusajs-launch-utils": "^0.0.18",
