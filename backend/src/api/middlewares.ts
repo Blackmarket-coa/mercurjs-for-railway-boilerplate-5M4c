@@ -161,6 +161,11 @@ async function securityAndCorsMiddleware(
   let origin = req.headers.origin || ""
   let referer = req.headers.referer || req.headers.referrer || ""
 
+  // Normalize referer to string if it's an array
+  if (Array.isArray(referer)) {
+    referer = referer[0] || ""
+  }
+
   // If no origin but we have a referer, extract origin from referer URL
   if (!origin && referer) {
     try {
