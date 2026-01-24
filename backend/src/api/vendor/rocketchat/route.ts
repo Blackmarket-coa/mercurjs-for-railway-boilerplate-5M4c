@@ -41,11 +41,19 @@ export async function GET(
 
     // Get the primary member (first member)
     const member = seller.members[0]
+
+    if (!member.email) {
+      res.status(404).json({
+        message: "Seller member email not found"
+      })
+      return
+    }
+
     const username = seller.handle || member.email.split("@")[0]
 
     // Get RocketChat service and create login token
     const rocketchatService = getRocketChatService()
-    let loginToken = null
+    let loginToken: string | null = null
 
     if (rocketchatService) {
       try {

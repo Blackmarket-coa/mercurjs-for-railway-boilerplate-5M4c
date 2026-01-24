@@ -41,7 +41,7 @@ export async function GET(
 
     // Get RocketChat service and create login token
     const rocketchatService = getRocketChatService()
-    let loginToken = null
+    let loginToken: string | null = null
 
     if (rocketchatService) {
       try {
