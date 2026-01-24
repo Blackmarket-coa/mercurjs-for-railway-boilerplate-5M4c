@@ -134,13 +134,24 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
 
     if (error || !data) {
       if (error) {
-        this.logger.error("Failed to send email", error)
+        this.logger.error(`Failed to send email to ${notification.to}:`, error)
+        // Log specific error details for common issues
+        if (error.message && error.message.includes("verify a domain")) {
+          this.logger.error(
+            `⚠️  RESEND DOMAIN NOT VERIFIED: You must verify your domain at resend.com/domains ` +
+            `or use a verified domain in the RESEND_FROM_EMAIL environment variable.`
+          )
+        }
       } else {
-        this.logger.error("Failed to send email: unknown error")
+        this.logger.error(`Failed to send email to ${notification.to}: unknown error`)
       }
-      return {}
+      throw new MedusaError(
+        MedusaError.Types.UNEXPECTED_STATE,
+        `Failed to send email: ${error?.message || 'unknown error'}`
+      )
     }
 
+    this.logger.info(`Email sent successfully to ${notification.to} (ID: ${data.id})`)
     return { id: data.id }
   }
 }
