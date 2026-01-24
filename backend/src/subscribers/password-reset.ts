@@ -23,37 +23,35 @@ export default async function passwordResetHandler({
     const notificationModuleService = container.resolve("notification") as any
 
     // Build reset URL based on actor type
-    let resetUrl = ""
     const actorType = actor_type || "customer" // Default to customer if not specified
+    let baseUrl = ""
 
     switch (actorType) {
       case "customer":
-        const storefrontUrl = process.env.STOREFRONT_URL || process.env.NEXT_PUBLIC_BASE_URL || ""
-        resetUrl = `${storefrontUrl}/reset-password?token=${token}`
+        baseUrl = process.env.STOREFRONT_URL || process.env.NEXT_PUBLIC_BASE_URL || ""
         break
       case "seller":
-        const vendorUrl = process.env.VENDOR_URL || process.env.VENDOR_PANEL_URL || ""
-        resetUrl = `${vendorUrl}/reset-password?token=${token}`
+        baseUrl = process.env.VENDOR_URL || process.env.VENDOR_PANEL_URL || ""
         break
       case "user":
-        const adminUrl = process.env.ADMIN_URL || ""
-        resetUrl = `${adminUrl}/reset-password?token=${token}`
+        baseUrl = process.env.ADMIN_URL || ""
         break
       case "driver":
         // Drivers use the same URL as sellers for now
-        const driverUrl = process.env.VENDOR_URL || process.env.VENDOR_PANEL_URL || ""
-        resetUrl = `${driverUrl}/reset-password?token=${token}`
+        baseUrl = process.env.VENDOR_URL || process.env.VENDOR_PANEL_URL || ""
         break
       default:
         console.warn(`Unknown actor_type: ${actorType}, defaulting to storefront`)
-        const defaultUrl = process.env.STOREFRONT_URL || process.env.NEXT_PUBLIC_BASE_URL || ""
-        resetUrl = `${defaultUrl}/reset-password?token=${token}`
+        baseUrl = process.env.STOREFRONT_URL || process.env.NEXT_PUBLIC_BASE_URL || ""
     }
 
-    if (!resetUrl) {
-      console.error(`Could not construct reset URL for actor_type: ${actorType}. Please set environment variables.`)
+    // Validate that base URL is set and looks like a valid URL
+    if (!baseUrl || !baseUrl.startsWith("http")) {
+      console.error(`[passwordReset subscriber] Missing or invalid base URL for actor_type: ${actorType}. Please set the appropriate environment variable (VENDOR_URL, STOREFRONT_URL, or ADMIN_URL).`)
       return
     }
+
+    const resetUrl = `${baseUrl}/reset-password?token=${token}`
 
     // Send notification using the password-reset template
     await notificationModuleService.createNotifications({
