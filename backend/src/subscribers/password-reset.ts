@@ -56,7 +56,7 @@ export default async function passwordResetHandler({
     }
 
     // Send notification using the password-reset template
-    await notificationModuleService.createNotifications({
+    const result = await notificationModuleService.createNotifications({
       to: email,
       channel: "email",
       template: "password-reset",
@@ -66,7 +66,12 @@ export default async function passwordResetHandler({
       },
     })
 
-    console.log(`[passwordReset subscriber] Password reset email sent to ${email}`)
+    // Only log success if notification was actually created
+    if (result && result.length > 0) {
+      console.log(`[passwordReset subscriber] Password reset email sent successfully to ${email}`)
+    } else {
+      console.warn(`[passwordReset subscriber] Password reset notification created but status unknown for ${email}`)
+    }
   } catch (error) {
     console.error(`[passwordReset subscriber] Failed to send password reset email to ${email}:`, error)
     // Don't throw - notification failure shouldn't break the password reset flow
