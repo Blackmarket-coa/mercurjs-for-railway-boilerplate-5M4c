@@ -14,6 +14,7 @@ import { addCustomerAddress, updateCustomerAddress } from "@/lib/data/customer"
 import { HttpTypes } from "@medusajs/types"
 import CountrySelect from "@/components/cells/CountrySelect/CountrySelect"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 interface Props {
   defaultValues?: AddressFormData
@@ -51,6 +52,7 @@ export const AddressForm: React.FC<Props> = ({ defaultValues, ...props }) => {
 
 const Form: React.FC<Props> = ({ regions, handleClose }) => {
   const [error, setError] = useState<string>()
+  const router = useRouter()
   const {
     handleSubmit,
     register,
@@ -88,6 +90,9 @@ const Form: React.FC<Props> = ({ regions, handleClose }) => {
 
     setError("")
     handleClose && handleClose()
+
+    // Refresh the page to ensure authentication state is properly updated
+    router.refresh()
   }
 
   return (
