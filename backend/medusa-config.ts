@@ -299,8 +299,34 @@ module.exports = defineConfig({
           },
         ]
       : []),
-    // Notification module (Resend email provider)
-    ...(process.env.RESEND_API_KEY
+    // Notification module (Email provider - SMTP or Resend)
+    // SMTP takes priority if configured, otherwise falls back to Resend
+    ...(process.env.SMTP_HOST
+      ? [
+          {
+            resolve: '@medusajs/medusa/notification',
+            options: {
+              providers: [
+                {
+                  resolve: './src/modules/smtp',
+                  id: 'smtp',
+                  options: {
+                    channels: ['email'],
+                    host: process.env.SMTP_HOST,
+                    port: parseInt(process.env.SMTP_PORT || '587'),
+                    secure: process.env.SMTP_SECURE === 'true',
+                    auth: {
+                      user: process.env.SMTP_USER,
+                      pass: process.env.SMTP_PASS,
+                    },
+                    from: process.env.SMTP_FROM || process.env.SMTP_USER,
+                  },
+                },
+              ],
+            },
+          },
+        ]
+      : process.env.RESEND_API_KEY
       ? [
           {
             resolve: '@medusajs/medusa/notification',
