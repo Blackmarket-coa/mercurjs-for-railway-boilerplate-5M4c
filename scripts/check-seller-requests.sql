@@ -18,7 +18,7 @@ SELECT COUNT(*) as total_requests FROM request;
 \echo '=== Seller Creation Requests Count ==='
 SELECT COUNT(*) as seller_requests
 FROM request
-WHERE type = 'seller_creation';
+WHERE type = 'seller';
 
 -- 4. Breakdown by status
 \echo ''
@@ -27,7 +27,7 @@ SELECT
   status,
   COUNT(*) as count
 FROM request
-WHERE type = 'seller_creation'
+WHERE type = 'seller'
 GROUP BY status
 ORDER BY status;
 
@@ -48,7 +48,7 @@ SELECT
   created_at,
   updated_at
 FROM request
-WHERE type = 'seller_creation'
+WHERE type = 'seller'
 ORDER BY created_at DESC
 LIMIT 10;
 
@@ -70,6 +70,6 @@ SELECT
   type,
   jsonb_pretty(data::jsonb) as data_structure
 FROM request
-WHERE type = 'seller_creation'
+WHERE type = 'seller'
 ORDER BY created_at DESC
 LIMIT 1;

@@ -40,16 +40,11 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
     if (query.requester_id) filters.requester_id = query.requester_id
     if (query.provider_id) filters.provider_id = query.provider_id
 
-    // Map frontend type parameter to database type value
-    // Frontend sends "seller" but database stores "seller_creation"
+    // Add type filter if provided
     // Note: type is a direct column in the database, not inside JSON
-    const typeMap: Record<string, string> = {
-      seller: "seller_creation",
-    }
-
+    // Database stores: "seller", "product", etc.
     if (query.type) {
-      const dbType = typeMap[query.type] || query.type
-      filters.type = dbType
+      filters.type = query.type
     }
 
     const requests = await requestService.listRequests(filters, {

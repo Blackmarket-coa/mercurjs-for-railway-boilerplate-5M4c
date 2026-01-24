@@ -40,11 +40,11 @@ else
 
   echo ""
   echo "--- Seller Creation Requests Count ---"
-  psql "$DB_URL" -c "SELECT COUNT(*) as seller_requests FROM request WHERE type = 'seller_creation';"
+  psql "$DB_URL" -c "SELECT COUNT(*) as seller_requests FROM request WHERE type = 'seller';"
 
   echo ""
   echo "--- Seller Requests by Status ---"
-  psql "$DB_URL" -c "SELECT status, COUNT(*) as count FROM request WHERE type = 'seller_creation' GROUP BY status ORDER BY status;"
+  psql "$DB_URL" -c "SELECT status, COUNT(*) as count FROM request WHERE type = 'seller' GROUP BY status ORDER BY status;"
 
   echo ""
   echo "--- Latest 5 Seller Requests ---"
@@ -58,7 +58,7 @@ else
       data::jsonb->>'vendor_type' as vendor_type,
       created_at
     FROM request
-    WHERE type = 'seller_creation'
+    WHERE type = 'seller'
     ORDER BY created_at DESC
     LIMIT 5;
   "
