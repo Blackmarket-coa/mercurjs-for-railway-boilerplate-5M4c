@@ -5,7 +5,6 @@ import type {
   MedusaNextFunction,
 } from "@medusajs/framework/http"
 import { z } from "zod"
-import { defaultSecurityHeaders } from "../shared/security-headers"
 
 // Basic email validation regex
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -144,66 +143,109 @@ const PostCartItemsRentalsBody = z.object({
 })
 
 /**
- * CORS Middleware for Vendor Routes
+ * Combined Security and CORS Middleware
  *
- * Applies CORS headers to all vendor routes to allow cross-origin requests
- * from the vendor panel frontend.
+ * Handles both security headers and CORS in the correct order:
+ * 1. CORS headers are set first (before security headers)
+ * 2. Security headers are relaxed for vendor routes
+ * 3. Properly handles preflight OPTIONS requests
  */
-async function vendorCorsMiddleware(
+async function securityAndCorsMiddleware(
   req: MedusaRequest,
   res: MedusaResponse,
   next: MedusaNextFunction
 ) {
-  // Only process vendor routes
-  if (!req.path?.startsWith("/vendor")) {
-    return next()
-  }
-
+  const isVendorRoute = req.path?.startsWith("/vendor") || false
   const origin = req.headers.origin || ""
 
-  // Get allowed origins from environment
-  const storeCors = process.env.STORE_CORS || ""
-  const vendorCors = process.env.VENDOR_CORS || ""
-  const vendorPanelUrl = process.env.VENDOR_PANEL_URL || ""
-  const authCors = process.env.AUTH_CORS || ""
+  console.log(`[MIDDLEWARE] Path: ${req.path}, Method: ${req.method}, Origin: ${origin}`)
 
-  // Combine all CORS origins
-  const allowedOrigins = [
-    ...storeCors.split(",").map(o => o.trim()).filter(Boolean),
-    ...vendorCors.split(",").map(o => o.trim()).filter(Boolean),
-    ...authCors.split(",").map(o => o.trim()).filter(Boolean),
-    vendorPanelUrl.trim(),
-  ].filter(Boolean)
+  // ============================================
+  // STEP 1: Handle CORS for vendor routes FIRST
+  // ============================================
+  if (isVendorRoute) {
+    // Get allowed origins from environment
+    const storeCors = process.env.STORE_CORS || ""
+    const vendorCors = process.env.VENDOR_CORS || ""
+    const vendorPanelUrl = process.env.VENDOR_PANEL_URL || ""
+    const authCors = process.env.AUTH_CORS || ""
 
-  // Log for debugging (remove in production)
-  console.log(`[VENDOR CORS] Path: ${req.path}`)
-  console.log(`[VENDOR CORS] Origin: ${origin}`)
-  console.log(`[VENDOR CORS] Allowed origins:`, allowedOrigins)
-  console.log(`[VENDOR CORS] Method: ${req.method}`)
+    // Combine all CORS origins
+    const allowedOrigins = [
+      ...storeCors.split(",").map(o => o.trim()).filter(Boolean),
+      ...vendorCors.split(",").map(o => o.trim()).filter(Boolean),
+      ...authCors.split(",").map(o => o.trim()).filter(Boolean),
+      vendorPanelUrl.trim(),
+    ].filter(Boolean)
 
-  // Always set CORS headers for vendor routes if origin is allowed
-  if (origin && allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin)
-    res.setHeader("Access-Control-Allow-Credentials", "true")
-    res.setHeader(
-      "Access-Control-Allow-Methods",
-      "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-    )
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization, X-Publishable-API-Key, x-publishable-api-key, X-Medusa-Access-Token"
-    )
-    res.setHeader("Access-Control-Max-Age", "86400")
+    console.log(`[VENDOR CORS] Allowed origins:`, allowedOrigins)
 
-    console.log(`[VENDOR CORS] Headers set for origin: ${origin}`)
-  } else {
-    console.warn(`[VENDOR CORS] Origin not allowed: ${origin}`)
+    // Set CORS headers if origin is allowed
+    if (origin && allowedOrigins.includes(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin)
+      res.setHeader("Access-Control-Allow-Credentials", "true")
+      res.setHeader(
+        "Access-Control-Allow-Methods",
+        "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+      )
+      res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Content-Type, Authorization, X-Publishable-API-Key, x-publishable-api-key, X-Medusa-Access-Token, Cookie"
+      )
+      res.setHeader("Access-Control-Max-Age", "86400")
+      res.setHeader("Vary", "Origin")
+
+      console.log(`[VENDOR CORS] ✓ Headers set for origin: ${origin}`)
+    } else {
+      console.warn(`[VENDOR CORS] ✗ Origin not allowed: "${origin}"`)
+      console.warn(`[VENDOR CORS] Available origins:`, allowedOrigins)
+    }
+
+    // Handle preflight OPTIONS requests early
+    if (req.method === "OPTIONS") {
+      console.log(`[VENDOR CORS] Handling OPTIONS preflight - returning 204`)
+      return res.status(204).end()
+    }
   }
 
-  // Handle preflight OPTIONS requests
-  if (req.method === "OPTIONS") {
-    console.log(`[VENDOR CORS] Handling OPTIONS preflight request`)
-    return res.status(204).end()
+  // ============================================
+  // STEP 2: Apply security headers
+  // ============================================
+  const isProduction = process.env.NODE_ENV === "production"
+
+  // Relaxed CSP for vendor routes (allow unsafe-eval for development tools)
+  if (isVendorRoute) {
+    res.setHeader(
+      "Content-Security-Policy",
+      "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' https: data:; connect-src 'self' https: wss:; frame-src 'self' https:; object-src 'none'"
+    )
+    console.log(`[SECURITY] Relaxed CSP applied for vendor route`)
+  } else {
+    // Standard strict CSP for other routes
+    res.setHeader(
+      "Content-Security-Policy",
+      "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' https: data:; connect-src 'self' https://api.stripe.com https://*.algolia.net https://*.algolianet.com wss:; frame-src 'self' https://js.stripe.com https://hooks.stripe.com; object-src 'none'; upgrade-insecure-requests"
+    )
+  }
+
+  // HSTS (only in production)
+  if (isProduction) {
+    res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+  }
+
+  // Other security headers
+  res.setHeader("X-Frame-Options", "SAMEORIGIN")
+  res.setHeader("X-Content-Type-Options", "nosniff")
+  res.setHeader("X-XSS-Protection", "1; mode=block")
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin")
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=(self)")
+  res.setHeader("X-DNS-Prefetch-Control", "off")
+
+  // Disable caching for admin/vendor routes
+  if (req.path?.startsWith("/admin") || isVendorRoute) {
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
+    res.setHeader("Pragma", "no-cache")
+    res.setHeader("Expires", "0")
   }
 
   next()
@@ -211,10 +253,10 @@ async function vendorCorsMiddleware(
 
 export default defineMiddlewares({
   routes: [
-    // Apply security headers and vendor CORS to all routes
+    // Apply combined security and CORS middleware to all routes
     {
       matcher: "/*",
-      middlewares: [defaultSecurityHeaders, vendorCorsMiddleware],
+      middlewares: [securityAndCorsMiddleware],
     },
     // Product feed - public XML feed for Google Shopping/Facebook
     {
