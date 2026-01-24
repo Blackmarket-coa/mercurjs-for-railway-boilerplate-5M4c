@@ -9,8 +9,7 @@ import {
 } from "@medusajs/framework/types"
 import * as nodemailer from "nodemailer"
 import { Transporter } from "nodemailer"
-import { renderToStaticMarkup } from "react-dom/server"
-import { createElement } from "react"
+import { render } from "@react-email/components"
 import { orderPlacedEmail } from "../resend/emails/order-placed"
 import { userInvitedEmail } from "../resend/emails/user-invited"
 import { passwordResetEmail } from "../resend/emails/password-reset"
@@ -162,9 +161,8 @@ class SMTPNotificationProviderService extends AbstractNotificationProviderServic
     if (typeof template === "string") {
       html = template
     } else {
-      // Render React component to HTML string
-      const reactElement = createElement(template as any, notification.data)
-      html = renderToStaticMarkup(reactElement)
+      // Render React Email component to HTML string using @react-email/components
+      html = await render(template(notification.data) as React.ReactElement)
     }
 
     const mailOptions = {
