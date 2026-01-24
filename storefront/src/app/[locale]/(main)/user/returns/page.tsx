@@ -1,3 +1,4 @@
+import { LoginForm } from "@/components/molecules"
 import { UserNavigation } from "@/components/molecules/UserNavigation/UserNavigation"
 import { OrderReturnRequests } from "@/components/sections/OrderReturnRequests/OrderReturnRequests"
 import { retrieveCustomer } from "@/lib/data/customer"
@@ -8,12 +9,19 @@ export default async function ReturnsPage({
 }: {
   searchParams: Promise<{ page: string; return: string }>
 }) {
-  const { order_return_requests } = await getReturns()
-  const returnReasons = await retrieveReturnReasons()
-
+  // Check authentication first
   const user = await retrieveCustomer()
 
+  if (!user) return <LoginForm />
+
+  // Fetch returns data with error handling
+  const returnsData = await getReturns()
+  const returnReasons = await retrieveReturnReasons()
+
   const { page, return: returnId } = await searchParams
+
+  // Handle case where returns data is null or undefined
+  const order_return_requests = returnsData?.order_return_requests || []
 
   return (
     <main className="container">
