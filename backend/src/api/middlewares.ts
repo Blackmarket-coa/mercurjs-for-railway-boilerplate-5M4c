@@ -154,6 +154,11 @@ async function vendorCorsMiddleware(
   res: MedusaResponse,
   next: MedusaNextFunction
 ) {
+  // Only process vendor routes
+  if (!req.path?.startsWith("/vendor")) {
+    return next()
+  }
+
   const origin = req.headers.origin || ""
 
   // Get allowed origins from environment
@@ -171,6 +176,7 @@ async function vendorCorsMiddleware(
   ].filter(Boolean)
 
   // Log for debugging (remove in production)
+  console.log(`[VENDOR CORS] Path: ${req.path}`)
   console.log(`[VENDOR CORS] Origin: ${origin}`)
   console.log(`[VENDOR CORS] Allowed origins:`, allowedOrigins)
   console.log(`[VENDOR CORS] Method: ${req.method}`)
@@ -205,15 +211,10 @@ async function vendorCorsMiddleware(
 
 export default defineMiddlewares({
   routes: [
-    // Apply security headers to all routes
+    // Apply security headers and vendor CORS to all routes
     {
       matcher: "/*",
-      middlewares: [defaultSecurityHeaders],
-    },
-    // Apply CORS to all vendor routes
-    {
-      matcher: "/vendor/*",
-      middlewares: [vendorCorsMiddleware],
+      middlewares: [defaultSecurityHeaders, vendorCorsMiddleware],
     },
     // Product feed - public XML feed for Google Shopping/Facebook
     {
