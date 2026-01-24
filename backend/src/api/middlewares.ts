@@ -154,22 +154,29 @@ async function vendorCorsMiddleware(
   res: MedusaResponse,
   next: MedusaNextFunction
 ) {
+  const origin = req.headers.origin || ""
+
   // Get allowed origins from environment
   const storeCors = process.env.STORE_CORS || ""
   const vendorCors = process.env.VENDOR_CORS || ""
   const vendorPanelUrl = process.env.VENDOR_PANEL_URL || ""
+  const authCors = process.env.AUTH_CORS || ""
 
   // Combine all CORS origins
   const allowedOrigins = [
-    ...storeCors.split(",").map(o => o.trim()),
-    ...vendorCors.split(",").map(o => o.trim()),
+    ...storeCors.split(",").map(o => o.trim()).filter(Boolean),
+    ...vendorCors.split(",").map(o => o.trim()).filter(Boolean),
+    ...authCors.split(",").map(o => o.trim()).filter(Boolean),
     vendorPanelUrl.trim(),
   ].filter(Boolean)
 
-  const origin = req.headers.origin || ""
+  // Log for debugging (remove in production)
+  console.log(`[VENDOR CORS] Origin: ${origin}`)
+  console.log(`[VENDOR CORS] Allowed origins:`, allowedOrigins)
+  console.log(`[VENDOR CORS] Method: ${req.method}`)
 
-  // Check if origin is allowed
-  if (allowedOrigins.includes(origin) || allowedOrigins.includes("*")) {
+  // Always set CORS headers for vendor routes if origin is allowed
+  if (origin && allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin)
     res.setHeader("Access-Control-Allow-Credentials", "true")
     res.setHeader(
@@ -178,13 +185,18 @@ async function vendorCorsMiddleware(
     )
     res.setHeader(
       "Access-Control-Allow-Headers",
-      "Content-Type, Authorization, X-Publishable-API-Key, x-publishable-api-key"
+      "Content-Type, Authorization, X-Publishable-API-Key, x-publishable-api-key, X-Medusa-Access-Token"
     )
-    res.setHeader("Access-Control-Max-Age", "86400") // 24 hours
+    res.setHeader("Access-Control-Max-Age", "86400")
+
+    console.log(`[VENDOR CORS] Headers set for origin: ${origin}`)
+  } else {
+    console.warn(`[VENDOR CORS] Origin not allowed: ${origin}`)
   }
 
-  // Handle preflight requests
+  // Handle preflight OPTIONS requests
   if (req.method === "OPTIONS") {
+    console.log(`[VENDOR CORS] Handling OPTIONS preflight request`)
     return res.status(204).end()
   }
 
