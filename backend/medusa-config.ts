@@ -283,9 +283,9 @@ module.exports = defineConfig({
           },
           {
             resolve: '@medusajs/medusa/workflow-engine-redis',
-            options: { 
-              redis: { 
-                url: process.env.REDIS_URL,
+            options: {
+              redis: {
+                redisUrl: process.env.REDIS_URL,
                 // Enable TLS for Railway Redis (uses rediss:// protocol)
                 ...(process.env.REDIS_URL?.startsWith('rediss://') ? { tls: {} } : {}),
                 // BullMQ requires maxRetriesPerRequest to be null
