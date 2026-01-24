@@ -7,6 +7,12 @@ const MEDUSA_BACKEND_URL =
 
 const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || ""
 
+// Log configuration in development/server startup
+if (typeof window === 'undefined') {
+  console.log('[Medusa Config] Backend URL:', MEDUSA_BACKEND_URL || '(not set)')
+  console.log('[Medusa Config] Publishable Key:', PUBLISHABLE_KEY ? `${PUBLISHABLE_KEY.slice(0, 20)}...` : '(not set)')
+}
+
 export const sdk = new Medusa({
   baseUrl: MEDUSA_BACKEND_URL,
   debug: process.env.NODE_ENV === "development",
@@ -33,6 +39,12 @@ export async function medusaFetch<T>(
   path: string,
   options: MedusaFetchOptions = {}
 ): Promise<T> {
+  if (!MEDUSA_BACKEND_URL) {
+    throw new Error(
+      "MEDUSA_BACKEND_URL is not set. Please configure this environment variable to point to your Medusa backend."
+    )
+  }
+
   if (!PUBLISHABLE_KEY) {
     throw new Error(
       "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY is required but not set. Please check your environment variables."
@@ -41,19 +53,31 @@ export async function medusaFetch<T>(
 
   const { headers = {}, ...restOptions } = options
 
-  return sdk.client.fetch<T>(path, {
-    ...restOptions,
-    headers: {
-      "x-publishable-api-key": PUBLISHABLE_KEY,
-      ...headers,
-    },
-  })
+  try {
+    return await sdk.client.fetch<T>(path, {
+      ...restOptions,
+      headers: {
+        "x-publishable-api-key": PUBLISHABLE_KEY,
+        ...headers,
+      },
+    })
+  } catch (error: any) {
+    console.error(`[medusaFetch] Error fetching ${path}:`, error?.message || error)
+    console.error(`[medusaFetch] Backend URL: ${MEDUSA_BACKEND_URL}`)
+    throw error
+  }
 }
 
 export async function fetchQuery(
   url: string,
   { method, query, headers, body }: FetchQueryOptions
 ) {
+  if (!MEDUSA_BACKEND_URL) {
+    throw new Error(
+      "MEDUSA_BACKEND_URL is not set. Please configure this environment variable to point to your Medusa backend."
+    )
+  }
+
   if (!PUBLISHABLE_KEY) {
     throw new Error(
       "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY is required but not set. Please check your environment variables."
@@ -71,9 +95,10 @@ export async function fetchQuery(
     ""
   )
 
-  const res = await fetch(
-    `${MEDUSA_BACKEND_URL}${url}${params && `?${params}`}`,
-    {
+  const fullUrl = `${MEDUSA_BACKEND_URL}${url}${params && `?${params}`}`
+
+  try {
+    const res = await fetch(fullUrl, {
       method,
       headers: {
         "Content-Type": "application/json",
@@ -81,8 +106,30 @@ export async function fetchQuery(
         ...headers,
       },
       body: body ? JSON.stringify(body) : null,
+    })
+
+    if (!res.ok) {
+      console.error(`[fetchQuery] HTTP ${res.status} error for ${fullUrl}`)
     }
-  )
+
+    let data
+    try {
+      data = await res.json()
+    } catch {
+      data = { message: res.statusText || "Unknown error" }
+    }
+
+    return {
+      ok: res.ok,
+      status: res.status,
+      error: res.ok ? null : { message: data?.message },
+      data: res.ok ? data : null,
+    }
+  } catch (error: any) {
+    console.error(`[fetchQuery] Network error for ${fullUrl}:`, error?.message || error)
+    throw error
+  }
+}
 
   let data
   try {
