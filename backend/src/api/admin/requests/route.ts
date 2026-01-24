@@ -9,16 +9,15 @@ import { RequestStatus } from "../../../modules/request/models"
 // ===========================================
 
 const createRequestSchema = z.object({
+  type: z.string().min(1, "Request type is required"),
+  data: z.record(z.unknown()).default({}),
   requester_id: z.string().min(1, "Requester ID is required"),
-  provider_id: z.string().optional(),
-  payload: z.record(z.unknown()).optional(),
-  notes: z.string().optional(),
+  reviewer_note: z.string().optional(),
 })
 
 const listRequestsSchema = z.object({
   status: z.nativeEnum(RequestStatus).optional(),
   requester_id: z.string().optional(),
-  provider_id: z.string().optional(),
   type: z.string().optional(),
   limit: z.coerce.number().min(1).max(100).default(20),
   offset: z.coerce.number().min(0).default(0),
@@ -38,14 +37,7 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
     const filters: Record<string, unknown> = {}
     if (query.status) filters.status = query.status
     if (query.requester_id) filters.requester_id = query.requester_id
-    if (query.provider_id) filters.provider_id = query.provider_id
-
-    // Add type filter if provided
-    // Note: type is a direct column in the database, not inside JSON
-    // Database stores: "seller", "product", etc.
-    if (query.type) {
-      filters.type = query.type
-    }
+    if (query.type) filters.type = query.type
 
     const requests = await requestService.listRequests(filters, {
       skip: query.offset,
@@ -74,15 +66,15 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
 
 export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   try {
-    const data = createRequestSchema.parse(req.body)
+    const body = createRequestSchema.parse(req.body)
 
     const requestService = req.scope.resolve<RequestModuleService>(REQUEST_MODULE)
 
     const request = await requestService.createRequest({
-      requester_id: data.requester_id,
-      provider_id: data.provider_id,
-      payload: data.payload,
-      notes: data.notes,
+      type: body.type,
+      data: body.data,
+      requester_id: body.requester_id,
+      reviewer_note: body.reviewer_note,
     })
 
     res.status(201).json({
