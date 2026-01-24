@@ -88,6 +88,9 @@ importers:
       awilix:
         specifier: ^8.0.1
         version: 8.0.1
+      axios:
+        specifier: ^1.13.2
+        version: 1.13.2
       express:
         specifier: ^4.21.2
         version: 4.22.1

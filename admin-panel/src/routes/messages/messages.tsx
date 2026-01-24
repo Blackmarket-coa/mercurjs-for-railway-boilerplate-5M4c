@@ -4,10 +4,23 @@ import { ChatBubbleLeftRight } from "@medusajs/icons";
 import { useRocketChat } from "@hooks/api/messages";
 
 export const Messages = () => {
-  const { isConfigured, rocketChatUrl, isLoading } = useRocketChat();
+  const { isConfigured, rocketChatUrl, iframeUrl, loginToken, isLoading } = useRocketChat();
 
-  // Build iframe URL for admin messages
-  const iframeUrl = rocketChatUrl ? `${rocketChatUrl}/home` : "";
+  // Build iframe URL with auto-login token
+  const getIframeUrl = () => {
+    if (!iframeUrl) return ""
+
+    // If we have a login token, add it to the URL for auto-login
+    if (loginToken) {
+      const url = new URL(iframeUrl)
+      url.searchParams.set('resumeToken', loginToken)
+      return url.toString()
+    }
+
+    return iframeUrl
+  }
+
+  const finalIframeUrl = getIframeUrl();
 
   return (
     <Container>
@@ -29,9 +42,9 @@ export const Messages = () => {
           <div className="flex h-full items-center justify-center">
             Loading...
           </div>
-        ) : isConfigured && rocketChatUrl ? (
+        ) : isConfigured && finalIframeUrl ? (
           <iframe
-            src={iframeUrl}
+            src={finalIframeUrl}
             title="Rocket.Chat Messages"
             className="w-full h-full border-0 rounded-lg"
             allow="camera; microphone; fullscreen; display-capture"

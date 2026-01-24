@@ -5,6 +5,8 @@ import { RequestStatus } from "../../../../../modules/request/models"
 import { createSellerWorkflow } from "@mercurjs/b2c-core/workflows"
 import { createSellerMetadataWorkflow } from "../../../../../workflows/create-seller-metadata"
 import { VendorType } from "../../../../../modules/seller-extension/models/seller-metadata"
+import { getRocketChatService } from "../../../../../shared/rocketchat-service"
+import crypto from "crypto"
 
 /**
  * Request type identifier for seller creation requests
@@ -97,6 +99,43 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
         console.error(`[Approve] Failed to create seller metadata:`, error)
         // Don't fail the entire request if metadata creation fails
         // The subscriber will create it with default type as fallback
+      }
+
+      // Create RocketChat user and channel
+      const rocketchatService = getRocketChatService()
+      if (rocketchatService) {
+        try {
+          // Generate a secure random password for RocketChat
+          const rocketchatPassword = crypto.randomBytes(32).toString("hex")
+
+          // Create username from seller handle or email
+          const username = createdSeller.handle || member.email.split("@")[0]
+
+          // Create RocketChat user
+          const { userId: rocketchatUserId, username: rocketchatUsername } = await rocketchatService.createUser(
+            member.name,
+            member.email,
+            username,
+            rocketchatPassword
+          )
+
+          // Create seller channel
+          const channelName = await rocketchatService.createSellerChannel(
+            createdSeller.id,
+            seller.name
+          )
+
+          // Add user to their channel
+          await rocketchatService.addUserToChannel(channelName, rocketchatUsername)
+
+          // Add user to general channel
+          await rocketchatService.addUserToChannel("general", rocketchatUsername)
+
+          console.log(`[Approve] RocketChat user created: ${rocketchatUsername}`)
+        } catch (error: any) {
+          console.error(`[Approve] Failed to create RocketChat user:`, error.message)
+          // Don't fail the entire request if RocketChat creation fails
+        }
       }
 
       // Mark request as accepted
