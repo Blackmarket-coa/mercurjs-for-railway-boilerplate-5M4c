@@ -19,6 +19,7 @@ const listRequestsSchema = z.object({
   status: z.nativeEnum(RequestStatus).optional(),
   requester_id: z.string().optional(),
   provider_id: z.string().optional(),
+  type: z.string().optional(),
   limit: z.coerce.number().min(1).max(100).default(20),
   offset: z.coerce.number().min(0).default(0),
 })
@@ -39,10 +40,38 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
     if (query.requester_id) filters.requester_id = query.requester_id
     if (query.provider_id) filters.provider_id = query.provider_id
 
-    const requests = await requestService.listRequests(filters, {
-      skip: query.offset,
-      take: query.limit,
+    // When filtering by type, we need to fetch more records initially
+    // because we'll filter by payload.type in memory
+    let requests = await requestService.listRequests(filters, {
+      skip: query.type ? 0 : query.offset,
+      take: query.type ? 1000 : query.limit, // Fetch more when type filter is needed
     })
+
+    // Map frontend type parameter to payload.type value
+    // Frontend sends "seller" but payload.type is "seller_creation"
+    const typeMap: Record<string, string> = {
+      seller: "seller_creation",
+    }
+
+    // Filter by type if provided (filtering on JSON field)
+    if (query.type) {
+      const payloadType = typeMap[query.type] || query.type
+      requests = requests.filter((request: any) => {
+        return request.payload?.type === payloadType
+      })
+
+      // Apply pagination after filtering
+      const totalCount = requests.length
+      requests = requests.slice(query.offset, query.offset + query.limit)
+
+      res.json({
+        requests,
+        count: totalCount,
+        offset: query.offset,
+        limit: query.limit,
+      })
+      return
+    }
 
     // Debug logging for first request to see payload structure
     if (requests.length > 0) {
