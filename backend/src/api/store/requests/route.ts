@@ -9,9 +9,9 @@ import { requireCustomerId } from "../../../shared"
 // ===========================================
 
 const createRequestSchema = z.object({
-  provider_id: z.string().optional(),
-  payload: z.record(z.unknown()).optional(),
-  notes: z.string().optional(),
+  type: z.string().min(1, "Request type is required"),
+  data: z.record(z.unknown()).default({}),
+  reviewer_note: z.string().optional(),
 })
 
 // ===========================================
@@ -52,10 +52,10 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
     const requestService = req.scope.resolve<RequestModuleService>(REQUEST_MODULE)
 
     const request = await requestService.createRequest({
+      type: data.type,
+      data: data.data,
       requester_id: customerId,
-      provider_id: data.provider_id,
-      payload: data.payload,
-      notes: data.notes,
+      reviewer_note: data.reviewer_note,
     })
 
     res.status(201).json({

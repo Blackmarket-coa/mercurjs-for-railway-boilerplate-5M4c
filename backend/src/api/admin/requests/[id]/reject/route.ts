@@ -39,11 +39,11 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
       return
     }
 
-    // Update notes with rejection reason if provided
+    // Update reviewer note with rejection reason if provided
     if (reason) {
       await requestService.updateRequests(
         { id },
-        { notes: `${request.notes || ""}\n\nRejection reason: ${reason}`.trim() }
+        { reviewer_note: `${request.reviewer_note || ""}\n\nRejection reason: ${reason}`.trim() }
       )
     }
 

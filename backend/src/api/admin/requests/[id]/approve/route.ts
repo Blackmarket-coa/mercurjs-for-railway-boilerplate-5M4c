@@ -42,14 +42,14 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
       return
     }
 
-    const payload = request.payload as Record<string, unknown>
+    const data = request.data as Record<string, unknown>
 
     // Handle seller creation requests
-    if (payload?.type === SELLER_REQUEST_TYPE) {
-      const authIdentityId = payload.auth_identity_id as string
-      const member = payload.member as { name: string; email: string }
-      const seller = payload.seller as { name: string }
-      const vendorType = (payload.vendor_type as string) || "producer"
+    if (request.type === "seller" || request.type === SELLER_REQUEST_TYPE) {
+      const authIdentityId = data.auth_identity_id as string
+      const member = data.member as { name: string; email: string }
+      const seller = data.seller as { name: string }
+      const vendorType = (data.vendor_type as string) || "producer"
 
       if (!authIdentityId || !member || !seller) {
         res.status(400).json({

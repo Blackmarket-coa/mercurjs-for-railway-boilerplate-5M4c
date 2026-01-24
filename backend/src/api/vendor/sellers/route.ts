@@ -63,9 +63,8 @@ export const POST = async (
     const requestService = req.scope.resolve<RequestModuleService>(REQUEST_MODULE)
 
     const sellerRequest = await requestService.createRequest({
-      submitter_id: authIdentity.id,
-      payload: {
-        type: SELLER_REQUEST_TYPE,
+      type: "seller",
+      data: {
         auth_identity_id: authIdentity.id,
         member: {
           name: body.member.name,
@@ -77,7 +76,8 @@ export const POST = async (
         // Store vendor_type selection (defaults to "producer" if not provided)
         vendor_type: body.vendor_type || "producer",
       },
-      notes: `Seller registration request for "${body.name}" by ${body.member.email}`,
+      submitter_id: authIdentity.id,
+      reviewer_note: `Seller registration request for "${body.name}" by ${body.member.email}`,
     })
 
     console.log("[POST /vendor/sellers] Created seller request:", sellerRequest)
