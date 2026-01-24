@@ -5,20 +5,7 @@ import type { NextFetchRequestConfig } from "next/dist/server/config-shared"
 const MEDUSA_BACKEND_URL =
   process.env.MEDUSA_BACKEND_URL || ""
 
-const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
-
-// Validate required environment variables
-if (!MEDUSA_BACKEND_URL) {
-  throw new Error(
-    "MEDUSA_BACKEND_URL is required. Please set it in your environment variables."
-  )
-}
-
-if (!PUBLISHABLE_KEY) {
-  throw new Error(
-    "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY is required. Please set it in your environment variables."
-  )
-}
+const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || ""
 
 export const sdk = new Medusa({
   baseUrl: MEDUSA_BACKEND_URL,
@@ -46,6 +33,12 @@ export async function medusaFetch<T>(
   path: string,
   options: MedusaFetchOptions = {}
 ): Promise<T> {
+  if (!PUBLISHABLE_KEY) {
+    throw new Error(
+      "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY is required but not set. Please check your environment variables."
+    )
+  }
+
   const { headers = {}, ...restOptions } = options
 
   return sdk.client.fetch<T>(path, {
@@ -61,6 +54,12 @@ export async function fetchQuery(
   url: string,
   { method, query, headers, body }: FetchQueryOptions
 ) {
+  if (!PUBLISHABLE_KEY) {
+    throw new Error(
+      "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY is required but not set. Please check your environment variables."
+    )
+  }
+
   const params = Object.entries(query || {}).reduce(
     (acc, [key, value], index) => {
       if (value && value !== undefined) {
@@ -78,8 +77,7 @@ export async function fetchQuery(
       method,
       headers: {
         "Content-Type": "application/json",
-        "x-publishable-api-key": process.env
-          .NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY as string,
+        "x-publishable-api-key": PUBLISHABLE_KEY,
         ...headers,
       },
       body: body ? JSON.stringify(body) : null,
