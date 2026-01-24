@@ -1,6 +1,6 @@
 "use server"
 
-import { fetchQuery, sdk } from "../config"
+import { fetchQuery, medusaFetch, sdk } from "../config"
 import medusaError from "@/lib/helpers/medusa-error"
 import { HttpTypes } from "@medusajs/types"
 import { revalidatePath, revalidateTag } from "next/cache"
@@ -32,18 +32,17 @@ export async function retrieveCart(cartId?: string) {
     ...(await getAuthHeaders()),
   }
 
-  return await sdk.client
-    .fetch<HttpTypes.StoreCartResponse>(`/store/carts/${id}`, {
-      method: "GET",
-      query: {
-        fields:
-          "*items,*region, *items.product, *items.variant, *items.variant.options, items.variant.options.option.title," +
-          "*items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name, *items.product.seller" +
-          "",
-      },
-      headers,
-      cache: "no-cache",
-    })
+  return await medusaFetch<HttpTypes.StoreCartResponse>(`/store/carts/${id}`, {
+    method: "GET",
+    query: {
+      fields:
+        "*items,*region, *items.product, *items.variant, *items.variant.options, items.variant.options.option.title," +
+        "*items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name, *items.product.seller" +
+        "",
+    },
+    headers,
+    cache: "no-cache",
+  })
     .then(({ cart }) => cart)
     .catch(() => null)
 }
@@ -509,7 +508,7 @@ export async function updateRegionWithValidation(
 
       // Fetch cart with minimal fields to get items
       try {
-        const { cart } = await sdk.client.fetch<HttpTypes.StoreCartResponse>(
+        const { cart } = await medusaFetch<HttpTypes.StoreCartResponse>(
           `/store/carts/${cartId}`,
           {
             method: "GET",
@@ -571,7 +570,7 @@ export async function listCartOptions() {
     ...(await getCacheOptions("shippingOptions")),
   }
 
-  return await sdk.client.fetch<{
+  return await medusaFetch<{
     shipping_options: HttpTypes.StoreCartShippingOption[]
   }>("/store/shipping-options", {
     query: { cart_id: cartId },

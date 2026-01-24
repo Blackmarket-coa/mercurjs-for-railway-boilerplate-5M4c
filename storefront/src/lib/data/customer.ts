@@ -1,6 +1,6 @@
 "use server"
 
-import { sdk } from "../config"
+import { medusaFetch, sdk } from "../config"
 import { HttpTypes } from "@medusajs/types"
 import { revalidateTag } from "next/cache"
 import { redirect } from "next/navigation"
@@ -23,7 +23,7 @@ export const retrieveCustomer =
       const authHeaders = await getAuthHeaders()
       if (!authHeaders) return null
 
-      const { customer } = await sdk.client.fetch<{
+      const { customer } = await medusaFetch<{
         customer: HttpTypes.StoreCustomer
       }>(`/store/customers/me`, {
         method: "GET",

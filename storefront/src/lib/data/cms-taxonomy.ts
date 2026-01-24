@@ -1,4 +1,4 @@
-import { sdk } from "@/lib/config"
+import { medusaFetch } from "@/lib/config"
 
 export interface CmsType {
   id: string
@@ -59,7 +59,7 @@ export interface CmsTaxonomy {
  */
 export async function getCmsTaxonomy(): Promise<CmsTaxonomy> {
   try {
-    const response = await sdk.client.fetch<CmsTaxonomy>(
+    const response = await medusaFetch<CmsTaxonomy>(
       "/store/cms-taxonomy",
       {
         cache: "force-cache",
@@ -83,7 +83,7 @@ export async function getCmsTaxonomy(): Promise<CmsTaxonomy> {
  */
 export async function getCmsTypes(): Promise<CmsType[]> {
   try {
-    const response = await sdk.client.fetch<{ types: CmsType[] }>(
+    const response = await medusaFetch<{ types: CmsType[] }>(
       "/store/cms-types",
       {
         cache: "force-cache",
@@ -102,7 +102,7 @@ export async function getCmsTypes(): Promise<CmsType[]> {
  */
 export async function getCmsTypeByHandle(handle: string): Promise<CmsType | null> {
   try {
-    const response = await sdk.client.fetch<{ type: CmsType }>(
+    const response = await medusaFetch<{ type: CmsType }>(
       `/store/cms-types/${handle}`,
       {
         cache: "force-cache",
@@ -121,7 +121,7 @@ export async function getCmsTypeByHandle(handle: string): Promise<CmsType | null
  */
 export async function getCmsCategoryByHandle(handle: string): Promise<CmsCategory | null> {
   try {
-    const response = await sdk.client.fetch<{ category: CmsCategory }>(
+    const response = await medusaFetch<{ category: CmsCategory }>(
       `/store/cms-categories/${handle}`,
       {
         cache: "force-cache",
@@ -149,7 +149,7 @@ export async function getCmsTags(options?: {
 
     const url = `/store/cms-tags${queryParams.toString() ? `?${queryParams.toString()}` : ""}`
 
-    const response = await sdk.client.fetch<{ tags: CmsTag[] }>(url, {
+    const response = await medusaFetch<{ tags: CmsTag[] }>(url, {
       cache: "force-cache",
       next: { revalidate: 3600 },
     })
