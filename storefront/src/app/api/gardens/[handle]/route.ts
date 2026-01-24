@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"
+const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || ""
 
 export async function GET(
   request: Request,
@@ -12,6 +13,7 @@ export async function GET(
     const response = await fetch(`${BACKEND_URL}/store/gardens/${handle}`, {
       headers: {
         "Content-Type": "application/json",
+        "x-publishable-api-key": PUBLISHABLE_KEY,
       },
       next: { revalidate: 60 },
     })

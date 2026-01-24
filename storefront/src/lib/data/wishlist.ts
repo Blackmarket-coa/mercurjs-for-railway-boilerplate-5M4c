@@ -1,23 +1,19 @@
 "use server"
 import { Wishlist } from "@/types/wishlist"
-import { sdk } from "../config"
+import { medusaFetch } from "../config"
 import { getAuthHeaders } from "./cookies"
 import { revalidatePath } from "next/cache"
 
 export const getUserWishlists = async () => {
   const headers = {
     ...(await getAuthHeaders()),
-    "Content-Type": "application/json",
-    "x-publishable-api-key": process.env
-      .NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY as string,
   }
 
-  return sdk.client
-    .fetch<{ wishlists: Wishlist[]; count: number }>(`/store/wishlist`, {
-      cache: "no-cache",
-      headers,
-      method: "GET",
-    })
+  return medusaFetch<{ wishlists: Wishlist[]; count: number }>(`/store/wishlist`, {
+    cache: "no-cache",
+    headers,
+    method: "GET",
+  })
     .then((res) => {
       return res
     })
@@ -32,22 +28,16 @@ export const addWishlistItem = async ({
 }) => {
   const headers = {
     ...(await getAuthHeaders()),
-    "Content-Type": "application/json",
-    "x-publishable-api-key": process.env
-      .NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY as string,
   }
 
-  const response = await fetch(
-    `${process.env.MEDUSA_BACKEND_URL}/store/wishlist`,
-    {
-      headers,
-      method: "POST",
-      body: JSON.stringify({
-        reference,
-        reference_id,
-      }),
-    }
-  ).then(() => {
+  const response = await medusaFetch(`/store/wishlist`, {
+    headers,
+    method: "POST",
+    body: {
+      reference,
+      reference_id,
+    },
+  }).then(() => {
     revalidatePath("/wishlist")
   })
 }
@@ -61,18 +51,12 @@ export const removeWishlistItem = async ({
 }) => {
   const headers = {
     ...(await getAuthHeaders()),
-    "Content-Type": "application/json",
-    "x-publishable-api-key": process.env
-      .NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY as string,
   }
 
-  const response = await fetch(
-    `${process.env.MEDUSA_BACKEND_URL}/store/wishlist/${wishlist_id}/product/${product_id}`,
-    {
-      headers,
-      method: "DELETE",
-    }
-  ).then(() => {
+  const response = await medusaFetch(`/store/wishlist/${wishlist_id}/product/${product_id}`, {
+    headers,
+    method: "DELETE",
+  }).then(() => {
     revalidatePath("/wishlist")
   })
 }

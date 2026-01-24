@@ -301,19 +301,13 @@ export async function removeShippingMethod(shippingMethodId: string) {
 
   const headers = {
     ...(await getAuthHeaders()),
-    "Content-Type": "application/json",
-    "x-publishable-api-key": process.env
-      .NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY as string,
   }
 
-  return fetch(
-    `${process.env.MEDUSA_BACKEND_URL}/store/carts/${cartId}/shipping-methods`,
-    {
-      method: "DELETE",
-      body: JSON.stringify({ shipping_method_ids: [shippingMethodId] }),
-      headers,
-    }
-  )
+  return medusaFetch(`/store/carts/${cartId}/shipping-methods`, {
+    method: "DELETE",
+    body: { shipping_method_ids: [shippingMethodId] },
+    headers,
+  })
     .then(async () => {
       const cartCacheTag = await getCacheTag("carts")
       revalidateTag(cartCacheTag)
@@ -329,19 +323,13 @@ export async function deletePromotionCode(promoId: string) {
   }
   const headers = {
     ...(await getAuthHeaders()),
-    "Content-Type": "application/json",
-    "x-publishable-api-key": process.env
-      .NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY as string,
   }
 
-  return fetch(
-    `${process.env.MEDUSA_BACKEND_URL}/store/carts/${cartId}/promotions`,
-    {
-      method: "DELETE",
-      body: JSON.stringify({ promo_codes: [promoId] }),
-      headers,
-    }
-  )
+  return medusaFetch(`/store/carts/${cartId}/promotions`, {
+    method: "DELETE",
+    body: { promo_codes: [promoId] },
+    headers,
+  })
     .then(async () => {
       const cartCacheTag = await getCacheTag("carts")
       revalidateTag(cartCacheTag)
