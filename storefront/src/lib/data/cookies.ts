@@ -2,13 +2,13 @@ import 'server-only';
 import { cookies as nextCookies } from 'next/headers';
 
 export const getAuthHeaders = async (): Promise<
-  { authorization: string } | {}
+  { authorization: string } | null
 > => {
   const cookies = await nextCookies();
   const token = cookies.get('_medusa_jwt')?.value;
 
   if (!token) {
-    return {};
+    return null;
   }
 
   return { authorization: `Bearer ${token}` };

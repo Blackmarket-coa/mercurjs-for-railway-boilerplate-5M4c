@@ -73,7 +73,10 @@ export const getReturns = async () => {
     query: { fields: "*line_items.reason_id" },
   })
     .then((res) => res)
-    .catch((err) => medusaError(err))
+    .catch((err) => {
+      console.error("[getReturns] Failed to fetch returns:", err?.message || err)
+      return { order_return_requests: [] }
+    })
 }
 
 export const retriveReturnMethods = async (order_id: string) => {
@@ -190,5 +193,8 @@ export const retrieveReturnReasons = async () => {
     cache: "force-cache",
   })
     .then(({ return_reasons }) => return_reasons)
-    .catch((err) => medusaError(err))
+    .catch((err) => {
+      console.error("[retrieveReturnReasons] Failed to fetch return reasons:", err?.message || err)
+      return []
+    })
 }
