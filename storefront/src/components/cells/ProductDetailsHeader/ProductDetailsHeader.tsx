@@ -202,7 +202,7 @@ export const ProductDetailsHeader = ({
       {/* Mobile Sticky Add to Cart */}
       <MobileStickyAddToCart
         product={product}
-        price={variantPrice}
+        price={variantPrice?.calculated_price || null}
         variantStock={variantStock}
         variantHasPrice={variantHasPrice}
         hasAnyPrice={hasAnyPrice}
