@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 
 const BACKEND_URL = process.env.MEDUSA_BACKEND_URL || "http://localhost:9000"
+const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || ""
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     const params = new URLSearchParams()
-    
+
     // Forward query params
     if (searchParams.has("limit")) params.set("limit", searchParams.get("limit")!)
     if (searchParams.has("offset")) params.set("offset", searchParams.get("offset")!)
@@ -18,6 +19,7 @@ export async function GET(request: NextRequest) {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "x-publishable-api-key": PUBLISHABLE_KEY,
       },
       next: { revalidate: 60 },
     })

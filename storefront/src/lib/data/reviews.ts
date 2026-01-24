@@ -39,25 +39,19 @@ const getReviews = async () => {
 const createReview = async (review: any) => {
   const headers = {
     ...(await getAuthHeaders()),
-    "Content-Type": "application/json",
-    "x-publishable-api-key": process.env
-      .NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY as string,
   }
 
-  const response = await fetch(
-    `${process.env.MEDUSA_BACKEND_URL}/store/reviews`,
-    {
-      headers,
-      method: "POST",
-      body: JSON.stringify(review),
-    }
-  ).then((res) => {
+  const response = await fetchQuery("/store/reviews", {
+    headers,
+    method: "POST",
+    body: review,
+  }).then((res) => {
     revalidatePath("/user/reviews")
     revalidatePath("/user/reviews/written")
     return res
   })
 
-  return response.json()
+  return response.data
 }
 
 export { getReviews, createReview }
