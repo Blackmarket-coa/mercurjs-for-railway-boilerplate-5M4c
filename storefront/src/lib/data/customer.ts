@@ -280,3 +280,17 @@ export const sendResetPasswordEmail = async (email: string) => {
     return { success: false, error: err.toString() }
   }
 }
+
+export const updateCustomerPassword = async (
+  newPassword: string,
+  token: string
+) => {
+  try {
+    await sdk.auth.updateProvider("customer", "emailpass", {
+      password: newPassword,
+    }, token)
+    return { success: true, error: null }
+  } catch (err) {
+    return { success: false, error: err.toString() }
+  }
+}
