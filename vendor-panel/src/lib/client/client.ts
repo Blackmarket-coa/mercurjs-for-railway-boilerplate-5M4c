@@ -28,7 +28,8 @@ export const sdk = new Medusa({
   baseUrl: backendUrl,
   publishableKey: publishableApiKey,
   auth: {
-    type: "bearer",
+    type: "jwt",
+    jwtTokenStorageMethod: "local",
   },
 })
 
