@@ -190,12 +190,14 @@ async function securityAndCorsMiddleware(
     const vendorCors = process.env.VENDOR_CORS || ""
     const vendorPanelUrl = process.env.VENDOR_PANEL_URL || ""
     const authCors = process.env.AUTH_CORS || ""
+    const adminCors = process.env.ADMIN_CORS || ""
 
     // Combine all CORS origins
     const allowedOrigins = [
       ...storeCors.split(",").map(o => o.trim()).filter(Boolean),
       ...vendorCors.split(",").map(o => o.trim()).filter(Boolean),
       ...authCors.split(",").map(o => o.trim()).filter(Boolean),
+      ...adminCors.split(",").map(o => o.trim()).filter(Boolean),
       vendorPanelUrl.trim(),
     ].filter(Boolean)
 
@@ -216,6 +218,27 @@ async function securityAndCorsMiddleware(
       else if (allowedOrigins.includes(origin + "/")) {
         matchedOrigin = origin + "/"
       }
+      // Fallback: Allow known FreeBlackMarket.com domains in production
+      // This handles cases where environment variables may not include all subdomains
+      else {
+        try {
+          const originUrl = new URL(origin)
+          const hostname = originUrl.hostname.toLowerCase()
+
+          // Allow any *.freeblackmarket.com subdomain
+          if (hostname.endsWith('.freeblackmarket.com') || hostname === 'freeblackmarket.com') {
+            matchedOrigin = origin
+            console.log(`[VENDOR CORS] ✓ Allowed via FreeBlackMarket.com fallback: ${origin}`)
+          }
+          // Allow Railway preview deployments (*.up.railway.app)
+          else if (hostname.endsWith('.up.railway.app')) {
+            matchedOrigin = origin
+            console.log(`[VENDOR CORS] ✓ Allowed via Railway fallback: ${origin}`)
+          }
+        } catch (e) {
+          // Invalid origin URL, ignore
+        }
+      }
     }
 
     // Set CORS headers if origin is allowed
@@ -234,9 +257,11 @@ async function securityAndCorsMiddleware(
       res.setHeader("Vary", "Origin")
 
       console.log(`[VENDOR CORS] ✓ Headers set for origin: ${matchedOrigin}`)
-    } else {
+    } else if (origin) {
+      // Only warn if there was an origin that didn't match
       console.warn(`[VENDOR CORS] ✗ Origin not allowed: "${origin}"`)
-      console.warn(`[VENDOR CORS] Allowed origins:`, allowedOrigins)
+      console.warn(`[VENDOR CORS] To fix: Add this origin to VENDOR_CORS, STORE_CORS, or AUTH_CORS environment variable`)
+      console.warn(`[VENDOR CORS] Allowed origins configured:`, allowedOrigins)
     }
 
     // Handle preflight OPTIONS requests early
