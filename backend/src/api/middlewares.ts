@@ -251,6 +251,83 @@ function vendorCorsMiddleware(
 }
 
 /**
+ * Admin CORS Middleware
+ * Handles CORS for custom /admin/* routes that aren't handled by Medusa core
+ */
+function adminCorsMiddleware(
+  req: MedusaRequest,
+  res: MedusaResponse,
+  next: MedusaNextFunction
+) {
+  const origin = req.headers.origin || ''
+
+  // Custom origin function to allow admin dashboards and Railway
+  const customOriginHandler = (
+    reqOrigin: string | undefined,
+    callback: (err: Error | null, origin?: boolean | string) => void
+  ) => {
+    if (!reqOrigin) {
+      callback(null, true)
+      return
+    }
+
+    // Check for known admin origins
+    const adminOrigins = [
+      'https://admin.freeblackmarket.com',
+      'https://admin-dashboard-production-cc8f.up.railway.app',
+    ]
+
+    if (adminOrigins.includes(reqOrigin)) {
+      callback(null, true)
+      return
+    }
+
+    // Check ADMIN_CORS env var
+    const envAdminCors = process.env.ADMIN_CORS || ''
+    const envOrigins = envAdminCors.split(',').map(o => o.trim()).filter(Boolean)
+    if (envOrigins.includes(reqOrigin)) {
+      callback(null, true)
+      return
+    }
+
+    // Allow Railway domains
+    try {
+      const originUrl = new URL(reqOrigin)
+      const hostname = originUrl.hostname.toLowerCase()
+
+      if (hostname.endsWith('.up.railway.app')) {
+        callback(null, true)
+        return
+      }
+
+      if (hostname.endsWith('.freeblackmarket.com') || hostname === 'freeblackmarket.com') {
+        callback(null, true)
+        return
+      }
+    } catch (e) {
+      // Invalid URL
+    }
+
+    callback(null, false)
+  }
+
+  return cors({
+    origin: customOriginHandler,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Publishable-API-Key',
+      'x-publishable-api-key',
+      'X-Medusa-Access-Token',
+      'Cookie',
+    ],
+    maxAge: 86400,
+  })(req, res, next)
+}
+
+/**
  * Security Headers Middleware
  * Applies security headers to all routes
  */
@@ -311,6 +388,23 @@ export default defineMiddlewares({
     {
       matcher: "/vendor/*",
       middlewares: [vendorCorsMiddleware],
+    },
+    // CORS for custom admin routes (requests, sellers, etc.)
+    {
+      matcher: "/admin/requests*",
+      middlewares: [adminCorsMiddleware],
+    },
+    {
+      matcher: "/admin/sellers*",
+      middlewares: [adminCorsMiddleware],
+    },
+    {
+      matcher: "/admin/backfill-seller-auth",
+      middlewares: [adminCorsMiddleware],
+    },
+    {
+      matcher: "/admin/auth-debug",
+      middlewares: [adminCorsMiddleware],
     },
     // Apply security headers to all routes
     {
