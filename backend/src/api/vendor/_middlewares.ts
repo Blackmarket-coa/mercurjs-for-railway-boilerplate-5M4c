@@ -84,10 +84,11 @@ async function vendorCorsMiddleware(
   // Handle preflight
   if (req.method === "OPTIONS") {
     console.log(`[VENDOR CORS MW] Handling OPTIONS preflight - returning 204`)
-    return res.status(204).end()
+    res.status(204).end()
+    return
   }
 
-  return next()
+  next()
 }
 
 export default defineMiddlewares({
