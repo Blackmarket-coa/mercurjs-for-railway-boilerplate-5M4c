@@ -39,14 +39,16 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
     if (query.requester_id) filters.requester_id = query.requester_id
     if (query.type) filters.type = query.type
 
-    const requests = await requestService.listRequests(filters, {
+    // Use listAndCountRequests to get both results and total count for proper pagination
+    const [requests, totalCount] = await requestService.listAndCountRequests(filters, {
       skip: query.offset,
       take: query.limit,
+      order: { created_at: "DESC" },
     })
 
     res.json({
       requests,
-      count: requests.length,
+      count: totalCount,
       offset: query.offset,
       limit: query.limit,
     })

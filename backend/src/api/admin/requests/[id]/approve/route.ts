@@ -1,4 +1,5 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { Modules } from "@medusajs/framework/utils"
 import { REQUEST_MODULE } from "../../../../../modules/request"
 import RequestModuleService from "../../../../../modules/request/service"
 import { RequestStatus } from "../../../../../modules/request/models"
@@ -78,6 +79,24 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
       })
 
       console.log(`[Approve] Seller created:`, createdSeller)
+
+      // CRITICAL: Update auth_identity with seller_id in app_metadata
+      // This links the authentication to the seller, enabling login
+      try {
+        const authModule = req.scope.resolve(Modules.AUTH)
+        await authModule.updateAuthIdentities([{
+          id: authIdentityId,
+          app_metadata: {
+            seller_id: createdSeller.id,
+          },
+        }])
+        console.log(`[Approve] Updated auth_identity ${authIdentityId} with seller_id: ${createdSeller.id}`)
+      } catch (authError: any) {
+        console.error(`[Approve] Failed to update auth_identity:`, authError)
+        // This is critical - if we can't link auth, the seller can't login
+        // Re-throw to fail the request
+        throw new Error(`Failed to link authentication: ${authError.message}`)
+      }
 
       // Create seller metadata with the correct vendor_type from registration
       // Note: The subscriber will also try to create metadata, but we create it here first
