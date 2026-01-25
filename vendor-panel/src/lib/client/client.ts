@@ -8,13 +8,27 @@ const runtimeBackend =
 export const backendUrl = (runtimeBackend || __BACKEND_URL__) ?? "/"
 export const publishableApiKey = __PUBLISHABLE_API_KEY__ ?? ""
 
-const token = typeof window !== "undefined" ? window.localStorage.getItem("medusa_auth_token") || "" : ""
+export const getAuthToken = () => {
+  return typeof window !== "undefined" ? window.localStorage.getItem("medusa_auth_token") || "" : ""
+}
+
+export const setAuthToken = (token: string) => {
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem("medusa_auth_token", token)
+  }
+}
+
+export const clearAuthToken = () => {
+  if (typeof window !== "undefined") {
+    window.localStorage.removeItem("medusa_auth_token")
+  }
+}
 
 export const sdk = new Medusa({
   baseUrl: backendUrl,
   publishableKey: publishableApiKey,
   auth: {
-    type: "session",
+    type: "bearer",
   },
 })
 
@@ -33,7 +47,7 @@ export const importProductsQuery = async (file: File) => {
     body: formData,
     credentials: 'include',
     headers: {
-      authorization: `Bearer ${token}`,
+      authorization: `Bearer ${getAuthToken()}`,
       "x-publishable-api-key": publishableApiKey,
     },
   })
@@ -53,7 +67,7 @@ export const uploadFilesQuery = async (files: any[]) => {
     body: formData,
     credentials: 'include',
     headers: {
-      authorization: `Bearer ${token}`,
+      authorization: `Bearer ${getAuthToken()}`,
       "x-publishable-api-key": publishableApiKey,
     },
   })

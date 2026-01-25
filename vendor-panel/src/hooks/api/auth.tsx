@@ -1,7 +1,7 @@
 import { FetchError } from "@medusajs/js-sdk"
 import { HttpTypes } from "@medusajs/types"
 import { UseMutationOptions, useMutation } from "@tanstack/react-query"
-import { fetchQuery, sdk } from "../../lib/client"
+import { clearAuthToken, fetchQuery, sdk, setAuthToken } from "../../lib/client"
 
 export const useSignInWithEmailPass = (
   options?: UseMutationOptions<
@@ -14,11 +14,17 @@ export const useSignInWithEmailPass = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      sdk.auth.login("seller", "emailpass", {
+    mutationFn: async (payload) => {
+      const result = await sdk.auth.login("seller", "emailpass", {
         ...payload,
         email: payload.email.toLowerCase().trim(),
-      }),
+      })
+      // Store the token if login returns a token string
+      if (typeof result === "string") {
+        setAuthToken(result)
+      }
+      return result
+    },
     ...options,
   })
 }
@@ -35,13 +41,18 @@ export const useSignUpWithEmailPass = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => {
+    mutationFn: async (payload) => {
       const { confirmPassword, vendor_type, ...authPayload } = payload as any
 
-      return sdk.auth.register("seller", "emailpass", {
+      const token = await sdk.auth.register("seller", "emailpass", {
         ...authPayload,
         email: payload.email.toLowerCase().trim(),
       })
+      // Store the token after registration
+      if (typeof token === "string") {
+        setAuthToken(token)
+      }
+      return token
     },
     // Spread options first so internal onSuccess isn't overwritten
     ...options,
@@ -82,11 +93,17 @@ export const useSignUpForInvite = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      sdk.auth.register("seller", "emailpass", {
+    mutationFn: async (payload) => {
+      const token = await sdk.auth.register("seller", "emailpass", {
         ...payload,
         email: payload.email.toLowerCase().trim(),
-      }),
+      })
+      // Store the token after registration
+      if (typeof token === "string") {
+        setAuthToken(token)
+      }
+      return token
+    },
     ...options,
   })
 }
@@ -105,7 +122,10 @@ export const useResetPasswordForEmailPass = (
 
 export const useLogout = (options?: UseMutationOptions<void, FetchError>) => {
   return useMutation({
-    mutationFn: () => sdk.auth.logout(),
+    mutationFn: async () => {
+      await sdk.auth.logout()
+      clearAuthToken()
+    },
     ...options,
   })
 }
