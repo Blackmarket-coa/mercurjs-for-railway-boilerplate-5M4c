@@ -68,11 +68,12 @@ module.exports = defineConfig({
       storeCors: getStoreCors(),
       adminCors: process.env.ADMIN_CORS || 'https://admin.freeblackmarket.com',
       // vendorCors is used by @mercurjs/b2c-core for /vendor/* routes
+      // TypeScript doesn't know about this property but MercurJS uses it at runtime
       vendorCors: getVendorCors(),
       authCors: getAuthCors(),
       jwtSecret: process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' ? (() => { throw new Error('JWT_SECRET is required in production') })() : 'dev-only-secret-change-in-prod'),
       cookieSecret: process.env.COOKIE_SECRET || (process.env.NODE_ENV === 'production' ? (() => { throw new Error('COOKIE_SECRET is required in production') })() : 'dev-only-secret-change-in-prod'),
-    },
+    } as any,
   },
   admin: {
     disable: true,
