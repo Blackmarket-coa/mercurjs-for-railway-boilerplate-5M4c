@@ -357,6 +357,11 @@ export default defineMiddlewares({
       matcher: "/admin/invites",
       middlewares: [normalizeEmailMiddleware],
     },
+    // Vendor sellers/me route - seller authentication for profile access
+    {
+      matcher: "/vendor/sellers/me",
+      middlewares: [authenticate("seller", "bearer")],
+    },
     // Vendor delivery routes - seller authentication
     {
       matcher: "/vendor/deliveries/*",
