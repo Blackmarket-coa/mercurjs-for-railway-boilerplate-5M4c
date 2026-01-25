@@ -15,9 +15,7 @@ export default async function hawalaSettlementJob(container: MedusaContainer) {
   try {
     // Get unsettled entries from the last 24 hours
     const entries = await hawalaService.listLedgerEntries({
-      filters: {
-        status: "COMPLETED",
-      },
+      status: "COMPLETED",
     })
 
     // Filter to only unsettled entries
