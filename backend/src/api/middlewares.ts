@@ -4,6 +4,8 @@ import type {
   MedusaResponse,
   MedusaNextFunction,
 } from "@medusajs/framework/http"
+import { parseCorsOrigins } from "@medusajs/framework/utils"
+import cors from "cors"
 import { z } from "zod"
 
 // Basic email validation regex
@@ -143,137 +145,121 @@ const PostCartItemsRentalsBody = z.object({
 })
 
 /**
- * Combined Security and CORS Middleware
- *
- * Handles both security headers and CORS in the correct order:
- * 1. CORS headers are set first (before security headers)
- * 2. Security headers are relaxed for vendor routes
- * 3. Properly handles preflight OPTIONS requests
+ * Build CORS origins string from environment variables
+ * Combines VENDOR_CORS, STORE_CORS, AUTH_CORS, ADMIN_CORS, and VENDOR_PANEL_URL
  */
-async function securityAndCorsMiddleware(
+function getVendorCorsOrigins(): string {
+  const origins = new Set<string>()
+
+  // Add origins from all CORS environment variables
+  const envVars = ['VENDOR_CORS', 'STORE_CORS', 'AUTH_CORS', 'ADMIN_CORS']
+  for (const envVar of envVars) {
+    const value = process.env[envVar] || ''
+    value.split(',').map(o => o.trim()).filter(Boolean).forEach(o => origins.add(o))
+  }
+
+  // Add vendor panel URL
+  if (process.env.VENDOR_PANEL_URL?.trim()) {
+    origins.add(process.env.VENDOR_PANEL_URL.trim())
+  }
+
+  // Hardcode production origins to ensure they're always allowed
+  origins.add('https://vendor.freeblackmarket.com')
+  origins.add('https://freeblackmarket.com')
+  origins.add('https://admin.freeblackmarket.com')
+
+  return Array.from(origins).join(',')
+}
+
+/**
+ * Vendor CORS Middleware
+ * Uses the official cors package with parseCorsOrigins for proper CORS handling
+ * This handles preflight OPTIONS requests correctly
+ */
+function vendorCorsMiddleware(
+  req: MedusaRequest,
+  res: MedusaResponse,
+  next: MedusaNextFunction
+) {
+  const origin = req.headers.origin || ''
+  console.log(`[VENDOR CORS] Request: ${req.method} ${req.path} from origin: "${origin}"`)
+
+  // Get CORS origins
+  const corsOrigins = getVendorCorsOrigins()
+  console.log(`[VENDOR CORS] Configured origins: ${corsOrigins}`)
+
+  // Custom origin function to also allow Railway preview deployments
+  const customOriginHandler = (
+    reqOrigin: string | undefined,
+    callback: (err: Error | null, origin?: boolean | string) => void
+  ) => {
+    if (!reqOrigin) {
+      // Allow requests with no origin (like mobile apps or curl)
+      callback(null, true)
+      return
+    }
+
+    // Parse configured origins
+    const allowedOrigins = parseCorsOrigins(corsOrigins)
+
+    // Check if origin is in the allowed list
+    if (allowedOrigins.includes(reqOrigin) || allowedOrigins.includes(reqOrigin.replace(/\/$/, ''))) {
+      console.log(`[VENDOR CORS] ✓ Origin allowed (exact match): ${reqOrigin}`)
+      callback(null, true)
+      return
+    }
+
+    // Check for FreeBlackMarket.com and Railway domains
+    try {
+      const originUrl = new URL(reqOrigin)
+      const hostname = originUrl.hostname.toLowerCase()
+
+      if (hostname.endsWith('.freeblackmarket.com') || hostname === 'freeblackmarket.com') {
+        console.log(`[VENDOR CORS] ✓ Origin allowed (FreeBlackMarket.com domain): ${reqOrigin}`)
+        callback(null, true)
+        return
+      }
+
+      if (hostname.endsWith('.up.railway.app')) {
+        console.log(`[VENDOR CORS] ✓ Origin allowed (Railway domain): ${reqOrigin}`)
+        callback(null, true)
+        return
+      }
+    } catch (e) {
+      // Invalid URL, continue to rejection
+    }
+
+    console.log(`[VENDOR CORS] ✗ Origin not allowed: ${reqOrigin}`)
+    callback(null, false)
+  }
+
+  // Apply the cors middleware
+  return cors({
+    origin: customOriginHandler,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Publishable-API-Key',
+      'x-publishable-api-key',
+      'X-Medusa-Access-Token',
+      'Cookie',
+    ],
+    maxAge: 86400,
+  })(req, res, next)
+}
+
+/**
+ * Security Headers Middleware
+ * Applies security headers to all routes
+ */
+async function securityHeadersMiddleware(
   req: MedusaRequest,
   res: MedusaResponse,
   next: MedusaNextFunction
 ) {
   const isVendorRoute = req.path?.startsWith("/vendor") || false
-
-  // Extract origin from either Origin header or Referer header
-  let origin = req.headers.origin || ""
-  let referer = req.headers.referer || req.headers.referrer || ""
-
-  // Normalize referer to string if it's an array
-  if (Array.isArray(referer)) {
-    referer = referer[0] || ""
-  }
-
-  // If no origin but we have a referer, extract origin from referer URL
-  if (!origin && referer) {
-    try {
-      const refererUrl = new URL(referer)
-      origin = `${refererUrl.protocol}//${refererUrl.host}`
-    } catch (e) {
-      // Invalid referer URL, ignore
-    }
-  }
-
-  console.log(`[MIDDLEWARE] Path: ${req.path}, Method: ${req.method}`)
-  console.log(`[MIDDLEWARE] Origin header: "${req.headers.origin || '(not set)'}"`)
-  console.log(`[MIDDLEWARE] Referer header: "${referer || '(not set)'}"`)
-  console.log(`[MIDDLEWARE] Computed origin: "${origin}"`)
-
-  // ============================================
-  // STEP 1: Handle CORS for vendor routes FIRST
-  // ============================================
-  if (isVendorRoute) {
-    // Get allowed origins from environment
-    const storeCors = process.env.STORE_CORS || ""
-    const vendorCors = process.env.VENDOR_CORS || ""
-    const vendorPanelUrl = process.env.VENDOR_PANEL_URL || ""
-    const authCors = process.env.AUTH_CORS || ""
-    const adminCors = process.env.ADMIN_CORS || ""
-
-    // Combine all CORS origins
-    const allowedOrigins = [
-      ...storeCors.split(",").map(o => o.trim()).filter(Boolean),
-      ...vendorCors.split(",").map(o => o.trim()).filter(Boolean),
-      ...authCors.split(",").map(o => o.trim()).filter(Boolean),
-      ...adminCors.split(",").map(o => o.trim()).filter(Boolean),
-      vendorPanelUrl.trim(),
-    ].filter(Boolean)
-
-    console.log(`[VENDOR CORS] Allowed origins:`, allowedOrigins)
-
-    // Check if origin matches any allowed origin
-    let matchedOrigin = ""
-    if (origin) {
-      // Exact match
-      if (allowedOrigins.includes(origin)) {
-        matchedOrigin = origin
-      }
-      // Try without trailing slash
-      else if (allowedOrigins.includes(origin.replace(/\/$/, ""))) {
-        matchedOrigin = origin.replace(/\/$/, "")
-      }
-      // Try with trailing slash
-      else if (allowedOrigins.includes(origin + "/")) {
-        matchedOrigin = origin + "/"
-      }
-      // Fallback: Allow known FreeBlackMarket.com domains in production
-      // This handles cases where environment variables may not include all subdomains
-      else {
-        try {
-          const originUrl = new URL(origin)
-          const hostname = originUrl.hostname.toLowerCase()
-
-          // Allow any *.freeblackmarket.com subdomain
-          if (hostname.endsWith('.freeblackmarket.com') || hostname === 'freeblackmarket.com') {
-            matchedOrigin = origin
-            console.log(`[VENDOR CORS] ✓ Allowed via FreeBlackMarket.com fallback: ${origin}`)
-          }
-          // Allow Railway preview deployments (*.up.railway.app)
-          else if (hostname.endsWith('.up.railway.app')) {
-            matchedOrigin = origin
-            console.log(`[VENDOR CORS] ✓ Allowed via Railway fallback: ${origin}`)
-          }
-        } catch (e) {
-          // Invalid origin URL, ignore
-        }
-      }
-    }
-
-    // Set CORS headers if origin is allowed
-    if (matchedOrigin) {
-      res.setHeader("Access-Control-Allow-Origin", matchedOrigin)
-      res.setHeader("Access-Control-Allow-Credentials", "true")
-      res.setHeader(
-        "Access-Control-Allow-Methods",
-        "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-      )
-      res.setHeader(
-        "Access-Control-Allow-Headers",
-        "Content-Type, Authorization, X-Publishable-API-Key, x-publishable-api-key, X-Medusa-Access-Token, Cookie"
-      )
-      res.setHeader("Access-Control-Max-Age", "86400")
-      res.setHeader("Vary", "Origin")
-
-      console.log(`[VENDOR CORS] ✓ Headers set for origin: ${matchedOrigin}`)
-    } else if (origin) {
-      // Only warn if there was an origin that didn't match
-      console.warn(`[VENDOR CORS] ✗ Origin not allowed: "${origin}"`)
-      console.warn(`[VENDOR CORS] To fix: Add this origin to VENDOR_CORS, STORE_CORS, or AUTH_CORS environment variable`)
-      console.warn(`[VENDOR CORS] Allowed origins configured:`, allowedOrigins)
-    }
-
-    // Handle preflight OPTIONS requests early
-    if (req.method === "OPTIONS") {
-      console.log(`[VENDOR CORS] Handling OPTIONS preflight - returning 204`)
-      return res.status(204).end()
-    }
-  }
-
-  // ============================================
-  // STEP 2: Apply security headers
-  // ============================================
   const isProduction = process.env.NODE_ENV === "production"
 
   // Relaxed CSP for vendor routes (allow unsafe-eval for development tools)
@@ -282,7 +268,6 @@ async function securityAndCorsMiddleware(
       "Content-Security-Policy",
       "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' https: data:; connect-src 'self' https: wss:; frame-src 'self' https:; object-src 'none'"
     )
-    console.log(`[SECURITY] Relaxed CSP applied for vendor route`)
   } else {
     // Standard strict CSP for other routes
     res.setHeader(
@@ -317,14 +302,20 @@ async function securityAndCorsMiddleware(
 export default defineMiddlewares({
   routes: [
     // CORS for vendor routes - must be first to handle OPTIONS preflight
+    // Using "/vendor*" pattern to match all vendor routes including those from plugins
+    {
+      matcher: "/vendor*",
+      middlewares: [vendorCorsMiddleware],
+    },
+    // Also match the more specific pattern for local vendor routes
     {
       matcher: "/vendor/*",
-      middlewares: [securityAndCorsMiddleware],
+      middlewares: [vendorCorsMiddleware],
     },
-    // Apply combined security and CORS middleware to all routes
+    // Apply security headers to all routes
     {
       matcher: "/*",
-      middlewares: [securityAndCorsMiddleware],
+      middlewares: [securityHeadersMiddleware],
     },
     // Product feed - public XML feed for Google Shopping/Facebook
     {
