@@ -5,49 +5,34 @@ loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
 // Build CORS configuration dynamically
 const getStoreCors = () => {
-  const baseCors = process.env.STORE_CORS || 'http://localhost:8000,https://docs.medusajs.com'
-  const vendorPanelUrl = process.env.VENDOR_PANEL_URL
-  const vendorCors = process.env.VENDOR_CORS
+  const storeCors = process.env.STORE_CORS || ''
+  const vendorPanelUrl = process.env.VENDOR_PANEL_URL || ''
+  const vendorCors = process.env.VENDOR_CORS || ''
 
-  let cors = baseCors
+  // Combine all origins, removing duplicates
+  const origins = new Set<string>()
 
-  // Add VENDOR_PANEL_URL if explicitly set
-  if (vendorPanelUrl && !baseCors.includes(vendorPanelUrl)) {
-    cors = `${cors},${vendorPanelUrl}`
-  }
+  storeCors.split(',').map(o => o.trim()).filter(Boolean).forEach(o => origins.add(o))
+  vendorCors.split(',').map(o => o.trim()).filter(Boolean).forEach(o => origins.add(o))
+  if (vendorPanelUrl.trim()) origins.add(vendorPanelUrl.trim())
 
-  // Also add VENDOR_CORS if it's different from baseCors (for vendor panel access to store endpoints)
-  if (vendorCors && !cors.includes(vendorCors)) {
-    cors = `${cors},${vendorCors}`
-  }
-
-  return cors
+  return Array.from(origins).join(',') || 'https://freeblackmarket.com'
 }
 
 // Build Auth CORS to include vendor panel origins
 const getAuthCors = () => {
-  const baseCors = process.env.AUTH_CORS || 'http://localhost:8000,https://docs.medusajs.com'
-  const vendorPanelUrl = process.env.VENDOR_PANEL_URL
-  const vendorCors = process.env.VENDOR_CORS
+  const authCors = process.env.AUTH_CORS || ''
+  const vendorPanelUrl = process.env.VENDOR_PANEL_URL || ''
+  const vendorCors = process.env.VENDOR_CORS || ''
 
-  let cors = baseCors
+  // Combine all origins, removing duplicates
+  const origins = new Set<string>()
 
-  // Add vendor panel URL to auth CORS
-  if (vendorPanelUrl && !cors.includes(vendorPanelUrl)) {
-    cors = `${cors},${vendorPanelUrl}`
-  }
+  authCors.split(',').map(o => o.trim()).filter(Boolean).forEach(o => origins.add(o))
+  vendorCors.split(',').map(o => o.trim()).filter(Boolean).forEach(o => origins.add(o))
+  if (vendorPanelUrl.trim()) origins.add(vendorPanelUrl.trim())
 
-  // Add vendor CORS origins to auth CORS
-  if (vendorCors) {
-    const vendorOrigins = vendorCors.split(',').map(o => o.trim()).filter(Boolean)
-    for (const origin of vendorOrigins) {
-      if (!cors.includes(origin)) {
-        cors = `${cors},${origin}`
-      }
-    }
-  }
-
-  return cors
+  return Array.from(origins).join(',') || 'https://freeblackmarket.com'
 }
 
 module.exports = defineConfig({
@@ -56,7 +41,7 @@ module.exports = defineConfig({
     ...(process.env.REDIS_URL ? { redisUrl: process.env.REDIS_URL } : {}),
     http: {
       storeCors: getStoreCors(),
-      adminCors: process.env.ADMIN_CORS || 'http://localhost:7000',
+      adminCors: process.env.ADMIN_CORS || 'https://admin.freeblackmarket.com',
       authCors: getAuthCors(),
       jwtSecret: process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' ? (() => { throw new Error('JWT_SECRET is required in production') })() : 'dev-only-secret-change-in-prod'),
       cookieSecret: process.env.COOKIE_SECRET || (process.env.NODE_ENV === 'production' ? (() => { throw new Error('COOKIE_SECRET is required in production') })() : 'dev-only-secret-change-in-prod'),
