@@ -316,6 +316,11 @@ async function securityAndCorsMiddleware(
 
 export default defineMiddlewares({
   routes: [
+    // CORS for vendor routes - must be first to handle OPTIONS preflight
+    {
+      matcher: "/vendor/*",
+      middlewares: [securityAndCorsMiddleware],
+    },
     // Apply combined security and CORS middleware to all routes
     {
       matcher: "/*",
