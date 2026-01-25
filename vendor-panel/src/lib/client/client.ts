@@ -117,6 +117,10 @@ export const fetchQuery = async (
 
   if (!response.ok) {
     const errorData = await response.json()
+    // Clear stale token on auth errors to prevent redirect loops
+    if (response.status === 401 || response.status === 403) {
+      clearAuthToken()
+    }
     throw new Error(errorData.message || "Nieznany błąd serwera")
   }
 
