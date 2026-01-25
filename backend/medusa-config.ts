@@ -60,13 +60,30 @@ const getAuthCors = () => {
   return Array.from(origins).join(',')
 }
 
+// Build Admin CORS configuration
+const getAdminCors = () => {
+  const adminCors = process.env.ADMIN_CORS || ''
+
+  // Combine all origins, removing duplicates
+  const origins = new Set<string>()
+
+  adminCors.split(',').map(o => o.trim()).filter(Boolean).forEach(o => origins.add(o))
+
+  // Always include production admin panel
+  origins.add('https://admin.freeblackmarket.com')
+  // Include Railway admin dashboard
+  origins.add('https://admin-dashboard-production-cc8f.up.railway.app')
+
+  return Array.from(origins).join(',')
+}
+
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     ...(process.env.REDIS_URL ? { redisUrl: process.env.REDIS_URL } : {}),
     http: {
       storeCors: getStoreCors(),
-      adminCors: process.env.ADMIN_CORS || 'https://admin.freeblackmarket.com',
+      adminCors: getAdminCors(),
       // vendorCors is used by @mercurjs/b2c-core for /vendor/* routes
       // TypeScript doesn't know about this property but MercurJS uses it at runtime
       vendorCors: getVendorCors(),
