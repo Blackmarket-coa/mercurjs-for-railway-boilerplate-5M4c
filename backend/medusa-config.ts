@@ -3,36 +3,61 @@ import { defineConfig, loadEnv } from '@medusajs/framework/utils'
 // Load environment variables
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
-// Build CORS configuration dynamically
+// Build Vendor CORS configuration
+const getVendorCors = () => {
+  const vendorCors = process.env.VENDOR_CORS || ''
+  const vendorPanelUrl = process.env.VENDOR_PANEL_URL || ''
+
+  // Combine all origins, removing duplicates
+  const origins = new Set<string>()
+
+  vendorCors.split(',').map(o => o.trim()).filter(Boolean).forEach(o => origins.add(o))
+  if (vendorPanelUrl.trim()) origins.add(vendorPanelUrl.trim())
+
+  // Always include production vendor panel
+  origins.add('https://vendor.freeblackmarket.com')
+
+  return Array.from(origins).join(',')
+}
+
+// Build Store CORS configuration
 const getStoreCors = () => {
   const storeCors = process.env.STORE_CORS || ''
-  const vendorPanelUrl = process.env.VENDOR_PANEL_URL || ''
-  const vendorCors = process.env.VENDOR_CORS || ''
 
   // Combine all origins, removing duplicates
   const origins = new Set<string>()
 
   storeCors.split(',').map(o => o.trim()).filter(Boolean).forEach(o => origins.add(o))
-  vendorCors.split(',').map(o => o.trim()).filter(Boolean).forEach(o => origins.add(o))
-  if (vendorPanelUrl.trim()) origins.add(vendorPanelUrl.trim())
 
-  return Array.from(origins).join(',') || 'https://freeblackmarket.com'
+  // Always include production storefront
+  origins.add('https://freeblackmarket.com')
+
+  return Array.from(origins).join(',')
 }
 
-// Build Auth CORS to include vendor panel origins
+// Build Auth CORS to include all frontend origins
 const getAuthCors = () => {
   const authCors = process.env.AUTH_CORS || ''
   const vendorPanelUrl = process.env.VENDOR_PANEL_URL || ''
   const vendorCors = process.env.VENDOR_CORS || ''
+  const storeCors = process.env.STORE_CORS || ''
+  const adminCors = process.env.ADMIN_CORS || ''
 
   // Combine all origins, removing duplicates
   const origins = new Set<string>()
 
   authCors.split(',').map(o => o.trim()).filter(Boolean).forEach(o => origins.add(o))
   vendorCors.split(',').map(o => o.trim()).filter(Boolean).forEach(o => origins.add(o))
+  storeCors.split(',').map(o => o.trim()).filter(Boolean).forEach(o => origins.add(o))
+  adminCors.split(',').map(o => o.trim()).filter(Boolean).forEach(o => origins.add(o))
   if (vendorPanelUrl.trim()) origins.add(vendorPanelUrl.trim())
 
-  return Array.from(origins).join(',') || 'https://freeblackmarket.com'
+  // Always include production origins
+  origins.add('https://vendor.freeblackmarket.com')
+  origins.add('https://freeblackmarket.com')
+  origins.add('https://admin.freeblackmarket.com')
+
+  return Array.from(origins).join(',')
 }
 
 module.exports = defineConfig({
@@ -42,6 +67,8 @@ module.exports = defineConfig({
     http: {
       storeCors: getStoreCors(),
       adminCors: process.env.ADMIN_CORS || 'https://admin.freeblackmarket.com',
+      // vendorCors is used by @mercurjs/b2c-core for /vendor/* routes
+      vendorCors: getVendorCors(),
       authCors: getAuthCors(),
       jwtSecret: process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' ? (() => { throw new Error('JWT_SECRET is required in production') })() : 'dev-only-secret-change-in-prod'),
       cookieSecret: process.env.COOKIE_SECRET || (process.env.NODE_ENV === 'production' ? (() => { throw new Error('COOKIE_SECRET is required in production') })() : 'dev-only-secret-change-in-prod'),
@@ -53,20 +80,7 @@ module.exports = defineConfig({
   plugins: [
     {
       resolve: '@mercurjs/b2c-core',
-      options: {
-        // Add vendor CORS origins for b2c-core routes
-        cors: {
-          origin: [
-            ...(process.env.VENDOR_CORS?.split(',').map(o => o.trim()) || []),
-            ...(process.env.STORE_CORS?.split(',').map(o => o.trim()) || []),
-            process.env.VENDOR_PANEL_URL || '',
-            // Fallback domains
-            /\.freeblackmarket\.com$/,
-            /\.up\.railway\.app$/,
-          ].filter(Boolean),
-          credentials: true,
-        },
-      },
+      options: {},
     },
     { resolve: '@mercurjs/commission', options: {} },
     { resolve: '@mercurjs/reviews', options: {} },
