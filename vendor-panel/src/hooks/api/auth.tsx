@@ -48,13 +48,14 @@ export const useSignUpWithEmailPass = (
     onSuccess: async (data, variables, context) => {
       const normalizedEmail = variables.email.toLowerCase().trim()
 
-      // MercurJS vendor endpoint ONLY accepts name + member
+      // Create seller registration request with vendor type
       // Wrap in try/catch to prevent uncaught fetch errors
       try {
         await fetchQuery("/vendor/sellers", {
           method: "POST",
           body: {
             name: variables.name,
+            vendor_type: variables.vendor_type || "producer",
             member: {
               name: variables.name,
               email: normalizedEmail,
