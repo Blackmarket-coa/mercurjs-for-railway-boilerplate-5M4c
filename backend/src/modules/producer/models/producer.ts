@@ -18,12 +18,43 @@ export enum GrowingPractice {
 
 /**
  * Producer
- * 
+ *
  * Represents a farm, food hub, or primary producer.
  * Linked to a MercurJS seller via seller_id.
- * 
- * This is the customer-visible "farm profile" that builds trust
+ *
+ * This is the CUSTOMER-FACING "farm profile" that builds trust
  * and transparency in the barn-to-door model.
+ *
+ * RELATIONSHIP WITH SELLER_METADATA:
+ * ----------------------------------
+ * Both producer and seller_metadata have some overlapping fields
+ * (certifications, social_links). Here's the distinction:
+ *
+ * producer (this model):
+ *   - CUSTOMER-FACING profile for PRODUCER type sellers only
+ *   - Farm story/narrative content for marketing
+ *   - Location info (region, coordinates) for local discovery
+ *   - Farm details (size, year established) for transparency
+ *   - Public gallery/media for trust building
+ *   - Growing practices and certifications displayed to customers
+ *
+ * seller_metadata (seller-extension module):
+ *   - INTERNAL/ADMIN data for ALL seller types
+ *   - vendor_type classification (producer, garden, maker, etc.)
+ *   - Business info (tax ID, registration numbers)
+ *   - Platform status (verified badge, featured flag, rating)
+ *   - Type-specific operational fields
+ *
+ * In summary:
+ *   producer = marketing/transparency data for storefront
+ *   seller_metadata = operational data for backend/admin
+ *
+ * A producer-type seller will have BOTH:
+ *   - seller_metadata (with vendor_type="producer", business info)
+ *   - producer profile (with farm story, location, gallery)
+ *
+ * The storefront displays the producer profile to customers,
+ * while admin/vendor panels use seller_metadata for operations.
  */
 const Producer = model.define("producer", {
   id: model.id().primaryKey(),

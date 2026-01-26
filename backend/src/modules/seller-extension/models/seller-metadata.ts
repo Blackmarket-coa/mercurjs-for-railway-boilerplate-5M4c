@@ -13,6 +13,9 @@ import { model } from "@medusajs/framework/utils"
  * - maker: Artisans, crafters, cottage food producers
  * - restaurant: Restaurants, ghost kitchens, food trucks
  * - mutual_aid: Mutual aid networks, community organizations
+ *
+ * IMPORTANT: These values MUST match the PostgreSQL enum `vendor_type_enum`.
+ * See Migration20260114FixVendorTypeEnum for the canonical enum definition.
  */
 export enum VendorType {
   PRODUCER = "producer",
@@ -53,11 +56,39 @@ export interface StorefrontLinks {
 
 /**
  * Seller Metadata - Extension for MercurJS Seller
- * 
+ *
  * Since we can't modify the @mercurjs/b2c-core seller model directly,
  * we create a linked metadata table that extends seller capabilities.
- * 
+ *
  * This table is linked 1:1 with the seller table via seller_id.
+ *
+ * RELATIONSHIP WITH PRODUCER MODULE:
+ * ----------------------------------
+ * Both seller_metadata and producer have some overlapping fields
+ * (certifications, social_links). Here's the distinction:
+ *
+ * seller_metadata (this model):
+ *   - INTERNAL/ADMIN data for ALL seller types
+ *   - vendor_type classification (producer, garden, maker, etc.)
+ *   - Business info (tax, registration numbers)
+ *   - Platform status (verified, featured, rating)
+ *   - Type-specific operational fields (cuisine_types, service_types)
+ *
+ * producer (separate module):
+ *   - CUSTOMER-FACING profile for PRODUCER type sellers only
+ *   - Farm story/narrative content
+ *   - Location info (region, coordinates)
+ *   - Farm details (size, year established)
+ *   - Public gallery/media
+ *   - Growing practices and certifications for transparency
+ *
+ * In summary:
+ *   seller_metadata = operational data for backend/admin use
+ *   producer = marketing/trust data for customer-facing storefront
+ *
+ * A producer-type seller will have BOTH:
+ *   - seller_metadata (with vendor_type="producer")
+ *   - producer profile (with customer-facing farm story)
  */
 const SellerMetadata = model.define("seller_metadata", {
   id: model.id().primaryKey(),
