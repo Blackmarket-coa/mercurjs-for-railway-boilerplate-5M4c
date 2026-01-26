@@ -77,9 +77,44 @@ const getAdminCors = () => {
   return Array.from(origins).join(',')
 }
 
+// Database connection pool configuration optimized for Railway
+const getDatabaseConfig = () => {
+  const databaseUrl = process.env.DATABASE_URL
+  if (!databaseUrl) return { clientUrl: undefined }
+
+  // Parse connection pool settings from environment or use optimized defaults
+  const poolMin = parseInt(process.env.DB_POOL_MIN || '2', 10)
+  const poolMax = parseInt(process.env.DB_POOL_MAX || '10', 10)
+  const poolIdleTimeout = parseInt(process.env.DB_POOL_IDLE_TIMEOUT || '30000', 10)
+  const poolAcquireTimeout = parseInt(process.env.DB_POOL_ACQUIRE_TIMEOUT || '60000', 10)
+
+  return {
+    clientUrl: databaseUrl,
+    pool: {
+      min: poolMin,
+      max: poolMax,
+      idleTimeoutMillis: poolIdleTimeout,
+      acquireTimeoutMillis: poolAcquireTimeout,
+    },
+    driverOptions: {
+      connection: {
+        // Connection timeout for Railway's transient network conditions
+        connectionTimeoutMillis: 10000,
+        // Statement timeout to prevent runaway queries
+        statement_timeout: 60000,
+        // Keep connections alive
+        keepAlive: true,
+        keepAliveInitialDelayMillis: 30000,
+      },
+    },
+  }
+}
+
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
+    databaseDriverOptions: getDatabaseConfig().driverOptions,
+    databaseExtra: getDatabaseConfig().pool,
     ...(process.env.REDIS_URL ? { redisUrl: process.env.REDIS_URL } : {}),
     http: {
       storeCors: getStoreCors(),

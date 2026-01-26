@@ -166,13 +166,16 @@ let rateLimitStore: RateLimitStore
 
 function getStore(): RateLimitStore {
   if (!rateLimitStore) {
-    // Use Redis in production if available, memory in development
-    if (process.env.REDIS_URL && process.env.NODE_ENV === "production") {
+    // Use Redis if available (in any environment), otherwise fall back to memory
+    if (process.env.REDIS_URL) {
       rateLimitStore = new RedisStore()
+      logger.info("Rate limiter using Redis store")
     } else {
       rateLimitStore = new MemoryStore()
       if (process.env.NODE_ENV === "production") {
         logger.warn("Using in-memory rate limiter - set REDIS_URL for distributed rate limiting")
+      } else {
+        logger.debug("Rate limiter using in-memory store (development mode)")
       }
     }
   }
