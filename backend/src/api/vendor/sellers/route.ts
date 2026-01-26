@@ -4,17 +4,10 @@ import { REQUEST_MODULE } from "../../../modules/request"
 import RequestModuleService from "../../../modules/request/service"
 import { REQUEST_TYPES } from "../../../modules/request/validators"
 import { createSellerSchema, CreateSellerInput } from "./validators"
-import { vendorRegistrationRateLimiter } from "../../../shared/rate-limiter"
 import { maskEmail } from "../../../shared/seller-approval-service"
 
 // Disable automatic authentication to allow public registration
 export const AUTHENTICATE = false
-
-/**
- * Middleware array for this route
- * Applies rate limiting to prevent spam registrations
- */
-export const middlewares = [vendorRegistrationRateLimiter]
 
 /**
  * POST /vendor/sellers
@@ -24,7 +17,7 @@ export const middlewares = [vendorRegistrationRateLimiter]
  * The request will appear in the admin panel for approval.
  * Once approved, the seller entity will be created via the admin approval endpoint.
  *
- * Rate limited to 5 requests per 15 minutes per IP address.
+ * Rate limited to 5 requests per 15 minutes per IP address (configured in middlewares.ts).
  */
 export const POST = async (
   req: MedusaRequest,
