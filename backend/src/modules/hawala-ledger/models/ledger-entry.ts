@@ -86,3 +86,36 @@ export const LedgerEntry = model.define("hawala_ledger_entry", {
   settlement_batch_id: model.text().nullable(),
   settled_at: model.dateTime().nullable(),
 })
+  // OPTIMIZATION: Add indexes for common query patterns
+  .indexes([
+    // Index for fetching entries by debit account (getTransactionHistory)
+    {
+      on: ["debit_account_id", "created_at"],
+      name: "idx_ledger_entry_debit_account",
+    },
+    // Index for fetching entries by credit account (getTransactionHistory)
+    {
+      on: ["credit_account_id", "created_at"],
+      name: "idx_ledger_entry_credit_account",
+    },
+    // Index for order-related queries (processRefund, etc.)
+    {
+      on: ["order_id", "status"],
+      name: "idx_ledger_entry_order",
+    },
+    // Index for pending entries (dashboard queries)
+    {
+      on: ["status", "credit_account_id"],
+      name: "idx_ledger_entry_status_credit",
+    },
+    // Index for entry type filtering
+    {
+      on: ["entry_type", "status"],
+      name: "idx_ledger_entry_type_status",
+    },
+    // Index for investment pool queries
+    {
+      on: ["investment_pool_id"],
+      name: "idx_ledger_entry_pool",
+    },
+  ])
