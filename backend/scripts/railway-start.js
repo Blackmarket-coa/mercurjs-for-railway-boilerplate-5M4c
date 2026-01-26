@@ -26,13 +26,9 @@ const SKIP_MIGRATIONS = process.env.SKIP_MIGRATIONS === 'true';
 const IS_RAILWAY = !!process.env.RAILWAY_ENVIRONMENT;
 
 // Set Node.js options for Railway optimization
+// Note: Only --max-old-space-size is safe to use in NODE_OPTIONS for Node.js 24+
 const nodeOptions = [
   `--max-old-space-size=${NODE_MEMORY_MB}`,
-  '--experimental-vm-modules',
-  // Optimize garbage collection for server workloads
-  '--expose-gc',
-  // Reduce memory fragmentation
-  '--optimize-for-size',
 ].join(' ');
 
 // Merge with existing NODE_OPTIONS if present
