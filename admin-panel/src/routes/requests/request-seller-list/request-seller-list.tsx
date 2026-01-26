@@ -40,6 +40,10 @@ export const RequestSellerList = () => {
     status: currentFilter !== "" ? currentFilter : undefined,
   });
 
+  // Safe count value with default
+  const totalCount = count ?? 0;
+  const pageCount = totalCount > 0 ? Math.ceil(totalCount / PAGE_SIZE) : 1;
+
   return (
     <Container>
       <div className="flex items-center justify-between px-6 py-4">
@@ -90,11 +94,11 @@ export const RequestSellerList = () => {
                     <Table.Cell>
                       <div className="flex items-center gap-2">
                         <History />
-                        {formatDate(request.created_at!)}
+                        {request.created_at ? formatDate(request.created_at) : "N/A"}
                       </div>
                     </Table.Cell>
                     <Table.Cell>
-                      {getRequestStatusBadge(request.status!)}
+                      {getRequestStatusBadge(request.status ?? "pending")}
                     </Table.Cell>
                     <Table.Cell>
                       <RequestMenu
@@ -124,11 +128,11 @@ export const RequestSellerList = () => {
                   <Table.Cell>
                     <div className="flex items-center gap-2">
                       <History />
-                      {formatDate(request.created_at!)}
+                      {request.created_at ? formatDate(request.created_at) : "N/A"}
                     </div>
                   </Table.Cell>
                   <Table.Cell>
-                    {getRequestStatusBadge(request.status!)}
+                    {getRequestStatusBadge(request.status ?? "pending")}
                   </Table.Cell>
                   <Table.Cell>
                     <RequestMenu
@@ -143,7 +147,7 @@ export const RequestSellerList = () => {
         </Table>
         <Table.Pagination
           className="w-full"
-          canNextPage={PAGE_SIZE * (currentPage + 1) < count!}
+          canNextPage={PAGE_SIZE * (currentPage + 1) < totalCount}
           canPreviousPage={currentPage > 0}
           previousPage={() => {
             setCurrentPage(currentPage - 1);
@@ -151,8 +155,8 @@ export const RequestSellerList = () => {
           nextPage={() => {
             setCurrentPage(currentPage + 1);
           }}
-          count={count!}
-          pageCount={Math.ceil(count! / PAGE_SIZE)}
+          count={totalCount}
+          pageCount={pageCount}
           pageIndex={currentPage}
           pageSize={PAGE_SIZE}
         />

@@ -3,6 +3,7 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/
 import { REQUEST_MODULE } from "../../../modules/request"
 import RequestModuleService from "../../../modules/request/service"
 import { RequestStatus } from "../../../modules/request/models"
+import { sanitizeInput } from "../../../shared/seller-approval-service"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -52,12 +53,13 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
       offset: query.offset,
       limit: query.limit,
     })
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
       res.status(400).json({ message: "Validation failed", errors: error.errors })
       return
     }
-    throw error
+    console.error("[GET /admin/requests] Error:", error.message)
+    res.status(500).json({ message: "Failed to retrieve requests" })
   }
 }
 
@@ -72,22 +74,30 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
 
     const requestService = req.scope.resolve<RequestModuleService>(REQUEST_MODULE)
 
+    // Sanitize the reviewer note to prevent XSS
+    const sanitizedNote = sanitizeInput(body.reviewer_note)
+
     const request = await requestService.createRequest({
       type: body.type,
       data: body.data,
       requester_id: body.requester_id,
-      reviewer_note: body.reviewer_note,
+      reviewer_note: sanitizedNote || undefined,
     })
+
+    // Get actor info for audit logging
+    const actorId = req.auth_context?.actor_id || "unknown"
+    console.log(`[POST /admin/requests] Request ${request.id} created by admin ${actorId}. Type: ${body.type}`)
 
     res.status(201).json({
       request,
       message: "Request created successfully",
     })
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
       res.status(400).json({ message: "Validation failed", errors: error.errors })
       return
     }
-    throw error
+    console.error("[POST /admin/requests] Error:", error.message)
+    res.status(500).json({ message: "Failed to create request" })
   }
 }

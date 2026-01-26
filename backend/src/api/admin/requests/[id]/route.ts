@@ -1,14 +1,13 @@
 import { z } from "zod"
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { Modules } from "@medusajs/framework/utils"
 import { REQUEST_MODULE } from "../../../../modules/request"
 import RequestModuleService from "../../../../modules/request/service"
 import { RequestStatus } from "../../../../modules/request/models"
-import { createSellerWorkflow } from "@mercurjs/b2c-core/workflows"
-import { createSellerMetadataWorkflow } from "../../../../workflows/create-seller-metadata"
-import { VendorType } from "../../../../modules/seller-extension/models/seller-metadata"
-import { getRocketChatService } from "../../../../shared/rocketchat-service"
-import crypto from "crypto"
+import { isSellerRequestType } from "../../../../modules/request/validators"
+import {
+  getSellerApprovalService,
+  sanitizeInput,
+} from "../../../../shared/seller-approval-service"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -32,11 +31,10 @@ const reviewRequestSchema = z.object({
 // ===========================================
 
 export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
+  const { id } = req.params
+
   try {
-    const { id } = req.params
-
     const requestService = req.scope.resolve<RequestModuleService>(REQUEST_MODULE)
-
     const requests = await requestService.listRequests({ id })
 
     if (requests.length === 0) {
@@ -45,8 +43,9 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
     }
 
     res.json({ request: requests[0] })
-  } catch (error) {
-    throw error
+  } catch (error: any) {
+    console.error(`[GET /admin/requests/${id}] Error:`, error.message)
+    res.status(500).json({ message: "Failed to retrieve request" })
   }
 }
 
@@ -62,9 +61,29 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
     // Validate the review payload
     const { status, reviewer_note } = reviewRequestSchema.parse(req.body)
 
-    const requestService = req.scope.resolve<RequestModuleService>(REQUEST_MODULE)
+    // Get reviewer ID from authenticated user
+    const reviewerId = req.auth_context?.actor_id || "unknown"
 
-    // Get the request
+    const approvalService = getSellerApprovalService(req.scope)
+
+    // Handle REJECTION
+    if (status === "rejected") {
+      const result = await approvalService.rejectRequest({
+        requestId: id,
+        reviewerId,
+        reason: reviewer_note,
+      })
+
+      res.json({
+        message: "Request rejected",
+        request: result,
+      })
+      return
+    }
+
+    // Handle ACCEPTANCE
+    // First, check if this is a seller request
+    const requestService = req.scope.resolve<RequestModuleService>(REQUEST_MODULE)
     const requests = await requestService.listRequests({ id })
 
     if (requests.length === 0) {
@@ -74,164 +93,50 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
 
     const request = requests[0]
 
-    // Check if already processed
-    if (request.status !== RequestStatus.PENDING) {
-      res.status(400).json({
-        message: `Request has already been ${request.status}`,
+    if (isSellerRequestType(request.type)) {
+      // Seller request - use full approval workflow
+      const result = await approvalService.approveSeller({
+        requestId: id,
+        reviewerId,
+        reviewerNote: reviewer_note,
       })
-      return
-    }
-
-    // Update reviewer note if provided
-    if (reviewer_note) {
-      await requestService.updateRequests(
-        { id },
-        { reviewer_note: `${request.reviewer_note || ""}\n${reviewer_note}`.trim() }
-      )
-    }
-
-    // Handle REJECTION
-    if (status === "rejected") {
-      await requestService.rejectRequest(id)
-
-      console.log(`[POST /admin/requests/:id] Request ${id} rejected`)
-
-      res.json({
-        message: "Request rejected",
-        request: {
-          id,
-          status: RequestStatus.REJECTED,
-        },
-      })
-      return
-    }
-
-    // Handle ACCEPTANCE - For seller requests, create the seller
-    const data = request.data as Record<string, unknown>
-
-    if (request.type === "seller" || request.type === "seller_creation") {
-      const authIdentityId = data.auth_identity_id as string
-      const member = data.member as { name: string; email: string }
-      const seller = data.seller as { name: string }
-      const vendorType = (data.vendor_type as string) || "producer"
-
-      if (!authIdentityId || !member || !seller) {
-        res.status(400).json({
-          message: "Invalid seller creation request data",
-        })
-        return
-      }
-
-      console.log(`[POST /admin/requests/:id] Creating seller "${seller.name}" for ${member.email} with vendor_type: ${vendorType}`)
-
-      // Create the seller using MercurJS workflow
-      const { result: createdSeller } = await createSellerWorkflow.run({
-        container: req.scope,
-        input: {
-          auth_identity_id: authIdentityId,
-          member: {
-            name: member.name,
-            email: member.email,
-          },
-          seller: {
-            name: seller.name,
-          },
-        },
-      })
-
-      console.log(`[POST /admin/requests/:id] Seller created:`, createdSeller)
-
-      // CRITICAL: Update auth_identity with seller_id in app_metadata
-      try {
-        const authModule = req.scope.resolve(Modules.AUTH)
-        await authModule.updateAuthIdentities([{
-          id: authIdentityId,
-          app_metadata: {
-            seller_id: createdSeller.id,
-          },
-        }])
-        console.log(`[POST /admin/requests/:id] Updated auth_identity ${authIdentityId} with seller_id: ${createdSeller.id}`)
-      } catch (authError: any) {
-        console.error(`[POST /admin/requests/:id] Failed to update auth_identity:`, authError)
-        throw new Error(`Failed to link authentication: ${authError.message}`)
-      }
-
-      // Create seller metadata with the correct vendor_type
-      try {
-        const vendorTypeEnum = VendorType[vendorType.toUpperCase() as keyof typeof VendorType] || VendorType.PRODUCER
-
-        await createSellerMetadataWorkflow.run({
-          container: req.scope,
-          input: {
-            seller_id: createdSeller.id,
-            vendor_type: vendorTypeEnum,
-          },
-        })
-
-        console.log(`[POST /admin/requests/:id] Seller metadata created with vendor_type: ${vendorTypeEnum}`)
-      } catch (error: any) {
-        console.error(`[POST /admin/requests/:id] Failed to create seller metadata:`, error)
-        // Don't fail - the subscriber will create it with default type
-      }
-
-      // Create RocketChat user and channel
-      const rocketchatService = getRocketChatService()
-      if (rocketchatService) {
-        try {
-          const rocketchatPassword = crypto.randomBytes(32).toString("hex")
-          const username = createdSeller.handle || member.email.split("@")[0]
-
-          const { userId: rocketchatUserId, username: rocketchatUsername } = await rocketchatService.createUser(
-            member.name,
-            member.email,
-            username,
-            rocketchatPassword
-          )
-
-          const channelName = await rocketchatService.createSellerChannel(
-            createdSeller.id,
-            seller.name
-          )
-
-          await rocketchatService.addUserToChannel(channelName, rocketchatUsername)
-          await rocketchatService.addUserToChannel("general", rocketchatUsername)
-
-          console.log(`[POST /admin/requests/:id] RocketChat user created: ${rocketchatUsername}`)
-        } catch (error: any) {
-          console.error(`[POST /admin/requests/:id] Failed to create RocketChat user:`, error.message)
-        }
-      }
-
-      // Mark request as accepted
-      await requestService.acceptRequest(id)
 
       res.json({
         message: "Seller registration approved successfully",
-        seller: createdSeller,
-        request: {
-          id,
-          status: RequestStatus.ACCEPTED,
-        },
+        seller: result.seller,
+        request: result.request,
       })
-      return
+    } else {
+      // Generic request - just mark as accepted
+      const result = await approvalService.approveGenericRequest({
+        requestId: id,
+        reviewerId,
+        reviewerNote: reviewer_note,
+      })
+
+      res.json({
+        message: "Request approved successfully",
+        request: result,
+      })
     }
-
-    // For other request types, just mark as accepted
-    await requestService.acceptRequest(id)
-
-    res.json({
-      message: "Request approved successfully",
-      request: {
-        id,
-        status: RequestStatus.ACCEPTED,
-      },
-    })
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       res.status(400).json({ message: "Validation failed", errors: error.errors })
       return
     }
-    console.error("[POST /admin/requests/:id] Error:", error)
+
+    // Handle specific error types
+    if (error.message === "Request not found") {
+      res.status(404).json({ message: error.message })
+      return
+    }
+
+    if (error.message?.includes("already been")) {
+      res.status(400).json({ message: error.message })
+      return
+    }
+
+    console.error(`[POST /admin/requests/${id}] Error:`, error.message)
     res.status(500).json({
       message: error.message || "Failed to review request",
     })
@@ -244,12 +149,12 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
 // ===========================================
 
 export async function PATCH(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
+  const { id } = req.params
+
   try {
-    const { id } = req.params
     const data = updateRequestSchema.parse(req.body)
 
     const requestService = req.scope.resolve<RequestModuleService>(REQUEST_MODULE)
-
     const requests = await requestService.listRequests({ id })
 
     if (requests.length === 0) {
@@ -262,7 +167,7 @@ export async function PATCH(req: AuthenticatedMedusaRequest, res: MedusaResponse
     if (data.status) updateData.status = data.status
     if (data.provider_id !== undefined) updateData.provider_id = data.provider_id
     if (data.payload) updateData.payload = data.payload
-    if (data.notes !== undefined) updateData.notes = data.notes
+    if (data.notes !== undefined) updateData.notes = sanitizeInput(data.notes)
 
     const updated = await requestService.updateRequests({ id }, updateData)
 
@@ -270,26 +175,26 @@ export async function PATCH(req: AuthenticatedMedusaRequest, res: MedusaResponse
       request: updated,
       message: "Request updated successfully",
     })
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
       res.status(400).json({ message: "Validation failed", errors: error.errors })
       return
     }
-    throw error
+    console.error(`[PATCH /admin/requests/${id}] Error:`, error.message)
+    res.status(500).json({ message: "Failed to update request" })
   }
 }
 
 // ===========================================
 // DELETE /admin/requests/:id
-// Delete a request
+// Delete a request (admin only, with audit logging)
 // ===========================================
 
 export async function DELETE(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
+  const { id } = req.params
+
   try {
-    const { id } = req.params
-
     const requestService = req.scope.resolve<RequestModuleService>(REQUEST_MODULE)
-
     const requests = await requestService.listRequests({ id })
 
     if (requests.length === 0) {
@@ -297,10 +202,30 @@ export async function DELETE(req: AuthenticatedMedusaRequest, res: MedusaRespons
       return
     }
 
+    const request = requests[0]
+
+    // Get actor info for audit logging
+    const actorId = req.auth_context?.actor_id || "unknown"
+
+    // Prevent deletion of non-pending requests without explicit override
+    if (request.status !== RequestStatus.PENDING && request.status !== RequestStatus.REJECTED) {
+      res.status(400).json({
+        message: `Cannot delete request with status "${request.status}". Only pending or rejected requests can be deleted.`,
+      })
+      return
+    }
+
+    // Audit log the deletion
+    console.log(`[DELETE /admin/requests/${id}] Request deleted by admin ${actorId}. Type: ${request.type}, Status: ${request.status}`)
+
     await requestService.deleteRequests(id)
 
-    res.json({ message: "Request deleted successfully" })
-  } catch (error) {
-    throw error
+    res.json({
+      message: "Request deleted successfully",
+      deleted: { id, type: request.type, status: request.status },
+    })
+  } catch (error: any) {
+    console.error(`[DELETE /admin/requests/${id}] Error:`, error.message)
+    res.status(500).json({ message: "Failed to delete request" })
   }
 }
