@@ -72,6 +72,19 @@ export const InvestmentPool = model.define("hawala_investment_pool", {
   // Metadata
   metadata: model.json().nullable(),
 })
+  // OPTIMIZATION: Add indexes for common query patterns
+  .indexes([
+    // Index for vendor pool lookups
+    {
+      on: ["producer_id", "status"],
+      name: "idx_investment_pool_producer",
+    },
+    // Index for ledger account lookups
+    {
+      on: ["ledger_account_id"],
+      name: "idx_investment_pool_account",
+    },
+  ])
 
 /**
  * Investment Record
@@ -122,3 +135,21 @@ export const Investment = model.define("hawala_investment", {
   matured_at: model.dateTime().nullable(),
   withdrawn_at: model.dateTime().nullable(),
 })
+  // OPTIMIZATION: Add indexes for common query patterns
+  .indexes([
+    // Index for pool investment lookups
+    {
+      on: ["pool_id", "status"],
+      name: "idx_investment_pool_status",
+    },
+    // Index for customer investments
+    {
+      on: ["customer_id"],
+      name: "idx_investment_customer",
+    },
+    // Index for investor account lookups
+    {
+      on: ["investor_account_id"],
+      name: "idx_investment_account",
+    },
+  ])

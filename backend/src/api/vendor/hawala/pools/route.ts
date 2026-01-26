@@ -7,6 +7,10 @@ import { randomUUID } from "crypto"
 /**
  * GET /vendor/hawala/pools
  * Get vendor's producer investment pools
+ *
+ * OPTIMIZED: Uses batch query method to avoid N+1 database queries
+ * Previously made 2*N queries (balance + investments for each pool),
+ * now uses a single optimized method with parallel batch fetches
  */
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const hawalaService = req.scope.resolve<HawalaLedgerModuleService>(HAWALA_LEDGER_MODULE)
@@ -17,31 +21,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   }
 
   try {
-    // Get pools where this seller/producer is the owner
-    const pools = await hawalaService.listInvestmentPools({
-      producer_id: sellerId,
-    })
-
-    // Get details for each pool
-    const poolsWithDetails = await Promise.all(
-      pools.map(async (pool) => {
-        const balance = await hawalaService.getAccountBalance(pool.ledger_account_id)
-        const investments = await hawalaService.listInvestments({
-          pool_id: pool.id,
-        })
-
-        const progress = Number(pool.target_amount) > 0
-          ? (Number(pool.total_raised) / Number(pool.target_amount)) * 100
-          : 0
-
-        return {
-          ...pool,
-          current_balance: balance.balance,
-          progress_percentage: Math.min(progress, 100),
-          investments_count: investments.length,
-        }
-      })
-    )
+    // OPTIMIZATION: Use batch method instead of N+1 queries
+    const poolsWithDetails = await hawalaService.getVendorPoolsWithDetails(sellerId)
 
     res.json({ pools: poolsWithDetails })
   } catch (error) {

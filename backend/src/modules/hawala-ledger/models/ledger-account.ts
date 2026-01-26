@@ -64,3 +64,16 @@ export const LedgerAccount = model.define("hawala_ledger_account", {
   // Metadata
   metadata: model.json().nullable(),
 })
+  // OPTIMIZATION: Add indexes for common query patterns
+  .indexes([
+    // Index for vendor account lookups (most common query pattern)
+    {
+      on: ["owner_type", "owner_id", "account_type"],
+      name: "idx_ledger_account_owner",
+    },
+    // Index for account type queries
+    {
+      on: ["account_type", "status"],
+      name: "idx_ledger_account_type_status",
+    },
+  ])

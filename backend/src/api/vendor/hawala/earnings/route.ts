@@ -5,6 +5,8 @@ import HawalaLedgerModuleService from "../../../../modules/hawala-ledger/service
 /**
  * GET /vendor/hawala/earnings
  * Get vendor's earnings account and balance
+ *
+ * OPTIMIZED: Parallel data fetching for balance and transactions
  */
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const hawalaService = req.scope.resolve<HawalaLedgerModuleService>(HAWALA_LEDGER_MODULE)
@@ -34,12 +36,12 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     }
 
     const account = accounts[0]
-    const balance = await hawalaService.getAccountBalance(account.id)
 
-    // Get recent transactions
-    const transactions = await hawalaService.getTransactionHistory(account.id, {
-      limit: 20,
-    })
+    // OPTIMIZATION: Fetch balance and transactions in parallel
+    const [balance, transactions] = await Promise.all([
+      hawalaService.getAccountBalance(account.id),
+      hawalaService.getTransactionHistory(account.id, { limit: 20 }),
+    ])
 
     res.json({ account, balance, recent_transactions: transactions })
   } catch (error) {

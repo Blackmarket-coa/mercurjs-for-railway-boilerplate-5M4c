@@ -6,24 +6,24 @@ import { requestAdvanceSchema, validateInput } from "../../../hawala-validation"
 /**
  * GET /vendor/hawala/advances
  * Get advance eligibility and status for the authenticated vendor
+ *
+ * OPTIMIZED: Parallel fetching of eligibility and advances
  */
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   try {
     const hawalaService = req.scope.resolve<HawalaLedgerModuleService>(HAWALA_LEDGER_MODULE)
-    
+
     // Get vendor ID from auth context
     const vendorId = (req as any).auth_context?.actor_id
     if (!vendorId) {
       return res.status(401).json({ error: "Unauthorized" })
     }
 
-    // Get eligibility
-    const eligibility = await hawalaService.calculateAdvanceEligibility(vendorId)
-
-    // Get any existing advances
-    const advances = await hawalaService.listVendorAdvances({
-      vendor_id: vendorId,
-    })
+    // OPTIMIZATION: Fetch eligibility and advances in parallel
+    const [eligibility, advances] = await Promise.all([
+      hawalaService.calculateAdvanceEligibility(vendorId),
+      hawalaService.listVendorAdvances({ vendor_id: vendorId }),
+    ])
 
     res.json({
       eligibility,

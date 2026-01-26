@@ -60,6 +60,19 @@ export const VendorAdvance = model.define("hawala_vendor_advance", {
   // Metadata
   metadata: model.json().nullable(),
 })
+  // OPTIMIZATION: Add indexes for common query patterns
+  .indexes([
+    // Index for vendor advance lookups (most common query)
+    {
+      on: ["vendor_id", "status"],
+      name: "idx_vendor_advance_vendor_status",
+    },
+    // Index for ledger account lookups
+    {
+      on: ["ledger_account_id"],
+      name: "idx_vendor_advance_account",
+    },
+  ])
 
 /**
  * Advance Repayment
@@ -95,7 +108,20 @@ export const AdvanceRepayment = model.define("hawala_advance_repayment", {
     "FAILED",
     "REVERSED",
   ]).default("COMPLETED"),
-  
+
   // Metadata
   metadata: model.json().nullable(),
 })
+  // OPTIMIZATION: Add indexes for common query patterns
+  .indexes([
+    // Index for advance repayment lookups
+    {
+      on: ["advance_id", "status"],
+      name: "idx_advance_repayment_advance",
+    },
+    // Index for order-based lookups
+    {
+      on: ["order_id"],
+      name: "idx_advance_repayment_order",
+    },
+  ])

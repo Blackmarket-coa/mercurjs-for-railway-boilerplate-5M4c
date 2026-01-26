@@ -37,10 +37,23 @@ export const PayoutConfig = model.define("hawala_payout_config", {
   
   // Status
   status: model.enum(["ACTIVE", "SUSPENDED", "INACTIVE"]).default("ACTIVE"),
-  
+
   // Metadata
   metadata: model.json().nullable(),
 })
+  // OPTIMIZATION: Add indexes for common query patterns
+  .indexes([
+    // Index for vendor payout config lookups
+    {
+      on: ["vendor_id"],
+      name: "idx_payout_config_vendor",
+    },
+    // Index for ledger account lookups
+    {
+      on: ["ledger_account_id"],
+      name: "idx_payout_config_account",
+    },
+  ])
 
 /**
  * Payout Split Rule
@@ -82,10 +95,23 @@ export const PayoutSplitRule = model.define("hawala_payout_split_rule", {
   
   // Active status
   is_active: model.boolean().default(true),
-  
+
   // Metadata
   metadata: model.json().nullable(),
 })
+  // OPTIMIZATION: Add indexes for common query patterns
+  .indexes([
+    // Index for payout config rule lookups
+    {
+      on: ["payout_config_id", "is_active"],
+      name: "idx_split_rule_config",
+    },
+    // Index for vendor rule lookups
+    {
+      on: ["vendor_id"],
+      name: "idx_split_rule_vendor",
+    },
+  ])
 
 /**
  * Payout Request
@@ -151,6 +177,24 @@ export const PayoutRequest = model.define("hawala_payout_request", {
   // Metadata
   metadata: model.json().nullable(),
 })
+  // OPTIMIZATION: Add indexes for common query patterns
+  .indexes([
+    // Index for vendor payout request lookups
+    {
+      on: ["vendor_id", "status"],
+      name: "idx_payout_request_vendor_status",
+    },
+    // Index for ledger account lookups
+    {
+      on: ["ledger_account_id"],
+      name: "idx_payout_request_account",
+    },
+    // Index for Stripe lookups
+    {
+      on: ["stripe_payout_id"],
+      name: "idx_payout_request_stripe",
+    },
+  ])
 
 /**
  * Chargeback Protection Pool

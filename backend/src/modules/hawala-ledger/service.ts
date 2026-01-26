@@ -750,6 +750,92 @@ class HawalaLedgerModuleService extends MedusaService({
   }
 
   /**
+   * Get balances for multiple accounts in a single query
+   *
+   * OPTIMIZED: Batch fetch to avoid N+1 queries when displaying pools
+   */
+  async getAccountBalancesBatch(accountIds: string[]): Promise<Map<string, {
+    account_number: string
+    balance: number
+    pending_balance: number
+    available_balance: number
+    currency_code: string
+  }>> {
+    if (accountIds.length === 0) {
+      return new Map()
+    }
+
+    // Fetch all accounts in one query using id filter with array
+    const accounts = await this.listLedgerAccounts({
+      id: accountIds,
+    })
+
+    const balanceMap = new Map()
+    for (const account of accounts) {
+      balanceMap.set(account.id, {
+        account_number: account.account_number,
+        balance: Number(account.balance),
+        pending_balance: Number(account.pending_balance),
+        available_balance: Number(account.available_balance),
+        currency_code: account.currency_code,
+      })
+    }
+
+    return balanceMap
+  }
+
+  /**
+   * Get investment pools with details for a vendor
+   *
+   * OPTIMIZED: Uses batch queries instead of N+1 pattern
+   * Fetches all pools, their balances, and investment counts in parallel
+   */
+  async getVendorPoolsWithDetails(vendorId: string) {
+    // Get pools for this vendor
+    const pools = await this.listInvestmentPools({
+      producer_id: vendorId,
+    })
+
+    if (pools.length === 0) {
+      return []
+    }
+
+    // Extract all ledger account IDs and pool IDs
+    const accountIds = pools.map(p => p.ledger_account_id)
+    const poolIds = pools.map(p => p.id)
+
+    // OPTIMIZATION: Fetch all balances and investments in parallel
+    const [balanceMap, allInvestments] = await Promise.all([
+      this.getAccountBalancesBatch(accountIds),
+      this.listInvestments({
+        pool_id: poolIds,
+      }),
+    ])
+
+    // Group investments by pool_id
+    const investmentsByPool = new Map<string, number>()
+    for (const inv of allInvestments) {
+      const count = investmentsByPool.get(inv.pool_id) || 0
+      investmentsByPool.set(inv.pool_id, count + 1)
+    }
+
+    // Build enriched pools
+    return pools.map(pool => {
+      const balance = balanceMap.get(pool.ledger_account_id)
+      const progress = Number(pool.target_amount) > 0
+        ? (Number(pool.total_raised) / Number(pool.target_amount)) * 100
+        : 0
+
+      return {
+        ...pool,
+        current_balance: balance?.balance || 0,
+        progress_percentage: Math.min(progress, 100),
+        investments_count: investmentsByPool.get(pool.id) || 0,
+      }
+    })
+  }
+
+  /**
    * Get transaction history for an account
    */
   async getTransactionHistory(accountId: string, options?: {
@@ -1305,6 +1391,9 @@ class HawalaLedgerModuleService extends MedusaService({
 
   /**
    * Get comprehensive vendor financial dashboard data
+   *
+   * OPTIMIZED: Uses parallel queries via Promise.all to reduce latency
+   * Previously made 5 sequential DB calls, now executes them concurrently
    */
   async getVendorDashboard(vendorId: string) {
     // Get vendor account using direct filters (not wrapped in filters object)
@@ -1328,15 +1417,43 @@ class HawalaLedgerModuleService extends MedusaService({
     const monthStart = new Date(todayStart)
     monthStart.setDate(monthStart.getDate() - 30)
 
-    // Get all entries for this account
-    const entries = await this.getTransactionHistory(account.id, { limit: 1000 })
+    // OPTIMIZATION: Execute all independent queries in parallel
+    // This reduces dashboard load time from O(n) sequential to O(1) parallel
+    const [
+      entries,
+      pendingEntries,
+      activeAdvances,
+      payoutConfigs,
+      pools,
+    ] = await Promise.all([
+      // Get transaction history
+      this.getTransactionHistory(account.id, { limit: 1000 }),
+      // Get pending orders (entries in PENDING status)
+      this.listLedgerEntries({
+        credit_account_id: account.id,
+        status: "PENDING",
+      }),
+      // Get active advance
+      this.listVendorAdvances({
+        vendor_id: vendorId,
+        status: "ACTIVE",
+      }),
+      // Get payout config
+      this.listPayoutConfigs({
+        vendor_id: vendorId,
+      }),
+      // Get investment pools
+      this.listInvestmentPools({
+        producer_id: vendorId,
+      }),
+    ])
 
     // Calculate metrics
     const todayEntries = entries.filter(e => new Date(e.created_at) >= todayStart)
     const weekEntries = entries.filter(e => new Date(e.created_at) >= weekStart)
     const monthEntries = entries.filter(e => new Date(e.created_at) >= monthStart)
 
-    const calcRevenue = (items: typeof entries) => 
+    const calcRevenue = (items: typeof entries) =>
       items.filter(e => e.direction === "CREDIT" && e.entry_type === "PURCHASE")
            .reduce((sum, e) => sum + Number(e.amount), 0)
 
@@ -1344,28 +1461,7 @@ class HawalaLedgerModuleService extends MedusaService({
     const weekRevenue = calcRevenue(weekEntries)
     const monthRevenue = calcRevenue(monthEntries)
 
-    // Get pending orders (entries in PENDING status)
-    const pendingEntries = await this.listLedgerEntries({
-      credit_account_id: account.id,
-      status: "PENDING",
-    })
     const pendingAmount = pendingEntries.reduce((sum, e) => sum + Number(e.amount), 0)
-
-    // Get active advance
-    const activeAdvances = await this.listVendorAdvances({
-      vendor_id: vendorId,
-      status: "ACTIVE",
-    })
-
-    // Get payout config
-    const payoutConfigs = await this.listPayoutConfigs({
-      vendor_id: vendorId,
-    })
-
-    // Get investment pools
-    const pools = await this.listInvestmentPools({
-      producer_id: vendorId,
-    })
 
     // Calculate daily average for projection
     const avgDailyRevenue = monthRevenue / 30
