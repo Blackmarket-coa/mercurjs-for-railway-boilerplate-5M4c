@@ -371,7 +371,7 @@ export class SellerApprovalService {
         }
       }
 
-      // Step 7: Update request status and reviewer info
+      // Step 7: Update request status and reviewer info using dedicated service method
       console.log(`[SellerApproval] Step 7: Updating request status to ACCEPTED...`)
       const sanitizedNote = sanitizeInput(reviewerNote)
       const updatedNote = request.reviewer_note
@@ -379,17 +379,16 @@ export class SellerApprovalService {
         : sanitizedNote
 
       try {
-        await requestService.updateRequests(
-          { id: requestId },
-          {
-            status: RequestStatus.ACCEPTED,
-            reviewer_id: reviewerId,
-            ...(updatedNote && { reviewer_note: updatedNote }),
-          }
+        // Use the dedicated acceptRequestWithReview method for reliable status update
+        await requestService.acceptRequestWithReview(
+          requestId,
+          reviewerId,
+          updatedNote || undefined
         )
         console.log(`[SellerApproval] Request ${requestId} status updated to ACCEPTED`)
       } catch (updateError: any) {
         console.error(`[SellerApproval] Failed to update request status:`, updateError.message)
+        console.error(`[SellerApproval] Update error details:`, updateError.stack || updateError)
         throw updateError
       }
 
@@ -441,21 +440,12 @@ export class SellerApprovalService {
       throw new Error(`Request has already been ${request.status}`)
     }
 
-    // Build updated reviewer note
+    // Use the dedicated rejectRequestWithReview method
     const sanitizedReason = sanitizeInput(reason)
-    let updatedNote = request.reviewer_note || ""
-    if (sanitizedReason) {
-      updatedNote = `${updatedNote}\n\nRejection reason: ${sanitizedReason}`.trim()
-    }
-
-    // Update request status and reviewer info
-    await requestService.updateRequests(
-      { id: requestId },
-      {
-        status: RequestStatus.REJECTED,
-        reviewer_id: reviewerId,
-        ...(updatedNote && { reviewer_note: updatedNote }),
-      }
+    await requestService.rejectRequestWithReview(
+      requestId,
+      reviewerId,
+      sanitizedReason || undefined
     )
 
     console.log(`[SellerApproval] Request ${requestId} rejected by reviewer ${reviewerId}${sanitizedReason ? `: ${sanitizedReason}` : ""}`)
@@ -492,14 +482,11 @@ export class SellerApprovalService {
       ? `${request.reviewer_note}\n${sanitizedNote}`.trim()
       : sanitizedNote
 
-    // Update request status and reviewer info
-    await requestService.updateRequests(
-      { id: requestId },
-      {
-        status: RequestStatus.ACCEPTED,
-        reviewer_id: reviewerId,
-        ...(updatedNote && { reviewer_note: updatedNote }),
-      }
+    // Use the dedicated acceptRequestWithReview method
+    await requestService.acceptRequestWithReview(
+      requestId,
+      reviewerId,
+      updatedNote || undefined
     )
 
     console.log(`[SellerApproval] Generic request ${requestId} approved by reviewer ${reviewerId}`)
