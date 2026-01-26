@@ -252,7 +252,7 @@ class RequestModuleService extends MedusaService({
 
     // Use retrieveRequest + update pattern for more reliable single-record update
     try {
-      const [updatedRequest] = await this.updateRequests(
+      const updatedRequest = await this.updateRequests(
         { id },
         updateData
       )
@@ -304,7 +304,7 @@ class RequestModuleService extends MedusaService({
       updateData.reviewer_note = reviewerNote
     }
 
-    const [updatedRequest] = await this.updateRequests(
+    const updatedRequest = await this.updateRequests(
       { id },
       updateData
     )
