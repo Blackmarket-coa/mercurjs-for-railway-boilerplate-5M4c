@@ -1,4 +1,5 @@
 import { sdk } from "@lib/client";
+import { queryClient } from "@lib/query-client";
 import { queryKeysFactory } from "@lib/query-key-factory";
 import {
   type QueryKey,
@@ -72,6 +73,10 @@ export const useReviewRequest = (
         method: "POST",
         body: payload,
       }),
+    onSettled: () => {
+      // Invalidate all requests queries to ensure fresh data is fetched
+      queryClient.invalidateQueries({ queryKey: requestsQueryKeys.all });
+    },
     ...options,
   });
 };
