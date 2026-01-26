@@ -216,6 +216,102 @@ class RequestModuleService extends MedusaService({
     const validTargets = VALID_TRANSITIONS[status] || []
     return validTargets.length === 0
   }
+
+  /**
+   * Accept a request with reviewer info (full update)
+   * This method updates status, reviewer_id, and reviewer_note in a single operation
+   * @throws Error if request not found or not in PENDING status
+   */
+  async acceptRequestWithReview(
+    id: string,
+    reviewerId: string,
+    reviewerNote?: string
+  ) {
+    console.log(`[RequestService] acceptRequestWithReview called for id: ${id}`)
+
+    const existingRequest = await this.getRequestForStatusChange(id)
+    console.log(`[RequestService] Found request with status: ${existingRequest.status}`)
+
+    this.validateStatusTransition(
+      existingRequest.status as RequestStatus,
+      RequestStatus.ACCEPTED
+    )
+    console.log(`[RequestService] Status transition validated`)
+
+    // Build update data
+    const updateData: Record<string, unknown> = {
+      status: RequestStatus.ACCEPTED,
+      reviewer_id: reviewerId,
+    }
+
+    if (reviewerNote) {
+      updateData.reviewer_note = reviewerNote
+    }
+
+    console.log(`[RequestService] Updating request with data:`, JSON.stringify(updateData))
+
+    // Use retrieveRequest + update pattern for more reliable single-record update
+    try {
+      const [updatedRequest] = await this.updateRequests(
+        { id },
+        updateData
+      )
+
+      if (!updatedRequest) {
+        throw new Error("Update did not return a request")
+      }
+
+      console.log(`[RequestService] Request updated successfully, new status: ${updatedRequest.status}`)
+      return updatedRequest
+    } catch (error: any) {
+      console.error(`[RequestService] Failed to update request:`, error.message)
+      console.error(`[RequestService] Error stack:`, error.stack)
+      throw error
+    }
+  }
+
+  /**
+   * Reject a request with reviewer info (full update)
+   * This method updates status, reviewer_id, and reviewer_note in a single operation
+   * @throws Error if request not found or not in PENDING status
+   */
+  async rejectRequestWithReview(
+    id: string,
+    reviewerId: string,
+    reason?: string
+  ) {
+    console.log(`[RequestService] rejectRequestWithReview called for id: ${id}`)
+
+    const existingRequest = await this.getRequestForStatusChange(id)
+
+    this.validateStatusTransition(
+      existingRequest.status as RequestStatus,
+      RequestStatus.REJECTED
+    )
+
+    // Build reviewer note
+    let reviewerNote = existingRequest.reviewer_note || ""
+    if (reason) {
+      reviewerNote = `${reviewerNote}\n\nRejection reason: ${reason}`.trim()
+    }
+
+    const updateData: Record<string, unknown> = {
+      status: RequestStatus.REJECTED,
+      reviewer_id: reviewerId,
+    }
+
+    if (reviewerNote) {
+      updateData.reviewer_note = reviewerNote
+    }
+
+    const [updatedRequest] = await this.updateRequests(
+      { id },
+      updateData
+    )
+
+    console.log(`[RequestService] Request rejected successfully`)
+    return updatedRequest
+  }
 }
 
 export default RequestModuleService
