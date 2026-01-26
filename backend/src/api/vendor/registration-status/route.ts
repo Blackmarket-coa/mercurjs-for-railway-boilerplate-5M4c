@@ -20,10 +20,15 @@ export const AUTHENTICATE = false
  * who have an auth_identity but no seller_id yet.
  */
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
+  console.log("[GET /vendor/registration-status] Handler reached - AUTHENTICATE=false should have bypassed auth middleware")
+
   try {
     // Extract bearer token from Authorization header
     const authHeader = req.headers.authorization
+    console.log(`[GET /vendor/registration-status] Auth header present: ${!!authHeader}`)
+
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      console.log("[GET /vendor/registration-status] No Bearer token found")
       return res.status(401).json({
         status: "unauthenticated",
         message: "Authentication required. Please provide a valid bearer token.",
@@ -31,45 +36,42 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     }
 
     const token = authHeader.substring(7) // Remove "Bearer " prefix
+    console.log(`[GET /vendor/registration-status] Token length: ${token.length}`)
 
     // Verify the token using MedusaJS auth module
     const authModule = req.scope.resolve(Modules.AUTH)
 
-    let authResult: { authIdentityId: string; actorId?: string; appMetadata?: Record<string, unknown> } | null = null
-
-    try {
-      // Try to authenticate the token for seller actor type
-      const authenticated = await authModule.authenticate("emailpass", {
-        authIdentityId: token,
-      } as any)
-
-      // This approach might not work - let's try a different method
-    } catch (authError) {
-      // Token verification failed
-    }
-
-    // Alternative approach: Decode and verify JWT token manually
-    // The token contains the auth_identity_id we need
+    // Decode JWT token to get auth_identity_id
+    // MedusaJS uses JWT tokens with auth_identity_id in the payload
     let authIdentityId: string | null = null
     let sellerId: string | null = null
 
     try {
-      // Try to decode the JWT token to get auth_identity_id
-      // MedusaJS uses JWT tokens with auth_identity_id in the payload
       const tokenParts = token.split(".")
       if (tokenParts.length === 3) {
-        const payload = JSON.parse(Buffer.from(tokenParts[1], "base64").toString("utf-8"))
-        authIdentityId = payload.auth_identity_id || payload.sub
-        sellerId = payload.actor_id || payload.app_metadata?.seller_id
+        // Handle both standard and URL-safe base64 encoding
+        const base64Payload = tokenParts[1].replace(/-/g, '+').replace(/_/g, '/')
+        const paddedPayload = base64Payload + '='.repeat((4 - base64Payload.length % 4) % 4)
+        const payload = JSON.parse(Buffer.from(paddedPayload, "base64").toString("utf-8"))
+
+        console.log(`[GET /vendor/registration-status] JWT payload fields: ${Object.keys(payload).join(', ')}`)
+
+        // Try multiple field names for auth identity ID
+        authIdentityId = payload.auth_identity_id || payload.sub || payload.identity_id || payload.user_id
+        // Try multiple field names for seller ID
+        sellerId = payload.actor_id || payload.seller_id || payload.app_metadata?.seller_id
+
+        console.log(`[GET /vendor/registration-status] Decoded - authIdentityId: ${authIdentityId ? 'found' : 'null'}, sellerId: ${sellerId ? 'found' : 'null'}`)
       }
-    } catch (decodeError) {
-      // Failed to decode token
+    } catch (decodeError: any) {
+      console.log(`[GET /vendor/registration-status] JWT decode error: ${decodeError.message}`)
     }
 
-    // If we couldn't get auth_identity_id from token, try the auth context
+    // If we couldn't get auth_identity_id from token, try the auth context (populated by middleware if any)
     if (!authIdentityId && (req as any).auth_context?.auth_identity_id) {
       authIdentityId = (req as any).auth_context.auth_identity_id
       sellerId = (req as any).auth_context.actor_id
+      console.log(`[GET /vendor/registration-status] Got auth from context - authIdentityId: ${!!authIdentityId}, sellerId: ${!!sellerId}`)
     }
 
     // If we have a seller_id, the user is approved
