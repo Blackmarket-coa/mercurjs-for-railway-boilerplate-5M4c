@@ -431,6 +431,13 @@ export default defineMiddlewares({
       method: "POST",
       middlewares: [vendorRegistrationRateLimiter, normalizeEmailMiddleware],
     },
+    // Vendor registration endpoint - dedicated route for seller registration
+    // This avoids conflicts with MercurJS's /vendor/sellers route validation
+    {
+      matcher: "/vendor/register",
+      method: "POST",
+      middlewares: [vendorRegistrationRateLimiter, normalizeEmailMiddleware],
+    },
     // Auth routes - register and login for all actor types (rate limited)
     {
       matcher: "/auth/*",

@@ -60,9 +60,10 @@ export const useSignUpWithEmailPass = (
       const normalizedEmail = variables.email.toLowerCase().trim()
 
       // Create seller registration request with vendor type
+      // Uses dedicated /vendor/register endpoint to avoid conflicts with MercurJS routes
       // Wrap in try/catch to prevent uncaught fetch errors
       try {
-        await fetchQuery("/vendor/sellers", {
+        await fetchQuery("/vendor/register", {
           method: "POST",
           body: {
             name: variables.name,
@@ -76,7 +77,7 @@ export const useSignUpWithEmailPass = (
       } catch (error) {
         // Log the error but don't block registration success
         // The seller profile can be created later if this fails
-        console.error("Failed to create seller profile:", error)
+        console.error("Failed to create seller registration request:", error)
       }
 
       // Call user's onSuccess callback if provided

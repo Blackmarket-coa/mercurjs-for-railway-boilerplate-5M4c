@@ -193,30 +193,59 @@ export class SellerApprovalService {
     }
 
     // Step 2: Validate and extract request data
-    const data = validateSellerRequestData(request.data)
+    let data: SellerRequestData
+    try {
+      data = validateSellerRequestData(request.data)
+    } catch (validationError: any) {
+      console.error(`[SellerApproval] Request data validation failed:`, validationError.message)
+      console.error(`[SellerApproval] Request data was:`, JSON.stringify(request.data, null, 2))
+      throw new Error(`Invalid request data: ${validationError.message}`)
+    }
     const vendorType = data.vendor_type || "producer"
 
     console.log(`[SellerApproval] Processing approval for seller "${data.seller.name}" (email: ${maskEmail(data.member.email)})`)
+
+    // Step 2.5: Verify auth identity exists before proceeding
+    const authModule = this.container.resolve(Modules.AUTH)
+    const authIdentities = await authModule.listAuthIdentities({ id: [data.auth_identity_id] })
+    if (!authIdentities || authIdentities.length === 0) {
+      console.error(`[SellerApproval] Auth identity not found: ${data.auth_identity_id}`)
+      throw new Error(`Auth identity not found. The user may need to re-register.`)
+    }
+    console.log(`[SellerApproval] Auth identity verified: ${data.auth_identity_id}`)
 
     let createdSeller: { id: string; name: string; handle?: string } | null = null
     let authUpdated = false
 
     try {
       // Step 3: Create the seller using MercurJS workflow
-      const { result } = await createSellerWorkflow.run({
-        container: this.container,
-        input: {
-          auth_identity_id: data.auth_identity_id,
-          member: {
-            name: data.member.name,
-            email: data.member.email,
-          },
-          seller: {
-            name: data.seller.name,
-          },
-        },
-      })
+      console.log(`[SellerApproval] Starting seller workflow with auth_identity_id: ${data.auth_identity_id}`)
 
+      const workflowInput = {
+        auth_identity_id: data.auth_identity_id,
+        member: {
+          name: data.member.name,
+          email: data.member.email,
+        },
+        seller: {
+          name: data.seller.name,
+        },
+      }
+      console.log(`[SellerApproval] Workflow input:`, JSON.stringify(workflowInput, null, 2))
+
+      let workflowResult
+      try {
+        workflowResult = await createSellerWorkflow.run({
+          container: this.container,
+          input: workflowInput,
+        })
+      } catch (workflowError: any) {
+        console.error(`[SellerApproval] Workflow execution failed:`, workflowError.message)
+        console.error(`[SellerApproval] Workflow error details:`, workflowError)
+        throw new Error(`Seller creation workflow failed: ${workflowError.message}`)
+      }
+
+      const { result } = workflowResult
       createdSeller = result
       console.log(`[SellerApproval] Seller created with ID: ${createdSeller.id}`)
 
