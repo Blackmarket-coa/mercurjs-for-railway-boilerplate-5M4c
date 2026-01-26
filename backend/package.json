@@ -25,9 +25,11 @@
   "scripts": {
     "build": "medusa build",
     "ib": "init-backend",
-    "start": "medusa db:migrate --execute-safe-links && pnpm seed && init-backend && cd .medusa/server && medusa start",
+    "start": "node scripts/railway-start.js",
+    "start:simple": "medusa db:migrate --execute-safe-links && init-backend && cd .medusa/server && medusa start",
     "dev": "medusa develop",
     "seed": "medusa exec ./src/scripts/seed.ts",
+    "seed:if-needed": "node scripts/conditional-seed.js",
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
     "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
     "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit"

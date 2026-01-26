@@ -2,13 +2,24 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "rm -rf .medusa && pnpm install && pnpm build"
+    "buildCommand": "rm -rf .medusa && pnpm install --frozen-lockfile && pnpm build",
+    "nixpacksPlan": {
+      "phases": {
+        "install": {
+          "cacheDirectories": ["node_modules", ".pnpm-store"]
+        },
+        "build": {
+          "cacheDirectories": [".medusa"]
+        }
+      }
+    }
   },
   "deploy": {
     "startCommand": "pnpm start",
     "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 10,
+    "restartPolicyMaxRetries": 5,
     "healthcheckPath": "/health",
-    "healthcheckTimeout": 180
+    "healthcheckTimeout": 120,
+    "numReplicas": 1
   }
 }
