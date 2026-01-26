@@ -457,11 +457,8 @@ export default defineMiddlewares({
       matcher: "/admin/invites",
       middlewares: [normalizeEmailMiddleware],
     },
-    // Vendor registration status - seller auth to get auth_identity_id (no seller required)
-    {
-      matcher: "/vendor/registration-status",
-      middlewares: [authenticate("seller", "bearer")],
-    },
+    // Vendor registration status - handles its own token verification to support pending users
+    // (removed middleware - endpoint uses AUTHENTICATE = false and verifies token manually)
     // Vendor sellers/me route - seller authentication for profile access
     {
       matcher: "/vendor/sellers/me",
