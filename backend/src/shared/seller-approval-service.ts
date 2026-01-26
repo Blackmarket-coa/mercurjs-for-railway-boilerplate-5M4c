@@ -255,23 +255,55 @@ export class SellerApprovalService {
 
           // Try to find the existing seller by email or handle
           const query = this.container.resolve(ContainerRegistrationKeys.QUERY)
-          const { data: existingSellers } = await query.graph({
+
+          // First try to find by member email
+          const { data: sellersWithMembers } = await query.graph({
             entity: "seller",
             fields: ["id", "name", "handle", "members.*"],
             filters: {},
           })
 
           // Find seller by member email
-          const existingSeller = existingSellers?.find((s: any) => {
+          let existingSeller = sellersWithMembers?.find((s: any) => {
             return s.members?.some((m: any) => m.email === data.member.email)
           })
 
+          // If not found by email, try to find by handle (derived from seller name)
+          if (!existingSeller) {
+            console.log(`[SellerApproval] Seller not found by email, trying by handle...`)
+
+            // Generate expected handle from seller name (MercurJS uses kebab-case)
+            const expectedHandle = data.seller.name
+              .toLowerCase()
+              .trim()
+              .replace(/\s+/g, '-')
+              .replace(/[^a-z0-9-]/g, '')
+
+            const { data: allSellers } = await query.graph({
+              entity: "seller",
+              fields: ["id", "name", "handle"],
+              filters: {},
+            })
+
+            existingSeller = allSellers?.find((s: any) => {
+              // Match by handle (with or without trailing dash)
+              const sellerHandle = s.handle?.toLowerCase() || ''
+              return sellerHandle === expectedHandle ||
+                     sellerHandle === expectedHandle + '-' ||
+                     sellerHandle.startsWith(expectedHandle)
+            })
+
+            if (existingSeller) {
+              console.log(`[SellerApproval] Found seller by handle: ${existingSeller.handle}`)
+            }
+          }
+
           if (existingSeller) {
-            console.log(`[SellerApproval] Found existing seller: ${existingSeller.id}`)
+            console.log(`[SellerApproval] Found existing seller: ${existingSeller.id} (${existingSeller.name})`)
             seller = { id: existingSeller.id, name: existingSeller.name, handle: existingSeller.handle }
             createdSeller = seller
           } else {
-            console.error(`[SellerApproval] Could not find existing seller to link`)
+            console.error(`[SellerApproval] Could not find existing seller to link. Email: ${data.member.email}, Name: ${data.seller.name}`)
             throw new Error(`Seller creation workflow failed: ${workflowError.message}`)
           }
         } else {
@@ -340,19 +372,26 @@ export class SellerApprovalService {
       }
 
       // Step 7: Update request status and reviewer info
+      console.log(`[SellerApproval] Step 7: Updating request status to ACCEPTED...`)
       const sanitizedNote = sanitizeInput(reviewerNote)
       const updatedNote = request.reviewer_note
         ? `${request.reviewer_note}\n${sanitizedNote}`.trim()
         : sanitizedNote
 
-      await requestService.updateRequests(
-        { id: requestId },
-        {
-          status: RequestStatus.ACCEPTED,
-          reviewer_id: reviewerId,
-          ...(updatedNote && { reviewer_note: updatedNote }),
-        }
-      )
+      try {
+        await requestService.updateRequests(
+          { id: requestId },
+          {
+            status: RequestStatus.ACCEPTED,
+            reviewer_id: reviewerId,
+            ...(updatedNote && { reviewer_note: updatedNote }),
+          }
+        )
+        console.log(`[SellerApproval] Request ${requestId} status updated to ACCEPTED`)
+      } catch (updateError: any) {
+        console.error(`[SellerApproval] Failed to update request status:`, updateError.message)
+        throw updateError
+      }
 
       console.log(`[SellerApproval] Request ${requestId} approved by reviewer ${reviewerId}`)
 
