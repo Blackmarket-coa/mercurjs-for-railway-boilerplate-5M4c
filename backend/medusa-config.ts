@@ -77,27 +77,14 @@ const getAdminCors = () => {
   return Array.from(origins).join(',')
 }
 
-// Database connection pool configuration optimized for Railway
-const getDatabasePoolConfig = () => {
-  // Parse connection pool settings from environment or use optimized defaults
-  const poolMin = parseInt(process.env.DB_POOL_MIN || '2', 10)
-  const poolMax = parseInt(process.env.DB_POOL_MAX || '10', 10)
-  const poolIdleTimeout = parseInt(process.env.DB_POOL_IDLE_TIMEOUT || '30000', 10)
-  const poolAcquireTimeout = parseInt(process.env.DB_POOL_ACQUIRE_TIMEOUT || '60000', 10)
-
-  return {
-    min: poolMin,
-    max: poolMax,
-    idleTimeoutMillis: poolIdleTimeout,
-    acquireTimeoutMillis: poolAcquireTimeout,
-  }
-}
+// Note: Database connection pooling is configured via DATABASE_URL parameters
+// Add these to your DATABASE_URL for Railway optimization:
+// ?connection_limit=10&pool_timeout=30&connect_timeout=10
+// Or use PgBouncer for connection pooling in production
 
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
-    // Connection pool settings for Railway reliability
-    databaseExtra: getDatabasePoolConfig(),
     ...(process.env.REDIS_URL ? { redisUrl: process.env.REDIS_URL } : {}),
     http: {
       storeCors: getStoreCors(),
