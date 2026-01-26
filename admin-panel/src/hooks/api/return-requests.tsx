@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-query";
 
 import { sdk } from "../../lib/client";
+import { queryClient } from "../../lib/query-client";
 
 import {
   AdminOrderReturnRequest,
@@ -54,6 +55,10 @@ export const useReviewReturnRequest = (
         method: "POST",
         body: payload,
       }),
+    onSettled: () => {
+      // Invalidate return request queries to ensure fresh data is fetched
+      queryClient.invalidateQueries({ queryKey: returnRequestsQueryKeys.all });
+    },
     ...options,
   });
 };
