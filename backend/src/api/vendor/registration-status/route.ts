@@ -97,6 +97,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     })
 
     if (!authIdentities || authIdentities.length === 0) {
+      console.log(`[GET /vendor/registration-status] Auth identity not found: ${authIdentityId}`)
       return res.status(401).json({
         status: "unauthenticated",
         message: "Invalid authentication. Please log in again.",
@@ -104,16 +105,20 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     }
 
     const authIdentity = authIdentities[0]
+    console.log(`[GET /vendor/registration-status] Auth identity found, app_metadata:`, JSON.stringify(authIdentity.app_metadata))
 
     // Double-check app_metadata for seller_id (in case it wasn't in the token)
     const appMetadata = authIdentity.app_metadata as Record<string, unknown> | undefined
     if (appMetadata?.seller_id) {
+      console.log(`[GET /vendor/registration-status] Found seller_id in app_metadata: ${appMetadata.seller_id}`)
       return res.json({
         status: "approved",
         seller_id: appMetadata.seller_id,
         message: "Your seller account is approved. You can access the vendor dashboard.",
       })
     }
+
+    console.log(`[GET /vendor/registration-status] No seller_id in app_metadata, checking pending requests...`)
 
     // No seller_id in app_metadata - check for pending requests
     const requestService = req.scope.resolve<RequestModuleService>(REQUEST_MODULE)
@@ -129,6 +134,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       const data = request.data as Record<string, unknown> | undefined
       return data?.auth_identity_id === authIdentityId
     })
+
+    console.log(`[GET /vendor/registration-status] Found ${userRequests.length} requests for this user`)
 
     if (userRequests.length === 0) {
       // No requests found - user needs to complete registration
@@ -146,6 +153,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     })
     const latestRequest = sortedRequests[0]
 
+    console.log(`[GET /vendor/registration-status] Latest request status: ${latestRequest.status}, id: ${latestRequest.id}`)
+
     // Return status based on request status
     switch (latestRequest.status) {
       case "pending":
@@ -156,14 +165,62 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
           created_at: latestRequest.created_at,
         })
 
-      case "accepted":
-        // Request was accepted but seller_id wasn't linked properly
-        // This shouldn't normally happen, but handle it gracefully
+      case "accepted": {
+        // Request was accepted but seller_id wasn't linked to auth_identity
+        // Try to find the seller and link it
+        console.log(`[GET /vendor/registration-status] Request accepted but no seller_id in app_metadata, looking up seller...`)
+
+        const requestData = latestRequest.data as Record<string, unknown> | undefined
+        const memberEmail = (requestData?.member as any)?.email
+
+        if (memberEmail) {
+          try {
+            const { ContainerRegistrationKeys } = await import("@medusajs/framework/utils")
+            const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+            // Find seller by member email
+            const { data: sellers } = await query.graph({
+              entity: "seller",
+              fields: ["id", "name", "members.*"],
+              filters: {},
+            })
+
+            const existingSeller = sellers?.find((s: any) => {
+              return s.members?.some((m: any) => m.email === memberEmail)
+            })
+
+            if (existingSeller) {
+              console.log(`[GET /vendor/registration-status] Found seller ${existingSeller.id}, updating auth_identity...`)
+
+              // Update auth_identity with seller_id
+              await authModule.updateAuthIdentities([{
+                id: authIdentityId,
+                app_metadata: {
+                  seller_id: existingSeller.id,
+                },
+              }])
+
+              console.log(`[GET /vendor/registration-status] Auth identity updated with seller_id`)
+
+              return res.json({
+                status: "approved",
+                seller_id: existingSeller.id,
+                request_id: latestRequest.id,
+                message: "Your seller account is approved. You can access the vendor dashboard.",
+              })
+            }
+          } catch (lookupError: any) {
+            console.error(`[GET /vendor/registration-status] Error looking up seller:`, lookupError.message)
+          }
+        }
+
+        // Fallback if we can't find the seller
         return res.json({
           status: "approved",
           request_id: latestRequest.id,
-          message: "Your registration has been approved. If you cannot access the dashboard, please contact support.",
+          message: "Your registration has been approved. Please log out and log back in to access the dashboard.",
         })
+      }
 
       case "rejected":
         return res.json({
