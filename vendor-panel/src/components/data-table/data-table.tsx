@@ -15,7 +15,7 @@ import {
   Text,
   useDataTable,
 } from "@medusajs/ui"
-import React, { ReactNode, useCallback, useState } from "react"
+import React, { ReactNode, useCallback, useState, useMemo, memo } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate, useSearchParams } from "react-router-dom"
 
@@ -82,7 +82,7 @@ interface DataTableProps<TData> {
   layout?: "fill" | "auto"
 }
 
-export const DataTable = <TData,>({
+const DataTableInner = <TData,>({
   data = [],
   columns,
   filters,
@@ -106,12 +106,14 @@ export const DataTable = <TData,>({
 }: DataTableProps<TData>) => {
   const { t } = useTranslation()
 
-  const enableFiltering = filters && filters.length > 0
-  const enableCommands = commands && commands.length > 0
-  const enableSorting = columns.some((column) => column.enableSorting)
+  // Memoize derived state to prevent unnecessary recalculations
+  const enableFiltering = useMemo(() => filters && filters.length > 0, [filters])
+  const enableCommands = useMemo(() => commands && commands.length > 0, [commands])
+  const enableSorting = useMemo(() => columns.some((column) => column.enableSorting), [columns])
 
-  const filterIds = filters?.map((f) => f.id) ?? []
-  const prefixedFilterIds = filterIds.map((id) => getQueryParamKey(id, prefix))
+  // Memoize filter IDs
+  const filterIds = useMemo(() => filters?.map((f) => f.id) ?? [], [filters])
+  const prefixedFilterIds = useMemo(() => filterIds.map((id) => getQueryParamKey(id, prefix)), [filterIds, prefix])
 
   const { offset, order, q, ...filterParams } = useQueryParams(
     [
@@ -398,7 +400,7 @@ const useDataTableTranslations = () => {
   }
 }
 
-const DataTableAction = ({
+const DataTableAction = memo(({
   label,
   disabled,
   ...props
@@ -423,4 +425,9 @@ const DataTableAction = ({
       {label}
     </Button>
   )
-}
+})
+
+DataTableAction.displayName = "DataTableAction"
+
+// Export memoized DataTable for better performance
+export const DataTable = DataTableInner as typeof DataTableInner

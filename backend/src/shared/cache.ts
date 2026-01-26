@@ -242,20 +242,130 @@ export { CacheService }
 
 // Common cache key builders
 export const cacheKeys = {
+  // Producer cache keys
   producer: (id: string) => `producer:${id}`,
   producerByHandle: (handle: string) => `producer:handle:${handle}`,
   producerProducts: (producerId: string) => `producer:${producerId}:products`,
+  producerList: (sellerId?: string) => sellerId ? `producers:seller:${sellerId}` : `producers:all`,
+
+  // Order cycle cache keys
   orderCycle: (id: string) => `order-cycle:${id}`,
   activeOrderCycles: () => `order-cycles:active`,
+  orderCycleList: (sellerId?: string) => sellerId ? `order-cycles:seller:${sellerId}` : `order-cycles:all`,
+
+  // Hawala (financial) cache keys
   hawalaAccount: (id: string) => `hawala:account:${id}`,
   hawalaBalance: (accountId: string) => `hawala:balance:${accountId}`,
+
+  // Admin panel cache keys
+  categories: () => `categories:all`,
+  category: (id: string) => `category:${id}`,
+  regions: () => `regions:all`,
+  region: (id: string) => `region:${id}`,
+  salesChannels: () => `sales-channels:all`,
+
+  // Vendor panel cache keys
+  vendorProducts: (sellerId: string) => `vendor:${sellerId}:products`,
+  vendorOrders: (sellerId: string) => `vendor:${sellerId}:orders`,
+  vendorCustomers: (sellerId: string) => `vendor:${sellerId}:customers`,
+  vendorStats: (sellerId: string) => `vendor:${sellerId}:stats`,
+  vendorStore: (sellerId: string) => `vendor:${sellerId}:store`,
+
+  // Store/public cache keys
+  storeProducts: (limit?: number) => `store:products:${limit || 'all'}`,
+  storeCategories: () => `store:categories`,
+  storeCollections: () => `store:collections`,
+
+  // Configuration cache keys
   config: (key: string) => `config:${key}`,
+  featureFlags: () => `feature-flags:all`,
+
+  // API route cache keys (for middleware)
+  apiRoute: (method: string, path: string, query?: string) =>
+    `api:${method}:${path}${query ? `:${query}` : ''}`,
 }
 
 // Common TTL values (in seconds)
 export const cacheTTL = {
+  veryShort: 10,    // 10 seconds - for real-time data
   short: 60,        // 1 minute - for frequently changing data
   medium: 300,      // 5 minutes - default
   long: 900,        // 15 minutes - for stable data
   veryLong: 3600,   // 1 hour - for configuration
+  day: 86400,       // 24 hours - for static data
+}
+
+/**
+ * Create a cache middleware for API routes
+ * Caches GET requests based on URL and query params
+ *
+ * @param ttlSeconds - Time to live in seconds
+ * @param keyFn - Optional function to generate custom cache key
+ */
+export function createCacheMiddleware(
+  ttlSeconds: number = cacheTTL.medium,
+  keyFn?: (req: { method: string; path: string; query: Record<string, unknown> }) => string
+) {
+  return async function cacheMiddleware(
+    req: { method: string; path: string; query: Record<string, unknown> },
+    res: {
+      status: (code: number) => { json: (data: unknown) => void };
+      json: (data: unknown) => void;
+      setHeader: (name: string, value: string) => void;
+    },
+    next: () => void | Promise<void>
+  ) {
+    // Only cache GET requests
+    if (req.method !== 'GET') {
+      return next()
+    }
+
+    // Generate cache key
+    const cacheKey = keyFn
+      ? keyFn(req)
+      : cacheKeys.apiRoute(
+          req.method,
+          req.path,
+          Object.keys(req.query).length > 0
+            ? JSON.stringify(req.query)
+            : undefined
+        )
+
+    // Try to get from cache
+    const cached = await cache.get<{ data: unknown; timestamp: number }>(cacheKey)
+
+    if (cached) {
+      // Add cache headers
+      res.setHeader('X-Cache', 'HIT')
+      res.setHeader('X-Cache-Age', String(Math.floor((Date.now() - cached.timestamp) / 1000)))
+
+      return res.json(cached.data)
+    }
+
+    // Store original json method to intercept response
+    const originalJson = res.json.bind(res)
+
+    res.json = function(data: unknown) {
+      // Cache the response
+      cache.set(cacheKey, { data, timestamp: Date.now() }, ttlSeconds).catch(() => {
+        // Error already logged in cache.set
+      })
+
+      // Add cache headers
+      res.setHeader('X-Cache', 'MISS')
+      res.setHeader('Cache-Control', `private, max-age=${ttlSeconds}`)
+
+      return originalJson(data)
+    }
+
+    return next()
+  }
+}
+
+/**
+ * Helper to invalidate cache on mutations
+ * Call this after CREATE, UPDATE, DELETE operations
+ */
+export async function invalidateRelatedCache(patterns: string[]): Promise<void> {
+  await Promise.all(patterns.map(pattern => cache.invalidate(pattern)))
 }
