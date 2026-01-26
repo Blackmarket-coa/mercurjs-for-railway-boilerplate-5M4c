@@ -246,15 +246,20 @@ export class SellerApprovalService {
       }
 
       const { result } = workflowResult
-      createdSeller = result
-      console.log(`[SellerApproval] Seller created with ID: ${createdSeller.id}`)
+      if (!result || !result.id) {
+        throw new Error("Seller creation workflow did not return a valid seller")
+      }
+      // Use a const to help TypeScript understand this is definitely not null
+      const seller = result
+      createdSeller = seller
+      console.log(`[SellerApproval] Seller created with ID: ${seller.id}`)
 
       // Step 4: Update auth_identity with seller_id (CRITICAL)
       const authModule = this.container.resolve(Modules.AUTH)
       await authModule.updateAuthIdentities([{
         id: data.auth_identity_id,
         app_metadata: {
-          seller_id: createdSeller.id,
+          seller_id: seller.id,
         },
       }])
       authUpdated = true
@@ -267,7 +272,7 @@ export class SellerApprovalService {
         await createSellerMetadataWorkflow.run({
           container: this.container,
           input: {
-            seller_id: createdSeller.id,
+            seller_id: seller.id,
             vendor_type: vendorTypeEnum,
           },
         })
@@ -283,7 +288,7 @@ export class SellerApprovalService {
       if (rocketchatService) {
         try {
           const rocketchatPassword = crypto.randomBytes(32).toString("hex")
-          const username = createdSeller.handle || data.member.email.split("@")[0]
+          const username = seller.handle || data.member.email.split("@")[0]
 
           const { username: rocketchatUsername } = await rocketchatService.createUser(
             data.member.name,
@@ -293,7 +298,7 @@ export class SellerApprovalService {
           )
 
           const channelName = await rocketchatService.createSellerChannel(
-            createdSeller.id,
+            seller.id,
             data.seller.name
           )
 
@@ -326,9 +331,9 @@ export class SellerApprovalService {
 
       return {
         seller: {
-          id: createdSeller.id,
-          name: createdSeller.name,
-          handle: createdSeller.handle,
+          id: seller.id,
+          name: seller.name,
+          handle: seller.handle,
         },
         request: {
           id: requestId,
