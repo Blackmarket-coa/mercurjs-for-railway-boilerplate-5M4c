@@ -60,10 +60,16 @@ const authRateLimiter = createRateLimiter({
   keyPrefix: "auth"
 })
 
-const strictAuthRateLimiter = createRateLimiter({ 
+const strictAuthRateLimiter = createRateLimiter({
   windowMs: 300_000, // 5 minutes
   max: 5, // 5 attempts per 5 minutes for password reset
   keyPrefix: "auth-strict"
+})
+
+const vendorRegistrationRateLimiter = createRateLimiter({
+  windowMs: 900_000, // 15 minutes
+  max: 5, // 5 attempts per 15 minutes for vendor registration
+  keyPrefix: "vendor-reg"
 })
 
 /**
@@ -419,11 +425,11 @@ export default defineMiddlewares({
         validateAndTransformQuery(productFeedQuerySchema, {})
       ],
     },
-    // Vendor seller routes - normalize email only, validation done in route handler
+    // Vendor seller routes - normalize email and rate limit to prevent spam
     {
       matcher: "/vendor/sellers",
       method: "POST",
-      middlewares: [normalizeEmailMiddleware],
+      middlewares: [vendorRegistrationRateLimiter, normalizeEmailMiddleware],
     },
     // Auth routes - register and login for all actor types (rate limited)
     {
