@@ -2057,6 +2057,10 @@ export const RouteMap: RouteObject[] = [
             lazy: () => import("../../routes/reset-password"),
           },
           {
+            path: "/pending-approval",
+            lazy: () => import("../../routes/pending-approval"),
+          },
+          {
             path: "/invite",
             lazy: () => import("../../routes/invite"),
           },

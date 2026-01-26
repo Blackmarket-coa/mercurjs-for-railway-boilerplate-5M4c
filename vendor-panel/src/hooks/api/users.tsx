@@ -7,7 +7,7 @@ import {
   useMutation,
   useQuery,
 } from "@tanstack/react-query"
-import { fetchQuery } from "../../lib/client"
+import { backendUrl, fetchQuery, getAuthToken } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
 import { StoreVendor, TeamMemberProps } from "../../types/user"
@@ -16,6 +16,70 @@ const USERS_QUERY_KEY = "users" as const
 const usersQueryKeys = {
   ...queryKeysFactory(USERS_QUERY_KEY),
   me: () => [USERS_QUERY_KEY, "me"],
+  registrationStatus: () => [USERS_QUERY_KEY, "registration-status"],
+}
+
+/**
+ * Registration status response from the backend
+ */
+export interface RegistrationStatusResponse {
+  status: "approved" | "pending" | "rejected" | "cancelled" | "no_request" | "unauthenticated" | "unknown" | "error"
+  seller_id?: string
+  request_id?: string
+  message: string
+  created_at?: string
+  reviewer_note?: string
+}
+
+/**
+ * Hook to check the registration status of the current user.
+ * This is useful for determining if a user's seller account is:
+ * - approved (can access dashboard)
+ * - pending (waiting for admin approval)
+ * - rejected/cancelled (needs to re-register or contact support)
+ * - no_request (needs to complete registration)
+ */
+export const useRegistrationStatus = (
+  options?: Omit<
+    UseQueryOptions<RegistrationStatusResponse, Error, RegistrationStatusResponse, QueryKey>,
+    "queryFn" | "queryKey"
+  >
+) => {
+  const { data, ...rest } = useQuery({
+    queryFn: async (): Promise<RegistrationStatusResponse> => {
+      const token = getAuthToken()
+      if (!token) {
+        return {
+          status: "unauthenticated",
+          message: "No authentication token found.",
+        }
+      }
+
+      const response = await fetch(`${backendUrl}/vendor/registration-status`, {
+        method: "GET",
+        credentials: 'include',
+        headers: {
+          authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+
+      // Parse the response regardless of status code
+      const result = await response.json()
+      return result as RegistrationStatusResponse
+    },
+    queryKey: usersQueryKeys.registrationStatus(),
+    // Don't refetch too often
+    staleTime: 30000, // 30 seconds
+    // Don't retry on error - status endpoint handles all cases
+    retry: false,
+    ...options,
+  })
+
+  return {
+    registrationStatus: data,
+    ...rest,
+  }
 }
 
 export const useMe = (
