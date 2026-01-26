@@ -1,5 +1,5 @@
 import { MedusaContainer } from "@medusajs/framework/types"
-import { Modules } from "@medusajs/framework/utils"
+import { Modules, ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { createSellerWorkflow } from "@mercurjs/b2c-core/workflows"
 import { createSellerMetadataWorkflow } from "../workflows/create-seller-metadata"
 import { VendorType } from "../modules/seller-extension/models/seller-metadata"
@@ -233,26 +233,53 @@ export class SellerApprovalService {
       }
       console.log(`[SellerApproval] Workflow input:`, JSON.stringify(workflowInput, null, 2))
 
-      let workflowResult
+      let seller: { id: string; name: string; handle?: string }
+
       try {
-        workflowResult = await createSellerWorkflow.run({
+        const workflowResult = await createSellerWorkflow.run({
           container: this.container,
           input: workflowInput,
         })
-      } catch (workflowError: any) {
-        console.error(`[SellerApproval] Workflow execution failed:`, workflowError.message)
-        console.error(`[SellerApproval] Workflow error details:`, workflowError)
-        throw new Error(`Seller creation workflow failed: ${workflowError.message}`)
-      }
 
-      const { result } = workflowResult
-      if (!result || !result.id) {
-        throw new Error("Seller creation workflow did not return a valid seller")
+        const { result } = workflowResult
+        if (!result || !result.id) {
+          throw new Error("Seller creation workflow did not return a valid seller")
+        }
+        seller = result
+        createdSeller = seller
+        console.log(`[SellerApproval] Seller created with ID: ${seller.id}`)
+      } catch (workflowError: any) {
+        // Check if it's a duplicate handle error - if so, try to find and link existing seller
+        if (workflowError.message?.includes("already exists")) {
+          console.log(`[SellerApproval] Seller already exists, attempting to find and link existing seller...`)
+
+          // Try to find the existing seller by email or handle
+          const query = this.container.resolve(ContainerRegistrationKeys.QUERY)
+          const { data: existingSellers } = await query.graph({
+            entity: "seller",
+            fields: ["id", "name", "handle", "members.*"],
+            filters: {},
+          })
+
+          // Find seller by member email
+          const existingSeller = existingSellers?.find((s: any) => {
+            return s.members?.some((m: any) => m.email === data.member.email)
+          })
+
+          if (existingSeller) {
+            console.log(`[SellerApproval] Found existing seller: ${existingSeller.id}`)
+            seller = { id: existingSeller.id, name: existingSeller.name, handle: existingSeller.handle }
+            createdSeller = seller
+          } else {
+            console.error(`[SellerApproval] Could not find existing seller to link`)
+            throw new Error(`Seller creation workflow failed: ${workflowError.message}`)
+          }
+        } else {
+          console.error(`[SellerApproval] Workflow execution failed:`, workflowError.message)
+          console.error(`[SellerApproval] Workflow error details:`, workflowError)
+          throw new Error(`Seller creation workflow failed: ${workflowError.message}`)
+        }
       }
-      // Use a const to help TypeScript understand this is definitely not null
-      const seller = result
-      createdSeller = seller
-      console.log(`[SellerApproval] Seller created with ID: ${seller.id}`)
 
       // Step 4: Update auth_identity with seller_id (CRITICAL)
       const authModule = this.container.resolve(Modules.AUTH)
