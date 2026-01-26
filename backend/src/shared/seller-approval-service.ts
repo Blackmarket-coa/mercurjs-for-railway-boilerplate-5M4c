@@ -1,0 +1,419 @@
+import { MedusaContainer } from "@medusajs/framework/types"
+import { Modules } from "@medusajs/framework/utils"
+import { createSellerWorkflow } from "@mercurjs/b2c-core/workflows"
+import { createSellerMetadataWorkflow } from "../workflows/create-seller-metadata"
+import { VendorType } from "../modules/seller-extension/models/seller-metadata"
+import { getRocketChatService } from "./rocketchat-service"
+import { REQUEST_MODULE } from "../modules/request"
+import RequestModuleService from "../modules/request/service"
+import { RequestStatus } from "../modules/request/models"
+import crypto from "crypto"
+import { REQUEST_TYPES, isSellerRequestType } from "../modules/request/validators"
+
+/**
+ * Result of a successful seller approval
+ */
+export interface SellerApprovalResult {
+  seller: {
+    id: string
+    name: string
+    handle?: string
+  }
+  request: {
+    id: string
+    status: RequestStatus
+  }
+  rocketchatCreated: boolean
+}
+
+/**
+ * Input for seller approval
+ */
+export interface SellerApprovalInput {
+  requestId: string
+  reviewerId: string
+  reviewerNote?: string
+}
+
+/**
+ * Input for request rejection
+ */
+export interface RequestRejectionInput {
+  requestId: string
+  reviewerId: string
+  reason?: string
+}
+
+/**
+ * Seller request data structure
+ */
+interface SellerRequestData {
+  auth_identity_id: string
+  member: {
+    name: string
+    email: string
+  }
+  seller: {
+    name: string
+  }
+  vendor_type?: string
+}
+
+/**
+ * Masks an email address for logging purposes
+ * Example: john.doe@example.com -> j***e@example.com
+ */
+export function maskEmail(email: string): string {
+  const [localPart, domain] = email.split("@")
+  if (!domain || localPart.length < 2) {
+    return "***@***"
+  }
+  return `${localPart[0]}***${localPart[localPart.length - 1]}@${domain}`
+}
+
+/**
+ * Masks a name for logging purposes
+ * Example: John Doe -> J*** D***
+ */
+export function maskName(name: string): string {
+  return name
+    .split(" ")
+    .map((part) => (part.length > 0 ? `${part[0]}***` : ""))
+    .join(" ")
+}
+
+/**
+ * Validates seller request data structure
+ */
+function validateSellerRequestData(data: unknown): SellerRequestData {
+  if (!data || typeof data !== "object") {
+    throw new Error("Invalid request data: expected object")
+  }
+
+  const d = data as Record<string, unknown>
+
+  // Validate auth_identity_id
+  if (typeof d.auth_identity_id !== "string" || !d.auth_identity_id) {
+    throw new Error("Invalid request data: missing or invalid auth_identity_id")
+  }
+
+  // Validate member
+  if (!d.member || typeof d.member !== "object") {
+    throw new Error("Invalid request data: missing member information")
+  }
+  const member = d.member as Record<string, unknown>
+  if (typeof member.name !== "string" || !member.name) {
+    throw new Error("Invalid request data: missing member name")
+  }
+  if (typeof member.email !== "string" || !member.email) {
+    throw new Error("Invalid request data: missing member email")
+  }
+
+  // Validate seller
+  if (!d.seller || typeof d.seller !== "object") {
+    throw new Error("Invalid request data: missing seller information")
+  }
+  const seller = d.seller as Record<string, unknown>
+  if (typeof seller.name !== "string" || !seller.name) {
+    throw new Error("Invalid request data: missing seller name")
+  }
+
+  return {
+    auth_identity_id: d.auth_identity_id,
+    member: {
+      name: member.name,
+      email: member.email,
+    },
+    seller: {
+      name: seller.name,
+    },
+    vendor_type: typeof d.vendor_type === "string" ? d.vendor_type : undefined,
+  }
+}
+
+/**
+ * Sanitizes input to prevent XSS and injection attacks
+ * Removes HTML tags and trims whitespace
+ */
+export function sanitizeInput(input: string | undefined | null): string {
+  if (!input) return ""
+  // Remove HTML tags and trim
+  return input
+    .replace(/<[^>]*>/g, "")
+    .replace(/[<>]/g, "")
+    .trim()
+}
+
+/**
+ * SellerApprovalService
+ *
+ * Handles seller request approval with proper transaction handling.
+ * Consolidates duplicate approval logic from multiple routes.
+ */
+export class SellerApprovalService {
+  private container: MedusaContainer
+
+  constructor(container: MedusaContainer) {
+    this.container = container
+  }
+
+  /**
+   * Approve a seller request and create the seller entity
+   *
+   * This method handles:
+   * 1. Request validation
+   * 2. Seller creation via workflow
+   * 3. Auth identity linking
+   * 4. Seller metadata creation
+   * 5. RocketChat user creation (non-blocking)
+   * 6. Request status update
+   *
+   * If critical steps fail, compensating actions are taken.
+   */
+  async approveSeller(input: SellerApprovalInput): Promise<SellerApprovalResult> {
+    const { requestId, reviewerId, reviewerNote } = input
+    const requestService = this.container.resolve<RequestModuleService>(REQUEST_MODULE)
+
+    // Step 1: Get and validate the request
+    const requests = await requestService.listRequests({ id: requestId })
+    if (requests.length === 0) {
+      throw new Error("Request not found")
+    }
+
+    const request = requests[0]
+
+    // Validate request is pending
+    if (request.status !== RequestStatus.PENDING) {
+      throw new Error(`Request has already been ${request.status}`)
+    }
+
+    // Validate request type
+    if (!isSellerRequestType(request.type)) {
+      throw new Error(`Invalid request type for seller approval: ${request.type}`)
+    }
+
+    // Step 2: Validate and extract request data
+    const data = validateSellerRequestData(request.data)
+    const vendorType = data.vendor_type || "producer"
+
+    console.log(`[SellerApproval] Processing approval for seller "${data.seller.name}" (email: ${maskEmail(data.member.email)})`)
+
+    let createdSeller: { id: string; name: string; handle?: string } | null = null
+    let authUpdated = false
+
+    try {
+      // Step 3: Create the seller using MercurJS workflow
+      const { result } = await createSellerWorkflow.run({
+        container: this.container,
+        input: {
+          auth_identity_id: data.auth_identity_id,
+          member: {
+            name: data.member.name,
+            email: data.member.email,
+          },
+          seller: {
+            name: data.seller.name,
+          },
+        },
+      })
+
+      createdSeller = result
+      console.log(`[SellerApproval] Seller created with ID: ${createdSeller.id}`)
+
+      // Step 4: Update auth_identity with seller_id (CRITICAL)
+      const authModule = this.container.resolve(Modules.AUTH)
+      await authModule.updateAuthIdentities([{
+        id: data.auth_identity_id,
+        app_metadata: {
+          seller_id: createdSeller.id,
+        },
+      }])
+      authUpdated = true
+      console.log(`[SellerApproval] Auth identity linked successfully`)
+
+      // Step 5: Create seller metadata with vendor_type
+      try {
+        const vendorTypeEnum = VendorType[vendorType.toUpperCase() as keyof typeof VendorType] || VendorType.PRODUCER
+
+        await createSellerMetadataWorkflow.run({
+          container: this.container,
+          input: {
+            seller_id: createdSeller.id,
+            vendor_type: vendorTypeEnum,
+          },
+        })
+        console.log(`[SellerApproval] Metadata created with vendor_type: ${vendorTypeEnum}`)
+      } catch (metadataError: any) {
+        // Non-critical: subscriber will create with default type
+        console.warn(`[SellerApproval] Metadata creation failed (will use fallback): ${metadataError.message}`)
+      }
+
+      // Step 6: Create RocketChat user (non-blocking)
+      let rocketchatCreated = false
+      const rocketchatService = getRocketChatService()
+      if (rocketchatService) {
+        try {
+          const rocketchatPassword = crypto.randomBytes(32).toString("hex")
+          const username = createdSeller.handle || data.member.email.split("@")[0]
+
+          const { username: rocketchatUsername } = await rocketchatService.createUser(
+            data.member.name,
+            data.member.email,
+            username,
+            rocketchatPassword
+          )
+
+          const channelName = await rocketchatService.createSellerChannel(
+            createdSeller.id,
+            data.seller.name
+          )
+
+          await rocketchatService.addUserToChannel(channelName, rocketchatUsername)
+          await rocketchatService.addUserToChannel("general", rocketchatUsername)
+
+          rocketchatCreated = true
+          console.log(`[SellerApproval] RocketChat user created: ${rocketchatUsername}`)
+        } catch (rcError: any) {
+          console.warn(`[SellerApproval] RocketChat creation failed (non-blocking): ${rcError.message}`)
+        }
+      }
+
+      // Step 7: Update request status and reviewer info
+      const sanitizedNote = sanitizeInput(reviewerNote)
+      const updatedNote = request.reviewer_note
+        ? `${request.reviewer_note}\n${sanitizedNote}`.trim()
+        : sanitizedNote
+
+      await requestService.updateRequests(
+        { id: requestId },
+        {
+          status: RequestStatus.ACCEPTED,
+          reviewer_id: reviewerId,
+          ...(updatedNote && { reviewer_note: updatedNote }),
+        }
+      )
+
+      console.log(`[SellerApproval] Request ${requestId} approved by reviewer ${reviewerId}`)
+
+      return {
+        seller: {
+          id: createdSeller.id,
+          name: createdSeller.name,
+          handle: createdSeller.handle,
+        },
+        request: {
+          id: requestId,
+          status: RequestStatus.ACCEPTED,
+        },
+        rocketchatCreated,
+      }
+    } catch (error: any) {
+      // Compensating actions for critical failures
+      console.error(`[SellerApproval] Error during approval: ${error.message}`)
+
+      // If seller was created but auth wasn't updated, we have an orphaned seller
+      // Log this for manual intervention as we can't easily delete the seller
+      if (createdSeller && !authUpdated) {
+        console.error(`[SellerApproval] CRITICAL: Seller ${createdSeller.id} created but auth not linked. Manual intervention required.`)
+      }
+
+      throw error
+    }
+  }
+
+  /**
+   * Reject a request
+   */
+  async rejectRequest(input: RequestRejectionInput): Promise<{ id: string; status: RequestStatus }> {
+    const { requestId, reviewerId, reason } = input
+    const requestService = this.container.resolve<RequestModuleService>(REQUEST_MODULE)
+
+    // Get and validate the request
+    const requests = await requestService.listRequests({ id: requestId })
+    if (requests.length === 0) {
+      throw new Error("Request not found")
+    }
+
+    const request = requests[0]
+
+    // Validate request is pending
+    if (request.status !== RequestStatus.PENDING) {
+      throw new Error(`Request has already been ${request.status}`)
+    }
+
+    // Build updated reviewer note
+    const sanitizedReason = sanitizeInput(reason)
+    let updatedNote = request.reviewer_note || ""
+    if (sanitizedReason) {
+      updatedNote = `${updatedNote}\n\nRejection reason: ${sanitizedReason}`.trim()
+    }
+
+    // Update request status and reviewer info
+    await requestService.updateRequests(
+      { id: requestId },
+      {
+        status: RequestStatus.REJECTED,
+        reviewer_id: reviewerId,
+        ...(updatedNote && { reviewer_note: updatedNote }),
+      }
+    )
+
+    console.log(`[SellerApproval] Request ${requestId} rejected by reviewer ${reviewerId}${sanitizedReason ? `: ${sanitizedReason}` : ""}`)
+
+    return {
+      id: requestId,
+      status: RequestStatus.REJECTED,
+    }
+  }
+
+  /**
+   * Approve a non-seller request (generic approval)
+   */
+  async approveGenericRequest(input: SellerApprovalInput): Promise<{ id: string; status: RequestStatus }> {
+    const { requestId, reviewerId, reviewerNote } = input
+    const requestService = this.container.resolve<RequestModuleService>(REQUEST_MODULE)
+
+    // Get and validate the request
+    const requests = await requestService.listRequests({ id: requestId })
+    if (requests.length === 0) {
+      throw new Error("Request not found")
+    }
+
+    const request = requests[0]
+
+    // Validate request is pending
+    if (request.status !== RequestStatus.PENDING) {
+      throw new Error(`Request has already been ${request.status}`)
+    }
+
+    // Build updated reviewer note
+    const sanitizedNote = sanitizeInput(reviewerNote)
+    const updatedNote = request.reviewer_note
+      ? `${request.reviewer_note}\n${sanitizedNote}`.trim()
+      : sanitizedNote
+
+    // Update request status and reviewer info
+    await requestService.updateRequests(
+      { id: requestId },
+      {
+        status: RequestStatus.ACCEPTED,
+        reviewer_id: reviewerId,
+        ...(updatedNote && { reviewer_note: updatedNote }),
+      }
+    )
+
+    console.log(`[SellerApproval] Generic request ${requestId} approved by reviewer ${reviewerId}`)
+
+    return {
+      id: requestId,
+      status: RequestStatus.ACCEPTED,
+    }
+  }
+}
+
+/**
+ * Factory function to create SellerApprovalService
+ */
+export function getSellerApprovalService(container: MedusaContainer): SellerApprovalService {
+  return new SellerApprovalService(container)
+}

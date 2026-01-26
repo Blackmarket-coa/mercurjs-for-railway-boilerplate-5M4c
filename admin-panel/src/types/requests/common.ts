@@ -1,26 +1,52 @@
 import type { MemberDTO, SellerDTO } from "@custom-types/seller";
 
+/**
+ * Request status values
+ * Must match backend RequestStatus enum
+ */
+export type RequestStatus = "pending" | "accepted" | "rejected" | "completed" | "cancelled";
+
+/**
+ * Request type identifiers
+ * Must match backend REQUEST_TYPES
+ */
+export type RequestType =
+  | "seller"
+  | "seller_creation"
+  | "custom_order"
+  | "quote_request"
+  | "product_change"
+  | "review_removal"
+  | "return_request";
+
+/**
+ * Vendor types available for sellers
+ * Must match backend VendorType enum
+ */
+export type VendorType = "producer" | "garden" | "kitchen" | "maker" | "restaurant" | "mutual_aid";
+
 export type RequestDTO = {
   id: string;
   type: string;
   data: Record<string, unknown>;
   submitter_id: string;
-  reviewer_id: string;
-  reviewer_note: string;
-  status: "pending" | "accepted" | "rejected";
+  reviewer_id: string | null;
+  reviewer_note: string | null;
+  status: RequestStatus;
   created_at: Date;
   updated_at: Date;
 };
+
 export interface AdminRequest {
   id?: string;
   created_at?: string;
   updated_at?: string;
   type?: string;
-  data?: object;
+  data?: Record<string, unknown>;
   submitter_id?: string;
   reviewer_id?: string | null;
   reviewer_note?: string | null;
-  status?: string;
+  status?: RequestStatus;
   seller?: {
     id?: string;
     name?: string;
@@ -78,11 +104,18 @@ export interface AdminUpdateOrderReturnRequest {
   admin_reviewer_note: string;
 }
 
-export interface AdminSellerRequest extends RequestDTO {
-  data: {
-    auth_identity_id: string;
-    member: MemberDTO;
-    seller: SellerDTO;
-    vendor_type?: "producer" | "garden" | "kitchen" | "maker" | "restaurant" | "mutual_aid";
-  };
+/**
+ * Seller request data structure
+ */
+export interface SellerRequestData {
+  auth_identity_id: string;
+  member: MemberDTO;
+  seller: SellerDTO;
+  vendor_type?: VendorType;
+}
+
+export interface AdminSellerRequest extends Omit<RequestDTO, 'data' | 'reviewer_id' | 'reviewer_note'> {
+  data: SellerRequestData;
+  reviewer_id?: string | null;
+  reviewer_note?: string | null;
 }

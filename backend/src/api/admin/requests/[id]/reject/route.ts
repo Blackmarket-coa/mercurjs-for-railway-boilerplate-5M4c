@@ -1,8 +1,7 @@
 import { z } from "zod"
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { REQUEST_MODULE } from "../../../../../modules/request"
-import RequestModuleService from "../../../../../modules/request/service"
 import { RequestStatus } from "../../../../../modules/request/models"
+import { getSellerApprovalService } from "../../../../../shared/seller-approval-service"
 
 const rejectSchema = z.object({
   reason: z.string().optional(),
@@ -12,6 +11,7 @@ const rejectSchema = z.object({
  * POST /admin/requests/:id/reject
  *
  * Reject a request with an optional reason.
+ * Uses the shared SellerApprovalService for consistent behavior.
  */
 export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   const { id } = req.params
@@ -19,43 +19,21 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
   try {
     const { reason } = rejectSchema.parse(req.body || {})
 
-    const requestService = req.scope.resolve<RequestModuleService>(REQUEST_MODULE)
+    // Get reviewer ID from authenticated user
+    const reviewerId = req.auth_context?.actor_id || "unknown"
 
-    // Get the request
-    const requests = await requestService.listRequests({ id })
+    const approvalService = getSellerApprovalService(req.scope)
 
-    if (requests.length === 0) {
-      res.status(404).json({ message: "Request not found" })
-      return
-    }
-
-    const request = requests[0]
-
-    // Check if already processed
-    if (request.status !== RequestStatus.PENDING) {
-      res.status(400).json({
-        message: `Request has already been ${request.status}`,
-      })
-      return
-    }
-
-    // Update reviewer note with rejection reason if provided
-    if (reason) {
-      await requestService.updateRequests(
-        { id },
-        { reviewer_note: `${request.reviewer_note || ""}\n\nRejection reason: ${reason}`.trim() }
-      )
-    }
-
-    // Mark request as rejected
-    await requestService.rejectRequest(id)
-
-    console.log(`[Reject] Request ${id} rejected${reason ? `: ${reason}` : ""}`)
+    const result = await approvalService.rejectRequest({
+      requestId: id,
+      reviewerId,
+      reason,
+    })
 
     res.json({
       message: "Request rejected",
       request: {
-        id,
+        id: result.id,
         status: RequestStatus.REJECTED,
         reason,
       },
@@ -65,7 +43,19 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
       res.status(400).json({ message: "Validation failed", errors: error.errors })
       return
     }
-    console.error("[Reject] Error rejecting request:", error)
+
+    // Handle specific error types
+    if (error.message === "Request not found") {
+      res.status(404).json({ message: error.message })
+      return
+    }
+
+    if (error.message?.includes("already been")) {
+      res.status(400).json({ message: error.message })
+      return
+    }
+
+    console.error(`[POST /admin/requests/${id}/reject] Error:`, error.message)
     res.status(500).json({
       message: error.message || "Failed to reject request",
     })

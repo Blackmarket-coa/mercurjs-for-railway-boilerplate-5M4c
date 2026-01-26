@@ -1,33 +1,32 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { Modules } from "@medusajs/framework/utils"
 import { REQUEST_MODULE } from "../../../../../modules/request"
 import RequestModuleService from "../../../../../modules/request/service"
-import { RequestStatus } from "../../../../../modules/request/models"
-import { createSellerWorkflow } from "@mercurjs/b2c-core/workflows"
-import { createSellerMetadataWorkflow } from "../../../../../workflows/create-seller-metadata"
-import { VendorType } from "../../../../../modules/seller-extension/models/seller-metadata"
-import { getRocketChatService } from "../../../../../shared/rocketchat-service"
-import crypto from "crypto"
-
-/**
- * Request type identifier for seller creation requests
- */
-const SELLER_REQUEST_TYPE = "seller_creation"
+import { isSellerRequestType } from "../../../../../modules/request/validators"
+import { getSellerApprovalService } from "../../../../../shared/seller-approval-service"
 
 /**
  * POST /admin/requests/:id/approve
  *
  * Approve a request. For seller creation requests, this will:
  * 1. Create the seller using MercurJS workflow
- * 2. Mark the request as accepted
+ * 2. Link auth identity to seller
+ * 3. Create seller metadata
+ * 4. Create RocketChat user (if configured)
+ * 5. Mark the request as accepted
+ *
+ * Uses the shared SellerApprovalService for consistent behavior.
  */
 export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   const { id } = req.params
 
   try {
-    const requestService = req.scope.resolve<RequestModuleService>(REQUEST_MODULE)
+    // Get reviewer ID from authenticated user
+    const reviewerId = req.auth_context?.actor_id || "unknown"
 
-    // Get the request
+    const approvalService = getSellerApprovalService(req.scope)
+
+    // First, check if this is a seller request
+    const requestService = req.scope.resolve<RequestModuleService>(REQUEST_MODULE)
     const requests = await requestService.listRequests({ id })
 
     if (requests.length === 0) {
@@ -37,152 +36,48 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
 
     const request = requests[0]
 
-    // Check if already processed
-    if (request.status !== RequestStatus.PENDING) {
-      res.status(400).json({
-        message: `Request has already been ${request.status}`,
+    if (isSellerRequestType(request.type)) {
+      // Seller request - use full approval workflow
+      const result = await approvalService.approveSeller({
+        requestId: id,
+        reviewerId,
       })
-      return
-    }
-
-    const data = request.data as Record<string, unknown>
-
-    // Handle seller creation requests
-    if (request.type === "seller" || request.type === SELLER_REQUEST_TYPE) {
-      const authIdentityId = data.auth_identity_id as string
-      const member = data.member as { name: string; email: string }
-      const seller = data.seller as { name: string }
-      const vendorType = (data.vendor_type as string) || "producer"
-
-      if (!authIdentityId || !member || !seller) {
-        res.status(400).json({
-          message: "Invalid seller creation request data",
-        })
-        return
-      }
-
-      console.log(`[Approve] Creating seller "${seller.name}" for ${member.email} with vendor_type: ${vendorType}`)
-
-      // Create the seller using MercurJS workflow
-      const { result: createdSeller } = await createSellerWorkflow.run({
-        container: req.scope,
-        input: {
-          auth_identity_id: authIdentityId,
-          member: {
-            name: member.name,
-            email: member.email,
-          },
-          seller: {
-            name: seller.name,
-          },
-        },
-      })
-
-      console.log(`[Approve] Seller created:`, createdSeller)
-
-      // CRITICAL: Update auth_identity with seller_id in app_metadata
-      // This links the authentication to the seller, enabling login
-      try {
-        const authModule = req.scope.resolve(Modules.AUTH)
-        await authModule.updateAuthIdentities([{
-          id: authIdentityId,
-          app_metadata: {
-            seller_id: createdSeller.id,
-          },
-        }])
-        console.log(`[Approve] Updated auth_identity ${authIdentityId} with seller_id: ${createdSeller.id}`)
-      } catch (authError: any) {
-        console.error(`[Approve] Failed to update auth_identity:`, authError)
-        // This is critical - if we can't link auth, the seller can't login
-        // Re-throw to fail the request
-        throw new Error(`Failed to link authentication: ${authError.message}`)
-      }
-
-      // Create seller metadata with the correct vendor_type from registration
-      // Note: The subscriber will also try to create metadata, but we create it here first
-      // with the correct vendor_type to preserve the user's selection
-      try {
-        // Map string vendor_type to VendorType enum
-        const vendorTypeEnum = VendorType[vendorType.toUpperCase() as keyof typeof VendorType] || VendorType.PRODUCER
-
-        await createSellerMetadataWorkflow.run({
-          container: req.scope,
-          input: {
-            seller_id: createdSeller.id,
-            vendor_type: vendorTypeEnum,
-          },
-        })
-
-        console.log(`[Approve] Seller metadata created with vendor_type: ${vendorTypeEnum}`)
-      } catch (error: any) {
-        console.error(`[Approve] Failed to create seller metadata:`, error)
-        // Don't fail the entire request if metadata creation fails
-        // The subscriber will create it with default type as fallback
-      }
-
-      // Create RocketChat user and channel
-      const rocketchatService = getRocketChatService()
-      if (rocketchatService) {
-        try {
-          // Generate a secure random password for RocketChat
-          const rocketchatPassword = crypto.randomBytes(32).toString("hex")
-
-          // Create username from seller handle or email
-          const username = createdSeller.handle || member.email.split("@")[0]
-
-          // Create RocketChat user
-          const { userId: rocketchatUserId, username: rocketchatUsername } = await rocketchatService.createUser(
-            member.name,
-            member.email,
-            username,
-            rocketchatPassword
-          )
-
-          // Create seller channel
-          const channelName = await rocketchatService.createSellerChannel(
-            createdSeller.id,
-            seller.name
-          )
-
-          // Add user to their channel
-          await rocketchatService.addUserToChannel(channelName, rocketchatUsername)
-
-          // Add user to general channel
-          await rocketchatService.addUserToChannel("general", rocketchatUsername)
-
-          console.log(`[Approve] RocketChat user created: ${rocketchatUsername}`)
-        } catch (error: any) {
-          console.error(`[Approve] Failed to create RocketChat user:`, error.message)
-          // Don't fail the entire request if RocketChat creation fails
-        }
-      }
-
-      // Mark request as accepted
-      await requestService.acceptRequest(id)
 
       res.json({
         message: "Seller registration approved successfully",
-        seller: createdSeller,
-        request: {
-          id,
-          status: RequestStatus.ACCEPTED,
-        },
+        seller: result.seller,
+        request: result.request,
       })
+    } else {
+      // Generic request - just mark as accepted
+      const result = await approvalService.approveGenericRequest({
+        requestId: id,
+        reviewerId,
+      })
+
+      res.json({
+        message: "Request approved successfully",
+        request: result,
+      })
+    }
+  } catch (error: any) {
+    // Handle specific error types
+    if (error.message === "Request not found") {
+      res.status(404).json({ message: error.message })
       return
     }
 
-    // For other request types, just mark as accepted
-    await requestService.acceptRequest(id)
+    if (error.message?.includes("already been")) {
+      res.status(400).json({ message: error.message })
+      return
+    }
 
-    res.json({
-      message: "Request approved successfully",
-      request: {
-        id,
-        status: RequestStatus.ACCEPTED,
-      },
-    })
-  } catch (error: any) {
-    console.error("[Approve] Error approving request:", error)
+    if (error.message?.includes("Invalid request data")) {
+      res.status(400).json({ message: error.message })
+      return
+    }
+
+    console.error(`[POST /admin/requests/${id}/approve] Error:`, error.message)
     res.status(500).json({
       message: error.message || "Failed to approve request",
     })

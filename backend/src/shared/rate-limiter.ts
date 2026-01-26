@@ -271,3 +271,10 @@ export const uploadRateLimiter = createRateLimiter({
   max: 10,
   keyPrefix: "upload",
 })
+
+/** Vendor registration rate limiter: 5 attempts per 15 minutes */
+export const vendorRegistrationRateLimiter = createRateLimiter({
+  windowMs: 900_000, // 15 minutes
+  max: 5,
+  keyPrefix: "vendor-reg",
+})

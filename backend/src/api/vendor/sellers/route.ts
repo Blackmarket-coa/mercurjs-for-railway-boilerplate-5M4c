@@ -2,15 +2,19 @@ import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { Modules } from "@medusajs/framework/utils"
 import { REQUEST_MODULE } from "../../../modules/request"
 import RequestModuleService from "../../../modules/request/service"
+import { REQUEST_TYPES } from "../../../modules/request/validators"
 import { createSellerSchema, CreateSellerInput } from "./validators"
+import { vendorRegistrationRateLimiter } from "../../../shared/rate-limiter"
+import { maskEmail } from "../../../shared/seller-approval-service"
 
 // Disable automatic authentication to allow public registration
 export const AUTHENTICATE = false
 
 /**
- * Request type identifier for seller creation requests
+ * Middleware array for this route
+ * Applies rate limiting to prevent spam registrations
  */
-const SELLER_REQUEST_TYPE = "seller_creation"
+export const middlewares = [vendorRegistrationRateLimiter]
 
 /**
  * POST /vendor/sellers
@@ -19,6 +23,8 @@ const SELLER_REQUEST_TYPE = "seller_creation"
  * This endpoint is called after the auth registration to submit a seller creation request.
  * The request will appear in the admin panel for approval.
  * Once approved, the seller entity will be created via the admin approval endpoint.
+ *
+ * Rate limited to 5 requests per 15 minutes per IP address.
  */
 export const POST = async (
   req: MedusaRequest,
@@ -29,7 +35,7 @@ export const POST = async (
   try {
     body = createSellerSchema.parse(req.body)
   } catch (validationError: any) {
-    console.error("[POST /vendor/sellers] Validation error:", validationError)
+    console.error("[POST /vendor/sellers] Validation error")
     return res.status(400).json({
       type: "invalid_data",
       message: validationError.errors?.[0]?.message || "Invalid request data",
@@ -37,7 +43,7 @@ export const POST = async (
     })
   }
 
-  console.log("[POST /vendor/sellers] Creating seller request:", body.name)
+  console.log(`[POST /vendor/sellers] Creating seller request: "${body.name}" (email: ${maskEmail(body.member.email)})`)
 
   try {
     // Look up the auth identity by email (created during auth registration)
@@ -49,21 +55,21 @@ export const POST = async (
     })
 
     if (!authIdentity) {
-      console.error("[POST /vendor/sellers] Auth identity not found for email:", body.member.email)
+      console.error(`[POST /vendor/sellers] Auth identity not found for email: ${maskEmail(body.member.email)}`)
       return res.status(400).json({
         type: "invalid_data",
         message: "Please complete authentication registration first",
       })
     }
 
-    console.log("[POST /vendor/sellers] Found auth identity:", authIdentity.id)
+    console.log(`[POST /vendor/sellers] Found auth identity: ${authIdentity.id}`)
 
     // Create a seller creation REQUEST using the custom Request module
     // This will appear in the admin panel for approval
     const requestService = req.scope.resolve<RequestModuleService>(REQUEST_MODULE)
 
     const sellerRequest = await requestService.createRequest({
-      type: "seller",
+      type: REQUEST_TYPES.SELLER,
       data: {
         auth_identity_id: authIdentity.id,
         member: {
@@ -77,10 +83,10 @@ export const POST = async (
         vendor_type: body.vendor_type || "producer",
       },
       submitter_id: authIdentity.id,
-      reviewer_note: `Seller registration request for "${body.name}" by ${body.member.email}`,
+      reviewer_note: `Seller registration request for "${body.name}"`,
     })
 
-    console.log("[POST /vendor/sellers] Created seller request:", sellerRequest)
+    console.log(`[POST /vendor/sellers] Created seller request: ${sellerRequest.id}`)
 
     return res.status(201).json({
       request: {
@@ -90,7 +96,7 @@ export const POST = async (
       },
     })
   } catch (error: any) {
-    console.error("Failed to create seller request:", error)
+    console.error("[POST /vendor/sellers] Failed to create seller request:", error.message)
 
     // Return proper error response
     return res.status(400).json({
