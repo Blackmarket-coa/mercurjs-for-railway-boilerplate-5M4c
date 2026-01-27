@@ -55,7 +55,7 @@ export const useRegistrationStatus = (
         }
       }
 
-      const response = await fetch(`${backendUrl}/vendor/registration-status`, {
+      const response = await fetch(`${backendUrl}/auth/seller/registration-status`, {
         method: "GET",
         credentials: 'include',
         headers: {

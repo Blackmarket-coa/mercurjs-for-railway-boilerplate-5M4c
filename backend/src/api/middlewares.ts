@@ -339,6 +339,11 @@ export default defineMiddlewares({
       matcher: "/vendor/*",
       middlewares: [vendorCorsMiddleware],
     },
+    // CORS for auth seller registration status (uses vendor CORS since it's called by vendor panel)
+    {
+      matcher: "/auth/seller/registration-status",
+      middlewares: [vendorCorsMiddleware],
+    },
     // CORS for custom admin routes (requests, sellers, etc.)
     {
       matcher: "/admin/requests*",
