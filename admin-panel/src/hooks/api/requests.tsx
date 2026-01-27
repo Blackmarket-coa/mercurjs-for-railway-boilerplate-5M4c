@@ -62,7 +62,7 @@ export const useVendorRequest = (
 
 export const useReviewRequest = (
   options: UseMutationOptions<
-    { id?: string; status?: string },
+    { request?: { id?: string; status?: string }; status?: string },
     Error,
     { id: string; payload: AdminReviewRequest }
   >,
@@ -73,6 +73,86 @@ export const useReviewRequest = (
         method: "POST",
         body: payload,
       }),
+    onSuccess: (data, variables) => {
+      const nextStatus =
+        data?.request?.status || data?.status || variables.payload.status;
+
+      if (nextStatus) {
+        const listQueries = queryClient
+          .getQueryCache()
+          .findAll({ queryKey: requestsQueryKeys.lists() });
+
+        listQueries.forEach((query) => {
+          const queryKey = query.queryKey as Array<unknown>;
+          const queryMeta = queryKey[queryKey.length - 1];
+          const listQuery =
+            typeof queryMeta === "object" &&
+            queryMeta !== null &&
+            "query" in queryMeta
+              ? (queryMeta as { query?: Record<string, unknown> }).query
+              : undefined;
+
+          queryClient.setQueryData(queryKey, (oldData) => {
+            if (!oldData) {
+              return oldData;
+            }
+
+            const typedData = oldData as {
+              requests?: AdminRequest[];
+              count?: number;
+            };
+
+            if (!typedData.requests) {
+              return oldData;
+            }
+
+            let nextRequests = typedData.requests.map((request) =>
+              request.id === variables.id
+                ? { ...request, status: nextStatus }
+                : request
+            );
+
+            if (
+              listQuery?.status &&
+              typeof listQuery.status === "string" &&
+              listQuery.status !== nextStatus
+            ) {
+              nextRequests = nextRequests.filter(
+                (request) => request.id !== variables.id
+              );
+            }
+
+            return {
+              ...typedData,
+              requests: nextRequests,
+              count:
+                typedData.count && nextRequests.length < typedData.requests.length
+                  ? typedData.count - 1
+                  : typedData.count,
+            };
+          });
+        });
+
+        queryClient.setQueryData(
+          requestsQueryKeys.detail(variables.id),
+          (oldData) => {
+            if (!oldData) {
+              return oldData;
+            }
+
+            const typedData = oldData as { request?: AdminRequest };
+            if (!typedData.request) {
+              return oldData;
+            }
+
+            return {
+              ...typedData,
+              request: { ...typedData.request, status: nextStatus },
+            };
+          }
+        );
+      }
+    },
     onSettled: () => {
       // Invalidate all requests queries to ensure fresh data is fetched
       queryClient.invalidateQueries({ queryKey: requestsQueryKeys.all });
