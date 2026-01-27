@@ -6,7 +6,6 @@ import {
   clearAuthToken,
   fetchQuery,
   getAuthToken,
-  publicAuthSdk,
   sdk,
   setAuthToken,
 } from "../../lib/client"
@@ -73,7 +72,7 @@ export const useSignUpWithEmailPass = (
       const normalizedEmail = payload.email.toLowerCase().trim()
 
       try {
-        const token = await publicAuthSdk.auth.register("seller", "emailpass", {
+        const token = await sdk.auth.register("seller", "emailpass", {
           ...authPayload,
           email: normalizedEmail,
         })
@@ -87,7 +86,7 @@ export const useSignUpWithEmailPass = (
           error instanceof FetchError ? error.status : undefined
 
         if (status === 409 || message.toLowerCase().includes("already exists")) {
-          const result = await publicAuthSdk.auth.login("seller", "emailpass", {
+          const result = await sdk.auth.login("seller", "emailpass", {
             ...authPayload,
             email: normalizedEmail,
           })
