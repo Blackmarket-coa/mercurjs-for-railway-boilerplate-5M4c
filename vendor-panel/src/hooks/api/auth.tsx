@@ -3,12 +3,13 @@ import { HttpTypes } from "@medusajs/types"
 import { UseMutationOptions, useMutation } from "@tanstack/react-query"
 import { clearAuthToken, fetchQuery, sdk, setAuthToken } from "../../lib/client"
 
+/**
+ * Sign in with email/password
+ */
 export const useSignInWithEmailPass = (
   options?: UseMutationOptions<
     | string
-    | {
-        location: string
-      },
+    | { location: string },
     FetchError,
     HttpTypes.AdminSignUpWithEmailPassword
   >
@@ -19,16 +20,16 @@ export const useSignInWithEmailPass = (
         ...payload,
         email: payload.email.toLowerCase().trim(),
       })
-      // Store the token if login returns a token string
-      if (typeof result === "string") {
-        setAuthToken(result)
-      }
+      if (typeof result === "string") setAuthToken(result)
       return result
     },
     ...options,
   })
 }
 
+/**
+ * Sign up with email/password and create vendor registration
+ */
 export const useSignUpWithEmailPass = (
   options?: UseMutationOptions<
     string,
@@ -42,27 +43,19 @@ export const useSignUpWithEmailPass = (
 ) => {
   return useMutation({
     mutationFn: async (payload) => {
-      const { confirmPassword, vendor_type, ...authPayload } = payload as any
+      const { confirmPassword, vendor_type, ...authPayload } = payload
 
       const token = await sdk.auth.register("seller", "emailpass", {
         ...authPayload,
         email: payload.email.toLowerCase().trim(),
       })
-      // Store the token after registration
-      if (typeof token === "string") {
-        setAuthToken(token)
-      }
+
+      if (typeof token === "string") setAuthToken(token)
       return token
     },
-    // Spread options first so internal onSuccess isn't overwritten
-    ...options,
     onSuccess: async (data, variables, context) => {
-      const normalizedEmail = variables.email.toLowerCase().trim()
-
-      // Create seller registration request with vendor type
-      // Uses dedicated /vendor/register endpoint to avoid conflicts with MercurJS routes
-      // Wrap in try/catch to prevent uncaught fetch errors
       try {
+        // Ensure this endpoint uses the correct backend URL and auth token
         await fetchQuery("/vendor/register", {
           method: "POST",
           body: {
@@ -70,28 +63,26 @@ export const useSignUpWithEmailPass = (
             vendor_type: variables.vendor_type || "producer",
             member: {
               name: variables.name,
-              email: normalizedEmail,
+              email: variables.email.toLowerCase().trim(),
             },
           },
         })
       } catch (error) {
-        // Log the error but don't block registration success
-        // The seller profile can be created later if this fails
         console.error("Failed to create seller registration request:", error)
       }
 
       // Call user's onSuccess callback if provided
       options?.onSuccess?.(data, variables, context)
     },
+    ...options,
   })
 }
 
+/**
+ * Sign up for invite flow (no vendor type)
+ */
 export const useSignUpForInvite = (
-  options?: UseMutationOptions<
-    string,
-    FetchError,
-    HttpTypes.AdminSignInWithEmailPassword
-  >
+  options?: UseMutationOptions<string, FetchError, HttpTypes.AdminSignInWithEmailPassword>
 ) => {
   return useMutation({
     mutationFn: async (payload) => {
@@ -99,16 +90,16 @@ export const useSignUpForInvite = (
         ...payload,
         email: payload.email.toLowerCase().trim(),
       })
-      // Store the token after registration
-      if (typeof token === "string") {
-        setAuthToken(token)
-      }
+      if (typeof token === "string") setAuthToken(token)
       return token
     },
     ...options,
   })
 }
 
+/**
+ * Reset password for email/password
+ */
 export const useResetPasswordForEmailPass = (
   options?: UseMutationOptions<void, FetchError, { email: string }>
 ) => {
@@ -121,6 +112,9 @@ export const useResetPasswordForEmailPass = (
   })
 }
 
+/**
+ * Logout
+ */
 export const useLogout = (options?: UseMutationOptions<void, FetchError>) => {
   return useMutation({
     mutationFn: async () => {
@@ -131,6 +125,9 @@ export const useLogout = (options?: UseMutationOptions<void, FetchError>) => {
   })
 }
 
+/**
+ * Update provider password for email/password
+ */
 export const useUpdateProviderForEmailPass = (
   token: string,
   options?: UseMutationOptions<void, FetchError, { password: string }>
