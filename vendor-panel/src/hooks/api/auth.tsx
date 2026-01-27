@@ -1,7 +1,32 @@
 import { FetchError } from "@medusajs/js-sdk"
 import { HttpTypes } from "@medusajs/types"
 import { UseMutationOptions, useMutation } from "@tanstack/react-query"
-import { clearAuthToken, fetchQuery, sdk, setAuthToken } from "../../lib/client"
+import {
+  backendUrl,
+  clearAuthToken,
+  fetchQuery,
+  getAuthToken,
+  sdk,
+  setAuthToken,
+} from "../../lib/client"
+
+const fetchRegistrationStatus = async (token: string) => {
+  const response = await fetch(`${backendUrl}/auth/seller/registration-status`, {
+    method: "GET",
+    credentials: "include",
+    headers: {
+      authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  })
+
+  return response.json() as Promise<{
+    status: string
+    message: string
+    request_id?: string
+    seller_id?: string
+  }>
+}
 
 /**
  * Sign in with email/password
@@ -76,8 +101,16 @@ export const useSignUpWithEmailPass = (
     },
     onSuccess: async (data, variables, context) => {
       try {
-        // Ensure this endpoint uses the correct backend URL and auth token
-        await fetchQuery("/vendor/register", {
+        const token = typeof data === "string" ? data : getAuthToken()
+        if (token) {
+          const status = await fetchRegistrationStatus(token)
+          if (status.status === "pending" || status.status === "approved") {
+            options?.onSuccess?.(data, variables, context)
+            return
+          }
+        }
+
+        await fetchQuery("/auth/seller/register-request", {
           method: "POST",
           body: {
             name: variables.name,
