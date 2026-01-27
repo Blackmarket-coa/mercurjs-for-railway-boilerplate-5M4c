@@ -99,10 +99,12 @@ export const fetchQuery = async (
 
   const response = await fetch(`${backendUrl}${url}${params ? `?${params}` : ""}`, {
     method,
-    credentials: "include",
+    credentials: isPublic ? "omit" : "include",
     headers: {
       ...(isPublic
-        ? {}
+        ? {
+            ...(publishableApiKey ? { "x-publishable-api-key": publishableApiKey } : {}),
+          }
         : {
             authorization: `Bearer ${token}`,
             "x-publishable-api-key": publishableApiKey,
