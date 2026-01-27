@@ -56,6 +56,45 @@ const adminCors = buildCors(
 )
 
 // ============================================================================
+// PostgreSQL Configuration Utility
+// ============================================================================
+
+/**
+ * Build PostgreSQL database options with SSL and connection pooling for Railway
+ */
+const getDatabaseOptions = () => {
+  const databaseUrl = process.env.DATABASE_URL
+  if (!databaseUrl) return {}
+
+  // Auto-detect Railway PostgreSQL and enable SSL
+  const isRailway = databaseUrl.includes('railway.app') ||
+                    databaseUrl.includes('railway.internal') ||
+                    databaseUrl.includes('sslmode=require') ||
+                    process.env.RAILWAY_ENVIRONMENT
+
+  // Connection pool settings (adjust based on Railway plan)
+  const poolSize = parseInt(process.env.DB_POOL_SIZE || '10', 10)
+  const poolIdleTimeout = parseInt(process.env.DB_POOL_IDLE_TIMEOUT || '30000', 10)
+  const connectionTimeout = parseInt(process.env.DB_CONNECTION_TIMEOUT || '10000', 10)
+
+  return {
+    pool: {
+      min: 2,
+      max: poolSize,
+      idleTimeoutMillis: poolIdleTimeout,
+      acquireTimeoutMillis: connectionTimeout,
+    },
+    ...(isRailway ? {
+      driverOptions: {
+        connection: {
+          ssl: { rejectUnauthorized: false },
+        },
+      },
+    } : {}),
+  }
+}
+
+// ============================================================================
 // Redis Configuration Utility
 // ============================================================================
 
@@ -280,9 +319,14 @@ const notificationModules = (() => {
 // Export Configuration
 // ============================================================================
 
+// Get database configuration
+const databaseOptions = getDatabaseOptions()
+
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
+    databaseDriverOptions: databaseOptions.driverOptions,
+    databaseExtra: databaseOptions.pool,
     ...(process.env.REDIS_URL ? { redisUrl: process.env.REDIS_URL } : {}),
     http: {
       storeCors,
