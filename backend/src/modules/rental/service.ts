@@ -1,6 +1,5 @@
 import { MedusaService } from "@medusajs/framework/utils"
-import { Rental } from "./models/rental"
-import { RentalConfiguration } from "./models/rental-configuration"
+import { Rental, RentalConfiguration } from "./models"
 
 class RentalModuleService extends MedusaService({
   Rental,

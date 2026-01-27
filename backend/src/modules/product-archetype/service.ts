@@ -1,6 +1,5 @@
 import { MedusaService } from "@medusajs/framework/utils"
-import ProductArchetype from "./models/product-archetype"
-import ProductArchetypeAssignment from "./models/product-archetype-assignment"
+import { ProductArchetype, ProductArchetypeAssignment } from "./models"
 
 class ProductArchetypeService extends MedusaService({
   ProductArchetype,
