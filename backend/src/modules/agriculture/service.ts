@@ -1,7 +1,5 @@
 import { MedusaService } from "@medusajs/framework/utils"
-import Harvest from "./models/harvest"
-import Lot from "./models/lot"
-import AvailabilityWindow from "./models/availability-window"
+import { Harvest, Lot, AvailabilityWindow } from "./models"
 
 class AgricultureService extends MedusaService({
   Harvest,

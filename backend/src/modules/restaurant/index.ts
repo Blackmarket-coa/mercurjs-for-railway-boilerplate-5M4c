@@ -1,8 +1,11 @@
-import Service from "./service";
-import { Module } from "@medusajs/framework/utils";
+import { Module } from "@medusajs/framework/utils"
+import RestaurantModuleService from "./service"
 
-export const RESTAURANT_MODULE = "restaurant";
+export const RESTAURANT_MODULE = "restaurant"
 
 export default Module(RESTAURANT_MODULE, {
-  service: Service,
-});
+  service: RestaurantModuleService,
+})
+
+// Re-export types for external use
+export * from "./models"

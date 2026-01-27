@@ -1,9 +1,11 @@
 import { MedusaService, promiseAll } from "@medusajs/framework/utils"
-import Venue from "./models/venue"
-import VenueRow from "./models/venue-row"
-import TicketProduct from "./models/ticket-product"
-import TicketProductVariant from "./models/ticket-product-variant"
-import TicketPurchase from "./models/ticket-purchase"
+import {
+  Venue,
+  VenueRow,
+  TicketProduct,
+  TicketProductVariant,
+  TicketPurchase,
+} from "./models"
 import QRCode from "qrcode"
 
 export class TicketBookingModuleService extends MedusaService({

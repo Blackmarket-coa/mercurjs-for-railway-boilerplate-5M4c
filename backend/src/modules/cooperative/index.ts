@@ -6,3 +6,6 @@ export const COOPERATIVE_MODULE = "cooperative"
 export default Module(COOPERATIVE_MODULE, {
   service: CooperativeService,
 })
+
+// Re-export types for external use
+export * from "./models"
