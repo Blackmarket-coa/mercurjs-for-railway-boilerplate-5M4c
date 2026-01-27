@@ -84,7 +84,7 @@ export class AppriseService {
   private configKey?: string
 
   constructor(config: AppriseConfig) {
-    this.apiUrl = config.apiUrl || process.env.APPRISE_API_URL || "http://localhost:8000"
+    this.apiUrl = config.apiUrl || process.env.APPRISE_API_URL || ""
     this.defaultUrls = config.defaultUrls || []
     this.configKey = config.configKey
   }
@@ -103,6 +103,10 @@ export class AppriseService {
     }
 
     try {
+      if (!this.apiUrl) {
+        return { success: false, error: "Apprise API URL not configured" }
+      }
+
       const endpoint = this.configKey 
         ? `${this.apiUrl}/notify/${this.configKey}`
         : `${this.apiUrl}/notify`
