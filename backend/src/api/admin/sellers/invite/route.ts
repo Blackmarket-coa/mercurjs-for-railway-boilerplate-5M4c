@@ -28,12 +28,20 @@ export const POST = async (
     )
 
     // Send invitation email
+    const fallbackBaseUrl =
+      process.env.VENDOR_PANEL_URL || req.headers.origin || ""
+    const resolvedRegistrationUrl =
+      registration_url ||
+      (fallbackBaseUrl
+        ? new URL("/vendor/register", fallbackBaseUrl).toString()
+        : "")
+
     await notificationModule.createNotifications({
       to: email,
       channel: "email",
       template: "seller-invitation",
       data: {
-        registration_url: registration_url || process.env.VENDOR_PANEL_URL || "http://localhost:3000/vendor/register",
+        registration_url: resolvedRegistrationUrl,
         email,
       },
     })
