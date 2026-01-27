@@ -344,6 +344,11 @@ export default defineMiddlewares({
       matcher: "/auth/seller/registration-status",
       middlewares: [vendorCorsMiddleware],
     },
+    // CORS for seller registration request (vendor panel signup)
+    {
+      matcher: "/auth/seller/register-request",
+      middlewares: [vendorCorsMiddleware],
+    },
     // CORS for custom admin routes (requests, sellers, etc.)
     {
       matcher: "/admin/requests*",

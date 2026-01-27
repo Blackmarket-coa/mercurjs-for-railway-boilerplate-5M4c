@@ -31,6 +31,22 @@ export interface RegistrationStatusResponse {
   reviewer_note?: string
 }
 
+const fetchRegistrationStatus = async (
+  token: string
+): Promise<RegistrationStatusResponse> => {
+  const response = await fetch(`${backendUrl}/auth/seller/registration-status`, {
+    method: "GET",
+    credentials: "include",
+    headers: {
+      authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  })
+
+  const result = await response.json()
+  return result as RegistrationStatusResponse
+}
+
 /**
  * Hook to check the registration status of the current user.
  * This is useful for determining if a user's seller account is:
@@ -55,18 +71,7 @@ export const useRegistrationStatus = (
         }
       }
 
-      const response = await fetch(`${backendUrl}/auth/seller/registration-status`, {
-        method: "GET",
-        credentials: 'include',
-        headers: {
-          authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      })
-
-      // Parse the response regardless of status code
-      const result = await response.json()
-      return result as RegistrationStatusResponse
+      return fetchRegistrationStatus(token)
     },
     queryKey: usersQueryKeys.registrationStatus(),
     // Don't refetch too often
@@ -93,15 +98,27 @@ export const useMe = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: async () =>
-      fetchQuery("/vendor/sellers/me", {
+    queryFn: async () => {
+      const token = getAuthToken()
+      if (!token) {
+        return null
+      }
+
+      const status = await fetchRegistrationStatus(token)
+      if (status.status !== "approved") {
+        return null
+      }
+
+      return fetchQuery("/vendor/sellers/me", {
         method: "GET",
         query: {
           fields:
             "id,name,description,phone,email,media,address_line,postal_code,country_code,city,region,metadata,tax_id,photo,store_status,website_url,social_links,storefront_links",
         },
-      }),
+      })
+    },
     queryKey: usersQueryKeys.me(),
+    retry: false,
     ...options,
   })
 
