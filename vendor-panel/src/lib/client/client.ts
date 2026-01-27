@@ -101,7 +101,9 @@ export const fetchQuery = async (
     credentials: "include",
     headers: {
       ...(isPublic
-        ? {}
+        ? {
+            ...(publishableApiKey ? { "x-publishable-api-key": publishableApiKey } : {}),
+          }
         : {
             authorization: `Bearer ${token}`,
             "x-publishable-api-key": publishableApiKey,
