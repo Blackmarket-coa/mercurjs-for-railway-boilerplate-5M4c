@@ -60,37 +60,24 @@ const adminCors = buildCors(
 // ============================================================================
 
 /**
- * Build PostgreSQL database options with SSL and connection pooling for Railway
+ * Build PostgreSQL SSL options for Railway (auto-detected)
  */
-const getDatabaseOptions = () => {
+const getDatabaseDriverOptions = () => {
   const databaseUrl = process.env.DATABASE_URL
-  if (!databaseUrl) return {}
+  if (!databaseUrl) return undefined
 
   // Auto-detect Railway PostgreSQL and enable SSL
   const isRailway = databaseUrl.includes('railway.app') ||
                     databaseUrl.includes('railway.internal') ||
                     databaseUrl.includes('sslmode=require') ||
-                    process.env.RAILWAY_ENVIRONMENT
+                    !!process.env.RAILWAY_ENVIRONMENT
 
-  // Connection pool settings (adjust based on Railway plan)
-  const poolSize = parseInt(process.env.DB_POOL_SIZE || '10', 10)
-  const poolIdleTimeout = parseInt(process.env.DB_POOL_IDLE_TIMEOUT || '30000', 10)
-  const connectionTimeout = parseInt(process.env.DB_CONNECTION_TIMEOUT || '10000', 10)
+  if (!isRailway) return undefined
 
   return {
-    pool: {
-      min: 2,
-      max: poolSize,
-      idleTimeoutMillis: poolIdleTimeout,
-      acquireTimeoutMillis: connectionTimeout,
+    connection: {
+      ssl: { rejectUnauthorized: false },
     },
-    ...(isRailway ? {
-      driverOptions: {
-        connection: {
-          ssl: { rejectUnauthorized: false },
-        },
-      },
-    } : {}),
   }
 }
 
@@ -319,14 +306,10 @@ const notificationModules = (() => {
 // Export Configuration
 // ============================================================================
 
-// Get database configuration
-const databaseOptions = getDatabaseOptions()
-
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
-    databaseDriverOptions: databaseOptions.driverOptions,
-    databaseExtra: databaseOptions.pool,
+    databaseDriverOptions: getDatabaseDriverOptions(),
     ...(process.env.REDIS_URL ? { redisUrl: process.env.REDIS_URL } : {}),
     http: {
       storeCors,
