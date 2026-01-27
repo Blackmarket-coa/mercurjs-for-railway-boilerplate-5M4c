@@ -41,7 +41,7 @@ export const useSignInWithEmailPass = (
 ) => {
   return useMutation({
     mutationFn: async (payload) => {
-      const result = await sdk.auth.login("seller", "emailpass", {
+      const result = await publicAuthSdk.auth.login("seller", "emailpass", {
         ...payload,
         email: payload.email.toLowerCase().trim(),
       })
@@ -140,7 +140,7 @@ export const useSignUpForInvite = (
 ) => {
   return useMutation({
     mutationFn: async (payload) => {
-      const token = await sdk.auth.register("seller", "emailpass", {
+      const token = await publicAuthSdk.auth.register("seller", "emailpass", {
         ...payload,
         email: payload.email.toLowerCase().trim(),
       })

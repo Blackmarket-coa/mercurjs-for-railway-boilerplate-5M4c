@@ -42,6 +42,15 @@ export const sdk = new Medusa({
   },
 })
 
+export const publicAuthSdk = new Medusa({
+  baseUrl: backendUrl,
+  publishableKey: publishableApiKey,
+  auth: {
+    type: "jwt",
+    jwtTokenStorageMethod: "memory",
+  },
+})
+
 // Expose SDK in dev for console experimentation
 if (process.env.NODE_ENV === "development" && typeof window !== "undefined") {
   ;(window as any).__sdk = sdk
