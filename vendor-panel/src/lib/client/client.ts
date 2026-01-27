@@ -98,7 +98,7 @@ export const fetchQuery = async (
 
   const response = await fetch(`${backendUrl}${url}${params ? `?${params}` : ""}`, {
     method,
-    credentials: "include",
+    credentials: isPublic ? "omit" : "include",
     headers: {
       ...(isPublic
         ? {
