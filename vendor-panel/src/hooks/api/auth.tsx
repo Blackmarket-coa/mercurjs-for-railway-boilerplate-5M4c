@@ -44,14 +44,35 @@ export const useSignUpWithEmailPass = (
   return useMutation({
     mutationFn: async (payload) => {
       const { confirmPassword, vendor_type, ...authPayload } = payload
+      const normalizedEmail = payload.email.toLowerCase().trim()
 
-      const token = await sdk.auth.register("seller", "emailpass", {
-        ...authPayload,
-        email: payload.email.toLowerCase().trim(),
-      })
+      try {
+        const token = await sdk.auth.register("seller", "emailpass", {
+          ...authPayload,
+          email: normalizedEmail,
+        })
 
-      if (typeof token === "string") setAuthToken(token)
-      return token
+        if (typeof token === "string") setAuthToken(token)
+        return token
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Registration failed"
+        const status =
+          error instanceof FetchError ? error.status : undefined
+
+        if (status === 409 || message.toLowerCase().includes("already exists")) {
+          const result = await sdk.auth.login("seller", "emailpass", {
+            ...authPayload,
+            email: normalizedEmail,
+          })
+          if (typeof result === "string") {
+            setAuthToken(result)
+            return result
+          }
+        }
+
+        throw error
+      }
     },
     onSuccess: async (data, variables, context) => {
       try {
