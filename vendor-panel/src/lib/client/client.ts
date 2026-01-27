@@ -1,6 +1,7 @@
 import Medusa from "@medusajs/js-sdk"
 
-const isPublicAuthRoute = (url: string) => {
+// PUBLIC ROUTE CHECKER
+export const isPublicAuthRoute = (url: string) => {
   return (
     url.startsWith("/vendor/register") ||
     url.startsWith("/auth/") ||
@@ -8,12 +9,13 @@ const isPublicAuthRoute = (url: string) => {
   )
 }
 
-// Prefer runtime override for deployed static sites
+// BACKEND CONFIG
 const runtimeBackend =
   typeof window !== "undefined" && (window as any).__MEDUSA_BACKEND_URL__
 export const backendUrl = (runtimeBackend || __BACKEND_URL__) ?? "/"
 export const publishableApiKey = __PUBLISHABLE_API_KEY__ ?? ""
 
+// AUTH TOKEN STORAGE
 export const getAuthToken = () =>
   typeof window !== "undefined"
     ? window.localStorage.getItem("medusa_auth_token") || ""
@@ -31,6 +33,7 @@ export const clearAuthToken = () => {
   }
 }
 
+// MEDUSA SDK INSTANCE
 export const sdk = new Medusa({
   baseUrl: backendUrl,
   publishableKey: publishableApiKey,
@@ -40,50 +43,36 @@ export const sdk = new Medusa({
   },
 })
 
-// Expose SDK in dev for console testing
+// Expose SDK in dev for console experimentation
 if (process.env.NODE_ENV === "development" && typeof window !== "undefined") {
   ;(window as any).__sdk = sdk
 }
 
-// Product import
+// UPLOAD FILES
+export const uploadFilesQuery = async (files: any[]) => {
+  const formData = new FormData()
+  for (const { file } of files) formData.append("files", file)
+
+  return await fetchQuery("/vendor/uploads", {
+    method: "POST",
+    body: formData,
+    isForm: true,
+  })
+}
+
+// IMPORT PRODUCTS
 export const importProductsQuery = async (file: File) => {
   const formData = new FormData()
   formData.append("file", file)
 
-  return await fetch(`${backendUrl}/vendor/products/import`, {
+  return await fetchQuery("/vendor/products/import", {
     method: "POST",
     body: formData,
-    credentials: 'include',
-    headers: {
-      authorization: `Bearer ${getAuthToken()}`,
-      "x-publishable-api-key": publishableApiKey,
-    },
+    isForm: true,
   })
-    .then((res) => res.json())
-    .catch(() => null)
 }
 
-// File upload
-export const uploadFilesQuery = async (files: any[]) => {
-  const formData = new FormData()
-  for (const { file } of files) {
-    formData.append("files", file)
-  }
-
-  return await fetch(`${backendUrl}/vendor/uploads`, {
-    method: "POST",
-    body: formData,
-    credentials: 'include',
-    headers: {
-      authorization: `Bearer ${getAuthToken()}`,
-      "x-publishable-api-key": publishableApiKey,
-    },
-  })
-    .then((res) => res.json())
-    .catch(() => null)
-}
-
-// Unified fetchQuery for public and authenticated routes
+// FETCH QUERY WRAPPER
 export const fetchQuery = async (
   url: string,
   {
@@ -91,44 +80,45 @@ export const fetchQuery = async (
     body,
     query,
     headers,
+    isForm,
   }: {
     method: "GET" | "POST" | "DELETE"
-    body?: object
+    body?: object | FormData
     query?: Record<string, string | number>
-    headers?: { [key: string]: string }
+    headers?: Record<string, string>
+    isForm?: boolean
   }
 ) => {
   const isPublic = isPublicAuthRoute(url)
-  const bearer = getAuthToken()
+  const token = getAuthToken()
 
-  // Build query string
   const params = Object.entries(query || {})
-    .filter(([_, value]) => value !== undefined && value !== null)
+    .filter(([_, v]) => v !== undefined && v !== null)
     .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
     .join("&")
 
   const response = await fetch(`${backendUrl}${url}${params ? `?${params}` : ""}`, {
     method,
-    credentials: 'include',
+    credentials: "include",
     headers: {
       ...(isPublic
         ? {}
         : {
-            authorization: `Bearer ${bearer}`,
+            authorization: `Bearer ${token}`,
             "x-publishable-api-key": publishableApiKey,
           }),
-      "Content-Type": "application/json",
+      ...(!isForm && { "Content-Type": "application/json" }),
       ...headers,
     },
-    body: body ? JSON.stringify(body) : null,
+    body: body && !isForm ? JSON.stringify(body) : body,
   })
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => null)
+    const errorData = await response.json().catch(() => ({}))
     if (!isPublic && (response.status === 401 || response.status === 403)) {
       clearAuthToken()
     }
-    throw new Error(errorData?.message || "Nieznany błąd serwera")
+    throw new Error(errorData.message || "Nieznany błąd serwera")
   }
 
   return response.json()
