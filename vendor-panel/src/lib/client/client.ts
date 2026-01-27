@@ -3,7 +3,6 @@ import Medusa from "@medusajs/js-sdk"
 // PUBLIC ROUTE CHECKER
 export const isPublicAuthRoute = (url: string) => {
   return (
-    url.startsWith("/vendor/register") ||
     url.startsWith("/auth/") ||
     url.startsWith("/vendor/auth")
   )

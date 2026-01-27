@@ -62,6 +62,7 @@
     "axios": "^1.13.2",
     "cors": "^2.8.5",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.3",
     "json-rpc-2.0": "^1.7.1",
     "medusajs-launch-utils": "^0.0.18",
     "minio": "^8.0.3",
