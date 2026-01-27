@@ -7,5 +7,8 @@
 		"@mikro-orm/knex": "6.4.16",
 		"@mikro-orm/migrations": "6.4.16",
 		"@tanstack/react-query": "^5.90.20"
+	},
+	"devDependencies": {
+		"@types/node": "^25.0.10"
 	}
 }
