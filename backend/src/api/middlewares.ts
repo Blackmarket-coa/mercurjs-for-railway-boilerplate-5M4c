@@ -425,6 +425,10 @@ export default defineMiddlewares({
       matcher: "/vendor/sellers/me",
       middlewares: [authenticate("seller", "bearer")],
     },
+    {
+      matcher: "/vendor/me",
+      middlewares: [authenticate("seller", "bearer")],
+    },
     // Vendor delivery routes - seller authentication
     {
       matcher: "/vendor/deliveries/*",
