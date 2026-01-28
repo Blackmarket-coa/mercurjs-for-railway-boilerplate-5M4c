@@ -42,6 +42,7 @@ function getNamePlaceholder(type: VendorType): string {
   const placeholders: Record<VendorType, string> = {
     producer: "Farm or business name",
     garden: "Garden name",
+    kitchen: "Kitchen name",
     maker: "Business or studio name",
     restaurant: "Restaurant name",
     mutual_aid: "Organization name",
@@ -54,6 +55,7 @@ function getOptionalFieldsHint(type: VendorType): string {
   const hints: Record<VendorType, string> = {
     producer: "Add your farm website & social media",
     garden: "Add your garden's website & social media",
+    kitchen: "Add your kitchen website & social media",
     maker: "Add your portfolio & social media",
     restaurant: "Add your restaurant website & social media",
     mutual_aid: "Add your organization's website & social media",
