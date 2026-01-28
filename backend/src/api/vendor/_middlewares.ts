@@ -97,20 +97,62 @@ async function ensureSellerContext(
   res: MedusaResponse,
   next: MedusaNextFunction
 ): Promise<void> {
-  const authContext = (req as MedusaRequest & { auth_context?: { actor_id?: string; actor_type?: string } })
-    .auth_context
+  const publicRoutes = new Map<string, Set<string>>([
+    ["/vendor/register", new Set(["POST"])],
+    ["/vendor/registration-status", new Set(["GET"])],
+    ["/vendor/sellers", new Set(["POST"])],
+  ])
 
-  if (!authContext?.actor_id || authContext.actor_type !== "seller") {
+  const isPublicRoute =
+    req.path &&
+    publicRoutes.has(req.path) &&
+    publicRoutes.get(req.path)!.has(req.method.toUpperCase())
+
+  if (isPublicRoute) {
     next()
     return
   }
 
+  const authContext = (req as MedusaRequest & { auth_context?: { actor_id?: string; actor_type?: string } })
+    .auth_context
+
+  if (!authContext?.actor_id || authContext.actor_type !== "seller") {
+    res.status(401).json({
+      message: "Unauthorized - seller authentication required",
+      type: "unauthorized",
+    })
+    return
+  }
+
   try {
+    let sellerId = authContext.actor_id
+    if (sellerId.startsWith("mem_")) {
+      const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION)
+      const memberResult = await pgConnection.raw(
+        `
+        SELECT seller_id
+        FROM member
+        WHERE id = $1
+        `,
+        [sellerId]
+      )
+      const resolvedSellerId = memberResult.rows?.[0]?.seller_id
+      if (!resolvedSellerId) {
+        res.status(401).json({
+          message: "Seller not found for authenticated member",
+          type: "unauthorized",
+        })
+        return
+      }
+      sellerId = resolvedSellerId
+      authContext.actor_id = resolvedSellerId
+    }
+
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
     const { data: sellers } = await query.graph({
       entity: "seller",
       fields: ["id", "store_status"],
-      filters: { id: authContext.actor_id },
+      filters: { id: sellerId },
     })
 
     if (!sellers || sellers.length === 0) {
