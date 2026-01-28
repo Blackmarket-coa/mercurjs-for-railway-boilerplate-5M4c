@@ -12,16 +12,27 @@ const DEFAULT_METADATA_FIELDS = [
 
 const METADATA_FIELD_SET = new Set(DEFAULT_METADATA_FIELDS)
 
+const normalizeRequestedFields = (
+  requestedFields: unknown
+): string | string[] | undefined => {
+  if (typeof requestedFields === "string") {
+    return requestedFields
+  }
+
+  if (Array.isArray(requestedFields) && requestedFields.every(item => typeof item === "string")) {
+    return requestedFields
+  }
+
+  return undefined
+}
+
 const parseRequestedFields = (
-  requestedFields: string | string[] | undefined,
+  requestedFields: unknown,
   defaultSellerFields: string[]
 ) => {
+  const normalizedFields = normalizeRequestedFields(requestedFields)
   const requested =
-    typeof requestedFields === "string"
-      ? requestedFields
-      : Array.isArray(requestedFields)
-        ? requestedFields.join(",")
-        : undefined
+    typeof normalizedFields === "string" ? normalizedFields : normalizedFields?.join(",")
 
   if (!requested) {
     return {
