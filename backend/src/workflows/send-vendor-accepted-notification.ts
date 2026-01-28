@@ -28,9 +28,9 @@ export const sendVendorAcceptedNotificationStep = createStep(
     const notificationModuleService: INotificationModuleService = container
       .resolve(Modules.NOTIFICATION)
 
-    const vendorPanelUrl = input.vendor_panel_url || 
-      process.env.VENDOR_PANEL_URL || 
-      "http://localhost:7000"
+    const vendorPanelUrl = input.vendor_panel_url ||
+      process.env.VENDOR_PANEL_URL ||
+      ""
 
     const notification = await notificationModuleService.createNotifications({
       to: input.member_email,
@@ -40,7 +40,7 @@ export const sendVendorAcceptedNotificationStep = createStep(
         seller_name: input.seller_name,
         member_name: input.member_name,
         vendor_panel_url: vendorPanelUrl,
-        login_url: `${vendorPanelUrl}/login`,
+        login_url: vendorPanelUrl ? `${vendorPanelUrl}/login` : undefined,
       }
     })
 
