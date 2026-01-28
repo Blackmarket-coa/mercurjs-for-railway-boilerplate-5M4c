@@ -33,7 +33,7 @@ export const RequestSellerList = () => {
 
   const [currentFilter, setCurrentFilter] = useState<FilterState>("");
 
-  const { requests, isLoading, refetch, count } = useVendorRequests({
+  const { requests, isLoading, count } = useVendorRequests({
     offset: currentPage * PAGE_SIZE,
     limit: PAGE_SIZE,
     type: "seller",
@@ -55,7 +55,6 @@ export const RequestSellerList = () => {
             open={detailOpen}
             close={() => {
               setDetailOpen(false);
-              refetch();
             }}
           />
           <FilterRequests
