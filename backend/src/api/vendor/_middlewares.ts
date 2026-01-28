@@ -116,9 +116,7 @@ async function ensureSellerContext(
   const authContext = (req as MedusaRequest & { auth_context?: { actor_id?: string; actor_type?: string } })
     .auth_context
 
-  const allowedActorTypes = new Set(["seller", "member"])
-
-  if (!authContext?.actor_id || !allowedActorTypes.has(authContext.actor_type ?? "")) {
+  if (!authContext?.actor_id || authContext.actor_type !== "seller") {
     res.status(401).json({
       message: "Unauthorized - seller authentication required",
       type: "unauthorized",
@@ -148,9 +146,6 @@ async function ensureSellerContext(
       }
       sellerId = resolvedSellerId
       authContext.actor_id = resolvedSellerId
-      authContext.actor_type = "seller"
-    } else if (sellerId.startsWith("sel_")) {
-      authContext.actor_type = "seller"
     }
 
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
