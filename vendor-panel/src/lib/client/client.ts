@@ -100,6 +100,11 @@ export const fetchQuery = async (
   const isPublic = isPublicAuthRoute(url)
   const token = getAuthToken()
 
+  if (!isPublic && !token) {
+    clearAuthToken()
+    throw new Error("Brak autoryzacji. Zaloguj się ponownie.")
+  }
+
   const params = Object.entries(query || {})
     .filter(([_, v]) => v !== undefined && v !== null)
     .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
@@ -131,11 +136,10 @@ export const fetchQuery = async (
     const errorText = !contentType.includes("application/json")
       ? await response.text().catch(() => "")
       : ""
-    const errorContext = `${method} ${url} (${response.status} ${response.statusText})`
     if (!isPublic && (response.status === 401 || response.status === 403)) {
       clearAuthToken()
     }
-    throw new Error(errorData.message || errorText || `${errorContext}: Nieznany błąd serwera`)
+    throw new Error(errorData.message || errorText || "Nieznany błąd serwera")
   }
 
   return response.json()
