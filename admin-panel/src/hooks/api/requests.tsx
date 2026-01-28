@@ -154,8 +154,13 @@ export const useReviewRequest = (
       }
     },
     onSettled: () => {
-      // Invalidate all requests queries to ensure fresh data is fetched
-      queryClient.invalidateQueries({ queryKey: requestsQueryKeys.all });
+      // Delay refetch to avoid overwriting optimistic updates with stale data.
+      setTimeout(() => {
+        queryClient.invalidateQueries({
+          queryKey: requestsQueryKeys.all,
+          refetchType: "inactive",
+        });
+      }, 2000);
     },
     ...options,
   });
