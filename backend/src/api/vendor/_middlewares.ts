@@ -106,31 +106,11 @@ async function ensureSellerContext(
   }
 
   try {
-    const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION)
-    let sellerId = authContext.actor_id
-
-    if (sellerId.startsWith("mem_")) {
-      const memberResult = await pgConnection.raw(
-        `SELECT seller_id FROM member WHERE id = $1`,
-        [sellerId]
-      )
-      const resolvedSellerId = memberResult.rows?.[0]?.seller_id as string | undefined
-      if (!resolvedSellerId) {
-        res.status(401).json({
-          message: "Seller member is not linked to a seller account",
-          type: "unauthorized",
-        })
-        return
-      }
-      sellerId = resolvedSellerId
-      authContext.actor_id = resolvedSellerId
-    }
-
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
     const { data: sellers } = await query.graph({
       entity: "seller",
       fields: ["id", "store_status"],
-      filters: { id: sellerId },
+      filters: { id: authContext.actor_id },
     })
 
     if (!sellers || sellers.length === 0) {
