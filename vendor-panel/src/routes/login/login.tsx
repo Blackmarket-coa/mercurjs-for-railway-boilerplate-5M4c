@@ -102,6 +102,9 @@ export const Login = () => {
                   render={({ field }) => {
                     return (
                       <Form.Item>
+                        <Form.Label className="sr-only">
+                          {t("fields.email")}
+                        </Form.Label>
                         <Form.Control>
                           <Input
                             autoComplete="email"
@@ -120,7 +123,9 @@ export const Login = () => {
                   render={({ field }) => {
                     return (
                       <Form.Item>
-                        <Form.Label>{}</Form.Label>
+                        <Form.Label className="sr-only">
+                          {t("fields.password")}
+                        </Form.Label>
                         <Form.Control>
                           <Input
                             type="password"
