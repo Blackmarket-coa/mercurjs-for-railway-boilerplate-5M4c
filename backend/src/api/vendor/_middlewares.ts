@@ -148,6 +148,9 @@ async function ensureSellerContext(
       }
       sellerId = resolvedSellerId
       authContext.actor_id = resolvedSellerId
+      authContext.actor_type = "seller"
+    } else if (sellerId.startsWith("sel_")) {
+      authContext.actor_type = "seller"
     }
 
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
