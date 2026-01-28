@@ -6,6 +6,7 @@ import {
   clearAuthToken,
   fetchQuery,
   getAuthToken,
+  publicAuthSdk,
   sdk,
   setAuthToken,
 } from "../../lib/client"
