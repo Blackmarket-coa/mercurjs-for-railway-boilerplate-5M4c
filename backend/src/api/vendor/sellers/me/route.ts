@@ -194,6 +194,7 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
 
     const requestedFields = req.query.fields as string | undefined
     const includeMediaAlias = !requestedFields || requestedFields.includes("media")
+    const includeMediaAlias = !req.query.fields || req.query.fields.includes("media")
     const metadataFieldSet = new Set([
       "vendor_type",
       "website_url",
@@ -202,6 +203,7 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
       "certifications",
     ])
 
+    const requestedFields = req.query.fields as string | undefined
     const parsedFields = requestedFields
       ? requestedFields.split(",").map(field => field.trim()).filter(Boolean)
       : []
@@ -211,6 +213,11 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
       : Array.from(metadataFieldSet)
 
     const responseSellerFields = requestedFields
+    const metadataFields = requestedFields
+      ? parsedFields.filter(field => metadataFieldSet.has(field))
+      : Array.from(metadataFieldSet)
+
+    const sellerFields = requestedFields
       ? parsedFields
           .filter(field => !metadataFieldSet.has(field))
           .map(field => (field === "media" ? "photo" : field))
@@ -222,12 +229,21 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
 
     if (!responseSellerFields.includes("id")) {
       responseSellerFields.unshift("id")
+    if (!sellerFields.includes("id")) {
+      sellerFields.unshift("id")
     }
 
     // Fetch and return updated seller data
     const { data: sellers } = await query.graph({
       entity: "seller",
       fields: responseSellerFields,
+      fields: sellerFields,
+      fields: [
+        "id", "name", "description", "phone", "email", "handle", "photo",
+        "address_line", "postal_code", "city", "country_code",
+        "tax_id", "store_status", "metadata", "created_at", "updated_at",
+        "seller_metadata.*",
+      ],
       filters: { id: sellerId },
     })
 
@@ -249,6 +265,14 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
       })
       const sellerMetadata = (metadataRecords?.[0] ?? {}) as Record<string, unknown>
       for (const field of responseMetadataFields) {
+    if (metadataFields.length > 0) {
+      const { data: metadataRecords } = await query.graph({
+        entity: "seller_metadata",
+        fields: metadataFields,
+        filters: { seller_id: sellerId },
+      })
+      const sellerMetadata = (metadataRecords?.[0] ?? {}) as Record<string, unknown>
+      for (const field of metadataFields) {
         response[field] = sellerMetadata[field]
       }
     }
