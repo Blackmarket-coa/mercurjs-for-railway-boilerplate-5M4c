@@ -110,7 +110,9 @@ export const fetchQuery = async (
     .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
     .join("&")
 
-  const response = await fetch(`${backendUrl}${url}${params ? `?${params}` : ""}`, {
+  const requestUrl = `${backendUrl}${url}${params ? `?${params}` : ""}`
+
+  const response = await fetch(requestUrl, {
     method,
     credentials: isPublic ? "omit" : "include",
     headers: {
