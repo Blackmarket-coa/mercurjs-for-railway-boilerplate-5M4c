@@ -9,25 +9,28 @@ export const isPublicAuthRoute = (url: string) => {
 }
 
 // BACKEND CONFIG
-const runtimeBackend =
-  typeof window !== "undefined" && (window as any).__MEDUSA_BACKEND_URL__
+const isBrowser = typeof window !== "undefined"
+const runtimeBackend = isBrowser && (window as any).__MEDUSA_BACKEND_URL__
 export const backendUrl = (runtimeBackend || __BACKEND_URL__) ?? "/"
 export const publishableApiKey = __PUBLISHABLE_API_KEY__ ?? ""
+const publishableHeader = publishableApiKey
+  ? { "x-publishable-api-key": publishableApiKey }
+  : {}
 
 // AUTH TOKEN STORAGE
 export const getAuthToken = () =>
-  typeof window !== "undefined"
+  isBrowser
     ? window.localStorage.getItem("medusa_auth_token") || ""
     : ""
 
 export const setAuthToken = (token: string) => {
-  if (typeof window !== "undefined") {
+  if (isBrowser) {
     window.localStorage.setItem("medusa_auth_token", token)
   }
 }
 
 export const clearAuthToken = () => {
-  if (typeof window !== "undefined") {
+  if (isBrowser) {
     window.localStorage.removeItem("medusa_auth_token")
   }
 }
@@ -52,7 +55,7 @@ export const publicAuthSdk = new Medusa({
 })
 
 // Expose SDK in dev for console experimentation
-if (process.env.NODE_ENV === "development" && typeof window !== "undefined") {
+if (process.env.NODE_ENV === "development" && isBrowser) {
   ;(window as any).__sdk = sdk
 }
 
@@ -105,25 +108,27 @@ export const fetchQuery = async (
     throw new Error("Brak autoryzacji. Zaloguj się ponownie.")
   }
 
-  const params = Object.entries(query || {})
-    .filter(([_, v]) => v !== undefined && v !== null)
-    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
-    .join("&")
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(query || {})) {
+    if (value !== undefined && value !== null) {
+      params.set(key, String(value))
+    }
+  }
+  const queryString = params.toString()
 
-  const requestUrl = `${backendUrl}${url}${params ? `?${params}` : ""}`
+  const requestUrl = `${backendUrl}${url}${queryString ? `?${queryString}` : ""}`
+  const authHeaders = isPublic
+    ? {}
+    : {
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
+      }
 
   const response = await fetch(requestUrl, {
     method,
     credentials: isPublic ? "omit" : "include",
     headers: {
-      ...(isPublic
-        ? {
-            ...(publishableApiKey ? { "x-publishable-api-key": publishableApiKey } : {}),
-          }
-        : {
-            ...(token ? { authorization: `Bearer ${token}` } : {}),
-            ...(publishableApiKey ? { "x-publishable-api-key": publishableApiKey } : {}),
-          }),
+      ...authHeaders,
+      ...publishableHeader,
       ...(!isForm && { "Content-Type": "application/json" }),
       ...headers,
     },
