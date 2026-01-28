@@ -114,8 +114,8 @@ export const fetchQuery = async (
             ...(publishableApiKey ? { "x-publishable-api-key": publishableApiKey } : {}),
           }
         : {
-            authorization: `Bearer ${token}`,
-            "x-publishable-api-key": publishableApiKey,
+            ...(token ? { authorization: `Bearer ${token}` } : {}),
+            ...(publishableApiKey ? { "x-publishable-api-key": publishableApiKey } : {}),
           }),
       ...(!isForm && { "Content-Type": "application/json" }),
       ...headers,
@@ -124,11 +124,19 @@ export const fetchQuery = async (
   })
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}))
+    const contentType = response.headers.get("content-type") || ""
+    const errorData = contentType.includes("application/json")
+      ? await response.json().catch(() => ({}))
+      : {}
+    const errorText = !contentType.includes("application/json")
+      ? await response.text().catch(() => "")
+      : ""
+    const errorContext = `${method} ${url} (${response.status} ${response.statusText})`
     if (!isPublic && (response.status === 401 || response.status === 403)) {
       clearAuthToken()
     }
-    throw new Error(errorData.message || "Nieznany błąd serwera")
+    const baseMessage = errorData.message || errorText || "Nieznany błąd serwera"
+    throw new Error(`${baseMessage} (${errorContext})`)
   }
 
   return response.json()
