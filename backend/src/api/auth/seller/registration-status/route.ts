@@ -1,5 +1,5 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { Modules } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import { REQUEST_MODULE } from "../../../../modules/request"
 import RequestModuleService from "../../../../modules/request/service"
 import jwt from "jsonwebtoken"
@@ -28,11 +28,16 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
     // If user already has sellerId, they are approved
     if (sellerId) {
-      return res.json({
-        status: "approved",
-        seller_id: sellerId,
-        message: "Your seller account is approved. You can access the vendor dashboard.",
-      })
+      const seller = await findSellerById(req, sellerId)
+      if (seller) {
+        return res.json({
+          status: "approved",
+          seller_id: sellerId,
+          message: "Your seller account is approved. You can access the vendor dashboard.",
+        })
+      }
+
+      console.warn("[GET /auth/seller/registration-status] Seller ID present in token but not found:", sellerId)
     }
 
     if (!authIdentityId) {
@@ -52,11 +57,19 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
     const appMetadata = authIdentity.app_metadata as Record<string, unknown> | undefined
     if (appMetadata?.seller_id) {
-      return res.json({
-        status: "approved",
-        seller_id: appMetadata.seller_id,
-        message: "Your seller account is approved. You can access the vendor dashboard.",
-      })
+      const seller = await findSellerById(req, String(appMetadata.seller_id))
+      if (!seller) {
+        console.warn(
+          "[GET /auth/seller/registration-status] Seller ID present in auth metadata but not found:",
+          appMetadata.seller_id
+        )
+      } else {
+        return res.json({
+          status: "approved",
+          seller_id: appMetadata.seller_id,
+          message: "Your seller account is approved. You can access the vendor dashboard.",
+        })
+      }
     }
 
     // No seller_id in token or metadata — check pending requests
@@ -101,6 +114,17 @@ async function decodeAndVerifyToken(token: string, req: MedusaRequest) {
     console.error("[JWT decode error]:", err.message)
     return { authIdentityId: null, sellerId: null }
   }
+}
+
+/** Fetches seller by id to ensure it exists before approving */
+async function findSellerById(req: MedusaRequest, sellerId: string) {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const { data: sellers } = await query.graph({
+    entity: "seller",
+    fields: ["id"],
+    filters: { id: sellerId },
+  })
+  return sellers?.[0] ?? null
 }
 
 /** Fetches the auth identity from Medusa auth module */
