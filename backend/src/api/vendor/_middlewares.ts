@@ -162,6 +162,9 @@ async function ensureSellerContext(
       })
       return
     }
+
+    const seller = sellers[0]
+    ;(req as MedusaRequest & { seller?: unknown }).seller = seller
   } catch (error) {
     console.error("[VENDOR AUTH] Failed to validate seller context:", error)
     res.status(500).json({
