@@ -31,7 +31,6 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
       "address_line",
       "postal_code",
       "city",
-      "region",
       "country_code",
       "tax_id",
       "store_status",
@@ -127,7 +126,7 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
     // Separate seller fields from seller_metadata fields
     const sellerFields = [
       "name", "description", "phone", "email", "handle", "photo",
-      "address_line", "postal_code", "city", "region", "country_code", "tax_id", "metadata"
+      "address_line", "postal_code", "city", "country_code", "tax_id", "metadata"
     ]
     const metadataFields = ["vendor_type", "website_url", "social_links", "storefront_links", "certifications"]
 
@@ -188,7 +187,7 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
       entity: "seller",
       fields: [
         "id", "name", "description", "phone", "email", "handle", "photo",
-        "address_line", "postal_code", "city", "region", "country_code",
+        "address_line", "postal_code", "city", "country_code",
         "tax_id", "store_status", "metadata", "created_at", "updated_at",
         "seller_metadata.*",
       ],
