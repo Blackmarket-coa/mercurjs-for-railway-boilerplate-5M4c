@@ -136,10 +136,12 @@ export const fetchQuery = async (
     const errorText = !contentType.includes("application/json")
       ? await response.text().catch(() => "")
       : ""
+    const errorContext = `${method} ${url} (${response.status} ${response.statusText})`
     if (!isPublic && (response.status === 401 || response.status === 403)) {
       clearAuthToken()
     }
-    throw new Error(errorData.message || errorText || "Nieznany błąd serwera")
+    const baseMessage = errorData.message || errorText || "Nieznany błąd serwera"
+    throw new Error(`${baseMessage} (${errorContext})`)
   }
 
   return response.json()
