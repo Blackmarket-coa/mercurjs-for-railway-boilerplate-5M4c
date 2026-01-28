@@ -228,6 +228,12 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
     const { data: sellers } = await query.graph({
       entity: "seller",
       fields: sellerFields,
+      fields: [
+        "id", "name", "description", "phone", "email", "handle", "photo",
+        "address_line", "postal_code", "city", "country_code",
+        "tax_id", "store_status", "metadata", "created_at", "updated_at",
+        "seller_metadata.*",
+      ],
       filters: { id: sellerId },
     })
 
