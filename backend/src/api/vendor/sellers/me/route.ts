@@ -2,6 +2,52 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { requireSellerId } from "../../../../shared"
 
+const DEFAULT_METADATA_FIELDS = [
+  "vendor_type",
+  "website_url",
+  "social_links",
+  "storefront_links",
+  "certifications",
+]
+
+const METADATA_FIELD_SET = new Set(DEFAULT_METADATA_FIELDS)
+
+const parseRequestedFields = (
+  requestedFields: string | string[] | undefined,
+  defaultSellerFields: string[]
+) => {
+  const requested =
+    typeof requestedFields === "string"
+      ? requestedFields
+      : Array.isArray(requestedFields)
+        ? requestedFields.join(",")
+        : undefined
+
+  if (!requested) {
+    return {
+      sellerFields: [...defaultSellerFields],
+      metadataFields: [...DEFAULT_METADATA_FIELDS],
+      includeMediaAlias: true,
+    }
+  }
+
+  const parsedFields = requested.split(",").map(field => field.trim()).filter(Boolean)
+  const metadataFields = parsedFields.filter(field => METADATA_FIELD_SET.has(field))
+  const sellerFields = parsedFields
+    .filter(field => !METADATA_FIELD_SET.has(field))
+    .map(field => (field === "media" ? "photo" : field))
+
+  if (!sellerFields.includes("id")) {
+    sellerFields.unshift("id")
+  }
+
+  return {
+    sellerFields,
+    metadataFields,
+    includeMediaAlias: parsedFields.includes("media"),
+  }
+}
+
 /**
  * GET /vendor/sellers/me
  *
