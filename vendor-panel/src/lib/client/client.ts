@@ -114,8 +114,8 @@ export const fetchQuery = async (
             ...(publishableApiKey ? { "x-publishable-api-key": publishableApiKey } : {}),
           }
         : {
-            authorization: `Bearer ${token}`,
-            "x-publishable-api-key": publishableApiKey,
+            ...(token ? { authorization: `Bearer ${token}` } : {}),
+            ...(publishableApiKey ? { "x-publishable-api-key": publishableApiKey } : {}),
           }),
       ...(!isForm && { "Content-Type": "application/json" }),
       ...headers,
