@@ -27,6 +27,7 @@ import { queryClient } from "../../../lib/query-client"
 import { useGlobalShortcuts } from "../../../providers/keybind-provider/hooks"
 import { useTheme } from "../../../providers/theme-provider"
 import { ImageAvatar } from "../../common/image-avatar"
+import { isFetchError } from "../../../lib/is-fetch-error"
 
 export const UserMenu = () => {
   const { t } = useTranslation()
@@ -86,7 +87,36 @@ const UserBadge = () => {
   }
 
   if (isError) {
-    throw error
+    if (isFetchError(error) && error.status === 401) {
+      throw error
+    }
+
+    return (
+      <div className="p-3">
+        <DropdownMenu.Trigger
+          disabled
+          className={clx(
+            "bg-ui-bg-subtle grid w-full cursor-not-allowed grid-cols-[24px_1fr_15px] items-center gap-2 rounded-md py-1 pl-0.5 pr-2 outline-none",
+            "opacity-70"
+          )}
+        >
+          <div className="flex size-7 items-center justify-center">
+            <ImageAvatar src="/logo.svg" size={7} rounded />
+          </div>
+          <div className="flex items-center overflow-hidden">
+            <Text
+              size="xsmall"
+              weight="plus"
+              leading="compact"
+              className="truncate text-ui-fg-muted"
+            >
+              Account unavailable
+            </Text>
+          </div>
+          <EllipsisHorizontal className="text-ui-fg-muted" />
+        </DropdownMenu.Trigger>
+      </div>
+    )
   }
 
   return (
