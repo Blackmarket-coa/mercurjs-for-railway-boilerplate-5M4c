@@ -6,6 +6,7 @@ import {
   clearAuthToken,
   fetchQuery,
   getAuthToken,
+  publicAuthSdk,
   sdk,
   setAuthToken,
 } from "../../lib/client"
@@ -120,6 +121,7 @@ export const useSignUpWithEmailPass = (
               email: variables.email.toLowerCase().trim(),
             },
           },
+          headers: token ? { authorization: `Bearer ${token}` } : undefined,
         })
       } catch (error) {
         console.error("Failed to create seller registration request:", error)
