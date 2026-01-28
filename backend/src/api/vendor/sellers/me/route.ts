@@ -62,6 +62,9 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
   try {
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
+    // Parse fields from query params (comma-separated list)
+    const requestedFields = req.query.fields as string | undefined
+
     // Default seller fields to return
     const defaultSellerFields = [
       "id",
@@ -83,10 +86,37 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
       // Include producer if linked
       "producer.*",
     ]
-    const { sellerFields, metadataFields, includeMediaAlias } = parseRequestedFields(
-      req.query.fields,
-      defaultSellerFields
-    )
+    const defaultMetadataFields = [
+      "vendor_type",
+      "website_url",
+      "social_links",
+      "storefront_links",
+      "certifications",
+    ]
+    const metadataFieldSet = new Set(defaultMetadataFields)
+
+    // If specific fields requested, parse them
+    let sellerFields = defaultSellerFields
+    let metadataFields = defaultMetadataFields
+    let includeMediaAlias = true
+    if (requestedFields) {
+      const parsedFields = requestedFields.split(",").map(f => f.trim()).filter(Boolean)
+      if (parsedFields.length > 0) {
+        includeMediaAlias = parsedFields.includes("media")
+        metadataFields = parsedFields.filter(field => metadataFieldSet.has(field))
+        // Map frontend field names to actual seller entity fields
+        sellerFields = parsedFields
+          .filter(field => !metadataFieldSet.has(field))
+          .map(field => {
+            if (field === "media") return "photo" // media is alias for photo
+            return field
+          })
+        // Always ensure id is included
+        if (!sellerFields.includes("id")) {
+          sellerFields.unshift("id")
+        }
+      }
+    }
 
     // Fetch seller data with related entities
     const { data: sellers } = await query.graph({
@@ -120,7 +150,7 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
       }
     }
 
-    if (includeMediaAlias) {
+    if (!requestedFields || includeMediaAlias) {
       response.media = seller.photo
     }
 
@@ -208,17 +238,58 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
       }
     }
 
-    const { sellerFields: responseSellerFields, metadataFields: responseMetadataFields, includeMediaAlias } =
-      parseRequestedFields(req.query.fields, [
-        "id", "name", "description", "phone", "email", "handle", "photo",
-        "address_line", "postal_code", "city", "country_code",
-        "tax_id", "store_status", "metadata", "created_at", "updated_at",
-      ])
+    const requestedFields = req.query.fields as string | undefined
+    const includeMediaAlias = !requestedFields || requestedFields.includes("media")
+    const includeMediaAlias = !req.query.fields || req.query.fields.includes("media")
+    const metadataFieldSet = new Set([
+      "vendor_type",
+      "website_url",
+      "social_links",
+      "storefront_links",
+      "certifications",
+    ])
+
+    const requestedFields = req.query.fields as string | undefined
+    const parsedFields = requestedFields
+      ? requestedFields.split(",").map(field => field.trim()).filter(Boolean)
+      : []
+
+    const responseMetadataFields = requestedFields
+      ? parsedFields.filter(field => metadataFieldSet.has(field))
+      : Array.from(metadataFieldSet)
+
+    const responseSellerFields = requestedFields
+    const metadataFields = requestedFields
+      ? parsedFields.filter(field => metadataFieldSet.has(field))
+      : Array.from(metadataFieldSet)
+
+    const sellerFields = requestedFields
+      ? parsedFields
+          .filter(field => !metadataFieldSet.has(field))
+          .map(field => (field === "media" ? "photo" : field))
+      : [
+          "id", "name", "description", "phone", "email", "handle", "photo",
+          "address_line", "postal_code", "city", "country_code",
+          "tax_id", "store_status", "metadata", "created_at", "updated_at",
+        ]
+
+    if (!responseSellerFields.includes("id")) {
+      responseSellerFields.unshift("id")
+    if (!sellerFields.includes("id")) {
+      sellerFields.unshift("id")
+    }
 
     // Fetch and return updated seller data
     const { data: sellers } = await query.graph({
       entity: "seller",
       fields: responseSellerFields,
+      fields: sellerFields,
+      fields: [
+        "id", "name", "description", "phone", "email", "handle", "photo",
+        "address_line", "postal_code", "city", "country_code",
+        "tax_id", "store_status", "metadata", "created_at", "updated_at",
+        "seller_metadata.*",
+      ],
       filters: { id: sellerId },
     })
 
@@ -240,6 +311,14 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
       })
       const sellerMetadata = (metadataRecords?.[0] ?? {}) as Record<string, unknown>
       for (const field of responseMetadataFields) {
+    if (metadataFields.length > 0) {
+      const { data: metadataRecords } = await query.graph({
+        entity: "seller_metadata",
+        fields: metadataFields,
+        filters: { seller_id: sellerId },
+      })
+      const sellerMetadata = (metadataRecords?.[0] ?? {}) as Record<string, unknown>
+      for (const field of metadataFields) {
         response[field] = sellerMetadata[field]
       }
     }
