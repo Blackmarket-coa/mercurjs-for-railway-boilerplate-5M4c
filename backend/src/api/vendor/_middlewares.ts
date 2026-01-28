@@ -1,5 +1,6 @@
 import { defineMiddlewares } from "@medusajs/framework/http"
 import type { MedusaRequest, MedusaResponse, MedusaNextFunction } from "@medusajs/framework/http"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 /**
  * Vendor-specific CORS middleware
@@ -91,11 +92,51 @@ async function vendorCorsMiddleware(
   next()
 }
 
+async function ensureSellerContext(
+  req: MedusaRequest,
+  res: MedusaResponse,
+  next: MedusaNextFunction
+): Promise<void> {
+  const authContext = (req as MedusaRequest & { auth_context?: { actor_id?: string; actor_type?: string } })
+    .auth_context
+
+  if (!authContext?.actor_id || authContext.actor_type !== "seller") {
+    next()
+    return
+  }
+
+  try {
+    const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+    const { data: sellers } = await query.graph({
+      entity: "seller",
+      fields: ["id", "store_status"],
+      filters: { id: authContext.actor_id },
+    })
+
+    if (!sellers || sellers.length === 0) {
+      res.status(401).json({
+        message: "Seller not found for authenticated user",
+        type: "unauthorized",
+      })
+      return
+    }
+  } catch (error) {
+    console.error("[VENDOR AUTH] Failed to validate seller context:", error)
+    res.status(500).json({
+      message: "Failed to validate seller context",
+      type: "server_error",
+    })
+    return
+  }
+
+  next()
+}
+
 export default defineMiddlewares({
   routes: [
     {
       matcher: "/vendor/**",
-      middlewares: [vendorCorsMiddleware],
+      middlewares: [vendorCorsMiddleware, ensureSellerContext],
     },
   ],
 })
