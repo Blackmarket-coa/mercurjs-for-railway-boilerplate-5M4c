@@ -11,7 +11,7 @@ import { requireSellerId } from "../../../shared"
 
 export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   try {
-    const sellerId = requireSellerId(req, res)
+    const sellerId = await requireSellerId(req, res)
     if (!sellerId) return
 
     const subscriptionService = req.scope.resolve<SubscriptionModuleService>(SUBSCRIPTION_MODULE)

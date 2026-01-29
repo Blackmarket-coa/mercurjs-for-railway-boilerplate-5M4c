@@ -22,7 +22,7 @@ export async function GET(
   }
 
   // Get authenticated seller ID
-  const sellerId = requireSellerId(req, res)
+  const sellerId = await requireSellerId(req, res)
   if (!sellerId) return
 
   try {

@@ -57,7 +57,7 @@ const listZonesQuerySchema = z.object({
 
 export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   try {
-    const sellerId = requireSellerId(req, res)
+    const sellerId = await requireSellerId(req, res)
     if (!sellerId) return
 
     const query = listZonesQuerySchema.parse(req.query)
@@ -116,7 +116,7 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
 
 export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   try {
-    const sellerId = requireSellerId(req, res)
+    const sellerId = await requireSellerId(req, res)
     if (!sellerId) return
 
     const data = createZoneSchema.parse(req.body)

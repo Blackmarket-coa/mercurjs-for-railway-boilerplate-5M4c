@@ -13,7 +13,7 @@ export async function GET(
   res: MedusaResponse
 ) {
   try {
-    const sellerId = requireSellerId(req, res)
+    const sellerId = await requireSellerId(req, res)
     if (!sellerId) return
 
     const { id } = req.params
