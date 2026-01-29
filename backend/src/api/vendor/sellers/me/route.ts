@@ -1,6 +1,10 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { requireSellerId } from "../../../../shared"
+import {
+  createSellerMetadataRecord,
+  updateSellerMetadataRecord,
+} from "../../../../modules/seller-extension/metadata-service"
 
 const DEFAULT_METADATA_FIELDS = [
   "vendor_type",
@@ -208,13 +212,13 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
       if (metadataRecords && metadataRecords.length > 0) {
         // Update existing metadata
         const metadataId = (metadataRecords[0] as { id: string }).id
-        await sellerExtensionModule.updateSellerMetadatas([
-          { id: metadataId, ...metadataUpdate }
+        await updateSellerMetadataRecord(sellerExtensionModule, [
+          { id: metadataId, ...metadataUpdate },
         ])
       } else {
         // Create new metadata record
-        await sellerExtensionModule.createSellerMetadatas([
-          { seller_id: sellerId, ...metadataUpdate }
+        await createSellerMetadataRecord(sellerExtensionModule, [
+          { seller_id: sellerId, ...metadataUpdate },
         ])
       }
     }

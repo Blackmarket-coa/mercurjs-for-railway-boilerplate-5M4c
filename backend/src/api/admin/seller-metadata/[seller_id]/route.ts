@@ -4,6 +4,10 @@ import { IEventBusModuleService } from "@medusajs/framework/types"
 import { SELLER_EXTENSION_MODULE } from "../../../../modules/seller-extension"
 import SellerExtensionService from "../../../../modules/seller-extension/service"
 import { VendorType } from "../../../../modules/seller-extension/models/seller-metadata"
+import {
+  deleteSellerMetadataRecord,
+  updateSellerMetadataRecord,
+} from "../../../../modules/seller-extension/metadata-service"
 
 /**
  * GET /admin/seller-metadata/:seller_id
@@ -103,7 +107,7 @@ export const PUT = async (
     updateData.service_types = JSON.stringify(body.service_types)
   }
   
-  const updated = await sellerExtensionService.updateSellerMetadatas(updateData)
+  const updated = await updateSellerMetadataRecord(sellerExtensionService, updateData)
 
   // Emit vendor.verified event if verified changed from false to true
   if (!wasVerified && body.verified === true) {
@@ -153,7 +157,7 @@ export const DELETE = async (
     })
   }
 
-  await sellerExtensionService.deleteSellerMetadatas(existingMetadata[0].id)
+  await deleteSellerMetadataRecord(sellerExtensionService, existingMetadata[0].id)
 
   return res.status(200).json({
     id: existingMetadata[0].id,

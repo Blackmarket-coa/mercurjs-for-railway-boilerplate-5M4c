@@ -3,6 +3,7 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { SELLER_EXTENSION_MODULE } from "../../../modules/seller-extension"
 import SellerExtensionService from "../../../modules/seller-extension/service"
 import { VendorType } from "../../../modules/seller-extension/models/seller-metadata"
+import { createSellerMetadataRecord } from "../../../modules/seller-extension/metadata-service"
 
 /**
  * GET /admin/seller-metadata
@@ -58,7 +59,7 @@ export const POST = async (
     metadata?: Record<string, any>
   }
 
-  const sellerMetadata = await sellerExtensionService.createSellerMetadatas({
+  const sellerMetadata = await createSellerMetadataRecord(sellerExtensionService, {
     seller_id: body.seller_id,
     vendor_type: body.vendor_type || VendorType.PRODUCER,
     business_registration_number: body.business_registration_number || null,

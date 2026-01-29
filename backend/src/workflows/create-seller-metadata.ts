@@ -7,6 +7,10 @@ import {
 import { SELLER_EXTENSION_MODULE } from "../modules/seller-extension"
 import SellerExtensionService from "../modules/seller-extension/service"
 import { VendorType } from "../modules/seller-extension/models/seller-metadata"
+import {
+  createSellerMetadataRecord,
+  deleteSellerMetadataRecord,
+} from "../modules/seller-extension/metadata-service"
 
 type CreateSellerMetadataInput = {
   seller_id: string
@@ -38,7 +42,7 @@ const createSellerMetadataStep = createStep(
       SELLER_EXTENSION_MODULE
     )
 
-    const sellerMetadata = await sellerExtensionService.createSellerMetadatas({
+    const sellerMetadata = await createSellerMetadataRecord(sellerExtensionService, {
       seller_id: input.seller_id,
       vendor_type: input.vendor_type || VendorType.PRODUCER,
       business_registration_number: input.business_registration_number || null,
@@ -68,7 +72,7 @@ const createSellerMetadataStep = createStep(
       SELLER_EXTENSION_MODULE
     )
 
-    await sellerExtensionService.deleteSellerMetadatas(sellerMetadataId)
+    await deleteSellerMetadataRecord(sellerExtensionService, sellerMetadataId)
   }
 )
 

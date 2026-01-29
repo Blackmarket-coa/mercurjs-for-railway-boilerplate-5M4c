@@ -169,7 +169,7 @@ export async function PATCH(req: AuthenticatedMedusaRequest, res: MedusaResponse
     if (data.payload) updateData.payload = data.payload
     if (data.notes !== undefined) updateData.notes = sanitizeInput(data.notes)
 
-    const updated = await requestService.updateRequests({ id }, updateData)
+    const updated = await requestService.updateRequests({ id, ...updateData })
 
     res.json({
       request: updated,
