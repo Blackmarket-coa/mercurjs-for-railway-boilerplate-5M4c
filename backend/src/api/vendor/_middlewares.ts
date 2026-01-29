@@ -194,28 +194,6 @@ export async function ensureSellerContext(
     }
   }
 
-  if (authContext.actor_id?.startsWith("mem_")) {
-    const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION)
-    const memberResult = await pgConnection.raw(
-      `
-      SELECT id
-      FROM member
-      WHERE id = $1
-      LIMIT 1
-      `,
-      [authContext.actor_id]
-    )
-    const memberId = memberResult.rows?.[0]?.id
-    if (!memberId) {
-      res.status(401).json({
-        message: "Member not found for authenticated user",
-        type: "unauthorized",
-      })
-      return
-    }
-    authContext.actor_type = authContext.actor_type ?? "member"
-  }
-
   const actorType = authContext.actor_type
   const isSellerActor = actorType === "seller" || actorType === "member"
 
