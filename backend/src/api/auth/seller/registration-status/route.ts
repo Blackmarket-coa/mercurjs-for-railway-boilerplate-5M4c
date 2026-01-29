@@ -34,6 +34,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         return res.json({
           status: "approved",
           seller_id: sellerId,
+          seller,
+          store_status: seller.store_status ?? null,
           message: "Your seller account is approved. You can access the vendor dashboard.",
         })
       }
@@ -68,6 +70,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         return res.json({
           status: "approved",
           seller_id: appMetadata.seller_id,
+          seller,
+          store_status: seller.store_status ?? null,
           message: "Your seller account is approved. You can access the vendor dashboard.",
         })
       }
@@ -127,7 +131,7 @@ async function findSellerById(req: MedusaRequest, sellerId: string) {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const { data: sellers } = await query.graph({
     entity: "seller",
-    fields: ["id"],
+    fields: ["id", "store_status"],
     filters: { id: sellerId },
   })
   return sellers?.[0] ?? null
@@ -238,6 +242,8 @@ async function handleAcceptedRequest(
           return req.res!.json({
             status: "approved",
             seller_id: sellerId,
+            seller,
+            store_status: seller.store_status ?? null,
             request_id: latestRequest.id,
             message: "Your seller account is approved. You can access the vendor dashboard.",
           })
