@@ -125,118 +125,230 @@ export const Register = () => {
 
   if (success)
     return (
-      <div className="bg-ui-bg-subtle flex min-h-dvh w-dvw items-center justify-center">
-        <div className="m-4 flex flex-col items-center max-w-md">
-          <div className="w-16 h-16 rounded-full bg-ui-tag-green-bg flex items-center justify-center mb-4">
-            <svg className="w-8 h-8 text-ui-tag-green-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
+      <div className="bg-ui-bg-subtle flex min-h-dvh w-dvw items-center justify-center px-4 py-10">
+        <div className="w-full max-w-md">
+          <div className="bg-ui-bg-base shadow-elevation-card-rest border-ui-border-base flex flex-col items-center rounded-2xl border p-6 text-center sm:p-8">
+            <div className="bg-ui-tag-green-bg mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+              <svg
+                className="text-ui-tag-green-icon h-8 w-8"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
           <Heading>Thank You for registering!</Heading>
-          <Text size="small" className="text-ui-fg-subtle text-center mt-2 max-w-[320px]">
-            You've registered as a <strong>{selectedTypeInfo?.title}</strong>. You may need to wait for admin authorization before logging in. A confirmation email will be sent shortly.
-          </Text>
-          <Link to="/login">
-            <Button className="mt-8">Back to login page</Button>
-          </Link>
+            <Text
+              size="small"
+              className="text-ui-fg-subtle mt-2 max-w-[320px] text-center"
+            >
+              You've registered as a <strong>{selectedTypeInfo?.title}</strong>.
+              You may need to wait for admin authorization before logging in. A
+              confirmation email will be sent shortly.
+            </Text>
+            <Link to="/login">
+              <Button className="mt-8">Back to login page</Button>
+            </Link>
+          </div>
         </div>
       </div>
     )
 
   if (step === "type")
     return (
-      <div className="bg-ui-bg-subtle flex min-h-dvh w-dvw items-center justify-center p-4">
-        <div className="w-full max-w-xl">
-          <div className="flex justify-center mb-6">
-            <AvatarBox />
-          </div>
-          <VendorTypeSelection selectedType={selectedType} onSelect={handleTypeSelect} onContinue={handleContinueToDetails} />
-          <div className="text-center mt-6">
-            <span className="text-ui-fg-muted txt-small">
-              <Trans
-                i18nKey="register.alreadySeller"
-                components={[
-                  <Link
-                    to="/login"
-                    className="text-ui-fg-interactive transition-fg hover:text-ui-fg-interactive-hover focus-visible:text-ui-fg-interactive-hover font-medium outline-none"
-                  />,
-                ]}
-              />
-            </span>
+      <div className="bg-ui-bg-subtle flex min-h-dvh w-dvw items-center justify-center px-4 py-10">
+        <div className="w-full max-w-2xl">
+          <div className="bg-ui-bg-base shadow-elevation-card-rest border-ui-border-base rounded-2xl border p-6 sm:p-8">
+            <div className="mb-6 flex justify-center">
+              <AvatarBox />
+            </div>
+            <VendorTypeSelection
+              selectedType={selectedType}
+              onSelect={handleTypeSelect}
+              onContinue={handleContinueToDetails}
+            />
+            <div className="mt-6 text-center">
+              <span className="text-ui-fg-muted txt-small">
+                <Trans
+                  i18nKey="register.alreadySeller"
+                  components={[
+                    <Link
+                      to="/login"
+                      className="text-ui-fg-interactive transition-fg hover:text-ui-fg-interactive-hover focus-visible:text-ui-fg-interactive-hover font-medium outline-none"
+                    />,
+                  ]}
+                />
+              </span>
+            </div>
           </div>
         </div>
       </div>
     )
 
   return (
-    <div className="bg-ui-bg-subtle flex min-h-dvh w-dvw items-center justify-center">
-      <div className="m-4 flex w-full max-w-[320px] flex-col items-center">
-        <AvatarBox />
-        {selectedTypeInfo && (
-          <div className="mb-4 flex items-center gap-2 px-3 py-1.5 rounded-full bg-ui-bg-component">
-            <span className={`w-6 h-6 rounded-full flex items-center justify-center ${selectedTypeInfo.color}`}>{selectedTypeInfo.icon}</span>
-            <Text size="small" className="text-ui-fg-base font-medium">
-              {selectedTypeInfo.title}
-            </Text>
-            <button type="button" onClick={handleBackToType} className="text-ui-fg-muted hover:text-ui-fg-base ml-1">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-            </button>
-          </div>
-        )}
-        <div className="mb-4 flex flex-col items-center">
-          <Heading>{t("register.title")}</Heading>
-          <Text size="small" className="text-ui-fg-subtle text-center">{t("register.hint")}</Text>
-        </div>
-        <div className="flex w-full flex-col gap-y-3">
-          <Form {...form}>
-            <form onSubmit={handleSubmit} className="flex w-full flex-col gap-y-6">
-              {/* Name, Email, Password, Confirm */}
-              <div className="flex flex-col gap-y-2">
-                {["name", "email", "password", "confirmPassword"].map((fieldName) => (
-                  <Form.Field key={fieldName} control={form.control} name={fieldName as any} render={({ field }) => (
-                    <Form.Item>
-                      <Form.Control>
-                        <Input {...field} type={fieldName.includes("password") ? "password" : "text"} placeholder={fieldName === "name" ? getNamePlaceholder(selectedType || "default") : fieldName === "email" ? t("fields.email") : fieldName === "confirmPassword" ? "Confirm Password" : t("fields.password")} className="bg-ui-bg-field-component mb-2" />
-                      </Form.Control>
-                      <Form.ErrorMessage />
-                    </Form.Item>
-                  )} />
-                ))}
-              </div>
-
-              {/* Optional social/website */}
-              <div className="border-t pt-4 mt-2">
-                <button type="button" onClick={() => setShowOptionalFields(!showOptionalFields)} className="text-ui-fg-interactive text-sm hover:underline flex items-center gap-1 mx-auto">
-                  {showOptionalFields ? "Hide" : getOptionalFieldsHint(selectedType || "default")} (optional)
-                  <svg className={`w-4 h-4 transition-transform ${showOptionalFields ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+    <div className="bg-ui-bg-subtle flex min-h-dvh w-dvw items-center justify-center px-4 py-10">
+      <div className="w-full max-w-lg">
+        <div className="bg-ui-bg-base shadow-elevation-card-rest border-ui-border-base flex flex-col items-center rounded-2xl border p-6 sm:p-8">
+          <div className="mb-6 flex flex-col items-center gap-4">
+            <AvatarBox />
+            {selectedTypeInfo && (
+              <div className="bg-ui-bg-component flex items-center gap-2 rounded-full px-3 py-1.5">
+                <span
+                  className={`flex h-6 w-6 items-center justify-center rounded-full ${selectedTypeInfo.color}`}
+                >
+                  {selectedTypeInfo.icon}
+                </span>
+                <Text size="small" className="text-ui-fg-base font-medium">
+                  {selectedTypeInfo.title}
+                </Text>
+                <button
+                  type="button"
+                  onClick={handleBackToType}
+                  className="text-ui-fg-muted hover:text-ui-fg-base ml-1"
+                >
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                    />
                   </svg>
                 </button>
-                {showOptionalFields &&
-                  ["website_url", "instagram", "facebook"].map((field) => (
-                    <Form.Field key={field} control={form.control} name={field as any} render={({ field: f }) => (
-                      <Form.Item>
-                        <Form.Control>
-                          <Input {...f} className="bg-ui-bg-field-component" placeholder={field.replace("_", " ").toUpperCase()} />
-                        </Form.Control>
-                      </Form.Item>
-                    )} />
-                  ))}
-                <Text size="xsmall" className="text-ui-fg-muted text-center">
-                  You can add more links after registration
-                </Text>
               </div>
+            )}
+            <div className="flex flex-col items-center">
+              <Heading>{t("register.title")}</Heading>
+              <Text size="small" className="text-ui-fg-subtle text-center">
+                {t("register.hint")}
+              </Text>
+            </div>
+          </div>
+          <div className="flex w-full flex-col gap-y-3">
+            <Form {...form}>
+              <form
+                onSubmit={handleSubmit}
+                className="flex w-full flex-col gap-y-6"
+              >
+                <div className="flex flex-col gap-y-2">
+                  {["name", "email", "password", "confirmPassword"].map(
+                    (fieldName) => (
+                      <Form.Field
+                        key={fieldName}
+                        control={form.control}
+                        name={fieldName as any}
+                        render={({ field }) => (
+                          <Form.Item>
+                            <Form.Control>
+                              <Input
+                                {...field}
+                                type={
+                                  fieldName.includes("password")
+                                    ? "password"
+                                    : "text"
+                                }
+                                placeholder={
+                                  fieldName === "name"
+                                    ? getNamePlaceholder(
+                                        selectedType || "default"
+                                      )
+                                    : fieldName === "email"
+                                      ? t("fields.email")
+                                      : fieldName === "confirmPassword"
+                                        ? "Confirm Password"
+                                        : t("fields.password")
+                                }
+                                className="bg-ui-bg-field-component"
+                              />
+                            </Form.Control>
+                            <Form.ErrorMessage />
+                          </Form.Item>
+                        )}
+                      />
+                    )
+                  )}
+                </div>
 
-              {validationError && <Hint className="inline-flex" variant="error">{validationError}</Hint>}
-              {serverError && <Alert className="bg-ui-bg-base items-center p-2" dismissible variant="error">{serverError}</Alert>}
+                <div className="border-ui-border-base mt-2 border-t pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowOptionalFields(!showOptionalFields)}
+                    className="text-ui-fg-interactive mx-auto flex items-center gap-1 text-sm hover:underline"
+                  >
+                    {showOptionalFields
+                      ? "Hide"
+                      : getOptionalFieldsHint(selectedType || "default")}{" "}
+                    (optional)
+                    <svg
+                      className={`h-4 w-4 transition-transform ${showOptionalFields ? "rotate-180" : ""}`}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </button>
+                  {showOptionalFields &&
+                    ["website_url", "instagram", "facebook"].map((field) => (
+                      <Form.Field
+                        key={field}
+                        control={form.control}
+                        name={field as any}
+                        render={({ field: f }) => (
+                          <Form.Item>
+                            <Form.Control>
+                              <Input
+                                {...f}
+                                className="bg-ui-bg-field-component"
+                                placeholder={field.replace("_", " ").toUpperCase()}
+                              />
+                            </Form.Control>
+                          </Form.Item>
+                        )}
+                      />
+                    ))}
+                  <Text size="xsmall" className="text-ui-fg-muted text-center">
+                    You can add more links after registration
+                  </Text>
+                </div>
 
-              <Button className="w-full" type="submit" isLoading={isPending}>
-                Sign up as {selectedTypeInfo?.title || "Vendor"}
-              </Button>
-            </form>
-          </Form>
+                {validationError && (
+                  <Hint className="inline-flex" variant="error">
+                    {validationError}
+                  </Hint>
+                )}
+                {serverError && (
+                  <Alert
+                    className="bg-ui-bg-base items-center p-2"
+                    dismissible
+                    variant="error"
+                  >
+                    {serverError}
+                  </Alert>
+                )}
+
+                <Button className="w-full" type="submit" isLoading={isPending}>
+                  Sign up as {selectedTypeInfo?.title || "Vendor"}
+                </Button>
+              </form>
+            </Form>
+          </div>
         </div>
       </div>
     </div>
