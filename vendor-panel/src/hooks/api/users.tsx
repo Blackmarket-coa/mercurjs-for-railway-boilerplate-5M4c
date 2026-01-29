@@ -6,6 +6,7 @@ import {
   UseQueryOptions,
   useMutation,
   useQuery,
+  useQueryClient,
 } from "@tanstack/react-query"
 import {
   backendUrl,
@@ -31,6 +32,11 @@ const usersQueryKeys = {
 export interface RegistrationStatusResponse {
   status: "approved" | "pending" | "rejected" | "cancelled" | "no_request" | "unauthenticated" | "unknown" | "error"
   seller_id?: string
+  seller?: {
+    id: string
+    store_status?: "ACTIVE" | "SUSPENDED" | "INACTIVE" | null
+  }
+  store_status?: "ACTIVE" | "SUSPENDED" | "INACTIVE" | null
   request_id?: string
   message: string
   created_at?: string
@@ -103,6 +109,8 @@ export const useMe = (
     QueryKey
   >
 ) => {
+  const queryClient = useQueryClient()
+
   const { data, ...rest } = useQuery({
     queryFn: async () => {
       const token = getAuthToken()
@@ -110,7 +118,10 @@ export const useMe = (
         return null
       }
 
-      const status = await fetchRegistrationStatus(token)
+      const cachedStatus = queryClient.getQueryData<RegistrationStatusResponse>(
+        usersQueryKeys.registrationStatus()
+      )
+      const status = cachedStatus ?? (await fetchRegistrationStatus(token))
       if (status.status !== "approved" || !status.seller_id) {
         return null
       }
