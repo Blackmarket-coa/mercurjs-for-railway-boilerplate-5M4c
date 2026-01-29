@@ -20,7 +20,7 @@ import { queryKeysFactory } from "../../lib/query-key-factory"
 import { StoreVendor, TeamMemberProps } from "../../types/user"
 
 const USERS_QUERY_KEY = "users" as const
-const usersQueryKeys = {
+export const usersQueryKeys = {
   ...queryKeysFactory(USERS_QUERY_KEY),
   me: () => [USERS_QUERY_KEY, "me"],
   registrationStatus: () => [USERS_QUERY_KEY, "registration-status"],
@@ -43,7 +43,7 @@ export interface RegistrationStatusResponse {
   reviewer_note?: string
 }
 
-const fetchRegistrationStatus = async (
+export const fetchRegistrationStatus = async (
   token: string
 ): Promise<RegistrationStatusResponse> => {
   const response = await fetch(`${backendUrl}/auth/seller/registration-status`, {
