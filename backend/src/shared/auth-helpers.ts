@@ -132,31 +132,16 @@ export function extractAdminId(
  * @param res - The response object to send error if not authenticated
  * @returns The seller ID or null if not authenticated
  */
-export async function requireSellerId(
-  req: AuthenticatedRequest,
-  res: MedusaResponse
-): Promise<string | null> {
-  const actorId = req.auth_context?.actor_id
-  const authIdentityId = req.auth_context?.auth_identity_id
-  const authMetadataSellerId =
-    typeof req.auth_context?.app_metadata?.seller_id === "string"
+export function requireSellerId(req: AuthenticatedRequest, res: MedusaResponse): string | null {
+  const sellerId =
+    req.auth_context?.actor_id ??
+    (typeof req.auth_context?.app_metadata?.seller_id === "string"
       ? req.auth_context?.app_metadata?.seller_id
-      : null
-
-  const query = req.scope?.resolve?.(ContainerRegistrationKeys.QUERY)
-  const authModule = req.scope?.resolve?.(Modules.AUTH)
-
-  const resolveSellerIdFromMember = async (memberId: string) => {
-    if (!query) return null
-
-    const { data: sellers } = await query.graph({
-      entity: "seller",
-      filters: {
-        members: {
-          id: memberId,
-        },
-      },
-      fields: ["id"],
+      : undefined)
+  if (!sellerId) {
+    res.status(401).json({ 
+      message: "Unauthorized - seller authentication required",
+      type: "unauthorized"
     })
 
     return (sellers?.[0] as { id: string } | undefined)?.id ?? null
@@ -168,17 +153,6 @@ export async function requireSellerId(
     }
 
     const sellerId = await resolveSellerIdFromMember(actorId)
-    if (sellerId) {
-      return sellerId
-    }
-  }
-
-  if (authMetadataSellerId) {
-    if (authMetadataSellerId.startsWith("sel_")) {
-      return authMetadataSellerId
-    }
-
-    const sellerId = await resolveSellerIdFromMember(authMetadataSellerId)
     if (sellerId) {
       return sellerId
     }
