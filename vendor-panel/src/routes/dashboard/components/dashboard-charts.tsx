@@ -20,8 +20,8 @@ import {
 import { Link, useSearchParams } from "react-router-dom"
 import { useStatistics } from "../../../hooks/api"
 import { ChartSkeleton } from "./chart-skeleton"
-import { useState } from "react"
-import { addDays, differenceInDays, format, subDays } from "date-fns"
+import { useMemo, useState } from "react"
+import { addDays, differenceInDays, format, parseISO } from "date-fns"
 import { Calendar } from "../../../components/common/calendar/calendar"
 import { useRocketChat } from "../../../providers/rocketchat-provider"
 
@@ -77,39 +77,24 @@ const generateChartData = ({
   customers: { date: string; count: string }[]
   orders: { date: string; count: string }[]
 }) => {
-  const res = [
-    ...Array(
-      differenceInDays(
-        range?.to || addDays(new Date(), +1),
-        range?.from || addDays(new Date(), -7)
-      ) + 1
-    ).keys(),
-  ].map((index) => ({
-    date: format(
-      subDays(range?.from || addDays(new Date(), index), -index),
-      "yyyy-MM-dd"
-    ),
-    orders: parseInt(
-      orders?.find(
-        (item) =>
-          format(item.date, "yyyy-MM-dd") ===
-          format(
-            subDays(range?.from || addDays(new Date(), index), -index),
-            "yyyy-MM-dd"
-          )
-      )?.count || "0"
-    ),
-    customers: parseInt(
-      customers?.find(
-        (item) =>
-          format(item.date, "yyyy-MM-dd") ===
-          format(
-            subDays(range?.from || addDays(new Date(), index), -index),
-            "yyyy-MM-dd"
-          )
-      )?.count || "0"
-    ),
-  }))
+  const from = range?.from ?? addDays(new Date(), -7)
+  const to = range?.to ?? new Date()
+  const dayCount = differenceInDays(to, from)
+  const ordersByDate = new Map(
+    orders.map((item) => [format(new Date(item.date), "yyyy-MM-dd"), Number(item.count) || 0])
+  )
+  const customersByDate = new Map(
+    customers.map((item) => [format(new Date(item.date), "yyyy-MM-dd"), Number(item.count) || 0])
+  )
+  const res = Array.from({ length: dayCount + 1 }, (_, index) => {
+    const current = addDays(from, index)
+    const key = format(current, "yyyy-MM-dd")
+    return {
+      date: key,
+      orders: ordersByDate.get(key) ?? 0,
+      customers: customersByDate.get(key) ?? 0,
+    }
+  })
 
   return res
 }
@@ -129,39 +114,52 @@ export const DashboardCharts = ({
 
   const { unreadCount } = useRocketChat()
 
-  const from = (searchParams.get("from") ||
-    format(addDays(new Date(), -7), "yyyy-MM-dd")) as unknown as Date
-  const to = (searchParams.get("to") ||
-    format(new Date(), "yyyy-MM-dd")) as unknown as Date
+  const from = useMemo(() => {
+    const value = searchParams.get("from")
+    return value ? parseISO(value) : addDays(new Date(), -7)
+  }, [searchParams])
+  const to = useMemo(() => {
+    const value = searchParams.get("to")
+    return value ? parseISO(value) : new Date()
+  }, [searchParams])
 
-  const updateDateRange = async (newFrom: string, newTo: string) => {
+  const updateDateRange = (newFrom: Date, newTo: Date) => {
     const newSearchParams = new URLSearchParams(searchParams)
     newSearchParams.set("from", format(newFrom, "yyyy-MM-dd"))
     newSearchParams.set("to", format(newTo, "yyyy-MM-dd"))
-    await setSearchParams(newSearchParams)
-    refetch()
+    setSearchParams(newSearchParams)
   }
 
-  const { customers, orders, isPending, refetch } = useStatistics({
-    from: `${from}`,
-    to: `${to}`,
+  const { customers = [], orders = [], isPending } = useStatistics({
+    from: format(from, "yyyy-MM-dd"),
+    to: format(to, "yyyy-MM-dd"),
   })
 
-  const chartData = generateChartData({
-    range: { from, to },
-    customers,
-    orders,
-  })
-
-  const totals = chartData.reduce(
-    (acc, curr) => {
-      return {
-        orders: acc.orders + curr.orders,
-        customers: acc.customers + curr.customers,
-      }
-    },
-    { orders: 0, customers: 0 }
+  const chartData = useMemo(
+    () =>
+      generateChartData({
+        range: { from, to },
+        customers,
+        orders,
+      }),
+    [customers, from, orders, to]
   )
+
+  const totals = useMemo(
+    () =>
+      chartData.reduce(
+        (acc, curr) => {
+          return {
+            orders: acc.orders + curr.orders,
+            customers: acc.customers + curr.customers,
+          }
+        },
+        { orders: 0, customers: 0 }
+      ),
+    [chartData]
+  )
+
+  const filterSet = useMemo(() => new Set(filters), [filters])
 
   const handleFilter = (label: string) => {
     if (filters.find((item) => item === label)) {
@@ -326,7 +324,7 @@ export const DashboardCharts = ({
                   mode="range"
                   selected={{ from, to }}
                   onSelect={(range) =>
-                    range && updateDateRange(`${range.from}`, `${range.to}`)
+                    range?.from && range?.to && updateDateRange(range.from, range.to)
                   }
                   numberOfMonths={2}
                   defaultMonth={from}
@@ -380,16 +378,14 @@ export const DashboardCharts = ({
                   <div className="flex items-center justify-between w-full">
                     <Heading level="h3">Orders</Heading>
                     <Text className="text-xs text-ui-fg-muted">
-                      {filters.find((item) => item === "orders") ? "Visible" : "Hidden"}
+                      {filterSet.has("orders") ? "Visible" : "Hidden"}
                     </Text>
                   </div>
                   <div className="flex gap-2 items-center mt-2">
                     <div
                       className="h-8 w-1 rounded"
                       style={{
-                        backgroundColor: filters.find(
-                          (item) => item === "orders"
-                        )
+                        backgroundColor: filterSet.has("orders")
                           ? colorPicker("orders")
                           : "gray",
                       }}
@@ -408,16 +404,14 @@ export const DashboardCharts = ({
                   <div className="flex items-center justify-between w-full">
                     <Heading level="h3">Customers</Heading>
                     <Text className="text-xs text-ui-fg-muted">
-                      {filters.find((item) => item === "customers") ? "Visible" : "Hidden"}
+                      {filterSet.has("customers") ? "Visible" : "Hidden"}
                     </Text>
                   </div>
                   <div className="flex gap-2 items-center mt-2">
                     <div
                       className="h-8 w-1 rounded"
                       style={{
-                        backgroundColor: filters.find(
-                          (item) => item === "customers"
-                        )
+                        backgroundColor: filterSet.has("customers")
                           ? colorPicker("customers")
                           : "gray",
                       }}

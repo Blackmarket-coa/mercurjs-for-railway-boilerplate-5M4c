@@ -237,7 +237,7 @@ export const useStatistics = ({ from, to }: { from: string; to: string }) => {
           method: "GET",
         }
       ),
-    queryKey: [USERS_QUERY_KEY, "statistics"],
+    queryKey: [USERS_QUERY_KEY, "statistics", from, to],
   })
 
   return { ...data, ...rest }
