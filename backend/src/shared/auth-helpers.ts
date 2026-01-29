@@ -1,4 +1,5 @@
 import type { MedusaResponse } from "@medusajs/framework/http"
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 
 /**
  * Authentication context from MedusaJS
@@ -15,6 +16,9 @@ interface AuthContext {
  */
 interface AuthenticatedRequest {
   auth_context?: AuthContext
+  scope?: {
+    resolve: (key: string) => any
+  }
 }
 
 /**
@@ -139,9 +143,45 @@ export function requireSellerId(req: AuthenticatedRequest, res: MedusaResponse):
       message: "Unauthorized - seller authentication required",
       type: "unauthorized"
     })
-    return null
+
+    return (sellers?.[0] as { id: string } | undefined)?.id ?? null
   }
-  return sellerId
+
+  if (actorId) {
+    if (actorId.startsWith("sel_")) {
+      return actorId
+    }
+
+    const sellerId = await resolveSellerIdFromMember(actorId)
+    if (sellerId) {
+      return sellerId
+    }
+  }
+
+  if (authIdentityId && authModule) {
+    const identities = await authModule.listAuthIdentities({ id: [authIdentityId] })
+    const authIdentity = identities?.[0]
+    const appMetadata = authIdentity?.app_metadata as Record<string, unknown> | undefined
+    const linkedSellerId =
+      typeof appMetadata?.seller_id === "string" ? appMetadata.seller_id : null
+
+    if (linkedSellerId) {
+      if (linkedSellerId.startsWith("sel_")) {
+        return linkedSellerId
+      }
+
+      const sellerId = await resolveSellerIdFromMember(linkedSellerId)
+      if (sellerId) {
+        return sellerId
+      }
+    }
+  }
+
+  res.status(401).json({
+    message: "Unauthorized - seller authentication required",
+    type: "unauthorized",
+  })
+  return null
 }
 
 /**

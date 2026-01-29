@@ -47,7 +47,7 @@ const listDeliveriesQuerySchema = z.object({
 export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   try {
     // Get seller from auth context using shared helper
-    const sellerId = requireSellerId(req, res)
+    const sellerId = await requireSellerId(req, res)
     if (!sellerId) return
 
     const query = listDeliveriesQuerySchema.parse(req.query)
