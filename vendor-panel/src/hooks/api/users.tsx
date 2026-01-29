@@ -182,17 +182,33 @@ export const useUpdateMe = (
 }
 
 export const useOnboarding = () => {
+  const queryClient = useQueryClient()
   const { data, ...rest } = useQuery({
-    queryFn: () =>
-      fetchQuery("/vendor/sellers/me/onboarding", {
+    queryFn: async () => {
+      const token = getAuthToken()
+      if (!token) {
+        return undefined
+      }
+
+      const cachedStatus = queryClient.getQueryData<RegistrationStatusResponse>(
+        usersQueryKeys.registrationStatus()
+      )
+      const status = cachedStatus ?? (await fetchRegistrationStatus(token))
+      if (status.status !== "approved" || !status.seller_id) {
+        return undefined
+      }
+
+      return fetchQuery("/vendor/sellers/me/onboarding", {
         method: "GET",
-      }),
+      })
+    },
     queryKey: ["onboarding"],
     staleTime: 0,
+    enabled: Boolean(getAuthToken()),
   })
 
   return {
-    ...data,
+    ...(data ?? {}),
     ...rest,
   }
 }
