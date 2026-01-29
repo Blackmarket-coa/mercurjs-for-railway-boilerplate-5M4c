@@ -52,13 +52,16 @@ const parseRequestedFields = (
     .filter(field => !METADATA_FIELD_SET.has(field))
     .map(field => (field === "media" ? "photo" : field))
 
-  if (!sellerFields.includes("id")) {
-    sellerFields.unshift("id")
+  const uniqueSellerFields = Array.from(new Set(sellerFields))
+  const uniqueMetadataFields = Array.from(new Set(metadataFields))
+
+  if (!uniqueSellerFields.includes("id")) {
+    uniqueSellerFields.unshift("id")
   }
 
   return {
-    sellerFields,
-    metadataFields,
+    sellerFields: uniqueSellerFields,
+    metadataFields: uniqueMetadataFields,
     includeMediaAlias: parsedFields.includes("media"),
   }
 }
