@@ -132,29 +132,39 @@ export function extractAdminId(
  * @param res - The response object to send error if not authenticated
  * @returns The seller ID or null if not authenticated
  */
-export function requireSellerId(req: AuthenticatedRequest, res: MedusaResponse): string | null {
-  const sellerId =
-    req.auth_context?.actor_id ??
-    (typeof req.auth_context?.app_metadata?.seller_id === "string"
-      ? req.auth_context?.app_metadata?.seller_id
-      : undefined)
-  if (!sellerId) {
-    res.status(401).json({ 
-      message: "Unauthorized - seller authentication required",
-      type: "unauthorized"
-    })
+export async function requireSellerId(
+  req: AuthenticatedRequest,
+  res: MedusaResponse
+): Promise<string | null> {
+  const actorId = req.auth_context?.actor_id
+  const authIdentityId = req.auth_context?.auth_identity_id
+  const pgConnection = req.scope?.resolve(ContainerRegistrationKeys.PG_CONNECTION)
+  const authModule = req.scope?.resolve(Modules.AUTH)
 
-    return (sellers?.[0] as { id: string } | undefined)?.id ?? null
+  const resolveSellerIdFromMember = async (memberId: string): Promise<string | null> => {
+    if (!pgConnection) {
+      return null
+    }
+    const result = await pgConnection.raw(
+      `
+      SELECT seller_id
+      FROM member
+      WHERE id = $1
+      `,
+      [memberId]
+    )
+    return result.rows?.[0]?.seller_id ?? null
   }
 
   if (actorId) {
     if (actorId.startsWith("sel_")) {
       return actorId
     }
-
-    const sellerId = await resolveSellerIdFromMember(actorId)
-    if (sellerId) {
-      return sellerId
+    if (actorId.startsWith("mem_")) {
+      const sellerId = await resolveSellerIdFromMember(actorId)
+      if (sellerId) {
+        return sellerId
+      }
     }
   }
 
@@ -169,10 +179,11 @@ export function requireSellerId(req: AuthenticatedRequest, res: MedusaResponse):
       if (linkedSellerId.startsWith("sel_")) {
         return linkedSellerId
       }
-
-      const sellerId = await resolveSellerIdFromMember(linkedSellerId)
-      if (sellerId) {
-        return sellerId
+      if (linkedSellerId.startsWith("mem_")) {
+        const sellerId = await resolveSellerIdFromMember(linkedSellerId)
+        if (sellerId) {
+          return sellerId
+        }
       }
     }
   }
