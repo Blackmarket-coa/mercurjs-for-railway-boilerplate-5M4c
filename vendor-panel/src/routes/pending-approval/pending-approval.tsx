@@ -44,8 +44,8 @@ export const PendingApproval = () => {
     )
   }
 
-  // If user is approved, redirect to dashboard
-  if (registrationStatus?.status === "approved") {
+  // If user is approved and linked to a seller, redirect to dashboard
+  if (registrationStatus?.status === "approved" && registrationStatus.seller_id) {
     return <Navigate to="/dashboard" replace />
   }
 
@@ -56,6 +56,23 @@ export const PendingApproval = () => {
 
   // Render appropriate content based on status
   const renderContent = () => {
+    if (registrationStatus?.status === "approved" && !registrationStatus.seller_id) {
+      return (
+        <>
+          <div className="w-16 h-16 rounded-full bg-ui-tag-blue-bg flex items-center justify-center mb-4">
+            <svg className="w-8 h-8 text-ui-tag-blue-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <Heading>Account Linking In Progress</Heading>
+          <Text size="small" className="text-ui-fg-subtle text-center mt-2 max-w-[320px]">
+            Your seller account has been approved, but we are still linking it to your profile.
+            Please refresh in a moment or log out and log back in.
+          </Text>
+        </>
+      )
+    }
+
     switch (registrationStatus?.status) {
       case "pending":
         return (
@@ -158,7 +175,8 @@ export const PendingApproval = () => {
         {renderContent()}
 
         <div className="flex flex-col items-center gap-4 mt-8">
-          {registrationStatus?.status === "pending" && (
+          {(registrationStatus?.status === "pending" ||
+            (registrationStatus?.status === "approved" && !registrationStatus.seller_id)) && (
             <Button variant="secondary" onClick={handleRefresh} disabled={isPending}>
               Check Status
             </Button>

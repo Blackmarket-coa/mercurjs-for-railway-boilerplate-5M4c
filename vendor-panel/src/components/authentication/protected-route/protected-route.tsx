@@ -21,7 +21,8 @@ export const ProtectedRoute = () => {
   })
 
   // Only fetch seller data if registration status indicates approval
-  const isApproved = registrationStatus?.status === "approved"
+  const hasSellerId = Boolean(registrationStatus?.seller_id)
+  const isApproved = registrationStatus?.status === "approved" && hasSellerId
   const { seller, isPending: isSellerPending, error } = useMe({
     // Only run useMe if we know the user is approved
     enabled: isApproved,
@@ -68,7 +69,10 @@ export const ProtectedRoute = () => {
         )
 
       case "approved":
-        // Continue to load seller data below
+        if (!hasSellerId) {
+          return <Navigate to="/pending-approval" replace />
+        }
+        // Continue to load seller data below when seller_id is available
         break
 
       default:
