@@ -6,6 +6,7 @@ import {
   UseQueryOptions,
   useMutation,
   useQuery,
+  useQueryClient,
 } from "@tanstack/react-query"
 import {
   backendUrl,
@@ -19,7 +20,7 @@ import { queryKeysFactory } from "../../lib/query-key-factory"
 import { StoreVendor, TeamMemberProps } from "../../types/user"
 
 const USERS_QUERY_KEY = "users" as const
-const usersQueryKeys = {
+export const usersQueryKeys = {
   ...queryKeysFactory(USERS_QUERY_KEY),
   me: () => [USERS_QUERY_KEY, "me"],
   registrationStatus: () => [USERS_QUERY_KEY, "registration-status"],
@@ -31,13 +32,18 @@ const usersQueryKeys = {
 export interface RegistrationStatusResponse {
   status: "approved" | "pending" | "rejected" | "cancelled" | "no_request" | "unauthenticated" | "unknown" | "error"
   seller_id?: string
+  seller?: {
+    id: string
+    store_status?: "ACTIVE" | "SUSPENDED" | "INACTIVE" | null
+  }
+  store_status?: "ACTIVE" | "SUSPENDED" | "INACTIVE" | null
   request_id?: string
   message: string
   created_at?: string
   reviewer_note?: string
 }
 
-const fetchRegistrationStatus = async (
+export const fetchRegistrationStatus = async (
   token: string
 ): Promise<RegistrationStatusResponse> => {
   const response = await fetch(`${backendUrl}/auth/seller/registration-status`, {
@@ -103,6 +109,8 @@ export const useMe = (
     QueryKey
   >
 ) => {
+  const queryClient = useQueryClient()
+
   const { data, ...rest } = useQuery({
     queryFn: async () => {
       const token = getAuthToken()
@@ -110,7 +118,10 @@ export const useMe = (
         return null
       }
 
-      const status = await fetchRegistrationStatus(token)
+      const cachedStatus = queryClient.getQueryData<RegistrationStatusResponse>(
+        usersQueryKeys.registrationStatus()
+      )
+      const status = cachedStatus ?? (await fetchRegistrationStatus(token))
       if (status.status !== "approved" || !status.seller_id) {
         return null
       }
@@ -171,17 +182,33 @@ export const useUpdateMe = (
 }
 
 export const useOnboarding = () => {
+  const queryClient = useQueryClient()
   const { data, ...rest } = useQuery({
-    queryFn: () =>
-      fetchQuery("/vendor/sellers/me/onboarding", {
+    queryFn: async () => {
+      const token = getAuthToken()
+      if (!token) {
+        return undefined
+      }
+
+      const cachedStatus = queryClient.getQueryData<RegistrationStatusResponse>(
+        usersQueryKeys.registrationStatus()
+      )
+      const status = cachedStatus ?? (await fetchRegistrationStatus(token))
+      if (status.status !== "approved" || !status.seller_id) {
+        return undefined
+      }
+
+      return fetchQuery("/vendor/sellers/me/onboarding", {
         method: "GET",
-      }),
+      })
+    },
     queryKey: ["onboarding"],
     staleTime: 0,
+    enabled: Boolean(getAuthToken()),
   })
 
   return {
-    ...data,
+    ...(data ?? {}),
     ...rest,
   }
 }

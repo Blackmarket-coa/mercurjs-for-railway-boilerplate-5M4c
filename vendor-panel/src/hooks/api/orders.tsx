@@ -2,12 +2,14 @@ import { FetchError } from "@medusajs/js-sdk"
 import { HttpTypes } from "@medusajs/types"
 import {
   QueryKey,
+  QueryClient,
   useMutation,
   UseMutationOptions,
   useQuery,
   UseQueryOptions,
+  useQueryClient,
 } from "@tanstack/react-query"
-import { fetchQuery, sdk } from "../../lib/client"
+import { fetchQuery, getAuthToken, sdk } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
 import { queryKeysFactory, TQueryKey } from "../../lib/query-key-factory"
 import { inventoryItemsQueryKeys } from "./inventory"
@@ -17,6 +19,7 @@ import {
   ExtendedAdminOrderResponse,
   OrderCommission,
 } from "../../types/order"
+import { fetchRegistrationStatus, RegistrationStatusResponse, usersQueryKeys } from "./users"
 
 const ORDERS_QUERY_KEY = "orders" as const
 const _orderKeys = queryKeysFactory(ORDERS_QUERY_KEY) as TQueryKey<"orders"> & {
@@ -39,6 +42,19 @@ _orderKeys.lineItems = function (id: string) {
 
 export const ordersQueryKeys = _orderKeys
 
+const ensureApprovedSeller = async (queryClient: QueryClient): Promise<boolean> => {
+  const token = getAuthToken()
+  if (!token) {
+    return false
+  }
+
+  const cachedStatus = queryClient.getQueryData<RegistrationStatusResponse>(
+    usersQueryKeys.registrationStatus()
+  )
+  const status = cachedStatus ?? (await fetchRegistrationStatus(token))
+  return status.status === "approved" && Boolean(status.seller_id)
+}
+
 export const useOrder = (
   id: string,
   query?: Record<string, any>,
@@ -52,12 +68,18 @@ export const useOrder = (
     "queryFn" | "queryKey"
   >
 ) => {
+  const queryClient = useQueryClient()
   const { data, ...rest } = useQuery({
-    queryFn: async () =>
-      fetchQuery(`/vendor/orders/${id}`, {
+    queryFn: async () => {
+      if (!(await ensureApprovedSeller(queryClient))) {
+        return undefined
+      }
+
+      return fetchQuery(`/vendor/orders/${id}`, {
         method: "GET",
         query,
-      }),
+      })
+    },
     queryKey: ordersQueryKeys.detail(id, query),
     ...options,
   })
@@ -73,12 +95,18 @@ export const useOrderCommission = (
     "queryFn" | "queryKey"
   >
 ) => {
+  const queryClient = useQueryClient()
   const { data, ...rest } = useQuery({
-    queryFn: async () =>
-      fetchQuery(`/vendor/orders/${id}/commission`, {
+    queryFn: async () => {
+      if (!(await ensureApprovedSeller(queryClient))) {
+        return undefined
+      }
+
+      return fetchQuery(`/vendor/orders/${id}/commission`, {
         method: "GET",
         query,
-      }),
+      })
+    },
     queryKey: ordersQueryKeys.detail(`${id}/commission`, query),
     ...options,
   })
@@ -99,12 +127,18 @@ export const useOrderPreview = (
     "queryFn" | "queryKey"
   >
 ) => {
+  const queryClient = useQueryClient()
   const { data, ...rest } = useQuery({
-    queryFn: async () =>
-      fetchQuery(`/vendor/orders/${id}`, {
+    queryFn: async () => {
+      if (!(await ensureApprovedSeller(queryClient))) {
+        return undefined
+      }
+
+      return fetchQuery(`/vendor/orders/${id}`, {
         method: "GET",
         query,
-      }),
+      })
+    },
     queryKey: ordersQueryKeys.preview(id),
     ...options,
   })
@@ -125,12 +159,18 @@ export const useOrders = (
   >,
   filters?: any
 ) => {
+  const queryClient = useQueryClient()
   const { data, ...rest } = useQuery({
-    queryFn: () =>
-      fetchQuery("/vendor/orders", {
+    queryFn: async () => {
+      if (!(await ensureApprovedSeller(queryClient))) {
+        return undefined
+      }
+
+      return fetchQuery("/vendor/orders", {
         method: "GET",
         query: query as { [key: string]: string },
-      }),
+      })
+    },
     queryKey: ordersQueryKeys.list(query),
     ...options,
   })
@@ -161,11 +201,17 @@ export const useOrderChanges = (
     "queryFn" | "queryKey"
   >
 ) => {
+  const queryClient = useQueryClient()
   const { data, ...rest } = useQuery({
-    queryFn: async () =>
-      fetchQuery(`/vendor/orders/${id}/changes`, {
+    queryFn: async () => {
+      if (!(await ensureApprovedSeller(queryClient))) {
+        return undefined
+      }
+
+      return fetchQuery(`/vendor/orders/${id}/changes`, {
         method: "GET",
-      }),
+      })
+    },
     queryKey: ordersQueryKeys.changes(id),
     ...options,
   })
@@ -186,12 +232,18 @@ export const useOrderLineItems = (
     "queryFn" | "queryKey"
   >
 ) => {
+  const queryClient = useQueryClient()
   const { data, ...rest } = useQuery({
-    queryFn: async () =>
-      fetchQuery(`/vendor/orders/${id}`, {
+    queryFn: async () => {
+      if (!(await ensureApprovedSeller(queryClient))) {
+        return undefined
+      }
+
+      return fetchQuery(`/vendor/orders/${id}`, {
         method: "GET",
         query,
-      }),
+      })
+    },
     queryKey: ordersQueryKeys.lineItems(id),
     ...options,
   })
