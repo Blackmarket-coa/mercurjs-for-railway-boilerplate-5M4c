@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Alert, Button, Heading, Hint, Input, Text } from "@medusajs/ui"
 import { useForm } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
-import { Link, useNavigate, useSearchParams } from "react-router-dom"
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import * as z from "zod"
 
 import { Form } from "../../components/common/form"
@@ -18,6 +18,7 @@ const LoginSchema = z.object({
 
 export const Login = () => {
   const { t } = useTranslation()
+  const location = useLocation()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
@@ -25,7 +26,7 @@ export const Login = () => {
 
   const { getWidgets } = useDashboardExtension()
 
-  const from = "/dashboard"
+  const from = location.state?.from?.pathname || "/dashboard"
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -62,9 +63,7 @@ export const Login = () => {
           })
         },
         onSuccess: () => {
-          setTimeout(() => {
-            navigate(from, { replace: true })
-          }, 1000)
+          navigate(from, { replace: true })
         },
       }
     )
