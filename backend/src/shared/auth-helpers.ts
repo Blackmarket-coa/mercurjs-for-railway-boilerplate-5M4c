@@ -1,5 +1,7 @@
 import type { MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import jwt from "jsonwebtoken"
+import { config } from "./config"
 
 /**
  * Authentication context from MedusaJS
@@ -16,6 +18,9 @@ interface AuthContext {
  */
 interface AuthenticatedRequest {
   auth_context?: AuthContext
+  headers?: {
+    authorization?: string
+  }
   scope?: {
     resolve: (key: string) => any
   }
@@ -140,6 +145,8 @@ export async function requireSellerId(
   const authIdentityId = req.auth_context?.auth_identity_id
   const pgConnection = req.scope?.resolve(ContainerRegistrationKeys.PG_CONNECTION)
   const authModule = req.scope?.resolve(Modules.AUTH)
+  const token = extractBearerToken(req.headers?.authorization)
+  const decodedToken = token ? decodeAuthToken(token) : null
 
   const resolveSellerIdFromMember = async (memberId: string): Promise<string | null> => {
     if (!pgConnection) {
@@ -156,34 +163,45 @@ export async function requireSellerId(
     return result.rows?.[0]?.seller_id ?? null
   }
 
-  if (actorId) {
-    if (actorId.startsWith("sel_")) {
-      return actorId
+  const resolveLinkedSellerId = async (id?: string | null): Promise<string | null> => {
+    if (!id) {
+      return null
     }
-    if (actorId.startsWith("mem_")) {
-      const sellerId = await resolveSellerIdFromMember(actorId)
-      if (sellerId) {
-        return sellerId
-      }
+    if (id.startsWith("sel_")) {
+      return id
+    }
+    if (id.startsWith("mem_")) {
+      return resolveSellerIdFromMember(id)
+    }
+    return null
+  }
+
+  if (actorId) {
+    const sellerId = await resolveLinkedSellerId(actorId)
+    if (sellerId) {
+      return sellerId
     }
   }
 
-  if (authIdentityId && authModule) {
-    const identities = await authModule.listAuthIdentities({ id: [authIdentityId] })
+  if (decodedToken?.sellerId) {
+    const sellerId = await resolveLinkedSellerId(decodedToken.sellerId)
+    if (sellerId) {
+      return sellerId
+    }
+  }
+
+  const resolvedAuthIdentityId = authIdentityId ?? decodedToken?.authIdentityId
+  if (resolvedAuthIdentityId && authModule) {
+    const identities = await authModule.listAuthIdentities({ id: [resolvedAuthIdentityId] })
     const authIdentity = identities?.[0]
     const appMetadata = authIdentity?.app_metadata as Record<string, unknown> | undefined
     const linkedSellerId =
       typeof appMetadata?.seller_id === "string" ? appMetadata.seller_id : null
 
     if (linkedSellerId) {
-      if (linkedSellerId.startsWith("sel_")) {
-        return linkedSellerId
-      }
-      if (linkedSellerId.startsWith("mem_")) {
-        const sellerId = await resolveSellerIdFromMember(linkedSellerId)
-        if (sellerId) {
-          return sellerId
-        }
+      const sellerId = await resolveLinkedSellerId(linkedSellerId)
+      if (sellerId) {
+        return sellerId
       }
     }
   }
@@ -193,6 +211,43 @@ export async function requireSellerId(
     type: "unauthorized",
   })
   return null
+}
+
+function extractBearerToken(authorization?: string): string | null {
+  if (!authorization?.startsWith("Bearer ")) {
+    return null
+  }
+  return authorization.slice(7)
+}
+
+function decodeAuthToken(
+  token: string
+): { authIdentityId: string | null; sellerId: string | null } | null {
+  try {
+    const payload = config.JWT_SECRET
+      ? (jwt.verify(token, config.JWT_SECRET) as Record<string, unknown>)
+      : (jwt.decode(token) as Record<string, unknown> | null)
+
+    if (!payload) {
+      return null
+    }
+
+    const authIdentityId =
+      (payload.auth_identity_id as string | undefined) ||
+      (payload.sub as string | undefined) ||
+      (payload.identity_id as string | undefined) ||
+      (payload.user_id as string | undefined) ||
+      null
+    const sellerId =
+      (payload.actor_id as string | undefined) ||
+      (payload.seller_id as string | undefined) ||
+      (payload.app_metadata as { seller_id?: string } | undefined)?.seller_id ||
+      null
+
+    return { authIdentityId, sellerId }
+  } catch {
+    return null
+  }
 }
 
 /**
