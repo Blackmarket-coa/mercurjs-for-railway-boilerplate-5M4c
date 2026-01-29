@@ -353,6 +353,11 @@ async function securityHeadersMiddleware(
 
 export default defineMiddlewares({
   routes: [
+    // Ensure all vendor routes (including nested plugin routes) are guarded
+    {
+      matcher: "/vendor/**",
+      middlewares: [vendorCorsMiddleware, ensureSellerContext],
+    },
     // CORS for vendor routes - must be first to handle OPTIONS preflight
     // Using "/vendor*" pattern to match all vendor routes including those from plugins
     {
