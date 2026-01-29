@@ -47,6 +47,36 @@ const formatDate = (date: string | Date, format: 'short' | 'long' | 'relative' =
   }
 }
 
+const formatPersonName = (value: any) => {
+  if (!value || typeof value !== 'object') {
+    return null
+  }
+
+  const firstName = value.first_name ?? value.firstName
+  const lastName = value.last_name ?? value.lastName
+  const combinedName = [firstName, lastName].filter(Boolean).join(' ').trim()
+
+  if (combinedName) return combinedName
+
+  if (typeof value.name === 'string' && value.name.trim()) {
+    return value.name.trim()
+  }
+
+  if (typeof value.display_name === 'string' && value.display_name.trim()) {
+    return value.display_name.trim()
+  }
+
+  if (typeof value.username === 'string' && value.username.trim()) {
+    return value.username.trim()
+  }
+
+  if (typeof value.email === 'string' && value.email.trim()) {
+    return value.email.trim()
+  }
+
+  return null
+}
+
 // Payment status display
 const PaymentStatusBadge = ({ status }: { status: string }) => {
   const getStatusColor = (status: string) => {
@@ -174,10 +204,10 @@ export const DISPLAY_STRATEGIES = {
       if (!value || typeof value !== 'object') return '-'
       
       // Try common display fields
+      const personName = formatPersonName(value)
+      if (personName) return personName
       if (value.name) return value.name
       if (value.title) return value.title
-      if (value.email) return value.email
-      if (value.display_name) return value.display_name
       
       return JSON.stringify(value)
     },
@@ -185,9 +215,10 @@ export const DISPLAY_STRATEGIES = {
       if (!value || typeof value !== 'object') return '-'
       
       // Try common display fields
+      const personName = formatPersonName(value)
+      if (personName) return personName
       if (value.name) return value.name
       if (value.title) return value.title
-      if (value.email) return value.email
       
       return JSON.stringify(value)
     }
@@ -237,15 +268,8 @@ export const getDisplayStrategy = (column: any) => {
 export const COMPUTED_COLUMN_FUNCTIONS = {
   customer_name: (row: any) => {
     // Try customer object first
-    if (row.customer?.first_name || row.customer?.last_name) {
-      const fullName = `${row.customer.first_name || ''} ${row.customer.last_name || ''}`.trim()
-      if (fullName) return fullName
-    }
-    
-    // Fall back to email
-    if (row.customer?.email) {
-      return row.customer.email
-    }
+    const formattedCustomer = formatPersonName(row.customer)
+    if (formattedCustomer) return formattedCustomer
     
     // Fall back to phone
     if (row.customer?.phone) {
@@ -339,8 +363,9 @@ export const ENTITY_COLUMN_OVERRIDES = {
         if (shipping?.first_name || shipping?.last_name) {
           return `${shipping.first_name || ''} ${shipping.last_name || ''}`.trim()
         }
-        if (customer?.first_name || customer?.last_name) {
-          return `${customer.first_name || ''} ${customer.last_name || ''}`.trim()
+        const formattedCustomer = formatPersonName(customer)
+        if (formattedCustomer) {
+          return formattedCustomer
         }
         return customer?.email || 'Guest'
       }
