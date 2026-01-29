@@ -23,6 +23,34 @@ export const getAuthToken = () =>
     ? window.localStorage.getItem("medusa_auth_token") || ""
     : ""
 
+export const getAuthTokenPayload = (): Record<string, unknown> | null => {
+  if (!isBrowser) {
+    return null
+  }
+
+  const token = getAuthToken()
+  if (!token) {
+    return null
+  }
+
+  try {
+    const tokenParts = token.split(".")
+    if (tokenParts.length < 2) {
+      return null
+    }
+
+    const payload = tokenParts[1]
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/")
+    const padded = normalized + "===".slice((normalized.length + 3) % 4)
+    const decoded = window.atob(padded)
+
+    return JSON.parse(decoded) as Record<string, unknown>
+  } catch (error) {
+    console.warn("Failed to decode auth token payload:", error)
+    return null
+  }
+}
+
 export const setAuthToken = (token: string) => {
   if (isBrowser) {
     window.localStorage.setItem("medusa_auth_token", token)
