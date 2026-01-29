@@ -1,4 +1,5 @@
 import type { MedusaResponse } from "@medusajs/framework/http"
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 
 /**
  * Authentication context from MedusaJS
@@ -15,6 +16,9 @@ interface AuthContext {
  */
 interface AuthenticatedRequest {
   auth_context?: AuthContext
+  scope?: {
+    resolve: (key: string) => any
+  }
 }
 
 /**
@@ -38,7 +42,11 @@ export function extractSellerId(
   req: AuthenticatedRequest,
   res: MedusaResponse
 ): AuthResult<string> {
-  const sellerId = req.auth_context?.actor_id
+  const sellerId =
+    req.auth_context?.actor_id ??
+    (typeof req.auth_context?.app_metadata?.seller_id === "string"
+      ? req.auth_context?.app_metadata?.seller_id
+      : undefined)
 
   if (!sellerId) {
     res.status(401).json({ 
@@ -124,16 +132,82 @@ export function extractAdminId(
  * @param res - The response object to send error if not authenticated
  * @returns The seller ID or null if not authenticated
  */
-export function requireSellerId(req: AuthenticatedRequest, res: MedusaResponse): string | null {
-  const sellerId = req.auth_context?.actor_id
-  if (!sellerId) {
-    res.status(401).json({ 
-      message: "Unauthorized - seller authentication required",
-      type: "unauthorized"
+export async function requireSellerId(
+  req: AuthenticatedRequest,
+  res: MedusaResponse
+): Promise<string | null> {
+  const actorId = req.auth_context?.actor_id
+  const authIdentityId = req.auth_context?.auth_identity_id
+  const authMetadataSellerId =
+    typeof req.auth_context?.app_metadata?.seller_id === "string"
+      ? req.auth_context?.app_metadata?.seller_id
+      : null
+
+  const query = req.scope?.resolve?.(ContainerRegistrationKeys.QUERY)
+  const authModule = req.scope?.resolve?.(Modules.AUTH)
+
+  const resolveSellerIdFromMember = async (memberId: string) => {
+    if (!query) return null
+
+    const { data: sellers } = await query.graph({
+      entity: "seller",
+      filters: {
+        members: {
+          id: memberId,
+        },
+      },
+      fields: ["id"],
     })
-    return null
+
+    return (sellers?.[0] as { id: string } | undefined)?.id ?? null
   }
-  return sellerId
+
+  if (actorId) {
+    if (actorId.startsWith("sel_")) {
+      return actorId
+    }
+
+    const sellerId = await resolveSellerIdFromMember(actorId)
+    if (sellerId) {
+      return sellerId
+    }
+  }
+
+  if (authMetadataSellerId) {
+    if (authMetadataSellerId.startsWith("sel_")) {
+      return authMetadataSellerId
+    }
+
+    const sellerId = await resolveSellerIdFromMember(authMetadataSellerId)
+    if (sellerId) {
+      return sellerId
+    }
+  }
+
+  if (authIdentityId && authModule) {
+    const identities = await authModule.listAuthIdentities({ id: [authIdentityId] })
+    const authIdentity = identities?.[0]
+    const appMetadata = authIdentity?.app_metadata as Record<string, unknown> | undefined
+    const linkedSellerId =
+      typeof appMetadata?.seller_id === "string" ? appMetadata.seller_id : null
+
+    if (linkedSellerId) {
+      if (linkedSellerId.startsWith("sel_")) {
+        return linkedSellerId
+      }
+
+      const sellerId = await resolveSellerIdFromMember(linkedSellerId)
+      if (sellerId) {
+        return sellerId
+      }
+    }
+  }
+
+  res.status(401).json({
+    message: "Unauthorized - seller authentication required",
+    type: "unauthorized",
+  })
+  return null
 }
 
 /**

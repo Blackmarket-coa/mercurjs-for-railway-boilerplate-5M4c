@@ -71,7 +71,7 @@ const parseRequestedFields = (
  */
 export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   // Get seller ID from authentication context
-  const sellerId = requireSellerId(req, res)
+  const sellerId = await requireSellerId(req, res)
   if (!sellerId) return
 
   try {
@@ -157,7 +157,7 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
  */
 export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   // Get seller ID from authentication context
-  const sellerId = requireSellerId(req, res)
+  const sellerId = await requireSellerId(req, res)
   if (!sellerId) return
 
   try {
