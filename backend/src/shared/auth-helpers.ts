@@ -38,7 +38,11 @@ export function extractSellerId(
   req: AuthenticatedRequest,
   res: MedusaResponse
 ): AuthResult<string> {
-  const sellerId = req.auth_context?.actor_id
+  const sellerId =
+    req.auth_context?.actor_id ??
+    (typeof req.auth_context?.app_metadata?.seller_id === "string"
+      ? req.auth_context?.app_metadata?.seller_id
+      : undefined)
 
   if (!sellerId) {
     res.status(401).json({ 
@@ -125,7 +129,11 @@ export function extractAdminId(
  * @returns The seller ID or null if not authenticated
  */
 export function requireSellerId(req: AuthenticatedRequest, res: MedusaResponse): string | null {
-  const sellerId = req.auth_context?.actor_id
+  const sellerId =
+    req.auth_context?.actor_id ??
+    (typeof req.auth_context?.app_metadata?.seller_id === "string"
+      ? req.auth_context?.app_metadata?.seller_id
+      : undefined)
   if (!sellerId) {
     res.status(401).json({ 
       message: "Unauthorized - seller authentication required",
