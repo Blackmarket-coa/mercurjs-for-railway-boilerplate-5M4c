@@ -29,6 +29,14 @@ const fetchRegistrationStatus = async (token: string) => {
   }>
 }
 
+const normalizePassword = (password: unknown) => {
+  if (typeof password !== "string") {
+    throw new Error("Password should be a string.")
+  }
+
+  return password
+}
+
 /**
  * Sign in with email/password
  */
@@ -42,9 +50,11 @@ export const useSignInWithEmailPass = (
 ) => {
   return useMutation({
     mutationFn: async (payload) => {
+      const normalizedPassword = normalizePassword(payload.password)
       const result = await publicAuthSdk.auth.login("seller", "emailpass", {
         ...payload,
         email: payload.email.toLowerCase().trim(),
+        password: normalizedPassword,
       })
       if (typeof result === "string") setAuthToken(result)
       return result
@@ -71,11 +81,13 @@ export const useSignUpWithEmailPass = (
     mutationFn: async (payload) => {
       const { confirmPassword, vendor_type, ...authPayload } = payload
       const normalizedEmail = payload.email.toLowerCase().trim()
+      const normalizedPassword = normalizePassword(payload.password)
 
       try {
         const token = await sdk.auth.register("seller", "emailpass", {
           ...authPayload,
           email: normalizedEmail,
+          password: normalizedPassword,
         })
 
         if (typeof token === "string") setAuthToken(token)
@@ -90,6 +102,7 @@ export const useSignUpWithEmailPass = (
           const result = await sdk.auth.login("seller", "emailpass", {
             ...authPayload,
             email: normalizedEmail,
+            password: normalizedPassword,
           })
           if (typeof result === "string") {
             setAuthToken(result)
@@ -142,9 +155,11 @@ export const useSignUpForInvite = (
 ) => {
   return useMutation({
     mutationFn: async (payload) => {
+      const normalizedPassword = normalizePassword(payload.password)
       const token = await publicAuthSdk.auth.register("seller", "emailpass", {
         ...payload,
         email: payload.email.toLowerCase().trim(),
+        password: normalizedPassword,
       })
       if (typeof token === "string") setAuthToken(token)
       return token
