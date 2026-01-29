@@ -1,6 +1,8 @@
 import { defineMiddlewares } from "@medusajs/framework/http"
 import type { MedusaRequest, MedusaResponse, MedusaNextFunction } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import jwt from "jsonwebtoken"
+import { config } from "../../shared/config"
 
 /**
  * Vendor-specific CORS middleware
@@ -115,13 +117,47 @@ export async function ensureSellerContext(
     return
   }
 
-  const authContext = (req as MedusaRequest & { auth_context?: { actor_id?: string; actor_type?: string } })
-    .auth_context
+  const requestWithAuth = req as MedusaRequest & {
+    auth_context?: { actor_id?: string; actor_type?: string; auth_identity_id?: string }
+  }
+  const authContext = requestWithAuth.auth_context ?? {}
+  const decodedToken = decodeAuthToken(req.headers.authorization)
 
-  const actorType = authContext?.actor_type
+  if (!requestWithAuth.auth_context) {
+    requestWithAuth.auth_context = authContext
+  }
+
+  if (!authContext.actor_id && decodedToken?.actorId) {
+    authContext.actor_id = decodedToken.actorId
+  }
+
+  if (!authContext.actor_type && decodedToken?.actorType) {
+    authContext.actor_type = decodedToken.actorType
+  }
+
+  if (!authContext.auth_identity_id && decodedToken?.authIdentityId) {
+    authContext.auth_identity_id = decodedToken.authIdentityId
+  }
+
+  if (!authContext.actor_id && decodedToken?.sellerId) {
+    authContext.actor_id = decodedToken.sellerId
+    authContext.actor_type = authContext.actor_type ?? "seller"
+  }
+
+  if (!authContext.actor_id && authContext.auth_identity_id) {
+    const authModule = req.scope.resolve(Modules.AUTH)
+    const identities = await authModule.listAuthIdentities({ id: [authContext.auth_identity_id] })
+    const appMetadata = identities?.[0]?.app_metadata as { seller_id?: string } | undefined
+    if (appMetadata?.seller_id) {
+      authContext.actor_id = appMetadata.seller_id
+      authContext.actor_type = authContext.actor_type ?? "seller"
+    }
+  }
+
+  const actorType = authContext.actor_type
   const isSellerActor = actorType === "seller" || actorType === "member"
 
-  if (!authContext?.actor_id || !isSellerActor) {
+  if (!authContext.actor_id || (!isSellerActor && !authContext.actor_id.startsWith("sel_"))) {
     res.status(401).json({
       message: "Unauthorized - seller authentication required",
       type: "unauthorized",
@@ -180,6 +216,59 @@ export async function ensureSellerContext(
   }
 
   next()
+}
+
+function decodeAuthToken(
+  authorization?: string
+): {
+  authIdentityId: string | null
+  actorId: string | null
+  actorType: string | null
+  sellerId: string | null
+} | null {
+  if (!authorization?.startsWith("Bearer ")) {
+    return null
+  }
+
+  const token = authorization.slice(7)
+
+  try {
+    const payload = config.JWT_SECRET
+      ? (jwt.verify(token, config.JWT_SECRET) as Record<string, unknown>)
+      : (jwt.decode(token) as Record<string, unknown> | null)
+
+    if (!payload) {
+      return null
+    }
+
+    const authIdentityId =
+      (payload.auth_identity_id as string | undefined) ||
+      (payload.sub as string | undefined) ||
+      (payload.identity_id as string | undefined) ||
+      (payload.user_id as string | undefined) ||
+      null
+    const actorId =
+      (payload.actor_id as string | undefined) ||
+      (payload.user_id as string | undefined) ||
+      null
+    const actorType =
+      (payload.actor_type as string | undefined) ||
+      (payload.actorType as string | undefined) ||
+      null
+    const sellerId =
+      (payload.seller_id as string | undefined) ||
+      (payload.app_metadata as { seller_id?: string } | undefined)?.seller_id ||
+      null
+
+    return {
+      authIdentityId,
+      actorId,
+      actorType,
+      sellerId,
+    }
+  } catch {
+    return null
+  }
 }
 
 export default defineMiddlewares({

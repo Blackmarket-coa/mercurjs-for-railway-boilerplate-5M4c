@@ -55,6 +55,30 @@ async function normalizeEmailMiddleware(
   next()
 }
 
+/**
+ * Middleware: Validate password field type
+ *
+ * Ensures password is a string when provided to auth endpoints.
+ */
+async function validatePasswordMiddleware(
+  req: MedusaRequest,
+  res: MedusaResponse,
+  next: MedusaNextFunction
+) {
+  if (req.body && typeof req.body === "object") {
+    const body = req.body as Record<string, unknown>
+
+    if (body.password !== undefined && typeof body.password !== "string") {
+      return res.status(400).json({
+        message: "Password should be a string",
+        type: "invalid_data",
+      })
+    }
+  }
+
+  next()
+}
+
 // Product feed query validation schema
 const productFeedQuerySchema = z.object({
   currency_code: z.string().length(3).optional().default("usd"),
@@ -397,6 +421,11 @@ export default defineMiddlewares({
     {
       matcher: "/auth/*",
       middlewares: [authRateLimiter, normalizeEmailMiddleware],
+    },
+    {
+      matcher: "/auth/seller/emailpass",
+      method: "POST",
+      middlewares: [validatePasswordMiddleware],
     },
     // Password reset - stricter rate limit
     {
