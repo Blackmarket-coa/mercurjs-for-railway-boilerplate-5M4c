@@ -2,6 +2,7 @@ import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { Modules } from "@medusajs/framework/utils"
 import { REQUEST_MODULE } from "../../modules/request"
 import RequestModuleService from "../../modules/request/service"
+import { RequestStatus } from "../../modules/request/models"
 import { REQUEST_TYPES } from "../../modules/request/validators"
 import {
   createSellerRegistrationSchema,
@@ -56,12 +57,11 @@ export const handleSellerRegistration = async (
     const requestService = req.scope.resolve<RequestModuleService>(REQUEST_MODULE)
     const existingRequests = await requestService.listRequests({
       type: REQUEST_TYPES.SELLER,
+      submitter_id: authIdentity.id,
+      status: RequestStatus.PENDING,
     })
 
-    const userExistingRequest = existingRequests.find((request) => {
-      const data = request.data as Record<string, unknown> | undefined
-      return data?.auth_identity_id === authIdentity.id && request.status === "pending"
-    })
+    const userExistingRequest = existingRequests[0]
 
     if (userExistingRequest) {
       console.log(

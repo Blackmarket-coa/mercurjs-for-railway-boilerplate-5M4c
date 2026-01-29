@@ -2,6 +2,7 @@ import { z } from "zod"
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { RequestStatus } from "../../../../../modules/request/models"
 import { getSellerApprovalService } from "../../../../../shared/seller-approval-service"
+import { requireAdminId } from "../../../../../shared/auth-helpers"
 
 const rejectSchema = z.object({
   reason: z.string().optional(),
@@ -20,7 +21,10 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
     const { reason } = rejectSchema.parse(req.body || {})
 
     // Get reviewer ID from authenticated user
-    const reviewerId = req.auth_context?.actor_id || "unknown"
+    const reviewerId = requireAdminId(req, res)
+    if (!reviewerId) {
+      return
+    }
 
     const approvalService = getSellerApprovalService(req.scope)
 

@@ -3,6 +3,7 @@ import { REQUEST_MODULE } from "../../../../../modules/request"
 import RequestModuleService from "../../../../../modules/request/service"
 import { isSellerRequestType } from "../../../../../modules/request/validators"
 import { getSellerApprovalService } from "../../../../../shared/seller-approval-service"
+import { requireAdminId } from "../../../../../shared/auth-helpers"
 
 /**
  * POST /admin/requests/:id/approve
@@ -21,7 +22,10 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
 
   try {
     // Get reviewer ID from authenticated user
-    const reviewerId = req.auth_context?.actor_id || "unknown"
+    const reviewerId = requireAdminId(req, res)
+    if (!reviewerId) {
+      return
+    }
 
     const approvalService = getSellerApprovalService(req.scope)
 
