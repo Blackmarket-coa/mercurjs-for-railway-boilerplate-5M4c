@@ -92,7 +92,7 @@ async function vendorCorsMiddleware(
   next()
 }
 
-async function ensureSellerContext(
+export async function ensureSellerContext(
   req: MedusaRequest,
   res: MedusaResponse,
   next: MedusaNextFunction
@@ -103,10 +103,12 @@ async function ensureSellerContext(
     ["/vendor/sellers", new Set(["POST"])],
   ])
 
+  const rawPath = req.originalUrl || req.url || req.path || ""
+  const requestPath = rawPath.split("?")[0]
   const isPublicRoute =
-    req.path &&
-    publicRoutes.has(req.path) &&
-    publicRoutes.get(req.path)!.has(req.method.toUpperCase())
+    requestPath &&
+    publicRoutes.has(requestPath) &&
+    publicRoutes.get(requestPath)!.has(req.method.toUpperCase())
 
   if (isPublicRoute) {
     next()

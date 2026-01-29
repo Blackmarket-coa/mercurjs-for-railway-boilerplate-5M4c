@@ -12,6 +12,7 @@ import {
   strictAuthRateLimiter,
   vendorRegistrationRateLimiter,
 } from "../shared/rate-limiter"
+import { ensureSellerContext } from "./vendor/_middlewares"
 
 // Basic email validation regex
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -332,12 +333,12 @@ export default defineMiddlewares({
     // Using "/vendor*" pattern to match all vendor routes including those from plugins
     {
       matcher: "/vendor*",
-      middlewares: [vendorCorsMiddleware],
+      middlewares: [vendorCorsMiddleware, ensureSellerContext],
     },
     // Also match the more specific pattern for local vendor routes
     {
       matcher: "/vendor/*",
-      middlewares: [vendorCorsMiddleware],
+      middlewares: [vendorCorsMiddleware, ensureSellerContext],
     },
     // CORS for auth seller registration status (uses vendor CORS since it's called by vendor panel)
     {
