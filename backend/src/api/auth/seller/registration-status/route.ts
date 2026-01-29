@@ -2,6 +2,7 @@ import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import { REQUEST_MODULE } from "../../../../modules/request"
 import RequestModuleService from "../../../../modules/request/service"
+import { config } from "../../../../shared/config"
 import jwt from "jsonwebtoken"
 
 export const AUTHENTICATE = false
@@ -95,8 +96,13 @@ function extractBearerToken(req: MedusaRequest): string | null {
 /** Decodes and verifies JWT, returns authIdentityId and sellerId */
 async function decodeAndVerifyToken(token: string, req: MedusaRequest) {
   try {
-    // If you have a JWT secret or key, use it here for verification
-    const payload = jwt.decode(token) as any // using decode for flexibility
+    const payload = config.JWT_SECRET
+      ? (jwt.verify(token, config.JWT_SECRET) as any)
+      : (jwt.decode(token) as any)
+
+    if (!config.JWT_SECRET) {
+      console.warn("[JWT] JWT_SECRET not configured; token decoded without verification.")
+    }
     console.log("[JWT] Decoded payload fields:", Object.keys(payload || {}).join(", "))
 
     let authIdentityId = payload?.auth_identity_id || payload?.sub || payload?.identity_id || payload?.user_id
@@ -138,8 +144,15 @@ async function getAuthIdentity(authModule: any, authIdentityId: string) {
 /** Checks pending requests for the user and resolves registration status */
 async function checkRequests(req: MedusaRequest, authIdentityId: string, authModule: any) {
   const requestService = req.scope.resolve<RequestModuleService>(REQUEST_MODULE)
-  const requests = await requestService.listRequests({ type: "seller" })
-  const userRequests = requests.filter((r) => (r.data as any)?.auth_identity_id === authIdentityId)
+  const userRequests = await requestService.listRequests(
+    {
+      type: "seller",
+      submitter_id: authIdentityId,
+    },
+    {
+      order: { created_at: "DESC" },
+    }
+  )
   console.log(`[Requests] Found ${userRequests.length} requests for authIdentityId: ${authIdentityId}`)
 
   if (userRequests.length === 0) {
@@ -149,9 +162,7 @@ async function checkRequests(req: MedusaRequest, authIdentityId: string, authMod
     })
   }
 
-  const latestRequest = userRequests.sort((a, b) =>
-    new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
-  )[0]
+  const latestRequest = userRequests[0]
 
   console.log(`[Requests] Latest request status: ${latestRequest.status}, id: ${latestRequest.id}`)
 
@@ -203,27 +214,34 @@ async function handleAcceptedRequest(
     const memberEmail = requestData?.member?.email
 
     if (memberEmail) {
-      const { ContainerRegistrationKeys } = await import("@medusajs/framework/utils")
+      const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION)
       const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+      const memberResult = await pgConnection.raw(
+        `
+        SELECT seller_id
+        FROM member
+        WHERE email = $1
+        ORDER BY created_at DESC
+        LIMIT 1
+        `,
+        [memberEmail]
+      )
+      const sellerId = memberResult.rows?.[0]?.seller_id
 
-      const { data: sellers } = await query.graph({
-        entity: "seller",
-        fields: ["id", "name", "members.*"],
-        filters: {},
-      })
-
-      const existingSeller = sellers?.find((s: any) => s.members?.some((m: any) => m.email === memberEmail))
-      if (existingSeller) {
-        console.log("[Accepted request] Found seller, updating auth_identity")
-        await authModule.updateAuthIdentities([
-          { id: authIdentityId, app_metadata: { seller_id: existingSeller.id } },
-        ])
-        return req.res!.json({
-          status: "approved",
-          seller_id: existingSeller.id,
-          request_id: latestRequest.id,
-          message: "Your seller account is approved. You can access the vendor dashboard.",
-        })
+      if (sellerId) {
+        const seller = await findSellerById(req, sellerId)
+        if (seller) {
+          console.log("[Accepted request] Found seller, updating auth_identity")
+          await authModule.updateAuthIdentities([
+            { id: authIdentityId, app_metadata: { seller_id: sellerId } },
+          ])
+          return req.res!.json({
+            status: "approved",
+            seller_id: sellerId,
+            request_id: latestRequest.id,
+            message: "Your seller account is approved. You can access the vendor dashboard.",
+          })
+        }
       }
     }
 

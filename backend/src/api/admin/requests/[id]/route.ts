@@ -8,6 +8,7 @@ import {
   getSellerApprovalService,
   sanitizeInput,
 } from "../../../../shared/seller-approval-service"
+import { requireAdminId } from "../../../../shared/auth-helpers"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -62,7 +63,10 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
     const { status, reviewer_note } = reviewRequestSchema.parse(req.body)
 
     // Get reviewer ID from authenticated user
-    const reviewerId = req.auth_context?.actor_id || "unknown"
+    const reviewerId = requireAdminId(req, res)
+    if (!reviewerId) {
+      return
+    }
 
     const approvalService = getSellerApprovalService(req.scope)
 
@@ -153,6 +157,10 @@ export async function PATCH(req: AuthenticatedMedusaRequest, res: MedusaResponse
 
   try {
     const data = updateRequestSchema.parse(req.body)
+    const adminId = requireAdminId(req, res)
+    if (!adminId) {
+      return
+    }
 
     const requestService = req.scope.resolve<RequestModuleService>(REQUEST_MODULE)
     const requests = await requestService.listRequests({ id })
@@ -205,7 +213,10 @@ export async function DELETE(req: AuthenticatedMedusaRequest, res: MedusaRespons
     const request = requests[0]
 
     // Get actor info for audit logging
-    const actorId = req.auth_context?.actor_id || "unknown"
+    const actorId = requireAdminId(req, res)
+    if (!actorId) {
+      return
+    }
 
     // Prevent deletion of non-pending requests without explicit override
     if (request.status !== RequestStatus.PENDING && request.status !== RequestStatus.REJECTED) {

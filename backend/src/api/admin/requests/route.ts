@@ -4,6 +4,7 @@ import { REQUEST_MODULE } from "../../../modules/request"
 import RequestModuleService from "../../../modules/request/service"
 import { RequestStatus } from "../../../modules/request/models"
 import { sanitizeInput } from "../../../shared/seller-approval-service"
+import { requireAdminId } from "../../../shared/auth-helpers"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -71,6 +72,10 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
 export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   try {
     const body = createRequestSchema.parse(req.body)
+    const adminId = requireAdminId(req, res)
+    if (!adminId) {
+      return
+    }
 
     const requestService = req.scope.resolve<RequestModuleService>(REQUEST_MODULE)
 
@@ -85,8 +90,7 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
     })
 
     // Get actor info for audit logging
-    const actorId = req.auth_context?.actor_id || "unknown"
-    console.log(`[POST /admin/requests] Request ${request.id} created by admin ${actorId}. Type: ${body.type}`)
+    console.log(`[POST /admin/requests] Request ${request.id} created by admin ${adminId}. Type: ${body.type}`)
 
     res.status(201).json({
       request,

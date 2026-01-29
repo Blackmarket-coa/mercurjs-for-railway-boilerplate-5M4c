@@ -253,20 +253,31 @@ export class SellerApprovalService {
         if (workflowError.message?.includes("already exists")) {
           console.log(`[SellerApproval] Seller already exists, attempting to find and link existing seller...`)
 
-          // Try to find the existing seller by email or handle
           const query = this.container.resolve(ContainerRegistrationKeys.QUERY)
+          const pgConnection = this.container.resolve(ContainerRegistrationKeys.PG_CONNECTION)
 
-          // First try to find by member email
-          const { data: sellersWithMembers } = await query.graph({
-            entity: "seller",
-            fields: ["id", "name", "handle", "members.*"],
-            filters: {},
-          })
+          let existingSeller: { id: string; name: string; handle?: string } | undefined
 
-          // Find seller by member email
-          let existingSeller = sellersWithMembers?.find((s: any) => {
-            return s.members?.some((m: any) => m.email === data.member.email)
-          })
+          // First try to find by member email via direct lookup
+          const memberResult = await pgConnection.raw(
+            `
+            SELECT seller_id
+            FROM member
+            WHERE email = $1
+            ORDER BY created_at DESC
+            LIMIT 1
+            `,
+            [data.member.email]
+          )
+          const sellerId = memberResult.rows?.[0]?.seller_id
+          if (sellerId) {
+            const { data: sellers } = await query.graph({
+              entity: "seller",
+              fields: ["id", "name", "handle"],
+              filters: { id: sellerId },
+            })
+            existingSeller = sellers?.[0]
+          }
 
           // If not found by email, try to find by handle (derived from seller name)
           if (!existingSeller) {
@@ -279,19 +290,24 @@ export class SellerApprovalService {
               .replace(/\s+/g, '-')
               .replace(/[^a-z0-9-]/g, '')
 
-            const { data: allSellers } = await query.graph({
-              entity: "seller",
-              fields: ["id", "name", "handle"],
-              filters: {},
-            })
-
-            existingSeller = allSellers?.find((s: any) => {
-              // Match by handle (with or without trailing dash)
-              const sellerHandle = s.handle?.toLowerCase() || ''
-              return sellerHandle === expectedHandle ||
-                     sellerHandle === expectedHandle + '-' ||
-                     sellerHandle.startsWith(expectedHandle)
-            })
+            const handleResult = await pgConnection.raw(
+              `
+              SELECT id, name, handle
+              FROM seller
+              WHERE handle = $1 OR handle LIKE $2
+              ORDER BY length(handle) ASC
+              LIMIT 1
+              `,
+              [expectedHandle, `${expectedHandle}%`]
+            )
+            const handleMatch = handleResult.rows?.[0]
+            if (handleMatch) {
+              existingSeller = {
+                id: handleMatch.id,
+                name: handleMatch.name,
+                handle: handleMatch.handle,
+              }
+            }
 
             if (existingSeller) {
               console.log(`[SellerApproval] Found seller by handle: ${existingSeller.handle}`)
