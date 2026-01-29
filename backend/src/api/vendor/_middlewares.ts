@@ -118,7 +118,10 @@ export async function ensureSellerContext(
   const authContext = (req as MedusaRequest & { auth_context?: { actor_id?: string; actor_type?: string } })
     .auth_context
 
-  if (!authContext?.actor_id || authContext.actor_type !== "seller") {
+  const actorType = authContext?.actor_type
+  const isSellerActor = actorType === "seller" || actorType === "member"
+
+  if (!authContext?.actor_id || !isSellerActor) {
     res.status(401).json({
       message: "Unauthorized - seller authentication required",
       type: "unauthorized",
