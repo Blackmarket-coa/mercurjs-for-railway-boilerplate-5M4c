@@ -101,10 +101,10 @@ class RequestModuleService extends MedusaService({
       RequestStatus.ACCEPTED
     )
 
-    const request = await this.updateRequests(
-      { id },
-      { status: RequestStatus.ACCEPTED }
-    )
+    const request = await this.updateRequests({
+      id,
+      status: RequestStatus.ACCEPTED,
+    })
     return request
   }
 
@@ -120,10 +120,10 @@ class RequestModuleService extends MedusaService({
       RequestStatus.REJECTED
     )
 
-    const request = await this.updateRequests(
-      { id },
-      { status: RequestStatus.REJECTED }
-    )
+    const request = await this.updateRequests({
+      id,
+      status: RequestStatus.REJECTED,
+    })
     return request
   }
 
@@ -139,10 +139,10 @@ class RequestModuleService extends MedusaService({
       RequestStatus.CANCELLED
     )
 
-    const request = await this.updateRequests(
-      { id },
-      { status: RequestStatus.CANCELLED }
-    )
+    const request = await this.updateRequests({
+      id,
+      status: RequestStatus.CANCELLED,
+    })
     return request
   }
 
@@ -158,10 +158,10 @@ class RequestModuleService extends MedusaService({
       RequestStatus.COMPLETED
     )
 
-    const request = await this.updateRequests(
-      { id },
-      { status: RequestStatus.COMPLETED }
-    )
+    const request = await this.updateRequests({
+      id,
+      status: RequestStatus.COMPLETED,
+    })
     return request
   }
 
@@ -252,10 +252,10 @@ class RequestModuleService extends MedusaService({
 
     // Use retrieveRequest + update pattern for more reliable single-record update
     try {
-      await this.updateRequests(
-        { id },
-        updateData
-      )
+      await this.updateRequests({
+        id,
+        ...updateData,
+      })
 
       const [updatedRequest] = await this.listRequests({ id })
       if (!updatedRequest) {
@@ -309,10 +309,10 @@ class RequestModuleService extends MedusaService({
       updateData.reviewer_note = reviewerNote
     }
 
-    await this.updateRequests(
-      { id },
-      updateData
-    )
+    await this.updateRequests({
+      id,
+      ...updateData,
+    })
 
     const [updatedRequest] = await this.listRequests({ id })
     if (!updatedRequest) {
