@@ -105,7 +105,7 @@ export const useMe = (
       }
 
       const status = await fetchRegistrationStatus(token)
-      if (status.status !== "approved") {
+      if (status.status !== "approved" || !status.seller_id) {
         return null
       }
 
