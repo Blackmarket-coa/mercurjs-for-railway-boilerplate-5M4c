@@ -3,6 +3,7 @@ import type { MedusaRequest, MedusaResponse, MedusaNextFunction } from "@medusaj
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import jwt from "jsonwebtoken"
 import { config } from "../../shared/config"
+import { handleSellerRegistration } from "../shared/seller-registration"
 
 /**
  * Vendor-specific CORS middleware
@@ -111,6 +112,20 @@ export async function ensureSellerContext(
     requestPath &&
     publicRoutes.has(requestPath) &&
     publicRoutes.get(requestPath)!.has(req.method.toUpperCase())
+
+  if (requestPath === "/vendor/registration-status" && req.method.toUpperCase() === "GET") {
+    console.log("[GET /vendor/registration-status] Handling via middleware redirect")
+    const protocol = req.headers["x-forwarded-proto"] || req.protocol || "https"
+    const host = req.headers["x-forwarded-host"] || req.headers.host
+    const baseUrl = `${protocol}://${host}`
+    res.redirect(307, `${baseUrl}/auth/seller/registration-status`)
+    return
+  }
+
+  if (requestPath === "/vendor/register" && req.method.toUpperCase() === "POST") {
+    await handleSellerRegistration(req, res)
+    return
+  }
 
   if (isPublicRoute) {
     next()
