@@ -42,6 +42,15 @@ Visit the [Quickstart Guide](https://docs.medusajs.com/learn/installation) to se
 
 Visit the [Docs](https://docs.medusajs.com/learn/installation#get-started) to learn more about our system requirements.
 
+## Railway Health Checks
+
+This backend exposes two health endpoints:
+
+- `GET /health` — liveness probe (fast, no external dependencies).
+- `GET /health/ready` — readiness probe (checks database connectivity and optional Redis).
+
+For Railway deployments that need to verify PostgreSQL connectivity, set the service health check to `/health/ready`. The default `railway.json` and `railway.staging.json` files already point to this path so Railway will only mark the service healthy when the database is reachable.
+
 ## Algolia Integration
 
 This backend includes automatic Algolia index setup via an initialization script. When you provide the following environment variables:
