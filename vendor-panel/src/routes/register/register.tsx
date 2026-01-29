@@ -143,7 +143,7 @@ export const Register = () => {
                 />
               </svg>
             </div>
-          <Heading>Thank You for registering!</Heading>
+            <Heading>Thank You for registering!</Heading>
             <Text
               size="small"
               className="text-ui-fg-subtle mt-2 max-w-[320px] text-center"
@@ -165,8 +165,18 @@ export const Register = () => {
       <div className="bg-ui-bg-subtle flex min-h-dvh w-dvw items-center justify-center px-4 py-10">
         <div className="w-full max-w-2xl">
           <div className="bg-ui-bg-base shadow-elevation-card-rest border-ui-border-base rounded-2xl border p-6 sm:p-8">
-            <div className="mb-6 flex justify-center">
+            <div className="mb-6 flex flex-col items-center gap-3 text-center">
               <AvatarBox />
+              <div className="flex flex-col items-center gap-1">
+                <Heading>{t("register.title")}</Heading>
+                <Text size="small" className="text-ui-fg-subtle max-w-md">
+                  Choose the seller profile that best matches your business.
+                  You can update details later.
+                </Text>
+              </div>
+              <div className="bg-ui-bg-component text-ui-fg-subtle inline-flex items-center rounded-full px-3 py-1 text-xs font-medium">
+                Step 1 of 2
+              </div>
             </div>
             <VendorTypeSelection
               selectedType={selectedType}
@@ -193,9 +203,9 @@ export const Register = () => {
 
   return (
     <div className="bg-ui-bg-subtle flex min-h-dvh w-dvw items-center justify-center px-4 py-10">
-      <div className="w-full max-w-lg">
+      <div className="w-full max-w-xl">
         <div className="bg-ui-bg-base shadow-elevation-card-rest border-ui-border-base flex flex-col items-center rounded-2xl border p-6 sm:p-8">
-          <div className="mb-6 flex flex-col items-center gap-4">
+          <div className="mb-6 flex w-full flex-col items-center gap-4 text-center">
             <AvatarBox />
             {selectedTypeInfo && (
               <div className="bg-ui-bg-component flex items-center gap-2 rounded-full px-3 py-1.5">
@@ -234,6 +244,9 @@ export const Register = () => {
                 {t("register.hint")}
               </Text>
             </div>
+            <div className="bg-ui-bg-component text-ui-fg-subtle inline-flex items-center rounded-full px-3 py-1 text-xs font-medium">
+              Step 2 of 2
+            </div>
           </div>
           <div className="flex w-full flex-col gap-y-3">
             <Form {...form}>
@@ -241,50 +254,95 @@ export const Register = () => {
                 onSubmit={handleSubmit}
                 className="flex w-full flex-col gap-y-6"
               >
-                <div className="flex flex-col gap-y-2">
-                  {["name", "email", "password", "confirmPassword"].map(
-                    (fieldName) => (
-                      <Form.Field
-                        key={fieldName}
-                        control={form.control}
-                        name={fieldName as any}
-                        render={({ field }) => (
-                          <Form.Item>
-                            <Form.Control>
-                              <Input
-                                {...field}
-                                type={
-                                  fieldName.includes("password")
-                                    ? "password"
-                                    : "text"
-                                }
-                                placeholder={
-                                  fieldName === "name"
-                                    ? getNamePlaceholder(
-                                        selectedType || "default"
-                                      )
-                                    : fieldName === "email"
-                                      ? t("fields.email")
-                                      : fieldName === "confirmPassword"
-                                        ? "Confirm Password"
-                                        : t("fields.password")
-                                }
-                                className="bg-ui-bg-field-component"
-                              />
-                            </Form.Control>
-                            <Form.ErrorMessage />
-                          </Form.Item>
-                        )}
-                      />
-                    )
-                  )}
+                <div className="grid gap-4">
+                  <Form.Field
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label className="text-ui-fg-base text-sm font-medium">
+                          Business name
+                        </Form.Label>
+                        <Form.Control>
+                          <Input
+                            {...field}
+                            placeholder={getNamePlaceholder(selectedType || "default")}
+                            className="bg-ui-bg-field-component"
+                          />
+                        </Form.Control>
+                        <Form.ErrorMessage />
+                      </Form.Item>
+                    )}
+                  />
+                  <Form.Field
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label className="text-ui-fg-base text-sm font-medium">
+                          {t("fields.email")}
+                        </Form.Label>
+                        <Form.Control>
+                          <Input
+                            {...field}
+                            type="email"
+                            placeholder={t("fields.email")}
+                            className="bg-ui-bg-field-component"
+                          />
+                        </Form.Control>
+                        <Form.ErrorMessage />
+                      </Form.Item>
+                    )}
+                  />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Form.Field
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label className="text-ui-fg-base text-sm font-medium">
+                            {t("fields.password")}
+                          </Form.Label>
+                          <Form.Control>
+                            <Input
+                              {...field}
+                              type="password"
+                              placeholder={t("fields.password")}
+                              className="bg-ui-bg-field-component"
+                            />
+                          </Form.Control>
+                          <Form.ErrorMessage />
+                        </Form.Item>
+                      )}
+                    />
+                    <Form.Field
+                      control={form.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label className="text-ui-fg-base text-sm font-medium">
+                            Confirm password
+                          </Form.Label>
+                          <Form.Control>
+                            <Input
+                              {...field}
+                              type="password"
+                              placeholder="Confirm password"
+                              className="bg-ui-bg-field-component"
+                            />
+                          </Form.Control>
+                          <Form.ErrorMessage />
+                        </Form.Item>
+                      )}
+                    />
+                  </div>
                 </div>
 
                 <div className="border-ui-border-base mt-2 border-t pt-4">
                   <button
                     type="button"
                     onClick={() => setShowOptionalFields(!showOptionalFields)}
-                    className="text-ui-fg-interactive mx-auto flex items-center gap-1 text-sm hover:underline"
+                    className="text-ui-fg-interactive mx-auto flex items-center gap-1 text-sm font-medium hover:underline"
                   >
                     {showOptionalFields
                       ? "Hide"
@@ -312,6 +370,9 @@ export const Register = () => {
                         name={field as any}
                         render={({ field: f }) => (
                           <Form.Item>
+                            <Form.Label className="text-ui-fg-base text-sm font-medium">
+                              {field.replace("_", " ").toUpperCase()}
+                            </Form.Label>
                             <Form.Control>
                               <Input
                                 {...f}
@@ -348,6 +409,9 @@ export const Register = () => {
                 </Button>
               </form>
             </Form>
+            <div className="text-ui-fg-muted txt-small mt-4 text-center">
+              By continuing, you agree to complete onboarding once approved.
+            </div>
           </div>
         </div>
       </div>
