@@ -7,7 +7,13 @@ import {
   useMutation,
   useQuery,
 } from "@tanstack/react-query"
-import { backendUrl, fetchQuery, getAuthToken } from "../../lib/client"
+import {
+  backendUrl,
+  clearAuthToken,
+  fetchQuery,
+  getAuthToken,
+  getAuthTokenPayload,
+} from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
 import { StoreVendor, TeamMemberProps } from "../../types/user"
@@ -106,6 +112,13 @@ export const useMe = (
 
       const status = await fetchRegistrationStatus(token)
       if (status.status !== "approved" || !status.seller_id) {
+        return null
+      }
+
+      const payload = getAuthTokenPayload()
+      const actorType = payload?.actor_type
+      if (actorType && actorType !== "seller") {
+        clearAuthToken()
         return null
       }
 
