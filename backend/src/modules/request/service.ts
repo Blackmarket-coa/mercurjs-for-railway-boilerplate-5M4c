@@ -252,13 +252,18 @@ class RequestModuleService extends MedusaService({
 
     // Use retrieveRequest + update pattern for more reliable single-record update
     try {
-      const updatedRequest = await this.updateRequests(
+      await this.updateRequests(
         { id },
         updateData
       )
 
+      const [updatedRequest] = await this.listRequests({ id })
       if (!updatedRequest) {
-        throw new Error("Update did not return a request")
+        throw new Error("Updated request could not be retrieved")
+      }
+
+      if (updatedRequest.status !== RequestStatus.ACCEPTED) {
+        throw new Error("Request status update did not persist")
       }
 
       console.log(`[RequestService] Request updated successfully, new status: ${updatedRequest.status}`)
@@ -304,10 +309,19 @@ class RequestModuleService extends MedusaService({
       updateData.reviewer_note = reviewerNote
     }
 
-    const updatedRequest = await this.updateRequests(
+    await this.updateRequests(
       { id },
       updateData
     )
+
+    const [updatedRequest] = await this.listRequests({ id })
+    if (!updatedRequest) {
+      throw new Error("Updated request could not be retrieved")
+    }
+
+    if (updatedRequest.status !== RequestStatus.REJECTED) {
+      throw new Error("Request status update did not persist")
+    }
 
     console.log(`[RequestService] Request rejected successfully`)
     return updatedRequest

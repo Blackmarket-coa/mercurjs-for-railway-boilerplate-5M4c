@@ -378,9 +378,10 @@ export class SellerApprovalService {
         ? `${request.reviewer_note}\n${sanitizedNote}`.trim()
         : sanitizedNote
 
+      let updatedRequest
       try {
         // Use the dedicated acceptRequestWithReview method for reliable status update
-        await requestService.acceptRequestWithReview(
+        updatedRequest = await requestService.acceptRequestWithReview(
           requestId,
           reviewerId,
           updatedNote || undefined
@@ -401,8 +402,8 @@ export class SellerApprovalService {
           handle: seller.handle,
         },
         request: {
-          id: requestId,
-          status: RequestStatus.ACCEPTED,
+          id: updatedRequest.id,
+          status: updatedRequest.status as RequestStatus,
         },
         rocketchatCreated,
       }
@@ -442,7 +443,7 @@ export class SellerApprovalService {
 
     // Use the dedicated rejectRequestWithReview method
     const sanitizedReason = sanitizeInput(reason)
-    await requestService.rejectRequestWithReview(
+    const updatedRequest = await requestService.rejectRequestWithReview(
       requestId,
       reviewerId,
       sanitizedReason || undefined
@@ -451,8 +452,8 @@ export class SellerApprovalService {
     console.log(`[SellerApproval] Request ${requestId} rejected by reviewer ${reviewerId}${sanitizedReason ? `: ${sanitizedReason}` : ""}`)
 
     return {
-      id: requestId,
-      status: RequestStatus.REJECTED,
+      id: updatedRequest.id,
+      status: updatedRequest.status as RequestStatus,
     }
   }
 
@@ -483,7 +484,7 @@ export class SellerApprovalService {
       : sanitizedNote
 
     // Use the dedicated acceptRequestWithReview method
-    await requestService.acceptRequestWithReview(
+    const updatedRequest = await requestService.acceptRequestWithReview(
       requestId,
       reviewerId,
       updatedNote || undefined
@@ -492,8 +493,8 @@ export class SellerApprovalService {
     console.log(`[SellerApproval] Generic request ${requestId} approved by reviewer ${reviewerId}`)
 
     return {
-      id: requestId,
-      status: RequestStatus.ACCEPTED,
+      id: updatedRequest.id,
+      status: updatedRequest.status as RequestStatus,
     }
   }
 }
