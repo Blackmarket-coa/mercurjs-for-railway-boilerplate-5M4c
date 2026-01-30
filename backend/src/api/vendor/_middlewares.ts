@@ -174,7 +174,7 @@ export async function ensureSellerContext(
       `
       SELECT id
       FROM member
-      WHERE seller_id = $1
+      WHERE seller_id = ?
       ORDER BY created_at ASC
       LIMIT 1
       `,
@@ -212,7 +212,7 @@ export async function ensureSellerContext(
         `
         SELECT seller_id
         FROM member
-        WHERE id = $1
+        WHERE id = ?
         `,
         [sellerId]
       )

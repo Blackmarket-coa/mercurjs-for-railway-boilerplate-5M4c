@@ -156,7 +156,7 @@ export async function requireSellerId(
       `
       SELECT seller_id
       FROM member
-      WHERE id = $1
+      WHERE id = ?
       `,
       [memberId]
     )

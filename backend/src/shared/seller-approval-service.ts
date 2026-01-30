@@ -263,7 +263,7 @@ export class SellerApprovalService {
             `
             SELECT seller_id
             FROM member
-            WHERE email = $1
+            WHERE email = ?
             ORDER BY created_at DESC
             LIMIT 1
             `,
@@ -294,7 +294,7 @@ export class SellerApprovalService {
               `
               SELECT id, name, handle
               FROM seller
-              WHERE handle = $1 OR handle LIKE $2
+              WHERE handle = ? OR handle LIKE ?
               ORDER BY length(handle) ASC
               LIMIT 1
               `,

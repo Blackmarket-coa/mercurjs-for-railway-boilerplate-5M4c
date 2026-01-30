@@ -186,7 +186,7 @@ async function handleAcceptedRequest(
         `
         SELECT seller_id
         FROM member
-        WHERE email = $1
+        WHERE email = ?
         ORDER BY created_at DESC
         LIMIT 1
         `,
