@@ -64,7 +64,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         `
         SELECT id, seller_id, name, email, photo, bio, phone, role
         FROM member
-        WHERE id = $1
+        WHERE id = ?
         `,
         [memberId]
       )
@@ -74,7 +74,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         `
         SELECT id, seller_id, name, email, photo, bio, phone, role
         FROM member
-        WHERE seller_id = $1
+        WHERE seller_id = ?
         ORDER BY created_at ASC
         LIMIT 1
         `,

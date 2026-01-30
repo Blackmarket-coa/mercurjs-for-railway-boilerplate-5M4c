@@ -390,11 +390,11 @@ export default defineMiddlewares({
     },
     {
       matcher: "/admin/backfill-seller-auth",
-      middlewares: [adminCorsMiddleware],
+      middlewares: [adminCorsMiddleware, authenticate("user", ["bearer", "session"])],
     },
     {
       matcher: "/admin/auth-debug",
-      middlewares: [adminCorsMiddleware],
+      middlewares: [adminCorsMiddleware, authenticate("user", ["bearer", "session"])],
     },
     // Apply security headers to all routes
     {

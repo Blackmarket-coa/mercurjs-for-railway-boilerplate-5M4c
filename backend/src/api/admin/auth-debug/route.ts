@@ -37,7 +37,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         pi.auth_identity_id,
         pi.created_at
       FROM provider_identity pi
-      WHERE LOWER(pi.entity_id) = LOWER($1)
+      WHERE LOWER(pi.entity_id) = LOWER(?)
       ORDER BY pi.created_at DESC
     `, [email])
 
@@ -52,7 +52,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
           ai.app_metadata,
           ai.created_at
         FROM auth_identity ai
-        WHERE ai.id = ANY($1::text[])
+        WHERE ai.id = ANY(?::text[])
         ORDER BY ai.created_at DESC
       `, [authIdentityIds])
       authIdentities = authResult.rows || []
@@ -81,7 +81,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
                 s.created_at as seller_created_at
               FROM member m
               LEFT JOIN seller s ON m.seller_id = s.id
-              WHERE m.id = $1
+        WHERE m.id = ?
             `, [sellerId])
 
             if (memberResult.rows?.[0]) {
@@ -102,7 +102,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
                 s.store_status,
                 s.created_at
               FROM seller s
-              WHERE s.id = $1
+              WHERE s.id = ?
             `, [sellerId])
 
             if (sellerResult.rows?.[0]) {
@@ -127,8 +127,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         r.data,
         r.created_at
       FROM request r
-      WHERE r.data->>'member'->>'email' = $1
-         OR r.data->'member'->>'email' = $1
+      WHERE r.data->>'member'->>'email' = ?
+         OR r.data->'member'->>'email' = ?
       ORDER BY r.created_at DESC
       LIMIT 5
     `, [email])
