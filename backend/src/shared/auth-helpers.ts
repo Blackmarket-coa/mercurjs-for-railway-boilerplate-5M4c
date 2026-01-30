@@ -220,17 +220,20 @@ function extractBearerToken(authorization?: string): string | null {
   return authorization.slice(7)
 }
 
-function decodeAuthToken(
-  token: string
-): { authIdentityId: string | null; sellerId: string | null } | null {
-  try {
-    const payload = config.JWT_SECRET
-      ? (jwt.verify(token, config.JWT_SECRET) as Record<string, unknown>)
-      : (jwt.decode(token) as Record<string, unknown> | null)
+export interface AuthTokenInfo {
+  authIdentityId: string | null
+  actorId: string | null
+  actorType: string | null
+  sellerId: string | null
+}
 
-    if (!payload) {
-      return null
-    }
+export function decodeAuthToken(token: string): AuthTokenInfo | null {
+  if (!config.JWT_SECRET) {
+    return null
+  }
+
+  try {
+    const payload = jwt.verify(token, config.JWT_SECRET) as Record<string, unknown>
 
     const authIdentityId =
       (payload.auth_identity_id as string | undefined) ||
@@ -238,16 +241,34 @@ function decodeAuthToken(
       (payload.identity_id as string | undefined) ||
       (payload.user_id as string | undefined) ||
       null
+    const actorId =
+      (payload.actor_id as string | undefined) ||
+      (payload.user_id as string | undefined) ||
+      null
+    const actorType =
+      (payload.actor_type as string | undefined) ||
+      (payload.actorType as string | undefined) ||
+      null
     const sellerId =
       (payload.actor_id as string | undefined) ||
       (payload.seller_id as string | undefined) ||
       (payload.app_metadata as { seller_id?: string } | undefined)?.seller_id ||
       null
 
-    return { authIdentityId, sellerId }
+    return { authIdentityId, actorId, actorType, sellerId }
   } catch {
     return null
   }
+}
+
+export function decodeAuthTokenFromAuthorization(
+  authorization?: string
+): AuthTokenInfo | null {
+  const token = extractBearerToken(authorization)
+  if (!token) {
+    return null
+  }
+  return decodeAuthToken(token)
 }
 
 /**

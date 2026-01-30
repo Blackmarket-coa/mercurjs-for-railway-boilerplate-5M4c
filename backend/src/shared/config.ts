@@ -19,6 +19,7 @@ import { z } from "zod"
 import { createLogger } from "./logger"
 
 const logger = createLogger("Config")
+const DEV_JWT_SECRET = "dev-only-secret-change-in-production-32chars"
 
 /**
  * Helper for optional string env vars - converts empty strings to undefined
@@ -117,15 +118,22 @@ function loadConfig(): Config {
     return result.data as unknown as Config
   }
   
+  if (result.data.NODE_ENV !== "production" && !result.data.JWT_SECRET) {
+    logger.warn(`JWT_SECRET not set - using default for ${result.data.NODE_ENV}`)
+    result.data.JWT_SECRET = DEV_JWT_SECRET
+  }
+
   // Production warnings
   if (result.data.NODE_ENV === "production") {
+    if (!result.data.JWT_SECRET) {
+      logger.error("JWT_SECRET is required in production.")
+      throw new Error("JWT_SECRET is required in production.")
+    }
+
     const warnings: string[] = []
     
     if (!result.data.REDIS_URL) {
       warnings.push("REDIS_URL not set - rate limiting and caching will use in-memory storage")
-    }
-    if (!result.data.JWT_SECRET) {
-      warnings.push("JWT_SECRET not set - using default (INSECURE)")
     }
     if (!result.data.COOKIE_SECRET) {
       warnings.push("COOKIE_SECRET not set - using default (INSECURE)")
