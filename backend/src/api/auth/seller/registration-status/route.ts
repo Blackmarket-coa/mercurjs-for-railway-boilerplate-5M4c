@@ -10,6 +10,28 @@ export const AUTHENTICATE = false
  * GET /auth/seller/registration-status
  * Checks the registration status for the authenticated user.
  */
+const getStoreStatus = (seller?: { store_status?: string } | null) =>
+  seller?.store_status ?? null
+
+const buildApprovedResponse = ({
+  sellerId,
+  seller,
+  message,
+  requestId,
+}: {
+  sellerId: string
+  seller?: Record<string, unknown> | null
+  message: string
+  requestId?: string
+}) => ({
+  status: "approved",
+  seller_id: sellerId,
+  seller: seller ?? null,
+  store_status: getStoreStatus(seller as { store_status?: string } | null),
+  message,
+  ...(requestId ? { request_id: requestId } : {}),
+})
+
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   try {
     const decodedToken = decodeAuthTokenFromAuthorization(req.headers.authorization)
@@ -30,16 +52,23 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     if (sellerId) {
       const seller = await findSellerById(req, sellerId)
       if (seller) {
-        return res.json({
-          status: "approved",
-          seller_id: sellerId,
-          seller,
-          store_status: seller.store_status ?? null,
-          message: "Your seller account is approved. You can access the vendor dashboard.",
-        })
+        return res.json(
+          buildApprovedResponse({
+            sellerId,
+            seller,
+            message: "Your seller account is approved. You can access the vendor dashboard.",
+          })
+        )
       }
 
       console.warn("[GET /auth/seller/registration-status] Seller ID present in token but not found:", sellerId)
+      return res.status(404).json({
+        status: "error",
+        seller_id: sellerId,
+        seller: null,
+        store_status: null,
+        message: "Seller profile not found for this account. Please contact support.",
+      })
     }
 
     if (!authIdentityId) {
@@ -66,13 +95,13 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
           appMetadata.seller_id
         )
       } else {
-        return res.json({
-          status: "approved",
-          seller_id: appMetadata.seller_id,
-          seller,
-          store_status: seller.store_status ?? null,
-          message: "Your seller account is approved. You can access the vendor dashboard.",
-        })
+        return res.json(
+          buildApprovedResponse({
+            sellerId: String(appMetadata.seller_id),
+            seller,
+            message: "Your seller account is approved. You can access the vendor dashboard.",
+          })
+        )
       }
     }
 
@@ -201,14 +230,14 @@ async function handleAcceptedRequest(
           await authModule.updateAuthIdentities([
             { id: authIdentityId, app_metadata: { seller_id: sellerId } },
           ])
-          return req.res!.json({
-            status: "approved",
-            seller_id: sellerId,
-            seller,
-            store_status: seller.store_status ?? null,
-            request_id: latestRequest.id,
-            message: "Your seller account is approved. You can access the vendor dashboard.",
-          })
+          return req.res!.json(
+            buildApprovedResponse({
+              sellerId,
+              seller,
+              requestId: latestRequest.id,
+              message: "Your seller account is approved. You can access the vendor dashboard.",
+            })
+          )
         }
       }
     }
