@@ -2,8 +2,7 @@ import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import { REQUEST_MODULE } from "../../../../modules/request"
 import RequestModuleService from "../../../../modules/request/service"
-import { config } from "../../../../shared/config"
-import jwt from "jsonwebtoken"
+import { decodeAuthTokenFromAuthorization } from "../../../../shared/auth-helpers"
 
 export const AUTHENTICATE = false
 
@@ -12,11 +11,9 @@ export const AUTHENTICATE = false
  * Checks the registration status for the authenticated user.
  */
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
-  console.log("[GET /auth/seller/registration-status] Handler reached")
-
   try {
-    const token = extractBearerToken(req)
-    if (!token) {
+    const decodedToken = decodeAuthTokenFromAuthorization(req.headers.authorization)
+    if (!decodedToken && !(req as any).auth_context?.auth_identity_id) {
       return res.status(401).json({
         status: "unauthenticated",
         message: "Authentication required. Please provide a valid bearer token.",
@@ -25,7 +22,9 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
     const authModule = req.scope.resolve(Modules.AUTH)
 
-    const { authIdentityId, sellerId } = await decodeAndVerifyToken(token, req)
+    const authIdentityId =
+      decodedToken?.authIdentityId ?? (req as any).auth_context?.auth_identity_id ?? null
+    const sellerId = decodedToken?.sellerId ?? (req as any).auth_context?.actor_id ?? null
 
     // If user already has sellerId, they are approved
     if (sellerId) {
@@ -86,43 +85,6 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       status: "error",
       message: "Failed to check registration status. Please try again later.",
     })
-  }
-}
-
-/** Extracts the Bearer token from the Authorization header */
-function extractBearerToken(req: MedusaRequest): string | null {
-  const authHeader = req.headers.authorization
-  console.log("[Token extraction] Bearer token present:", !!authHeader)
-  if (!authHeader || !authHeader.startsWith("Bearer ")) return null
-  return authHeader.substring(7)
-}
-
-/** Decodes and verifies JWT, returns authIdentityId and sellerId */
-async function decodeAndVerifyToken(token: string, req: MedusaRequest) {
-  try {
-    const payload = config.JWT_SECRET
-      ? (jwt.verify(token, config.JWT_SECRET) as any)
-      : (jwt.decode(token) as any)
-
-    if (!config.JWT_SECRET) {
-      console.warn("[JWT] JWT_SECRET not configured; token decoded without verification.")
-    }
-    console.log("[JWT] Decoded payload fields:", Object.keys(payload || {}).join(", "))
-
-    let authIdentityId = payload?.auth_identity_id || payload?.sub || payload?.identity_id || payload?.user_id
-    let sellerId = payload?.actor_id || payload?.seller_id || payload?.app_metadata?.seller_id
-
-    // Fallback to auth_context if available
-    if (!authIdentityId && (req as any).auth_context?.auth_identity_id) {
-      authIdentityId = (req as any).auth_context.auth_identity_id
-      sellerId = (req as any).auth_context.actor_id
-      console.log("[Auth context fallback] authIdentityId:", !!authIdentityId, "sellerId:", !!sellerId)
-    }
-
-    return { authIdentityId, sellerId }
-  } catch (err: any) {
-    console.error("[JWT decode error]:", err.message)
-    return { authIdentityId: null, sellerId: null }
   }
 }
 
