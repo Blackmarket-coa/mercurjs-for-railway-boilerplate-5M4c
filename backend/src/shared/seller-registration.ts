@@ -39,7 +39,7 @@ const buildApprovedResponse = ({
   seller?: Record<string, unknown> | null
   message: string
   requestId?: string
-}): RegistrationStatusResponse => ({
+}) => ({
   status: "approved",
   seller_id: sellerId,
   seller: seller ?? null,
@@ -214,11 +214,7 @@ async function checkRequests(
           request_id: latestRequest.id,
           message:
             "Your registration request is pending approval. Please wait for an administrator to review your application.",
-          created_at: latestRequest.created_at
-            ? latestRequest.created_at instanceof Date
-              ? latestRequest.created_at.toISOString()
-              : String(latestRequest.created_at)
-            : undefined,
+          created_at: latestRequest.created_at,
         },
       }
 
@@ -233,7 +229,7 @@ async function checkRequests(
           request_id: latestRequest.id,
           message:
             "Your registration request was not approved. Please contact support for more information.",
-          reviewer_note: latestRequest.reviewer_note ?? undefined,
+          reviewer_note: latestRequest.reviewer_note,
         },
       }
 
