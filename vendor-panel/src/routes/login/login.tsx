@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Alert, Button, Heading, Hint, Input, Text } from "@medusajs/ui"
+import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom"
@@ -9,7 +10,13 @@ import { Form } from "../../components/common/form"
 import AvatarBox from "../../components/common/logo-box/avatar-box"
 import { useDashboardExtension } from "../../extensions"
 import { useSignInWithEmailPass } from "../../hooks/api"
+import {
+  fetchSellerSession,
+  hydrateSellerSessionCache,
+  usersQueryKeys,
+} from "../../hooks/api/users"
 import { isFetchError } from "../../lib/is-fetch-error"
+import { getAuthToken } from "../../lib/client"
 
 const LoginSchema = z.object({
   email: z.string().email(),
@@ -20,6 +27,7 @@ export const Login = () => {
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [searchParams] = useSearchParams()
 
   const reason = searchParams.get("reason") || ""
@@ -63,6 +71,21 @@ export const Login = () => {
           })
         },
         onSuccess: () => {
+          const token = getAuthToken()
+          if (token) {
+            queryClient
+              .fetchQuery({
+                queryKey: usersQueryKeys.session(),
+                queryFn: () => fetchSellerSession(token),
+                staleTime: 30000,
+              })
+              .then((session) => {
+                hydrateSellerSessionCache(queryClient, session)
+              })
+              .catch((sessionError) => {
+                console.warn("Failed to prefetch seller session:", sessionError)
+              })
+          }
           navigate(from, { replace: true })
         },
       }
