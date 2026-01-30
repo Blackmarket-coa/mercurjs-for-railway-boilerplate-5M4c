@@ -119,13 +119,15 @@ function loadConfig(): Config {
   
   // Production warnings
   if (result.data.NODE_ENV === "production") {
+    if (!result.data.JWT_SECRET) {
+      logger.error("JWT_SECRET is required in production.")
+      throw new Error("JWT_SECRET is required in production.")
+    }
+
     const warnings: string[] = []
     
     if (!result.data.REDIS_URL) {
       warnings.push("REDIS_URL not set - rate limiting and caching will use in-memory storage")
-    }
-    if (!result.data.JWT_SECRET) {
-      warnings.push("JWT_SECRET not set - using default (INSECURE)")
     }
     if (!result.data.COOKIE_SECRET) {
       warnings.push("COOKIE_SECRET not set - using default (INSECURE)")
