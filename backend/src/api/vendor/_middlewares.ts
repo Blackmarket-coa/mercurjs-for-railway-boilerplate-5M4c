@@ -132,7 +132,12 @@ export async function ensureSellerContext(
   }
 
   const requestWithAuth = req as MedusaRequest & {
-    auth_context?: { actor_id?: string; actor_type?: string; auth_identity_id?: string }
+    auth_context?: {
+      actor_id?: string
+      actor_type?: string
+      auth_identity_id?: string
+      member_id?: string
+    }
   }
   const authContext = requestWithAuth.auth_context ?? {}
   const decodedToken = decodeAuthTokenFromAuthorization(req.headers.authorization)
@@ -182,8 +187,7 @@ export async function ensureSellerContext(
     )
     const memberId = memberResult.rows?.[0]?.id
     if (memberId) {
-      authContext.actor_id = memberId
-      authContext.actor_type = authContext.actor_type ?? "member"
+      authContext.member_id = memberId
     } else {
       res.status(401).json({
         message: "Seller membership not found for authenticated user",
