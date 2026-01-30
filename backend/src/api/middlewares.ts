@@ -157,11 +157,9 @@ function vendorCorsMiddleware(
   next: MedusaNextFunction
 ) {
   const origin = req.headers.origin || ''
-  console.log(`[VENDOR CORS] Request: ${req.method} ${req.path} from origin: "${origin}"`)
 
   // Get CORS origins
   const corsOrigins = getVendorCorsOrigins()
-  console.log(`[VENDOR CORS] Configured origins: ${corsOrigins}`)
 
   // Custom origin function to also allow Railway preview deployments
   const customOriginHandler = (
@@ -179,7 +177,6 @@ function vendorCorsMiddleware(
 
     // Check if origin is in the allowed list
     if (allowedOrigins.includes(reqOrigin) || allowedOrigins.includes(reqOrigin.replace(/\/$/, ''))) {
-      console.log(`[VENDOR CORS] ✓ Origin allowed (exact match): ${reqOrigin}`)
       callback(null, true)
       return
     }
@@ -190,13 +187,11 @@ function vendorCorsMiddleware(
       const hostname = originUrl.hostname.toLowerCase()
 
       if (hostname.endsWith('.freeblackmarket.com') || hostname === 'freeblackmarket.com') {
-        console.log(`[VENDOR CORS] ✓ Origin allowed (FreeBlackMarket.com domain): ${reqOrigin}`)
         callback(null, true)
         return
       }
 
       if (hostname.endsWith('.up.railway.app')) {
-        console.log(`[VENDOR CORS] ✓ Origin allowed (Railway domain): ${reqOrigin}`)
         callback(null, true)
         return
       }
@@ -204,7 +199,7 @@ function vendorCorsMiddleware(
       // Invalid URL, continue to rejection
     }
 
-    console.log(`[VENDOR CORS] ✗ Origin not allowed: ${reqOrigin}`)
+    console.warn(`[VENDOR CORS] Origin not allowed: ${reqOrigin}`)
     callback(null, false)
   }
 
@@ -356,17 +351,6 @@ export default defineMiddlewares({
     // Ensure all vendor routes (including nested plugin routes) are guarded
     {
       matcher: "/vendor/**",
-      middlewares: [vendorCorsMiddleware, ensureSellerContext],
-    },
-    // CORS for vendor routes - must be first to handle OPTIONS preflight
-    // Using "/vendor*" pattern to match all vendor routes including those from plugins
-    {
-      matcher: "/vendor*",
-      middlewares: [vendorCorsMiddleware, ensureSellerContext],
-    },
-    // Also match the more specific pattern for local vendor routes
-    {
-      matcher: "/vendor/*",
       middlewares: [vendorCorsMiddleware, ensureSellerContext],
     },
     // CORS for auth seller registration status (uses vendor CORS since it's called by vendor panel)

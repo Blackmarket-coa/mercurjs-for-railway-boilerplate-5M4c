@@ -19,8 +19,6 @@ async function vendorCorsMiddleware(
 ): Promise<void> {
   const origin = req.headers.origin || ""
 
-  console.log(`[VENDOR CORS MW] Path: ${req.path}, Method: ${req.method}, Origin: ${origin}`)
-
   // Get allowed origins from environment
   const vendorCors = process.env.VENDOR_CORS || ""
   const storeCors = process.env.STORE_CORS || ""
@@ -58,12 +56,10 @@ async function vendorCorsMiddleware(
         // Allow any *.freeblackmarket.com subdomain
         if (hostname.endsWith(".freeblackmarket.com") || hostname === "freeblackmarket.com") {
           matchedOrigin = origin
-          console.log(`[VENDOR CORS MW] ✓ Allowed via FreeBlackMarket.com fallback: ${origin}`)
         }
         // Allow Railway preview deployments
         else if (hostname.endsWith(".up.railway.app")) {
           matchedOrigin = origin
-          console.log(`[VENDOR CORS MW] ✓ Allowed via Railway fallback: ${origin}`)
         }
       } catch (e) {
         // Invalid origin URL
@@ -72,8 +68,6 @@ async function vendorCorsMiddleware(
   }
 
   if (matchedOrigin) {
-    console.log(`[VENDOR CORS MW] ✓ Setting CORS headers for origin: ${matchedOrigin}`)
-
     res.setHeader("Access-Control-Allow-Origin", matchedOrigin)
     res.setHeader("Access-Control-Allow-Credentials", "true")
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
@@ -81,12 +75,11 @@ async function vendorCorsMiddleware(
     res.setHeader("Access-Control-Max-Age", "86400")
     res.setHeader("Vary", "Origin")
   } else if (origin) {
-    console.warn(`[VENDOR CORS MW] ✗ Origin not allowed: "${origin}"`)
+    console.warn(`[VENDOR CORS] Origin not allowed: "${origin}"`)
   }
 
   // Handle preflight
   if (req.method === "OPTIONS") {
-    console.log(`[VENDOR CORS MW] Handling OPTIONS preflight - returning 204`)
     res.status(204).end()
     return
   }
@@ -113,7 +106,6 @@ export async function ensureSellerContext(
     publicRoutes.get(requestPath)!.has(req.method.toUpperCase())
 
   if (requestPath === "/vendor/registration-status" && req.method.toUpperCase() === "GET") {
-    console.log("[GET /vendor/registration-status] Handling via middleware redirect")
     const protocol = req.headers["x-forwarded-proto"] || req.protocol || "https"
     const host = req.headers["x-forwarded-host"] || req.headers.host
     const baseUrl = `${protocol}://${host}`
@@ -127,6 +119,13 @@ export async function ensureSellerContext(
   }
 
   if (isPublicRoute) {
+    next()
+    return
+  }
+
+  // Skip if already processed by a previous middleware invocation
+  // (this middleware may be registered multiple times via different matchers)
+  if ((req as any)._sellerContextResolved) {
     next()
     return
   }
@@ -187,7 +186,34 @@ export async function ensureSellerContext(
     )
     const memberId = memberResult.rows?.[0]?.id
     if (memberId) {
+      const originalSellerId = authContext.actor_id
       authContext.member_id = memberId
+      // Convert actor_id from seller ID to member ID.
+      // MercurJS storeActiveGuard queries sellers by members.id,
+      // so actor_id must be a member ID (mem_*) not a seller ID (sel_*).
+      authContext.actor_id = memberId
+
+      // Store original seller ID for route handlers that need it
+      ;(req as any)._seller_id = originalSellerId
+
+      // Intercept future auth_context assignments to ensure actor_id stays as member ID.
+      // MedusaJS authenticate middleware REPLACES req.auth_context with JWT data,
+      // which may contain the original seller ID. This property descriptor patches
+      // actor_id back to the member ID whenever that happens.
+      let _currentAuthContext = requestWithAuth.auth_context
+      Object.defineProperty(req, "auth_context", {
+        get() {
+          return _currentAuthContext
+        },
+        set(value: any) {
+          _currentAuthContext = value
+          if (value && value.actor_id === originalSellerId) {
+            value.actor_id = memberId
+          }
+        },
+        configurable: true,
+        enumerable: true,
+      })
     } else {
       res.status(401).json({
         message: "Seller membership not found for authenticated user",
@@ -209,7 +235,8 @@ export async function ensureSellerContext(
   }
 
   try {
-    let sellerId = authContext.actor_id
+    // Use pre-resolved seller ID if available (from sel_* to mem_* conversion above)
+    let sellerId = (req as any)._seller_id || authContext.actor_id
     if (sellerId.startsWith("mem_")) {
       const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION)
       const memberResult = await pgConnection.raw(
@@ -257,6 +284,7 @@ export async function ensureSellerContext(
     return
   }
 
+  ;(req as any)._sellerContextResolved = true
   next()
 }
 
