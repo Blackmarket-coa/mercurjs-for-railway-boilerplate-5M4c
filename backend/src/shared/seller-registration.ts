@@ -26,8 +26,15 @@ export interface RegistrationStatusResponse {
   reviewer_note?: string
 }
 
-const getStoreStatus = (seller?: { store_status?: string } | null) =>
-  seller?.store_status ?? null
+const getStoreStatus = (
+  seller?: { store_status?: string | null } | null
+): RegistrationStatusResponse["store_status"] => {
+  const status = seller?.store_status ?? null
+  if (status === "ACTIVE" || status === "SUSPENDED" || status === "INACTIVE") {
+    return status
+  }
+  return null
+}
 
 const buildApprovedResponse = ({
   sellerId,
@@ -39,11 +46,11 @@ const buildApprovedResponse = ({
   seller?: Record<string, unknown> | null
   message: string
   requestId?: string
-}) => ({
+}): RegistrationStatusResponse => ({
   status: "approved",
   seller_id: sellerId,
-  seller: seller ?? null,
-  store_status: getStoreStatus(seller as { store_status?: string } | null),
+  seller: (seller as RegistrationStatusResponse["seller"]) ?? null,
+  store_status: getStoreStatus(seller as { store_status?: string | null } | null),
   message,
   ...(requestId ? { request_id: requestId } : {}),
 })
@@ -214,7 +221,7 @@ async function checkRequests(
           request_id: latestRequest.id,
           message:
             "Your registration request is pending approval. Please wait for an administrator to review your application.",
-          created_at: latestRequest.created_at,
+          created_at: latestRequest.created_at?.toISOString?.() ?? undefined,
         },
       }
 
@@ -229,7 +236,7 @@ async function checkRequests(
           request_id: latestRequest.id,
           message:
             "Your registration request was not approved. Please contact support for more information.",
-          reviewer_note: latestRequest.reviewer_note,
+          reviewer_note: latestRequest.reviewer_note ?? undefined,
         },
       }
 
