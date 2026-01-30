@@ -1,70 +1,11 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { requireSellerId } from "../../../../shared"
+import { fetchSellerProfile } from "../../../../shared/seller-profile"
 import {
   createSellerMetadataRecord,
   updateSellerMetadataRecord,
 } from "../../../../modules/seller-extension/metadata-service"
-
-const DEFAULT_METADATA_FIELDS = [
-  "vendor_type",
-  "website_url",
-  "social_links",
-  "storefront_links",
-  "certifications",
-]
-
-const METADATA_FIELD_SET = new Set(DEFAULT_METADATA_FIELDS)
-
-const normalizeRequestedFields = (
-  requestedFields: unknown
-): string | string[] | undefined => {
-  if (typeof requestedFields === "string") {
-    return requestedFields
-  }
-
-  if (Array.isArray(requestedFields) && requestedFields.every(item => typeof item === "string")) {
-    return requestedFields
-  }
-
-  return undefined
-}
-
-const parseRequestedFields = (
-  requestedFields: unknown,
-  defaultSellerFields: string[]
-) => {
-  const normalizedFields = normalizeRequestedFields(requestedFields)
-  const requested =
-    typeof normalizedFields === "string" ? normalizedFields : normalizedFields?.join(",")
-
-  if (!requested) {
-    return {
-      sellerFields: [...defaultSellerFields],
-      metadataFields: [...DEFAULT_METADATA_FIELDS],
-      includeMediaAlias: true,
-    }
-  }
-
-  const parsedFields = requested.split(",").map(field => field.trim()).filter(Boolean)
-  const metadataFields = parsedFields.filter(field => METADATA_FIELD_SET.has(field))
-  const sellerFields = parsedFields
-    .filter(field => !METADATA_FIELD_SET.has(field))
-    .map(field => (field === "media" ? "photo" : field))
-
-  const uniqueSellerFields = Array.from(new Set(sellerFields))
-  const uniqueMetadataFields = Array.from(new Set(metadataFields))
-
-  if (!uniqueSellerFields.includes("id")) {
-    uniqueSellerFields.unshift("id")
-  }
-
-  return {
-    sellerFields: uniqueSellerFields,
-    metadataFields: uniqueMetadataFields,
-    includeMediaAlias: parsedFields.includes("media"),
-  }
-}
 
 /**
  * GET /vendor/sellers/me
@@ -78,71 +19,19 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
   if (!sellerId) return
 
   try {
-    const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-
-    // Default seller fields to return
-    const defaultSellerFields = [
-      "id",
-      "name",
-      "description",
-      "phone",
-      "email",
-      "handle",
-      "photo",
-      "address_line",
-      "postal_code",
-      "city",
-      "country_code",
-      "tax_id",
-      "store_status",
-      "metadata",
-      "created_at",
-      "updated_at",
-      // Include producer if linked
-      "producer.*",
-    ]
-    const { sellerFields, metadataFields, includeMediaAlias } = parseRequestedFields(
-      req.query.fields,
-      defaultSellerFields
-    )
-
-    // Fetch seller data with related entities
-    const { data: sellers } = await query.graph({
-      entity: "seller",
-      fields: sellerFields,
-      filters: { id: sellerId },
+    const seller = await fetchSellerProfile({
+      req,
+      sellerId,
+      requestedFields: req.query.fields,
     })
 
-    if (!sellers || sellers.length === 0) {
+    if (!seller) {
       return res.status(404).json({
         message: "Seller not found",
         type: "not_found",
       })
     }
-
-    const seller = sellers[0] as Record<string, unknown>
-
-    const response: Record<string, unknown> = {
-      ...seller,
-    }
-
-    if (metadataFields.length > 0) {
-      const { data: metadataRecords } = await query.graph({
-        entity: "seller_metadata",
-        fields: metadataFields,
-        filters: { seller_id: sellerId },
-      })
-      const sellerMetadata = (metadataRecords?.[0] ?? {}) as Record<string, unknown>
-      for (const field of metadataFields) {
-        response[field] = sellerMetadata[field]
-      }
-    }
-
-    if (includeMediaAlias) {
-      response.media = seller.photo
-    }
-
-    return res.json({ seller: response })
+    return res.json({ seller })
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error"
     console.error("[GET /vendor/sellers/me] Error:", errorMessage)
@@ -226,64 +115,19 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
       }
     }
 
-    const defaultSellerFields = [
-      "id",
-      "name",
-      "description",
-      "phone",
-      "email",
-      "handle",
-      "photo",
-      "address_line",
-      "postal_code",
-      "city",
-      "country_code",
-      "tax_id",
-      "store_status",
-      "metadata",
-      "created_at",
-      "updated_at",
-    ]
-
-    const { sellerFields, metadataFields, includeMediaAlias } = parseRequestedFields(
-      req.query.fields,
-      defaultSellerFields
-    )
-
-    // Fetch and return updated seller data
-    const { data: sellers } = await query.graph({
-      entity: "seller",
-      fields: sellerFields,
-      filters: { id: sellerId },
+    const seller = await fetchSellerProfile({
+      req,
+      sellerId,
+      requestedFields: req.query.fields,
     })
 
-    if (!sellers || sellers.length === 0) {
+    if (!seller) {
       return res.status(404).json({
         message: "Seller not found after update",
         type: "not_found",
       })
     }
-
-    const seller = sellers[0] as Record<string, unknown>
-    const response: Record<string, unknown> = { ...seller }
-
-    if (metadataFields.length > 0) {
-      const { data: metadataRecords } = await query.graph({
-        entity: "seller_metadata",
-        fields: metadataFields,
-        filters: { seller_id: sellerId },
-      })
-      const sellerMetadata = (metadataRecords?.[0] ?? {}) as Record<string, unknown>
-      for (const field of metadataFields) {
-        response[field] = sellerMetadata[field]
-      }
-    }
-
-    if (includeMediaAlias) {
-      response.media = seller.photo
-    }
-
-    return res.json({ seller: response })
+    return res.json({ seller })
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error"
     console.error("[POST /vendor/sellers/me] Error:", errorMessage)

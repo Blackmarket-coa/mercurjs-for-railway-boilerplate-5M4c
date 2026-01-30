@@ -1,6 +1,7 @@
 import { FetchError } from "@medusajs/js-sdk"
 import { HttpTypes } from "@medusajs/types"
 import {
+  QueryClient,
   QueryKey,
   UseMutationOptions,
   UseQueryOptions,
@@ -24,6 +25,7 @@ export const usersQueryKeys = {
   ...queryKeysFactory(USERS_QUERY_KEY),
   me: () => [USERS_QUERY_KEY, "me"],
   registrationStatus: () => [USERS_QUERY_KEY, "registration-status"],
+  session: () => [USERS_QUERY_KEY, "session"],
 }
 
 /**
@@ -43,6 +45,11 @@ export interface RegistrationStatusResponse {
   reviewer_note?: string
 }
 
+export interface SellerSessionResponse {
+  registration_status: RegistrationStatusResponse
+  seller: StoreVendor | null
+}
+
 export const fetchRegistrationStatus = async (
   token: string
 ): Promise<RegistrationStatusResponse> => {
@@ -57,6 +64,36 @@ export const fetchRegistrationStatus = async (
 
   const result = await response.json()
   return result as RegistrationStatusResponse
+}
+
+export const fetchSellerSession = async (
+  token: string
+): Promise<SellerSessionResponse> => {
+  const response = await fetch(`${backendUrl}/auth/seller/session`, {
+    method: "GET",
+    credentials: "include",
+    headers: {
+      authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  })
+
+  const result = await response.json()
+  return result as SellerSessionResponse
+}
+
+export const hydrateSellerSessionCache = (
+  queryClient: QueryClient,
+  session: SellerSessionResponse
+) => {
+  queryClient.setQueryData(
+    usersQueryKeys.registrationStatus(),
+    session.registration_status
+  )
+
+  if (session.seller) {
+    queryClient.setQueryData(usersQueryKeys.me(), { seller: session.seller })
+  }
 }
 
 /**
@@ -95,6 +132,45 @@ export const useRegistrationStatus = (
 
   return {
     registrationStatus: data,
+    ...rest,
+  }
+}
+
+export const useSellerSession = (
+  options?: Omit<
+    UseQueryOptions<SellerSessionResponse, Error, SellerSessionResponse, QueryKey>,
+    "queryFn" | "queryKey"
+  >
+) => {
+  const queryClient = useQueryClient()
+
+  const { data, ...rest } = useQuery({
+    queryFn: async (): Promise<SellerSessionResponse> => {
+      const token = getAuthToken()
+      if (!token) {
+        return {
+          registration_status: {
+            status: "unauthenticated",
+            message: "No authentication token found.",
+          },
+          seller: null,
+        }
+      }
+
+      return fetchSellerSession(token)
+    },
+    queryKey: usersQueryKeys.session(),
+    staleTime: 30000,
+    retry: false,
+    ...options,
+    onSuccess: (session) => {
+      hydrateSellerSessionCache(queryClient, session)
+      options?.onSuccess?.(session)
+    },
+  })
+
+  return {
+    session: data,
     ...rest,
   }
 }

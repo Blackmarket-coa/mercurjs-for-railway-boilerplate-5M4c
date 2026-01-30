@@ -1,6 +1,6 @@
 import { Spinner } from "@medusajs/icons"
 import { Navigate, Outlet, useLocation } from "react-router-dom"
-import { useMe, useRegistrationStatus } from "../../../hooks/api/users"
+import { useSellerSession } from "../../../hooks/api/users"
 import { SearchProvider } from "../../../providers/search-provider"
 import { SidebarProvider } from "../../../providers/sidebar-provider"
 import { RocketChatProvider } from "../../../providers/rocketchat-provider"
@@ -10,22 +10,12 @@ export const ProtectedRoute = () => {
   const location = useLocation()
   const hasToken = Boolean(getAuthToken())
 
-  // First, check registration status to determine the appropriate redirect
-  // This check runs before useMe to prevent the auth loop
   const {
-    registrationStatus,
-    isPending: isStatusPending
-  } = useRegistrationStatus({
-    // Only run this query if we have a token
+    session,
+    isPending: isSessionPending,
+    error,
+  } = useSellerSession({
     enabled: hasToken,
-  })
-
-  // Only fetch seller data if registration status indicates approval
-  const hasSellerId = Boolean(registrationStatus?.seller_id)
-  const isApproved = registrationStatus?.status === "approved" && hasSellerId
-  const { seller, isPending: isSellerPending, error } = useMe({
-    // Only run useMe if we know the user is approved
-    enabled: isApproved,
   })
 
   // If no token, redirect to login immediately
@@ -40,11 +30,24 @@ export const ProtectedRoute = () => {
   }
 
   // Show loading while checking registration status
-  if (isStatusPending) {
+  if (isSessionPending) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Spinner className="text-ui-fg-interactive animate-spin" />
       </div>
+    )
+  }
+
+  const registrationStatus = session?.registration_status
+  const seller = session?.seller
+
+  if (error && !registrationStatus) {
+    return (
+      <Navigate
+        to={`/login?reason=${encodeURIComponent(error.message)}`}
+        state={{ from: location }}
+        replace
+      />
     )
   }
 
@@ -69,10 +72,10 @@ export const ProtectedRoute = () => {
         )
 
       case "approved":
-        if (!hasSellerId) {
+        if (!registrationStatus.seller_id) {
           return <Navigate to="/pending-approval" replace />
         }
-        // Continue to load seller data below when seller_id is available
+        // Continue to load seller data below when seller is available
         break
 
       default:
@@ -81,21 +84,12 @@ export const ProtectedRoute = () => {
     }
   }
 
-  // If approved, show loading while fetching seller data
-  if (isSellerPending) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Spinner className="text-ui-fg-interactive animate-spin" />
-      </div>
-    )
-  }
-
   // If we have an error or no seller after approval status, redirect to login
   // This handles edge cases where approval succeeded but seller fetch fails
   if (!seller) {
     return (
       <Navigate
-        to={`/login${error?.message ? `?reason=${error.message}` : ""}`}
+        to={`/login${registrationStatus?.message ? `?reason=${registrationStatus.message}` : ""}`}
         state={{ from: location }}
         replace
       />
