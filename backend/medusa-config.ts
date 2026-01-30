@@ -318,10 +318,10 @@ module.exports = defineConfig({
       authCors,
       jwtSecret: process.env.JWT_SECRET || (process.env.NODE_ENV === 'production'
         ? (() => { throw new Error('JWT_SECRET is required in production') })()
-        : 'dev-only-secret-change-in-prod'),
+        : 'dev-only-secret-change-in-production-32chars'),
       cookieSecret: process.env.COOKIE_SECRET || (process.env.NODE_ENV === 'production'
         ? (() => { throw new Error('COOKIE_SECRET is required in production') })()
-        : 'dev-only-secret-change-in-prod'),
+        : 'dev-only-secret-change-in-production-32chars'),
     } as any,
   },
   admin: {

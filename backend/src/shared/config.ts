@@ -19,6 +19,7 @@ import { z } from "zod"
 import { createLogger } from "./logger"
 
 const logger = createLogger("Config")
+const DEV_JWT_SECRET = "dev-only-secret-change-in-production-32chars"
 
 /**
  * Helper for optional string env vars - converts empty strings to undefined
@@ -117,6 +118,11 @@ function loadConfig(): Config {
     return result.data as unknown as Config
   }
   
+  if (result.data.NODE_ENV !== "production" && !result.data.JWT_SECRET) {
+    logger.warn(`JWT_SECRET not set - using default for ${result.data.NODE_ENV}`)
+    result.data.JWT_SECRET = DEV_JWT_SECRET
+  }
+
   // Production warnings
   if (result.data.NODE_ENV === "production") {
     if (!result.data.JWT_SECRET) {
