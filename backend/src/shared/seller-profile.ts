@@ -28,7 +28,6 @@ export const DEFAULT_SELLER_FIELDS = [
   "metadata",
   "created_at",
   "updated_at",
-  "producer.*",
 ]
 
 const normalizeRequestedFields = (
