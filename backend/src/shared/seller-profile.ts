@@ -28,7 +28,6 @@ export const DEFAULT_SELLER_FIELDS = [
   "metadata",
   "created_at",
   "updated_at",
-  "producer.*",
 ]
 
 const normalizeRequestedFields = (
@@ -114,14 +113,18 @@ export const fetchSellerProfile = async ({
   }
 
   if (metadataFields.length > 0) {
-    const { data: metadataRecords } = await query.graph({
-      entity: "seller_metadata",
-      fields: metadataFields,
-      filters: { seller_id: sellerId },
-    })
-    const sellerMetadata = (metadataRecords?.[0] ?? {}) as Record<string, unknown>
-    for (const field of metadataFields) {
-      response[field] = sellerMetadata[field]
+    try {
+      const { data: metadataRecords } = await query.graph({
+        entity: "seller_metadata",
+        fields: metadataFields,
+        filters: { seller_id: sellerId },
+      })
+      const sellerMetadata = (metadataRecords?.[0] ?? {}) as Record<string, unknown>
+      for (const field of metadataFields) {
+        response[field] = sellerMetadata[field]
+      }
+    } catch (error) {
+      console.warn("[fetchSellerProfile] Failed to load seller metadata:", error)
     }
   }
 
