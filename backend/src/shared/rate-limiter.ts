@@ -254,11 +254,18 @@ export const standardRateLimiter = createRateLimiter({
   keyPrefix: "standard",
 })
 
-/** Auth rate limiter: 10 attempts per minute */
+/** Auth rate limiter: 20 attempts per minute (login, register, etc.) */
 export const authRateLimiter = createRateLimiter({
   windowMs: 60_000,
-  max: 10,
+  max: 20,
   keyPrefix: "auth",
+})
+
+/** Auth session rate limiter: 60 reads per minute (session checks, status reads) */
+export const authSessionRateLimiter = createRateLimiter({
+  windowMs: 60_000,
+  max: 60,
+  keyPrefix: "auth-session",
 })
 
 /** Strict auth rate limiter: 5 attempts per 5 minutes (for password reset, etc.) */

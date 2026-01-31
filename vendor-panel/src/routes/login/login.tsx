@@ -55,6 +55,14 @@ export const Login = () => {
       {
         onError: (error) => {
           if (isFetchError(error)) {
+            if (error.status === 429) {
+              form.setError("root.serverError", {
+                type: "manual",
+                message: "Too many login attempts. Please wait a moment and try again.",
+              })
+              return
+            }
+
             if (error.status === 401) {
               form.setError("email", {
                 type: "manual",
