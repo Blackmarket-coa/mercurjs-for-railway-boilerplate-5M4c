@@ -192,7 +192,7 @@ export default async function Home({
       </div>
 
       <div className="px-4 lg:px-8 w-full">
-        <HomeCategories heading="SHOP BY CATEGORY" />
+        <HomeCategories heading="SHOP BY SALES CHANNEL" />
       </div>
 
       <BannerSection />
