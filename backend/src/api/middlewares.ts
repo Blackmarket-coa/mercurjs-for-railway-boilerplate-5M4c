@@ -80,6 +80,26 @@ async function validatePasswordMiddleware(
   next()
 }
 
+/**
+ * Middleware: Strip unsupported 'q' query parameter
+ *
+ * Some MercurJS/Medusa endpoints don't support the 'q' search parameter.
+ * The admin panel's global search sends 'q' to many endpoints, causing
+ * "Unrecognized fields: 'q'" validation errors. This middleware strips
+ * the 'q' parameter from routes that don't support it.
+ */
+async function stripQueryParamMiddleware(
+  req: MedusaRequest,
+  res: MedusaResponse,
+  next: MedusaNextFunction
+) {
+  // Strip 'q' from query params if present
+  if (req.query && typeof req.query === "object" && "q" in req.query) {
+    delete (req.query as Record<string, unknown>).q
+  }
+  next()
+}
+
 // Product feed query validation schema
 const productFeedQuerySchema = z.object({
   currency_code: z.string().length(3).optional().default("usd"),
