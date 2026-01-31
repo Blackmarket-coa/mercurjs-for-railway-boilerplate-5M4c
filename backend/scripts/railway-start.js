@@ -85,7 +85,7 @@ async function main() {
 
   // Step 1: Database Migrations
   if (!SKIP_MIGRATIONS) {
-    if (!runCommand('npx medusa db:migrate --execute-safe-links', 'Database migrations')) {
+    if (!runCommand('pnpm exec medusa db:migrate --execute-safe-links', 'Database migrations')) {
       log('Migrations failed, but continuing startup...', 'warn');
     }
   } else {
@@ -114,7 +114,9 @@ async function main() {
   log('='.repeat(60));
 
   // Step 4: Start MedusaJS Server
-  const serverProcess = spawn('npx', ['medusa', 'start'], {
+  // Use pnpm exec instead of npx to avoid npm deprecation warnings
+  // Pass command as single string with shell:true to avoid DEP0190 warning
+  const serverProcess = spawn('pnpm exec medusa start', {
     stdio: 'inherit',
     env: process.env,
     cwd: path.join(process.cwd(), '.medusa', 'server'),
