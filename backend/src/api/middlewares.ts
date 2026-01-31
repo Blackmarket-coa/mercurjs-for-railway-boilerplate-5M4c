@@ -9,6 +9,7 @@ import cors from "cors"
 import { z } from "zod"
 import {
   authRateLimiter,
+  authSessionRateLimiter,
   strictAuthRateLimiter,
   vendorRegistrationRateLimiter,
 } from "../shared/rate-limiter"
@@ -406,10 +407,17 @@ export default defineMiddlewares({
       method: "POST",
       middlewares: [vendorRegistrationRateLimiter, normalizeEmailMiddleware],
     },
-    // Auth routes - register and login for all actor types (rate limited)
+    // Auth write routes - login and register (tighter rate limit)
     {
       matcher: "/auth/*",
+      method: "POST",
       middlewares: [authRateLimiter, normalizeEmailMiddleware],
+    },
+    // Auth read routes - session checks, status reads (generous rate limit)
+    {
+      matcher: "/auth/*",
+      method: "GET",
+      middlewares: [authSessionRateLimiter],
     },
     {
       matcher: "/auth/seller/emailpass",

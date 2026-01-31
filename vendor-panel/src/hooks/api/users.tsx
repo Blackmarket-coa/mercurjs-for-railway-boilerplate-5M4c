@@ -62,6 +62,14 @@ export const fetchRegistrationStatus = async (
     },
   })
 
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({ message: response.statusText }))
+    const error: any = new Error(body.message || `Request failed with status ${response.status}`)
+    error.status = response.status
+    error.retry_after = body.retry_after
+    throw error
+  }
+
   const result = await response.json()
   return result as RegistrationStatusResponse
 }
@@ -77,6 +85,14 @@ export const fetchSellerSession = async (
       "Content-Type": "application/json",
     },
   })
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({ message: response.statusText }))
+    const error: any = new Error(body.message || `Request failed with status ${response.status}`)
+    error.status = response.status
+    error.retry_after = body.retry_after
+    throw error
+  }
 
   const result = await response.json()
   return result as SellerSessionResponse

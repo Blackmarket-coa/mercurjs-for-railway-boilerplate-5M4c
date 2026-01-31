@@ -49,8 +49,12 @@ export const queryClient = new QueryClient({
       staleTime: CACHE_TIMES.DEFAULT,
       // Time before garbage collection
       gcTime: GC_TIME,
-      // Retry failed requests once
-      retry: 1,
+      // Retry failed requests once, but never retry rate-limited or auth errors
+      retry: (failureCount, error: any) => {
+        const status = error?.status ?? error?.response?.status
+        if (status === 429 || status === 401 || status === 403) return false
+        return failureCount < 1
+      },
       // Retry delay with exponential backoff
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
       // Enable structural sharing for better performance
@@ -59,8 +63,12 @@ export const queryClient = new QueryClient({
       networkMode: 'offlineFirst',
     },
     mutations: {
-      // Retry mutations once on failure
-      retry: 1,
+      // Retry mutations once, but never retry rate-limited or auth errors
+      retry: (failureCount, error: any) => {
+        const status = error?.status ?? error?.response?.status
+        if (status === 429 || status === 401 || status === 403) return false
+        return failureCount < 1
+      },
       // Network mode for mutations
       networkMode: 'online',
     },
