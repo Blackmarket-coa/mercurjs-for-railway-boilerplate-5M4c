@@ -427,6 +427,57 @@ export default defineMiddlewares({
       method: "GET",
       middlewares: [stripQueryParamMiddleware],
     },
+    // Additional routes that don't support 'q' parameter
+    {
+      matcher: "/admin/collections*",
+      method: "GET",
+      middlewares: [stripQueryParamMiddleware],
+    },
+    {
+      matcher: "/admin/tags*",
+      method: "GET",
+      middlewares: [stripQueryParamMiddleware],
+    },
+    {
+      matcher: "/admin/api-keys*",
+      method: "GET",
+      middlewares: [stripQueryParamMiddleware],
+    },
+    {
+      matcher: "/admin/stores*",
+      method: "GET",
+      middlewares: [stripQueryParamMiddleware],
+    },
+    {
+      matcher: "/admin/payment-providers*",
+      method: "GET",
+      middlewares: [stripQueryParamMiddleware],
+    },
+    {
+      matcher: "/admin/tax-providers*",
+      method: "GET",
+      middlewares: [stripQueryParamMiddleware],
+    },
+    {
+      matcher: "/admin/inventory-items*",
+      method: "GET",
+      middlewares: [stripQueryParamMiddleware],
+    },
+    {
+      matcher: "/admin/shipping-profiles*",
+      method: "GET",
+      middlewares: [stripQueryParamMiddleware],
+    },
+    {
+      matcher: "/admin/payment-collections*",
+      method: "GET",
+      middlewares: [stripQueryParamMiddleware],
+    },
+    {
+      matcher: "/admin/workflows-executions*",
+      method: "GET",
+      middlewares: [stripQueryParamMiddleware],
+    },
     // Ensure all vendor routes (including nested plugin routes) are guarded
     {
       matcher: "/vendor/**",
