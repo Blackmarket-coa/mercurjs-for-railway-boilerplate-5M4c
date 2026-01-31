@@ -80,6 +80,9 @@ async function main() {
 
   const startTime = Date.now();
 
+  // Step 0: Apply MercurJS patches (null-safety for store_status)
+  runCommand('node scripts/patch-mercurjs.js', 'MercurJS patches');
+
   // Step 1: Database Migrations
   if (!SKIP_MIGRATIONS) {
     if (!runCommand('npx medusa db:migrate --execute-safe-links', 'Database migrations')) {

@@ -173,60 +173,55 @@ export async function ensureSellerContext(
   }
 
   if (authContext.actor_id?.startsWith("sel_")) {
-    const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION)
-    const memberResult = await pgConnection.raw(
-      `
-      SELECT id
-      FROM member
-      WHERE seller_id = ?
-      ORDER BY created_at ASC
-      LIMIT 1
-      `,
-      [authContext.actor_id]
-    )
-    const memberId = memberResult.rows?.[0]?.id
-    if (memberId) {
-      const originalSellerId = authContext.actor_id
-      authContext.member_id = memberId
-      // Convert actor_id from seller ID to member ID.
-      // MercurJS storeActiveGuard queries sellers by members.id,
-      // so actor_id must be a member ID (mem_*) not a seller ID (sel_*).
-      authContext.actor_id = memberId
+    // Store original seller ID for route handlers that need it
+    ;(req as any)._seller_id = authContext.actor_id
 
-      // Store original seller ID for route handlers that need it
-      ;(req as any)._seller_id = originalSellerId
+    // Try to convert seller ID to member ID for MercurJS compatibility.
+    // MercurJS storeActiveGuard queries sellers by members.id,
+    // so having a mem_* actor_id is preferred. However, the patched
+    // fetchSellerByAuthActorId (via scripts/patch-mercurjs.js) now handles
+    // sel_* IDs as a fallback, so this conversion is best-effort.
+    try {
+      const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION)
+      const memberResult = await pgConnection.raw(
+        `SELECT id FROM member WHERE seller_id = ? ORDER BY created_at ASC LIMIT 1`,
+        [authContext.actor_id]
+      )
+      const memberId = memberResult.rows?.[0]?.id
+      if (memberId) {
+        const originalSellerId = authContext.actor_id
+        authContext.member_id = memberId
+        authContext.actor_id = memberId
 
-      // Intercept future auth_context assignments to ensure actor_id stays as member ID.
-      // MedusaJS authenticate middleware REPLACES req.auth_context with JWT data,
-      // which may contain the original seller ID. This property descriptor patches
-      // actor_id back to the member ID whenever that happens.
-      let _currentAuthContext = requestWithAuth.auth_context
-      Object.defineProperty(req, "auth_context", {
-        get() {
-          return _currentAuthContext
-        },
-        set(value: any) {
-          _currentAuthContext = value
-          if (value && value.actor_id === originalSellerId) {
-            value.actor_id = memberId
-          }
-        },
-        configurable: true,
-        enumerable: true,
-      })
-    } else {
-      res.status(401).json({
-        message: "Seller membership not found for authenticated user",
-        type: "unauthorized",
-      })
-      return
+        // Intercept future auth_context assignments to ensure actor_id stays as member ID.
+        // MedusaJS authenticate middleware may replace req.auth_context with JWT data
+        // containing the original seller ID.
+        let _currentAuthContext = requestWithAuth.auth_context
+        Object.defineProperty(req, "auth_context", {
+          get() {
+            return _currentAuthContext
+          },
+          set(value: any) {
+            _currentAuthContext = value
+            if (value && value.actor_id === originalSellerId) {
+              value.actor_id = memberId
+            }
+          },
+          configurable: true,
+          enumerable: true,
+        })
+      }
+      // If no member found, continue anyway - the patched MercurJS code
+      // handles sel_* IDs via direct seller lookup as a fallback
+    } catch {
+      // Non-fatal: if member lookup fails, patched MercurJS handles it
     }
   }
 
   const actorType = authContext.actor_type
   const isSellerActor = actorType === "seller" || actorType === "member"
 
-  if (!authContext.actor_id || (!isSellerActor && !authContext.actor_id.startsWith("sel_"))) {
+  if (!authContext.actor_id || (!isSellerActor && !authContext.actor_id.startsWith("sel_") && !authContext.actor_id.startsWith("mem_"))) {
     res.status(401).json({
       message: "Unauthorized - seller authentication required",
       type: "unauthorized",
