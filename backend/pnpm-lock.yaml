@@ -97,12 +97,12 @@ importers:
       express:
         specifier: ^4.21.2
         version: 4.22.1
-      jsonwebtoken:
-        specifier: ^9.0.3
-        version: 9.0.3
       json-rpc-2.0:
         specifier: ^1.7.1
         version: 1.7.1
+      jsonwebtoken:
+        specifier: ^9.0.3
+        version: 9.0.3
       medusajs-launch-utils:
         specifier: ^0.0.18
         version: 0.0.18
