@@ -164,8 +164,9 @@ export class RocketChatService {
   /**
    * Create a personal access token for a user
    * This allows auto-login without exposing passwords
+   * Returns both userId and authToken for iframe authentication
    */
-  async createUserToken(username: string): Promise<string> {
+  async createUserToken(username: string): Promise<{ userId: string; authToken: string }> {
     await this.authenticateAdmin()
 
     try {
@@ -177,7 +178,10 @@ export class RocketChatService {
         }
       )
 
-      return response.data.data.authToken
+      return {
+        userId: response.data.data.userId,
+        authToken: response.data.data.authToken
+      }
     } catch (error: any) {
       console.error("[RocketChat] Token creation failed:", error.response?.data || error.message)
       throw new Error("Failed to create RocketChat login token")

@@ -41,11 +41,11 @@ export async function GET(
 
     // Get RocketChat service and create login token
     const rocketchatService = getRocketChatService()
-    let loginToken: string | null = null
+    let loginData: { userId: string; authToken: string } | null = null
 
     if (rocketchatService) {
       try {
-        loginToken = await rocketchatService.createUserToken(username)
+        loginData = await rocketchatService.createUserToken(username)
         console.log(`[RocketChat] Created login token for admin: ${username}`)
       } catch (error: any) {
         console.error(`[RocketChat] Failed to create login token:`, error.message)
@@ -60,9 +60,10 @@ export async function GET(
     }
 
     // Only include login credentials if we successfully generated a token
-    if (loginToken) {
+    if (loginData) {
       response.login = {
-        token: loginToken,
+        token: loginData.authToken,
+        userId: loginData.userId,
         username: username,
       }
     }

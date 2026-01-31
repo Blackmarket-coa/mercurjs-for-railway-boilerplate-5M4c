@@ -8,6 +8,7 @@ interface RocketChatConfig {
   iframe_url?: string
   login?: {
     token: string
+    userId: string
     username: string
   }
 }
@@ -20,6 +21,7 @@ interface RocketChatContextType {
   unreadCount: number
   seller: any
   loginToken: string | null
+  loginUserId: string | null
   username: string | null
   // Helper functions for messaging
   getChannelUrl: (channelName: string) => string | null
@@ -35,6 +37,7 @@ const RocketChatContext = createContext<RocketChatContextType>({
   unreadCount: 0,
   seller: null,
   loginToken: null,
+  loginUserId: null,
   username: null,
   getChannelUrl: () => null,
   getDirectMessageUrl: () => null,
@@ -50,6 +53,7 @@ export const RocketChatProvider = ({ children }: { children: ReactNode }) => {
   const [iframeUrl, setIframeUrl] = useState<string | null>(null)
   const [unreadCount, setUnreadCount] = useState(0)
   const [loginToken, setLoginToken] = useState<string | null>(null)
+  const [loginUserId, setLoginUserId] = useState<string | null>(null)
   const [username, setUsername] = useState<string | null>(null)
 
   useEffect(() => {
@@ -68,6 +72,7 @@ export const RocketChatProvider = ({ children }: { children: ReactNode }) => {
           // Store login credentials if provided
           if (response.login) {
             setLoginToken(response.login.token)
+            setLoginUserId(response.login.userId)
             setUsername(response.login.username)
           }
         }
@@ -130,6 +135,7 @@ export const RocketChatProvider = ({ children }: { children: ReactNode }) => {
         unreadCount,
         seller,
         loginToken,
+        loginUserId,
         username,
         getChannelUrl,
         getDirectMessageUrl,

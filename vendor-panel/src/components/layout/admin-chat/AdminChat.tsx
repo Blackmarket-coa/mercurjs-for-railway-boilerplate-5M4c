@@ -6,32 +6,51 @@ import { useRocketChat } from "../../../providers/rocketchat-provider"
 
 export const AdminChat = () => {
   const [open, setOpen] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const iframeRef = useRef<HTMLIFrameElement>(null)
-  const loginAttemptedRef = useRef(false)
+  const retryCountRef = useRef(0)
 
   const { seller, isPending } = useMe()
-  const { isConfigured, rocketChatUrl, loginToken } = useRocketChat()
+  const { isConfigured, rocketChatUrl, loginToken, loginUserId } = useRocketChat()
 
   // Auto-login to RocketChat via postMessage when iframe loads
   const handleIframeLogin = useCallback(() => {
-    if (!iframeRef.current || !loginToken || !rocketChatUrl || loginAttemptedRef.current) return
+    if (!iframeRef.current || !loginToken || !rocketChatUrl) return
+    if (isLoggedIn) return // Already logged in
 
     try {
       const iframe = iframeRef.current
       const targetOrigin = new URL(rocketChatUrl).origin
 
-      // Send login-with-token message to RocketChat iframe
+      // Try Method 1: login-with-token (standard postMessage command)
       iframe.contentWindow?.postMessage({
         externalCommand: 'login-with-token',
         token: loginToken
       }, targetOrigin)
 
-      loginAttemptedRef.current = true
-      console.log('[RocketChat] Admin chat: Sent auto-login token to iframe')
+      // Try Method 2: If we have userId, also try the call method for Meteor login
+      if (loginUserId) {
+        iframe.contentWindow?.postMessage({
+          externalCommand: 'call',
+          method: 'login',
+          params: [{ resume: loginToken }]
+        }, targetOrigin)
+      }
+
+      // Try Method 3: Set credentials via setCredentials command (some RC versions)
+      if (loginUserId) {
+        iframe.contentWindow?.postMessage({
+          event: 'login-with-token',
+          loginToken: loginToken,
+          userId: loginUserId
+        }, targetOrigin)
+      }
+
+      console.log('[RocketChat] Admin chat: Sent auto-login token (attempt', retryCountRef.current + 1, ')')
     } catch (error) {
       console.error('[RocketChat] Admin chat: Failed to send login token:', error)
     }
-  }, [loginToken, rocketChatUrl])
+  }, [loginToken, loginUserId, rocketChatUrl, isLoggedIn])
 
   // Listen for messages from RocketChat iframe
   useEffect(() => {
@@ -42,10 +61,27 @@ export const AdminChat = () => {
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== targetOrigin) return
 
-      // Handle RocketChat ready event
-      if (event.data?.eventName === 'startup') {
-        console.log('[RocketChat] Admin chat: Iframe ready, attempting auto-login')
+      // Debug: log all messages from RocketChat
+      console.log('[RocketChat] Admin chat received message:', event.data)
+
+      // Handle various RocketChat ready events
+      const eventName = event.data?.eventName || event.data?.event
+      if (eventName === 'startup' || eventName === 'ready' || eventName === 'Custom_Script_Loaded') {
+        console.log('[RocketChat] Admin chat: Iframe ready event received:', eventName)
         handleIframeLogin()
+      }
+
+      // Handle successful login events
+      if (eventName === 'login' || eventName === 'Custom_Script_Logged_In' ||
+          event.data?.event === 'login-success' || event.data?.loggedIn === true) {
+        setIsLoggedIn(true)
+        console.log('[RocketChat] Admin chat: Auto-login successful')
+      }
+
+      // Handle user-info which indicates logged in state
+      if (event.data?.eventName === 'user-info' && event.data?.data?.userId) {
+        setIsLoggedIn(true)
+        console.log('[RocketChat] Admin chat: User logged in')
       }
     }
 
@@ -56,19 +92,25 @@ export const AdminChat = () => {
   // Reset login state when drawer closes or token changes
   useEffect(() => {
     if (!open) {
-      loginAttemptedRef.current = false
+      retryCountRef.current = 0
+      setIsLoggedIn(false)
     }
   }, [open, loginToken])
 
-  // Handle iframe load event as fallback
+  // Handle iframe load event - retry login multiple times
   const handleIframeLoad = useCallback(() => {
-    // Small delay to ensure RocketChat is fully loaded
-    setTimeout(() => {
-      if (!loginAttemptedRef.current) {
-        handleIframeLogin()
-      }
-    }, 1000)
-  }, [handleIframeLogin])
+    // Try login at multiple intervals
+    const delays = [500, 1500, 3000, 5000]
+
+    delays.forEach((delay, index) => {
+      setTimeout(() => {
+        if (!isLoggedIn) {
+          retryCountRef.current = index + 1
+          handleIframeLogin()
+        }
+      }, delay)
+    })
+  }, [handleIframeLogin, isLoggedIn])
 
   if (isPending)
     return <div className="flex justify-center items-center h-screen" />
