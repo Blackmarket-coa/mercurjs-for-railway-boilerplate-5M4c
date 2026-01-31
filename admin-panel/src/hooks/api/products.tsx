@@ -380,6 +380,28 @@ export const useDeleteProduct = (
   });
 };
 
+export const useDeleteProducts = (
+  options?: UseMutationOptions<
+    HttpTypes.AdminProductDeleteResponse[],
+    FetchError,
+    { ids: string[] }
+  >
+) => {
+  return useMutation({
+    mutationFn: ({ ids }) =>
+      Promise.all(ids.map((id) => sdk.admin.product.delete(id))),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: productsQueryKeys.lists() });
+      variables.ids.forEach((id) => {
+        queryClient.invalidateQueries({ queryKey: productsQueryKeys.detail(id) });
+      });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
 export const useExportProducts = (
   query?: HttpTypes.AdminProductListParams,
   options?: UseMutationOptions<

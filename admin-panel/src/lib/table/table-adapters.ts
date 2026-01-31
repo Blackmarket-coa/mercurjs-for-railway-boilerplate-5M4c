@@ -52,6 +52,13 @@ export interface TableAdapter<TData> {
   getColumns?: (apiColumns: any[]) => DataTableColumnDef<TData, any>[]
 
   /**
+   * Decorate generated columns for additional table features.
+   */
+  decorateColumns?: (
+    columns: DataTableColumnDef<TData, any>[]
+  ) => DataTableColumnDef<TData, any>[]
+
+  /**
    * Column adapter for customizing column behavior (alignment, formatting, etc.)
    * If not provided, will use entity's default column adapter if available.
    */

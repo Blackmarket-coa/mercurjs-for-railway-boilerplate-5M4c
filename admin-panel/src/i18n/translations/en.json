@@ -488,6 +488,8 @@
       }
     },
     "deleteWarning": "You are about to delete the product {{title}}. This action cannot be undone.",
+    "deleteWarningBatch_one": "You are about to delete {{count}} product. This action cannot be undone.",
+    "deleteWarningBatch_other": "You are about to delete {{count}} products. This action cannot be undone.",
     "variants": {
       "header": "Variants",
       "empty": {
@@ -726,6 +728,16 @@
         },
         "error": {
           "header": "Failed to delete product"
+        }
+      },
+      "deleteBatch": {
+        "success": {
+          "header": "Products deleted",
+          "description_one": "{{count}} product was successfully deleted.",
+          "description_other": "{{count}} products were successfully deleted."
+        },
+        "error": {
+          "header": "Failed to delete products"
         }
       }
     }

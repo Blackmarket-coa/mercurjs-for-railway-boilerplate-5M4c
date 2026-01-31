@@ -1,5 +1,11 @@
 import { useState, ReactNode } from "react"
-import { Container, Button } from "@medusajs/ui"
+import {
+  Container,
+  Button,
+  DataTableCommand,
+  DataTableRow,
+  DataTableRowSelectionState,
+} from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { DataTable } from "../../data-table"
 import { SaveViewDialog } from "../save-view-dialog"
@@ -30,6 +36,12 @@ export interface ConfigurableDataTableProps<TData> {
   queryPrefix?: string
   layout?: "fill" | "auto"
   actions?: DataTableActionProps[]
+  commands?: DataTableCommand[]
+  rowSelection?: {
+    state: DataTableRowSelectionState
+    onRowSelectionChange: (value: DataTableRowSelectionState) => void
+    enableRowSelection?: boolean | ((row: DataTableRow<TData>) => boolean)
+  }
 }
 
 export function ConfigurableDataTable<TData>({
@@ -40,6 +52,8 @@ export function ConfigurableDataTable<TData>({
   queryPrefix: queryPrefixProp,
   layout = "fill",
   actions,
+  commands,
+  rowSelection,
 }: ConfigurableDataTableProps<TData>) {
   const { t } = useTranslation()
   const [saveDialogOpen, setSaveDialogOpen] = useState(false)
@@ -98,9 +112,12 @@ export function ConfigurableDataTable<TData>({
 
   const columnAdapter = adapter.columnAdapter || getEntityAdapter(entity)
   const generatedColumns = useConfigurableTableColumns(entity, apiColumns || [], columnAdapter)
-  const columns = (adapter.getColumns && apiColumns)
+  const baseColumns = (adapter.getColumns && apiColumns)
     ? adapter.getColumns(apiColumns)
     : generatedColumns
+  const columns = adapter.decorateColumns
+    ? adapter.decorateColumns(baseColumns)
+    : baseColumns
 
   if (fetchResult.isError) {
     throw fetchResult.error
@@ -217,6 +234,8 @@ export function ConfigurableDataTable<TData>({
         prefix={queryPrefix}
         actions={actions}
         enableFilterMenu={false}
+        commands={commands}
+        rowSelection={rowSelection}
       />
 
       {saveDialogOpen && (

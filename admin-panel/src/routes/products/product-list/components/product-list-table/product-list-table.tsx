@@ -1,8 +1,8 @@
 import { PencilSquare, Trash } from "@medusajs/icons"
-import { Button, Container, Heading, toast, usePrompt } from "@medusajs/ui"
+import { Button, Checkbox, Container, Heading, toast, usePrompt } from "@medusajs/ui"
 import { keepPreviousData } from "@tanstack/react-query"
-import { createColumnHelper } from "@tanstack/react-table"
-import { useMemo } from "react"
+import { createColumnHelper, RowSelectionState } from "@tanstack/react-table"
+import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, Outlet, useLoaderData, useLocation } from "react-router-dom"
 
@@ -11,6 +11,7 @@ import { ActionMenu } from "../../../../../components/common/action-menu"
 import { _DataTable } from "../../../../../components/table/data-table"
 import {
   useDeleteProduct,
+  useDeleteProducts,
   useProducts,
 } from "../../../../../hooks/api/products"
 import { useProductTableColumns } from "../../../../../hooks/table/columns/use-product-table-columns"
@@ -27,6 +28,9 @@ export const ProductListTable = () => {
   const { t } = useTranslation()
   const location = useLocation()
   const isViewConfigEnabled = useFeatureFlag("view_configurations")
+  const prompt = usePrompt()
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
+  const { mutateAsync: deleteProducts } = useDeleteProducts()
 
   // If feature flag is enabled, use the new configurable table
   if (isViewConfigEnabled) {
@@ -59,6 +63,11 @@ export const ProductListTable = () => {
     enablePagination: true,
     pageSize: PAGE_SIZE,
     getRowId: (row) => row.id,
+    enableRowSelection: true,
+    rowSelection: {
+      state: rowSelection,
+      updater: setRowSelection,
+    },
   })
 
   if (isError) {
@@ -100,6 +109,56 @@ export const ProductListTable = () => {
         noRecords={{
           message: t("products.list.noRecordsMessage"),
         }}
+        commands={[
+          {
+            label: t("actions.delete"),
+            shortcut: "d",
+            action: async (selection) => {
+              const ids = Object.keys(selection)
+
+              if (!ids.length) {
+                return
+              }
+
+              const res = await prompt({
+                title: t("general.areYouSure"),
+                description: t("products.deleteWarningBatch", {
+                  count: ids.length,
+                }),
+                confirmText: t("actions.delete"),
+                cancelText: t("actions.cancel"),
+              })
+
+              if (!res) {
+                return
+              }
+
+              await deleteProducts(
+                { ids },
+                {
+                  onSuccess: () => {
+                    toast.success(
+                      t("products.toasts.deleteBatch.success.header"),
+                      {
+                        description: t(
+                          "products.toasts.deleteBatch.success.description",
+                          {
+                            count: ids.length,
+                          }
+                        ),
+                      }
+                    )
+                  },
+                  onError: (e) => {
+                    toast.error(t("products.toasts.deleteBatch.error.header"), {
+                      description: e.message,
+                    })
+                  },
+                }
+              )
+            },
+          },
+        ]}
       />
       <Outlet />
     </Container>
@@ -174,6 +233,34 @@ const useColumns = () => {
 
   const columns = useMemo(
     () => [
+      columnHelper.display({
+        id: "select",
+        header: ({ table }) => {
+          return (
+            <Checkbox
+              checked={
+                table.getIsSomePageRowsSelected()
+                  ? "indeterminate"
+                  : table.getIsAllPageRowsSelected()
+              }
+              onCheckedChange={(value) =>
+                table.toggleAllPageRowsSelected(!!value)
+              }
+            />
+          )
+        },
+        cell: ({ row }) => {
+          return (
+            <Checkbox
+              checked={row.getIsSelected()}
+              onCheckedChange={(value) => row.toggleSelected(!!value)}
+              onClick={(e) => {
+                e.stopPropagation()
+              }}
+            />
+          )
+        },
+      }),
       ...base,
       columnHelper.display({
         id: "actions",

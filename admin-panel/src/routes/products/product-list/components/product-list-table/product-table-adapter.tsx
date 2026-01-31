@@ -1,3 +1,4 @@
+import { createDataTableColumnHelper } from "@medusajs/ui"
 import { HttpTypes } from "@medusajs/types"
 import { useProducts } from "../../../../../hooks/api/products"
 import { productColumnAdapter } from "../../../../../lib/table/entity-adapters"
@@ -5,6 +6,8 @@ import { createTableAdapter, TableAdapter } from "../../../../../lib/table/table
 import { useProductTableFilters } from "./use-product-table-filters"
 
 export function createProductTableAdapter(): TableAdapter<HttpTypes.AdminProduct> {
+  const columnHelper = createDataTableColumnHelper<HttpTypes.AdminProduct>()
+
   return createTableAdapter<HttpTypes.AdminProduct>({
     entity: "products",
     queryPrefix: "p",
@@ -33,6 +36,7 @@ export function createProductTableAdapter(): TableAdapter<HttpTypes.AdminProduct
       return { data: products, count, isLoading, isError, error }
     },
     getRowHref: (row) => `/products/${row.id}`,
+    decorateColumns: (columns) => [columnHelper.select(), ...columns],
   })
 }
 
