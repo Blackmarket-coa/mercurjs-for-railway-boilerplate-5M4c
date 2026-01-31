@@ -369,6 +369,64 @@ async function securityHeadersMiddleware(
 
 export default defineMiddlewares({
   routes: [
+    // Strip 'q' parameter from MercurJS/Medusa routes that don't support search
+    // These routes throw "Unrecognized fields: 'q'" or "LinkModel.q" errors
+    // when the admin panel's global search sends 'q' to them
+    {
+      matcher: "/admin/product-categories*",
+      method: "GET",
+      middlewares: [stripQueryParamMiddleware],
+    },
+    {
+      matcher: "/admin/price-lists*",
+      method: "GET",
+      middlewares: [stripQueryParamMiddleware],
+    },
+    {
+      matcher: "/admin/sales-channels*",
+      method: "GET",
+      middlewares: [stripQueryParamMiddleware],
+    },
+    {
+      matcher: "/admin/shipping-options*",
+      method: "GET",
+      middlewares: [stripQueryParamMiddleware],
+    },
+    {
+      matcher: "/admin/tax-rates*",
+      method: "GET",
+      middlewares: [stripQueryParamMiddleware],
+    },
+    {
+      matcher: "/admin/currencies*",
+      method: "GET",
+      middlewares: [stripQueryParamMiddleware],
+    },
+    {
+      matcher: "/admin/regions*",
+      method: "GET",
+      middlewares: [stripQueryParamMiddleware],
+    },
+    {
+      matcher: "/admin/stock-locations*",
+      method: "GET",
+      middlewares: [stripQueryParamMiddleware],
+    },
+    {
+      matcher: "/admin/fulfillment-sets*",
+      method: "GET",
+      middlewares: [stripQueryParamMiddleware],
+    },
+    {
+      matcher: "/admin/fulfillment-providers*",
+      method: "GET",
+      middlewares: [stripQueryParamMiddleware],
+    },
+    {
+      matcher: "/admin/reservations*",
+      method: "GET",
+      middlewares: [stripQueryParamMiddleware],
+    },
     // Ensure all vendor routes (including nested plugin routes) are guarded
     {
       matcher: "/vendor/**",
