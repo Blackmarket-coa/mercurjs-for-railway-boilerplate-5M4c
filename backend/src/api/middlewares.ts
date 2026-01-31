@@ -478,6 +478,12 @@ export default defineMiddlewares({
       method: "GET",
       middlewares: [stripQueryParamMiddleware],
     },
+    // Links endpoint - doesn't support 'q' search parameter
+    {
+      matcher: "/admin/links*",
+      method: "GET",
+      middlewares: [stripQueryParamMiddleware],
+    },
     // Ensure all vendor routes (including nested plugin routes) are guarded
     {
       matcher: "/vendor/**",

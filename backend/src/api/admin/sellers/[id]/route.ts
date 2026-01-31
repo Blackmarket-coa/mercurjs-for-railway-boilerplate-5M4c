@@ -21,9 +21,10 @@ export const GET = async (
   // Allow custom field selection via query params
   const requestedFields = req.query.fields as string | undefined
 
-  // Default fields to include all seller info + metadata + producer
+  // Default fields to include all seller info + metadata
+  // Note: producer is linked via producer_seller link, not directly on seller entity
   const fields = requestedFields
-    ? requestedFields.split(",").map((f) => f.trim())
+    ? requestedFields.split(",").map((f) => f.trim()).filter((f) => !f.startsWith("producer."))
     : [
         "id",
         "name",
@@ -41,8 +42,6 @@ export const GET = async (
         "updated_at",
         // Include seller_metadata
         "seller_metadata.*",
-        // Include producer if exists
-        "producer.*",
       ]
 
   const { data: sellers } = await query.graph({
@@ -59,5 +58,28 @@ export const GET = async (
     })
   }
 
-  return res.json({ seller })
+  // Fetch producer info via producer_seller link
+  let producer = null
+  try {
+    const { data: producerLinks } = await query.graph({
+      entity: "producer_seller",
+      fields: ["producer.*"],
+      filters: {
+        seller_id: id,
+      },
+    })
+
+    if (producerLinks && producerLinks.length > 0) {
+      producer = producerLinks[0].producer || null
+    }
+  } catch {
+    // producer_seller link may not exist for this seller, ignore errors
+  }
+
+  return res.json({
+    seller: {
+      ...seller,
+      producer,
+    }
+  })
 }

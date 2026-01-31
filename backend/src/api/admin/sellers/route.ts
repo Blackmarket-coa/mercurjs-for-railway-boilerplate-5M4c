@@ -28,7 +28,8 @@ export const GET = async (
     filters.store_status = req.query.store_status
   }
 
-  // Get all sellers with their related seller_metadata and producer
+  // Get all sellers with their related seller_metadata
+  // Note: producer is linked via producer_seller link, not directly on seller entity
   const { data: sellers, metadata } = await query.graph({
     entity: "seller",
     fields: [
@@ -48,8 +49,6 @@ export const GET = async (
       "updated_at",
       // Include seller_metadata
       "seller_metadata.*",
-      // Include producer if exists
-      "producer.*",
     ],
     filters,
     pagination: {
@@ -58,8 +57,39 @@ export const GET = async (
     },
   })
 
+  // Fetch producer info for all sellers via producer_seller link
+  const sellerIds = sellers.map((s: { id: string }) => s.id)
+  let producerMap: Record<string, unknown> = {}
+
+  if (sellerIds.length > 0) {
+    try {
+      const { data: producerLinks } = await query.graph({
+        entity: "producer_seller",
+        fields: ["seller_id", "producer.*"],
+        filters: {
+          seller_id: sellerIds,
+        },
+      })
+
+      // Create a map of seller_id -> producer
+      for (const link of producerLinks || []) {
+        if (link.seller_id && link.producer) {
+          producerMap[link.seller_id] = link.producer
+        }
+      }
+    } catch {
+      // producer_seller link may not exist for all sellers, ignore errors
+    }
+  }
+
+  // Merge producer info into sellers
+  const sellersWithProducer = sellers.map((seller: { id: string }) => ({
+    ...seller,
+    producer: producerMap[seller.id] || null,
+  }))
+
   return res.json({
-    sellers,
+    sellers: sellersWithProducer,
     count: metadata?.count || 0,
     limit: metadata?.take || 20,
     offset: metadata?.skip || 0,
