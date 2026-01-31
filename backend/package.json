@@ -23,6 +23,7 @@
     }
   },
   "scripts": {
+    "postinstall": "node scripts/patch-mercurjs.js || true",
     "build": "medusa build",
     "ib": "init-backend",
     "start": "node scripts/railway-start.js",
