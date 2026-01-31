@@ -85,7 +85,8 @@ async function validatePasswordMiddleware(
  *
  * Some MercurJS/Medusa endpoints don't support the 'q' search parameter.
  * The admin panel's global search sends 'q' to many endpoints, causing
- * "Unrecognized fields: 'q'" validation errors. This middleware strips
+ * "Unrecognized fields: 'q'" validation errors or "Trying to query by not
+ * existing property LinkModel.q" database errors. This middleware strips
  * the 'q' parameter from routes that don't support it.
  */
 async function stripQueryParamMiddleware(
@@ -97,6 +98,72 @@ async function stripQueryParamMiddleware(
   if (req.query && typeof req.query === "object" && "q" in req.query) {
     delete (req.query as Record<string, unknown>).q
   }
+  next()
+}
+
+/**
+ * Routes that support the 'q' search parameter.
+ * All other routes should have 'q' stripped to prevent validation errors.
+ */
+const routesSupportingSearch = new Set([
+  // Medusa core admin routes that support search
+  '/admin/products',
+  '/admin/orders',
+  '/admin/customers',
+  '/admin/draft-orders',
+  '/admin/users',
+  '/admin/gift-cards',
+  '/admin/discounts',
+  '/admin/promotions',
+  '/admin/return-reasons',
+  // MercurJS vendor routes that support search
+  '/vendor/products',
+  '/vendor/orders',
+  // Store routes that support search
+  '/store/products',
+  '/store/collections',
+])
+
+/**
+ * Check if a route path supports the 'q' search parameter
+ */
+function routeSupportsSearch(path: string): boolean {
+  // Normalize path
+  const normalizedPath = path.split('?')[0].replace(/\/$/, '')
+
+  // Check exact matches and prefix matches
+  for (const route of routesSupportingSearch) {
+    if (normalizedPath === route || normalizedPath.startsWith(route + '/')) {
+      return true
+    }
+  }
+  return false
+}
+
+/**
+ * Global middleware to strip 'q' from admin routes that don't support search.
+ * This is more comprehensive than listing individual routes.
+ */
+async function stripQueryParamForAdminMiddleware(
+  req: MedusaRequest,
+  res: MedusaResponse,
+  next: MedusaNextFunction
+) {
+  // Only process GET requests
+  if (req.method !== 'GET') {
+    return next()
+  }
+
+  // Only process if 'q' is present
+  if (!req.query || typeof req.query !== "object" || !("q" in req.query)) {
+    return next()
+  }
+
+  // Check if this route supports search
+  if (!routeSupportsSearch(req.path)) {
+    delete (req.query as Record<string, unknown>).q
+  }
+
   next()
 }
 
@@ -369,120 +436,30 @@ async function securityHeadersMiddleware(
 
 export default defineMiddlewares({
   routes: [
-    // Strip 'q' parameter from MercurJS/Medusa routes that don't support search
-    // These routes throw "Unrecognized fields: 'q'" or "LinkModel.q" errors
-    // when the admin panel's global search sends 'q' to them
+    // ============================================================
+    // GLOBAL: Strip 'q' parameter from all admin routes
+    // ============================================================
+    // The admin panel's global search sends 'q' to ALL endpoints, but most
+    // don't support it, causing "Unrecognized fields: 'q'" validation errors
+    // or "Trying to query by not existing property LinkModel.q" database errors.
+    // This middleware uses a whitelist approach: only routes explicitly listed
+    // as supporting search will receive the 'q' parameter.
     {
-      matcher: "/admin/product-categories*",
+      matcher: "/admin/**",
       method: "GET",
-      middlewares: [stripQueryParamMiddleware],
+      middlewares: [stripQueryParamForAdminMiddleware],
     },
+    // Also strip from vendor routes that might receive search queries
     {
-      matcher: "/admin/price-lists*",
+      matcher: "/vendor/**",
       method: "GET",
-      middlewares: [stripQueryParamMiddleware],
+      middlewares: [stripQueryParamForAdminMiddleware],
     },
+    // Also strip from store routes that might receive unexpected 'q' params
     {
-      matcher: "/admin/sales-channels*",
+      matcher: "/store/**",
       method: "GET",
-      middlewares: [stripQueryParamMiddleware],
-    },
-    {
-      matcher: "/admin/shipping-options*",
-      method: "GET",
-      middlewares: [stripQueryParamMiddleware],
-    },
-    {
-      matcher: "/admin/tax-rates*",
-      method: "GET",
-      middlewares: [stripQueryParamMiddleware],
-    },
-    {
-      matcher: "/admin/currencies*",
-      method: "GET",
-      middlewares: [stripQueryParamMiddleware],
-    },
-    {
-      matcher: "/admin/regions*",
-      method: "GET",
-      middlewares: [stripQueryParamMiddleware],
-    },
-    {
-      matcher: "/admin/stock-locations*",
-      method: "GET",
-      middlewares: [stripQueryParamMiddleware],
-    },
-    {
-      matcher: "/admin/fulfillment-sets*",
-      method: "GET",
-      middlewares: [stripQueryParamMiddleware],
-    },
-    {
-      matcher: "/admin/fulfillment-providers*",
-      method: "GET",
-      middlewares: [stripQueryParamMiddleware],
-    },
-    {
-      matcher: "/admin/reservations*",
-      method: "GET",
-      middlewares: [stripQueryParamMiddleware],
-    },
-    // Additional routes that don't support 'q' parameter
-    {
-      matcher: "/admin/collections*",
-      method: "GET",
-      middlewares: [stripQueryParamMiddleware],
-    },
-    {
-      matcher: "/admin/tags*",
-      method: "GET",
-      middlewares: [stripQueryParamMiddleware],
-    },
-    {
-      matcher: "/admin/api-keys*",
-      method: "GET",
-      middlewares: [stripQueryParamMiddleware],
-    },
-    {
-      matcher: "/admin/stores*",
-      method: "GET",
-      middlewares: [stripQueryParamMiddleware],
-    },
-    {
-      matcher: "/admin/payment-providers*",
-      method: "GET",
-      middlewares: [stripQueryParamMiddleware],
-    },
-    {
-      matcher: "/admin/tax-providers*",
-      method: "GET",
-      middlewares: [stripQueryParamMiddleware],
-    },
-    {
-      matcher: "/admin/inventory-items*",
-      method: "GET",
-      middlewares: [stripQueryParamMiddleware],
-    },
-    {
-      matcher: "/admin/shipping-profiles*",
-      method: "GET",
-      middlewares: [stripQueryParamMiddleware],
-    },
-    {
-      matcher: "/admin/payment-collections*",
-      method: "GET",
-      middlewares: [stripQueryParamMiddleware],
-    },
-    {
-      matcher: "/admin/workflows-executions*",
-      method: "GET",
-      middlewares: [stripQueryParamMiddleware],
-    },
-    // Links endpoint - doesn't support 'q' search parameter
-    {
-      matcher: "/admin/links*",
-      method: "GET",
-      middlewares: [stripQueryParamMiddleware],
+      middlewares: [stripQueryParamForAdminMiddleware],
     },
     // Ensure all vendor routes (including nested plugin routes) are guarded
     {
