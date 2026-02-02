@@ -2,6 +2,7 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/
 import { SELLER_MODULE } from "@mercurjs/b2c-core/modules/seller"
 import { requireSellerId } from "../../../shared/auth-helpers"
 import { getRocketChatService } from "../../../shared/rocketchat-service"
+import crypto from "crypto"
 
 /**
  * GET /vendor/rocketchat
@@ -57,6 +58,18 @@ export async function GET(
 
     if (rocketchatService) {
       try {
+        // Ensure vendor has a RocketChat account (creates if doesn't exist)
+        const displayName = seller.name || member.email
+        const tempPassword = crypto.randomBytes(32).toString("hex")
+
+        await rocketchatService.createUser(
+          displayName,
+          member.email,
+          username,
+          tempPassword
+        )
+
+        // Create login token for auto-login
         loginToken = await rocketchatService.createUserToken(username)
         console.log(`[RocketChat] Created login token for vendor: ${username}`)
       } catch (error: any) {
@@ -65,7 +78,7 @@ export async function GET(
       }
     }
 
-    const channelName = `vendor-${sellerId}`
+    const channelName = `vendor-${seller.handle || sellerId}`
     const response: any = {
       configured: true,
       url: rocketchatUrl,
