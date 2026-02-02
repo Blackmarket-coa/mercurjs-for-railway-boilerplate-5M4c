@@ -430,10 +430,23 @@ export default async function seedDemoData({ container }: ExecArgs) {
 
   logger.info("Seeding product data...");
 
+  // Community-aligned product categories matching the new architecture
+  const categoryNames = [
+    "Fresh Produce",
+    "Prepared Foods",
+    "Pantry Staples",
+    "Seeds & Starts",
+    "Community Garden Plots",
+    "Farm Tools",
+    "Essentials",
+    "Care Kits",
+    "Repaired Goods",
+    "Cooperative Access",
+  ];
+
   let shouldSeedProducts = false;
   let categoryResult: any = [];
-  const categoryNames = ["Shirts", "Sweatshirts", "Pants", "Merch"];
-  
+
   try {
     const result = await createProductCategoriesWorkflow(container).run({
       input: {
@@ -455,8 +468,106 @@ export default async function seedDemoData({ container }: ExecArgs) {
     }
   }
 
+  // Seed product collections (operational logic layer)
+  logger.info("Seeding product collections...");
+  try {
+    const productModuleService = container.resolve(Modules.PRODUCT);
+    const existingCollections = await productModuleService.listProductCollections({});
+    if (!existingCollections || existingCollections.length === 0) {
+      await productModuleService.createProductCollections([
+        {
+          title: "Community-Grown",
+          handle: "community-grown",
+          metadata: {
+            auto_approval: true,
+            manual_fulfillment_required: true,
+            community_priority: true,
+            description: "Products grown by community members in shared or personal gardens",
+          },
+        },
+        {
+          title: "Community-Made",
+          handle: "community-made",
+          metadata: {
+            auto_approval: true,
+            manual_fulfillment_required: true,
+            community_priority: true,
+            description: "Items crafted, prepared, or assembled by community members",
+          },
+        },
+        {
+          title: "Shared Resources",
+          handle: "shared-resources",
+          metadata: {
+            auto_approval: false,
+            manual_fulfillment_required: true,
+            inventory_tracking: false,
+            requires_reservation: true,
+            description: "Community-shared tools, spaces, and infrastructure",
+          },
+        },
+        {
+          title: "Mutual Aid Funded",
+          handle: "mutual-aid-funded",
+          metadata: {
+            auto_approval: false,
+            manual_fulfillment_required: true,
+            tax_exempt: true,
+            community_priority: true,
+            description: "Items funded through community mutual aid contributions",
+          },
+        },
+        {
+          title: "Refurbished",
+          handle: "refurbished",
+          metadata: {
+            auto_approval: true,
+            manual_fulfillment_required: true,
+            requires_condition_grade: true,
+            description: "Repaired and restored items kept in community circulation",
+          },
+        },
+        {
+          title: "Pilot / Experimental",
+          handle: "pilot-experimental",
+          metadata: {
+            auto_approval: false,
+            requires_governance_review: true,
+            manual_fulfillment_required: true,
+            limited_availability: true,
+            description: "Experimental products and projects requiring governance approval",
+          },
+        },
+        {
+          title: "EHS-Restricted",
+          handle: "ehs-restricted",
+          metadata: {
+            auto_approval: false,
+            requires_governance_review: true,
+            requires_safety_certification: true,
+            manual_fulfillment_required: true,
+            description: "Items with environmental, health, or safety restrictions",
+          },
+        },
+        {
+          title: "Requires-Approval",
+          handle: "requires-approval",
+          metadata: {
+            auto_approval: false,
+            requires_governance_review: true,
+            description: "Items requiring manual governance or admin approval before listing",
+          },
+        },
+      ]);
+      logger.info("Finished seeding product collections.");
+    } else {
+      logger.info("Product collections already exist, skipping...");
+    }
+  } catch (error: any) {
+    logger.warn(`Warning seeding product collections: ${error.message}`);
+  }
+
   if (shouldSeedProducts && categoryResult.length > 0) {
-    // Helper function to safely get category ID
     const getCategoryId = (name: string) => {
       const category = categoryResult.find((cat: any) => cat.name === name);
       if (!category) {
@@ -469,498 +580,171 @@ export default async function seedDemoData({ container }: ExecArgs) {
       input: {
         products: [
           {
-            title: "Medusa T-Shirt",
-            category_ids: [
-            getCategoryId("Shirts"),
-          ],
-          description:
-            "Reimagine the feeling of a classic T-shirt. With our cotton T-shirts, everyday essentials no longer have to be ordinary.",
-          handle: "t-shirt",
-          weight: 400,
-          status: ProductStatus.PUBLISHED,
-          shipping_profile_id: shippingProfile.id,
-          images: [
-            {
-              url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/tee-black-front.png",
-            },
-            {
-              url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/tee-black-back.png",
-            },
-            {
-              url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/tee-white-front.png",
-            },
-            {
-              url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/tee-white-back.png",
-            },
-          ],
-          options: [
-            {
-              title: "Size",
-              values: ["S", "M", "L", "XL"],
-            },
-            {
-              title: "Color",
-              values: ["Black", "White"],
-            },
-          ],
-          variants: [
-            {
-              title: "S / Black",
-              sku: "SHIRT-S-BLACK",
-              options: {
-                Size: "S",
-                Color: "Black",
+            title: "Organic Kale Bunch",
+            category_ids: [getCategoryId("Fresh Produce")],
+            description: "Locally grown organic kale from community garden plots. Harvested fresh each week.",
+            handle: "organic-kale-bunch",
+            weight: 250,
+            status: ProductStatus.PUBLISHED,
+            shipping_profile_id: shippingProfile.id,
+            options: [
+              {
+                title: "Size",
+                values: ["Small", "Large"],
               },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
-            },
-            {
-              title: "S / White",
-              sku: "SHIRT-S-WHITE",
-              options: {
-                Size: "S",
-                Color: "White",
+            ],
+            variants: [
+              {
+                title: "Small Bunch",
+                sku: "KALE-SM",
+                options: { Size: "Small" },
+                prices: [
+                  { amount: 300, currency_code: "eur" },
+                  { amount: 350, currency_code: "usd" },
+                ],
               },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
-            },
-            {
-              title: "M / Black",
-              sku: "SHIRT-M-BLACK",
-              options: {
-                Size: "M",
-                Color: "Black",
+              {
+                title: "Large Bunch",
+                sku: "KALE-LG",
+                options: { Size: "Large" },
+                prices: [
+                  { amount: 500, currency_code: "eur" },
+                  { amount: 600, currency_code: "usd" },
+                ],
               },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
+            ],
+            metadata: {
+              product_type: "food",
+              grown_by: "Community Garden Collective",
+              allow_internal_fulfillment: true,
             },
-            {
-              title: "M / White",
-              sku: "SHIRT-M-WHITE",
-              options: {
-                Size: "M",
-                Color: "White",
+            sales_channels: [{ id: defaultSalesChannel[0].id }],
+          },
+          {
+            title: "Community Herb Seed Kit",
+            category_ids: [getCategoryId("Seeds & Starts")],
+            description: "Heirloom herb seed collection: basil, cilantro, parsley, dill. Saved from community gardens.",
+            handle: "community-herb-seed-kit",
+            weight: 50,
+            status: ProductStatus.PUBLISHED,
+            shipping_profile_id: shippingProfile.id,
+            options: [
+              {
+                title: "Kit",
+                values: ["Standard"],
               },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
-            },
-            {
-              title: "L / Black",
-              sku: "SHIRT-L-BLACK",
-              options: {
-                Size: "L",
-                Color: "Black",
+            ],
+            variants: [
+              {
+                title: "Standard Kit",
+                sku: "SEED-HERB-KIT",
+                options: { Kit: "Standard" },
+                prices: [
+                  { amount: 800, currency_code: "eur" },
+                  { amount: 1000, currency_code: "usd" },
+                ],
               },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
+            ],
+            metadata: {
+              product_type: "food",
+              community_priority: true,
             },
-            {
-              title: "L / White",
-              sku: "SHIRT-L-WHITE",
-              options: {
-                Size: "L",
-                Color: "White",
+            sales_channels: [{ id: defaultSalesChannel[0].id }],
+          },
+          {
+            title: "10'x10' Garden Plot Access",
+            category_ids: [getCategoryId("Community Garden Plots")],
+            description: "Seasonal access to a 10x10 foot garden plot in the community growing space. Includes water and tool access.",
+            handle: "garden-plot-10x10",
+            weight: 0,
+            status: ProductStatus.DRAFT,
+            shipping_profile_id: shippingProfile.id,
+            options: [
+              {
+                title: "Season",
+                values: ["Spring", "Summer", "Fall"],
               },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
-            },
-            {
-              title: "XL / Black",
-              sku: "SHIRT-XL-BLACK",
-              options: {
-                Size: "XL",
-                Color: "Black",
+            ],
+            variants: [
+              {
+                title: "Spring Season",
+                sku: "PLOT-10X10-SPR",
+                options: { Season: "Spring" },
+                prices: [
+                  { amount: 2500, currency_code: "eur" },
+                  { amount: 3000, currency_code: "usd" },
+                ],
               },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
-            },
-            {
-              title: "XL / White",
-              sku: "SHIRT-XL-WHITE",
-              options: {
-                Size: "XL",
-                Color: "White",
+              {
+                title: "Summer Season",
+                sku: "PLOT-10X10-SUM",
+                options: { Season: "Summer" },
+                prices: [
+                  { amount: 2500, currency_code: "eur" },
+                  { amount: 3000, currency_code: "usd" },
+                ],
               },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
-            },
-          ],
-          sales_channels: [
-            {
-              id: defaultSalesChannel[0].id,
-            },
-          ],
-        },
-        {
-          title: "Medusa Sweatshirt",
-          category_ids: [
-            getCategoryId("Sweatshirts"),
-          ],
-          description:
-            "Reimagine the feeling of a classic sweatshirt. With our cotton sweatshirt, everyday essentials no longer have to be ordinary.",
-          handle: "sweatshirt",
-          weight: 400,
-          status: ProductStatus.PUBLISHED,
-          shipping_profile_id: shippingProfile.id,
-          images: [
-            {
-              url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/sweatshirt-vintage-front.png",
-            },
-            {
-              url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/sweatshirt-vintage-back.png",
-            },
-          ],
-          options: [
-            {
-              title: "Size",
-              values: ["S", "M", "L", "XL"],
-            },
-          ],
-          variants: [
-            {
-              title: "S",
-              sku: "SWEATSHIRT-S",
-              options: {
-                Size: "S",
+              {
+                title: "Fall Season",
+                sku: "PLOT-10X10-FAL",
+                options: { Season: "Fall" },
+                prices: [
+                  { amount: 2000, currency_code: "eur" },
+                  { amount: 2500, currency_code: "usd" },
+                ],
               },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
+            ],
+            metadata: {
+              product_type: "land_access",
+              reservation_required: true,
+              inventory_tracking: false,
             },
-            {
-              title: "M",
-              sku: "SWEATSHIRT-M",
-              options: {
-                Size: "M",
+            sales_channels: [{ id: defaultSalesChannel[0].id }],
+          },
+          {
+            title: "Winter Care Kit",
+            category_ids: [getCategoryId("Care Kits")],
+            description: "Community-assembled winter care package: warm socks, hand warmers, tea, and essential hygiene items.",
+            handle: "winter-care-kit",
+            weight: 1500,
+            status: ProductStatus.PUBLISHED,
+            shipping_profile_id: shippingProfile.id,
+            options: [
+              {
+                title: "Size",
+                values: ["Individual", "Family"],
               },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
-            },
-            {
-              title: "L",
-              sku: "SWEATSHIRT-L",
-              options: {
-                Size: "L",
+            ],
+            variants: [
+              {
+                title: "Individual Kit",
+                sku: "CARE-WINTER-IND",
+                options: { Size: "Individual" },
+                prices: [
+                  { amount: 0, currency_code: "eur" },
+                  { amount: 0, currency_code: "usd" },
+                ],
               },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
-            },
-            {
-              title: "XL",
-              sku: "SWEATSHIRT-XL",
-              options: {
-                Size: "XL",
+              {
+                title: "Family Kit",
+                sku: "CARE-WINTER-FAM",
+                options: { Size: "Family" },
+                prices: [
+                  { amount: 0, currency_code: "eur" },
+                  { amount: 0, currency_code: "usd" },
+                ],
               },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
+            ],
+            metadata: {
+              product_type: "mutual_aid",
+              mutual_aid_funded: true,
+              manual_fulfillment_required: true,
             },
-          ],
-          sales_channels: [
-            {
-              id: defaultSalesChannel[0].id,
-            },
-          ],
-        },
-        {
-          title: "Medusa Sweatpants",
-          category_ids: [
-            getCategoryId("Pants"),
-          ],
-          description:
-            "Reimagine the feeling of classic sweatpants. With our cotton sweatpants, everyday essentials no longer have to be ordinary.",
-          handle: "sweatpants",
-          weight: 400,
-          status: ProductStatus.PUBLISHED,
-          shipping_profile_id: shippingProfile.id,
-          images: [
-            {
-              url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/sweatpants-gray-front.png",
-            },
-            {
-              url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/sweatpants-gray-back.png",
-            },
-          ],
-          options: [
-            {
-              title: "Size",
-              values: ["S", "M", "L", "XL"],
-            },
-          ],
-          variants: [
-            {
-              title: "S",
-              sku: "SWEATPANTS-S",
-              options: {
-                Size: "S",
-              },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
-            },
-            {
-              title: "M",
-              sku: "SWEATPANTS-M",
-              options: {
-                Size: "M",
-              },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
-            },
-            {
-              title: "L",
-              sku: "SWEATPANTS-L",
-              options: {
-                Size: "L",
-              },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
-            },
-            {
-              title: "XL",
-              sku: "SWEATPANTS-XL",
-              options: {
-                Size: "XL",
-              },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
-            },
-          ],
-          sales_channels: [
-            {
-              id: defaultSalesChannel[0].id,
-            },
-          ],
-        },
-        {
-          title: "Medusa Shorts",
-          category_ids: [
-            getCategoryId("Merch"),
-          ],
-          description:
-            "Reimagine the feeling of classic shorts. With our cotton shorts, everyday essentials no longer have to be ordinary.",
-          handle: "shorts",
-          weight: 400,
-          status: ProductStatus.PUBLISHED,
-          shipping_profile_id: shippingProfile.id,
-          images: [
-            {
-              url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/shorts-vintage-front.png",
-            },
-            {
-              url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/shorts-vintage-back.png",
-            },
-          ],
-          options: [
-            {
-              title: "Size",
-              values: ["S", "M", "L", "XL"],
-            },
-          ],
-          variants: [
-            {
-              title: "S",
-              sku: "SHORTS-S",
-              options: {
-                Size: "S",
-              },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
-            },
-            {
-              title: "M",
-              sku: "SHORTS-M",
-              options: {
-                Size: "M",
-              },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
-            },
-            {
-              title: "L",
-              sku: "SHORTS-L",
-              options: {
-                Size: "L",
-              },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
-            },
-            {
-              title: "XL",
-              sku: "SHORTS-XL",
-              options: {
-                Size: "XL",
-              },
-              prices: [
-                {
-                  amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
-              ],
-            },
-          ],
-          sales_channels: [
-            {
-              id: defaultSalesChannel[0].id,
-            },
-          ],
-        },
-      ],
-    },
-  });
+            sales_channels: [{ id: defaultSalesChannel[0].id }],
+          },
+        ],
+      },
+    });
     logger.info("Finished seeding product data.");
   } else {
     logger.info("Skipping product seeding since categories are not available. Products can be created manually from the admin panel.");

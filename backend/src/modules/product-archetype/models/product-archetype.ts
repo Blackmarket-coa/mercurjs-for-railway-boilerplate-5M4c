@@ -15,21 +15,28 @@ export enum ProductArchetypeCode {
   // Agricultural products
   AGRICULTURAL_RAW = "AGRICULTURAL_RAW",           // Fresh produce, raw meat, dairy
   AGRICULTURAL_PROCESSED = "AGRICULTURAL_PROCESSED", // Jams, pickles, canned goods
-  
+
   // Restaurant/prepared food
   RESTAURANT_PREPARED = "RESTAURANT_PREPARED",     // Ready-to-eat meals
-  
-  // Standard retail
-  NON_PERISHABLE = "NON_PERISHABLE",              // Shelf-stable goods, apparel, etc.
-  
+
+  // Standard retail / tools / infrastructure
+  NON_PERISHABLE = "NON_PERISHABLE",              // Shelf-stable goods, tools, equipment
+
   // Digital products
-  DIGITAL = "DIGITAL",                             // Downloads, licenses, access
-  
+  DIGITAL = "DIGITAL",                             // Downloads, licenses, network access
+
   // Tickets and events
   TICKET = "TICKET",                               // Event tickets, venue access
-  
+
   // Subscriptions
   SUBSCRIPTION = "SUBSCRIPTION",                   // Recurring delivery, CSA shares
+
+  // Community / Mutual Aid archetypes (no drop-shipping)
+  LAND_ACCESS = "LAND_ACCESS",                     // Garden plots, farm plots — reservation-based, no inventory
+  MUTUAL_AID = "MUTUAL_AID",                       // Care kits, essentials — community-funded, manual fulfillment
+  CIRCULAR_ECONOMY = "CIRCULAR_ECONOMY",           // Repaired goods, salvaged materials — condition-graded
+  COMMUNITY_SERVICE = "COMMUNITY_SERVICE",         // Shared spaces, skill shares — capacity-based
+  EXPERIMENTAL = "EXPERIMENTAL",                   // Prototypes, pilot projects — requires governance approval
 }
 
 /**
