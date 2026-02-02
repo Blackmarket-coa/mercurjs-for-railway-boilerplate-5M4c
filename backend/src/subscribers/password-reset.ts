@@ -45,9 +45,14 @@ export default async function passwordResetHandler({
         baseUrl = process.env.STOREFRONT_URL || process.env.NEXT_PUBLIC_BASE_URL || ""
     }
 
+    // Trim whitespace from base URL
+    baseUrl = baseUrl.trim()
+
     // Validate that base URL is set and looks like a valid URL
     if (!baseUrl || !baseUrl.startsWith("http")) {
-      console.error(`[passwordReset subscriber] Missing or invalid base URL for actor_type: ${actorType}. Please set the appropriate environment variable (VENDOR_URL, STOREFRONT_URL, or ADMIN_URL).`)
+      console.error(`[passwordReset subscriber] Missing or invalid base URL for actor_type: ${actorType}.`)
+      console.error(`[passwordReset subscriber] STOREFRONT_URL="${process.env.STOREFRONT_URL}", NEXT_PUBLIC_BASE_URL="${process.env.NEXT_PUBLIC_BASE_URL}"`)
+      console.error(`[passwordReset subscriber] Please set the appropriate environment variable (VENDOR_URL, STOREFRONT_URL, or ADMIN_URL) with a valid URL starting with http:// or https://`)
       return
     }
 
