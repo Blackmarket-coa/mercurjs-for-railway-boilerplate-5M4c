@@ -274,6 +274,10 @@ export function useVendorNavigation() {
       },
       items: [
         {
+          label: "Orders",
+          to: "/requests/orders",
+        },
+        {
           label: "Collections",
           to: "/requests/collections",
         },
@@ -284,6 +288,22 @@ export function useVendorNavigation() {
         {
           label: "Reviews",
           to: "/requests/reviews",
+        },
+      ],
+    },
+    {
+      icon: <Buildings />,
+      label: "Farm",
+      to: "/farm",
+      showFor: (f) => f.hasFarm,
+      items: [
+        {
+          label: "Profile",
+          to: "/farm/profile/edit",
+        },
+        {
+          label: "Harvests",
+          to: "/farm/harvests",
         },
       ],
     },
@@ -303,6 +323,12 @@ export function useVendorNavigation() {
       label: "Venues",
       to: "/venues",
       showFor: (_, type) => type === "restaurant",
+    },
+    {
+      icon: <CalendarMini />,
+      label: "Shows",
+      to: "/shows",
+      showFor: (f) => f.hasShows,
     },
   ]
 
