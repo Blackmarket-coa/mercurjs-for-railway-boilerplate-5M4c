@@ -243,14 +243,8 @@ export const createTicketProductWorkflow = createWorkflow(
         "product_id",
         "venue_id",
         "dates",
-        "venue.id",
-        "venue.name",
-        "venue.address",
-        "venue.rows.*",
-        "product.id",
-        "product.title",
-        "product.handle",
-        "product.status",
+        "venue.*",
+        "product.*",
         "variants.*",
       ],
       filters: {
@@ -258,9 +252,12 @@ export const createTicketProductWorkflow = createWorkflow(
       }
     }).config({ name: "retrieve-ticket-product" })
 
-    return new WorkflowResponse({
-      ticket_product: finalTicketProduct[0],
-    })
+    // Use transform to flatten the type and avoid TS2321 excessive stack depth
+    const result = transform({ finalTicketProduct }, (data) => ({
+      ticket_product: data.finalTicketProduct[0],
+    }))
+
+    return new WorkflowResponse(result)
   }
 )
 
