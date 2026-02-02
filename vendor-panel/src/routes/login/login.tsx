@@ -91,7 +91,12 @@ export const Login = () => {
                 hydrateSellerSessionCache(queryClient, session)
               })
               .catch((sessionError) => {
-                console.warn("Failed to prefetch seller session:", sessionError)
+                if (import.meta.env.DEV) {
+                  console.warn(
+                    "Failed to prefetch seller session:",
+                    sessionError
+                  )
+                }
               })
           }
           navigate(from, { replace: true })

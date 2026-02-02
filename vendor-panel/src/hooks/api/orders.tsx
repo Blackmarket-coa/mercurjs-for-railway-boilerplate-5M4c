@@ -23,9 +23,9 @@ import { fetchRegistrationStatus, RegistrationStatusResponse, usersQueryKeys } f
 
 const ORDERS_QUERY_KEY = "orders" as const
 const _orderKeys = queryKeysFactory(ORDERS_QUERY_KEY) as TQueryKey<"orders"> & {
-  preview: (orderId: string) => any
-  changes: (orderId: string) => any
-  lineItems: (orderId: string) => any
+  preview: (orderId: string) => QueryKey
+  changes: (orderId: string) => QueryKey
+  lineItems: (orderId: string) => QueryKey
 }
 
 _orderKeys.preview = function (id: string) {
@@ -57,7 +57,7 @@ const ensureApprovedSeller = async (queryClient: QueryClient): Promise<boolean> 
 
 export const useOrder = (
   id: string,
-  query?: Record<string, any>,
+  query?: HttpTypes.SelectParams,
   options?: Omit<
     UseQueryOptions<
       ExtendedAdminOrderResponse,
@@ -89,7 +89,7 @@ export const useOrder = (
 
 export const useOrderCommission = (
   id: string,
-  query?: Record<string, any>,
+  query?: HttpTypes.SelectParams,
   options?: Omit<
     UseQueryOptions<OrderCommission, FetchError, OrderCommission, QueryKey>,
     "queryFn" | "queryKey"
@@ -116,7 +116,7 @@ export const useOrderCommission = (
 
 export const useOrderPreview = (
   id: string,
-  query?: Record<string, any>,
+  query?: HttpTypes.SelectParams,
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminOrderPreviewResponse,
@@ -157,7 +157,12 @@ export const useOrders = (
     >,
     "queryFn" | "queryKey"
   >,
-  filters?: any
+  filters?: {
+    order_status?: HttpTypes.AdminOrder["fulfillment_status"]
+    created_at?: Record<string, string | Date>
+    updated_at?: Record<string, string | Date>
+    sort?: string
+  }
 ) => {
   const queryClient = useQueryClient()
   const { data, ...rest } = useQuery({
@@ -175,12 +180,13 @@ export const useOrders = (
     ...options,
   })
 
+  const { order_status, sort, ...dateFilters } = filters ?? {}
   const filteredOrders =
-    filterOrders(data?.orders, filters, filters?.sort) || []
+    filterOrders(data?.orders, dateFilters, sort) || []
 
-  const filtered = filters?.order_status
+  const filtered = order_status
     ? filteredOrders.filter(
-        (order) => order.fulfillment_status === filters.order_status
+        (order) => order.fulfillment_status === order_status
       )
     : filteredOrders
 
@@ -265,7 +271,7 @@ export const useCreateOrderFulfillment = (
         method: "POST",
         body: payload,
       }),
-    onSuccess: (data: any, variables: any, context: any) => {
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.all,
       })
@@ -291,12 +297,16 @@ export const useCreateOrderFulfillment = (
 export const useCancelOrderFulfillment = (
   orderId: string,
   fulfillmentId: string,
-  options?: UseMutationOptions<any, FetchError, any>
+  options?: UseMutationOptions<
+    HttpTypes.AdminOrderResponse,
+    FetchError,
+    HttpTypes.AdminCancelOrderFulfillment
+  >
 ) => {
   return useMutation({
     mutationFn: (payload: { no_notification?: boolean }) =>
       sdk.admin.order.cancelFulfillment(orderId, fulfillmentId, payload),
-    onSuccess: (data: any, variables: any, context: any) => {
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.all,
       })
@@ -315,7 +325,7 @@ export const useCreateOrderShipment = (
   orderId: string,
   fulfillmentId: string,
   options?: UseMutationOptions<
-    { order: HttpTypes.AdminOrder },
+    HttpTypes.AdminOrderResponse,
     FetchError,
     HttpTypes.AdminCreateOrderShipment
   >
@@ -329,7 +339,7 @@ export const useCreateOrderShipment = (
           body: payload,
         }
       ),
-    onSuccess: (data: any, variables: any, context: any) => {
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.all,
       })
@@ -348,7 +358,7 @@ export const useMarkOrderFulfillmentAsDelivered = (
   orderId: string,
   fulfillmentId: string,
   options?: UseMutationOptions<
-    { order: HttpTypes.AdminOrder },
+    HttpTypes.AdminOrderResponse,
     FetchError,
     void
   >
@@ -361,7 +371,7 @@ export const useMarkOrderFulfillmentAsDelivered = (
           method: "POST",
         }
       ),
-    onSuccess: (data: any, variables: any, context: any) => {
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.all,
       })
@@ -385,7 +395,7 @@ export const useCancelOrder = (
       fetchQuery(`/vendor/orders/${orderId}/cancel`, {
         method: "POST",
       }),
-    onSuccess: (data: any, variables: any, context: any) => {
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.detail(orderId),
       })
@@ -413,7 +423,7 @@ export const useCompleteOrder = (
       fetchQuery(`/vendor/orders/${orderId}/complete`, {
         method: "POST",
       }),
-    onSuccess: (data: any, variables: any, context: any) => {
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.detail(orderId),
       })
@@ -443,7 +453,7 @@ export const useRequestTransferOrder = (
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminRequestOrderTransfer) =>
       sdk.admin.order.requestTransfer(orderId, payload),
-    onSuccess: (data: any, variables: any, context: any) => {
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
       })
@@ -460,11 +470,11 @@ export const useRequestTransferOrder = (
 
 export const useCancelOrderTransfer = (
   orderId: string,
-  options?: UseMutationOptions<any, FetchError, void>
+  options?: UseMutationOptions<HttpTypes.AdminOrderResponse, FetchError, void>
 ) => {
   return useMutation({
     mutationFn: () => sdk.admin.order.cancelTransfer(orderId),
-    onSuccess: (data: any, variables: any, context: any) => {
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
       })

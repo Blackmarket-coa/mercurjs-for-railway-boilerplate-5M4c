@@ -137,7 +137,12 @@ export const useSignUpWithEmailPass = (
           headers: token ? { authorization: `Bearer ${token}` } : undefined,
         })
       } catch (error) {
-        console.error("Failed to create seller registration request:", error)
+        if (import.meta.env.DEV) {
+          console.error(
+            "Failed to create seller registration request:",
+            error
+          )
+        }
       }
 
       // Call user's onSuccess callback if provided

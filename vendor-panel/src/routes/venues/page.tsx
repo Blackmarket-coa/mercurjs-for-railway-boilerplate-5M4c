@@ -9,6 +9,7 @@ import {
   DataTablePaginationState,
   Button,
   Text,
+  toast,
 } from "@medusajs/ui"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useState, useMemo } from "react"
@@ -82,8 +83,10 @@ const VenuesPage = () => {
       })
       queryClient.invalidateQueries({ queryKey: ["venues"] })
       setIsModalOpen(false)
-    } catch (error: any) {
-      console.error("Failed to create venue:", error.message)
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to create venue"
+      toast.error(message)
     }
   }
 

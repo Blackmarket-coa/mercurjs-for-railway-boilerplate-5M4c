@@ -63,6 +63,24 @@ const useMyAccountRoutes = (): INavItem[] => {
   )
 }
 
+const useDeveloperRoutes = (): INavItem[] => {
+  const { t } = useTranslation()
+
+  return useMemo(
+    () => [
+      {
+        label: t("apiKeyManagement.domain.publishable"),
+        to: "/settings/publishable-api-keys",
+      },
+      {
+        label: t("apiKeyManagement.domain.secret"),
+        to: "/settings/secret-api-keys",
+      },
+    ],
+    [t]
+  )
+}
+
 /**
  * Ensure that the `from` prop is not another settings route, to avoid
  * the user getting stuck in a navigation loop.
@@ -80,6 +98,7 @@ const SettingsSidebar = () => {
 
   const routes = useSettingRoutes()
   const myAccountRoutes = useMyAccountRoutes()
+  const developerRoutes = useDeveloperRoutes()
   const extensionRoutes = getMenu("settingsExtensions")
 
   const { t } = useTranslation()
@@ -101,14 +120,17 @@ const SettingsSidebar = () => {
           <div className="flex items-center justify-center px-3">
             <Divider variant="dashed" />
           </div>
-          {/* TODO: Secret API Keys logic on Mercur API
-            <RadixCollapsibleSection
-              label={t("app.nav.settings.developer")}
-              items={developerRoutes}
-            /> */}
-          <div className="flex items-center justify-center px-3">
-            <Divider variant="dashed" />
-          </div>
+          {developerRoutes.length > 0 && (
+            <Fragment>
+              <RadixCollapsibleSection
+                label={t("app.nav.settings.developer")}
+                items={developerRoutes}
+              />
+              <div className="flex items-center justify-center px-3">
+                <Divider variant="dashed" />
+              </div>
+            </Fragment>
+          )}
           <RadixCollapsibleSection
             label={t("app.nav.settings.myAccount")}
             items={myAccountRoutes}

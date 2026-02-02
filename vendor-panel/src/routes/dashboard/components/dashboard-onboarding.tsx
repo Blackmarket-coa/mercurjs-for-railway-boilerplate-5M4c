@@ -31,10 +31,13 @@ import {
 } from "../config/dashboard-config"
 
 type DashboardProps = {
-  products: boolean
-  locations_shipping: boolean
-  store_information: boolean
-  stripe_connect: boolean
+  products?: boolean
+  locations_shipping?: boolean
+  store_information?: boolean
+  stripe_connect?: boolean
+  menu?: boolean
+  plots?: boolean
+  volunteers?: boolean
 }
 
 // Icon map for onboarding steps
@@ -75,6 +78,9 @@ export const DashboardOnboarding = ({
   locations_shipping,
   store_information,
   // stripe_connect,
+  menu,
+  plots,
+  volunteers,
 }: DashboardProps) => {
   const { mutateAsync } = useUpdateOnboarding()
   const [showTips, setShowTips] = useState(true)
@@ -91,12 +97,12 @@ export const DashboardOnboarding = ({
 
   // Build completion map from props
   const completionMap: Record<string, boolean> = {
-    store_information,
-    locations_shipping,
-    products,
-    menu: false, // TODO: check from API
-    plots: false, // TODO: check from API
-    volunteers: false, // TODO: check from API
+    store_information: Boolean(store_information),
+    locations_shipping: Boolean(locations_shipping),
+    products: Boolean(products),
+    menu: Boolean(menu),
+    plots: Boolean(plots),
+    volunteers: Boolean(volunteers),
   }
 
   // Calculate progress based on actual steps

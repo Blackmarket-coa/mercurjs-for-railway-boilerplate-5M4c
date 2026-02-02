@@ -89,7 +89,7 @@ export class DashboardExtensionManager {
 
     menuItems.forEach((item) => {
       if (item.path.includes("/:")) {
-        if (process.env.NODE_ENV === "development") {
+        if (import.meta.env.DEV) {
           console.warn(
             `[@medusajs/dashboard] Menu item for path "${item.path}" can't be added to the sidebar as it contains a parameter.`
           )
@@ -105,7 +105,7 @@ export class DashboardExtensionManager {
 
       // Check if this is a nested settings path
       if (isSettingsPath && pathParts.length > 2) {
-        if (process.env.NODE_ENV === "development") {
+        if (import.meta.env.DEV) {
           console.warn(
             `[@medusajs/dashboard] Nested settings menu item "${item.path}" can't be added to the sidebar. Only top-level settings items are allowed.`
           )
@@ -124,7 +124,7 @@ export class DashboardExtensionManager {
         NESTED_ROUTE_POSITIONS.includes(parentItem?.nested) &&
         pathParts.length > 1
       ) {
-        if (process.env.NODE_ENV === "development") {
+        if (import.meta.env.DEV) {
           console.warn(
             `[@medusajs/dashboard] Nested menu item "${item.path}" can't be added to the sidebar as it is nested under "${parentItem.nested}".`
           )

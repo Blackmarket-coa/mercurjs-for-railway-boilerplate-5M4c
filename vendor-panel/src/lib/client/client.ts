@@ -46,7 +46,9 @@ export const getAuthTokenPayload = (): Record<string, unknown> | null => {
 
     return JSON.parse(decoded) as Record<string, unknown>
   } catch (error) {
-    console.warn("Failed to decode auth token payload:", error)
+    if (import.meta.env.DEV) {
+      console.warn("Failed to decode auth token payload:", error)
+    }
     return null
   }
 }
@@ -133,7 +135,7 @@ export const fetchQuery = async (
 
   if (!isPublic && !token) {
     clearAuthToken()
-    throw new Error("Brak autoryzacji. Zaloguj się ponownie.")
+    throw new Error("Authorization missing. Please sign in again.")
   }
 
   const params = new URLSearchParams()
@@ -175,7 +177,8 @@ export const fetchQuery = async (
     if (!isPublic && (response.status === 401 || response.status === 403)) {
       clearAuthToken()
     }
-    const baseMessage = errorData.message || errorText || "Nieznany błąd serwera"
+    const baseMessage =
+      errorData.message || errorText || "Unknown server error"
     throw new Error(`${baseMessage} (${errorContext})`)
   }
 

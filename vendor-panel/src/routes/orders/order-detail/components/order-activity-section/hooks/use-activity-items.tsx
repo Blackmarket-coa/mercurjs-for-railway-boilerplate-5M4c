@@ -120,8 +120,7 @@ export const useActivityItems = (order: ExtendedAdminOrder): Activity[] => {
   // }
 
 
-  // TODO: uncomment and fix payment related logic when backend returns data about payment cancel/capture/refund dates
-  const payments = order.split_order_payment
+  const payment = order.split_order_payment
 
   return useMemo(() => {
     if (isLoading) {
@@ -130,58 +129,61 @@ export const useActivityItems = (order: ExtendedAdminOrder): Activity[] => {
 
     const items: Activity[] = []
 
-    // if (payment) {
-    //   const amount = payment.authorized_amount
+    if (payment) {
+      const amount = payment.authorized_amount || payment.captured_amount
+      const hasAuthorized =
+        ["awaiting", "authorized", "partially_authorized"].includes(
+          payment.status
+        ) && amount > 0
 
-    //   items.push({
-    //     title: t("orders.activity.events.payment.awaiting"),
-    //     timestamp: payment?.created_at,
-    //     children: (
-    //       <Text size="small" className="text-ui-fg-subtle">
-    //         {getStylizedAmount(amount, payment.currency_code)}
-    //       </Text>
-    //     ),
-    //   })
+      if (hasAuthorized) {
+        items.push({
+          title: t("orders.activity.events.payment.awaiting"),
+          timestamp: payment.created_at,
+          children: (
+            <Text size="small" className="text-ui-fg-subtle">
+              {getStylizedAmount(amount, payment.currency_code)}
+            </Text>
+          ),
+        })
+      }
 
-    //   if (payment.canceled_at) {
-    //     items.push({
-    //       title: t("orders.activity.events.payment.canceled"),
-    //       timestamp: payment.canceled_at,
-    //       children: (
-    //         <Text size="small" className="text-ui-fg-subtle">
-    //           {getStylizedAmount(amount, payment.currency_code)}
-    //         </Text>
-    //       ),
-    //     })
-    //   }
+      if (
+        ["captured", "partially_captured", "completed"].includes(
+          payment.status
+        ) &&
+        payment.captured_amount > 0
+      ) {
+        items.push({
+          title: t("orders.activity.events.payment.captured"),
+          timestamp: payment.updated_at,
+          children: (
+            <Text size="small" className="text-ui-fg-subtle">
+              {getStylizedAmount(payment.captured_amount, payment.currency_code)}
+            </Text>
+          ),
+        })
+      }
 
-    //   if (payment.captured_at) {
-    //     items.push({
-    //       title: t("orders.activity.events.payment.captured"),
-    //       timestamp: payment.captured_at,
-    //       children: (
-    //         <Text size="small" className="text-ui-fg-subtle">
-    //           {getStylizedAmount(amount, payment.currency_code)}
-    //         </Text>
-    //       ),
-    //     })
-    //   }
+      if (payment.refunded_amount > 0) {
+        items.push({
+          title: t("orders.activity.events.payment.refunded"),
+          timestamp: payment.updated_at,
+          children: (
+            <Text size="small" className="text-ui-fg-subtle">
+              {getStylizedAmount(payment.refunded_amount, payment.currency_code)}
+            </Text>
+          ),
+        })
+      }
 
-    //   for (const refund of payment.refunds || []) {
-    //     items.push({
-    //       title: t("orders.activity.events.payment.refunded"),
-    //       timestamp: refund.created_at,
-    //       children: (
-    //         <Text size="small" className="text-ui-fg-subtle">
-    //           {getStylizedAmount(
-    //             refund.amount as number,
-    //             payment.currency_code
-    //           )}
-    //         </Text>
-    //       ),
-    //     })
-    //   }
-    // }
+      if (payment.status === "canceled") {
+        items.push({
+          title: t("orders.activity.events.payment.canceled"),
+          timestamp: payment.updated_at,
+        })
+      }
+    }
 
     for (const fulfillment of order.fulfillments || []) {
       items.push({
@@ -476,4 +478,3 @@ export const useActivityItems = (order: ExtendedAdminOrder): Activity[] => {
     itemsMap,
   ])
 }
-

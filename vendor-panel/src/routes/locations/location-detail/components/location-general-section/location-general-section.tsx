@@ -323,10 +323,7 @@ function ServiceZone({
       )
       .filter((c) => !!c) as StaticCountry[]
 
-    if (
-      process.env.NODE_ENV === "development" &&
-      countryGeoZones?.length !== countries?.length
-    ) {
+    if (import.meta.env.DEV && countryGeoZones?.length !== countries?.length) {
       console.warn(
         "Some countries are missing in the static countries list",
         countryGeoZones

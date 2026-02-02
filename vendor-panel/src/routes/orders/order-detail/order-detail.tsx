@@ -9,6 +9,7 @@ import { OrderFulfillmentSection } from "./components/order-fulfillment-section"
 import { OrderGeneralSection } from "./components/order-general-section"
 import { OrderPaymentSection } from "./components/order-payment-section"
 import { OrderSummarySection } from "./components/order-summary-section"
+import { OrderActivitySection } from "./components/order-activity-section/order-activity-section"
 import { DEFAULT_FIELDS } from "./constants"
 import { orderLoader } from "./loader"
 
@@ -72,8 +73,7 @@ export const OrderDetail = () => {
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar>
         <OrderCustomerSection order={order} />
-        {/* TODO: Uncomment when API returns data about payment cancel/capture/refund dates + when section is adapted to the changes */}
-        {/* <OrderActivitySection order={order} /> */}
+        <OrderActivitySection order={order} />
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   )

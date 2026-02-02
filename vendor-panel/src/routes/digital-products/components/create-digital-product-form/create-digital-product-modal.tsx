@@ -147,9 +147,10 @@ export const CreateDigitalProductModal = ({
 
       toast.success("Digital product created successfully")
       handleClose()
-    } catch (error: any) {
-      console.error("Failed to create digital product:", error)
-      toast.error(error.message || "Failed to create digital product")
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to create digital product"
+      toast.error(message)
     } finally {
       setIsLoading(false)
     }

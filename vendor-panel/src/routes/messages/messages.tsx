@@ -32,9 +32,13 @@ export const Messages = () => {
       }, targetOrigin)
 
       loginAttemptedRef.current = true
-      console.log('[RocketChat] Sent auto-login token to iframe')
+      if (import.meta.env.DEV) {
+        console.log("[RocketChat] Sent auto-login token to iframe")
+      }
     } catch (error) {
-      console.error('[RocketChat] Failed to send login token:', error)
+      if (import.meta.env.DEV) {
+        console.error("[RocketChat] Failed to send login token:", error)
+      }
     }
   }, [loginToken, rocketChatUrl])
 
@@ -49,14 +53,18 @@ export const Messages = () => {
 
       // Handle RocketChat ready event
       if (event.data?.eventName === 'startup') {
-        console.log('[RocketChat] Iframe ready, attempting auto-login')
+        if (import.meta.env.DEV) {
+          console.log("[RocketChat] Iframe ready, attempting auto-login")
+        }
         handleIframeLogin()
       }
 
       // Handle successful login
       if (event.data?.eventName === 'login') {
         setIsLoggedIn(true)
-        console.log('[RocketChat] Auto-login successful')
+        if (import.meta.env.DEV) {
+          console.log("[RocketChat] Auto-login successful")
+        }
       }
     }
 

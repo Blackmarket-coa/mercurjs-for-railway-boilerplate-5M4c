@@ -72,7 +72,9 @@ export const RocketChatProvider = ({ children }: { children: ReactNode }) => {
           }
         }
       } catch (error) {
-        console.error("Failed to fetch RocketChat config:", error)
+        if (import.meta.env.DEV) {
+          console.error("Failed to fetch RocketChat config:", error)
+        }
         setIsConfigured(false)
       }
     }

@@ -27,9 +27,16 @@ export const AdminChat = () => {
       }, targetOrigin)
 
       loginAttemptedRef.current = true
-      console.log('[RocketChat] Admin chat: Sent auto-login token to iframe')
+      if (import.meta.env.DEV) {
+        console.log("[RocketChat] Admin chat: Sent auto-login token to iframe")
+      }
     } catch (error) {
-      console.error('[RocketChat] Admin chat: Failed to send login token:', error)
+      if (import.meta.env.DEV) {
+        console.error(
+          "[RocketChat] Admin chat: Failed to send login token:",
+          error
+        )
+      }
     }
   }, [loginToken, rocketChatUrl])
 
@@ -44,7 +51,11 @@ export const AdminChat = () => {
 
       // Handle RocketChat ready event
       if (event.data?.eventName === 'startup') {
-        console.log('[RocketChat] Admin chat: Iframe ready, attempting auto-login')
+        if (import.meta.env.DEV) {
+          console.log(
+            "[RocketChat] Admin chat: Iframe ready, attempting auto-login"
+          )
+        }
         handleIframeLogin()
       }
     }

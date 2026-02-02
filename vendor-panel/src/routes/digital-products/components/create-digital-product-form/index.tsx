@@ -147,14 +147,15 @@ const CreateDigitalProductForm = ({
         onSuccess?.()
       })
       .catch((e) => {
-        console.error(e)
         toast.error("Error", {
           description: `An error occurred while creating the digital product: ${e}`
         })
       })
       .finally(() => setLoading(false))
     } catch (e) {
-      console.error(e)
+      toast.error("Error", {
+        description: `An error occurred while creating the digital product: ${e}`
+      })
       setLoading(false)
     }
   }

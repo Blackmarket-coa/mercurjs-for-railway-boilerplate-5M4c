@@ -41,7 +41,7 @@ const Root = <TData,>({
   const { before, after, sideBefore, sideAfter } = widgets
 
   if (showJSON && !data) {
-    if (process.env.NODE_ENV === "development") {
+    if (import.meta.env.DEV) {
       console.warn(
         "`showJSON` is true but no data is provided. To display JSON, provide data prop."
       )
@@ -51,7 +51,7 @@ const Root = <TData,>({
   }
 
   if (showMetadata && !data) {
-    if (process.env.NODE_ENV === "development") {
+    if (import.meta.env.DEV) {
       console.warn(
         "`showMetadata` is true but no data is provided. To display metadata, provide data prop."
       )
