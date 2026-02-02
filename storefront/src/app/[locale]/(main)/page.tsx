@@ -55,7 +55,7 @@ export async function generateMetadata({
 
   const title = "Home"
   const description =
-    "Buy directly from creators. Not corporations. Not middlemen. Discover handcrafted goods, fresh produce, electronics, digital products, and professional services—all from verified independent makers and entrepreneurs."
+    "A community-owned marketplace where creators keep 97% of every sale. Shop farm-fresh produce, handcrafted goods, digital products, event tickets, rentals, and services. Invest in local producers, join community gardens and kitchens, or open your own storefront."
   const ogImage = "/B2C_Storefront_Open_Graph.png"
   const canonical = `${baseUrl}/${locale}`
   const siteName =
@@ -163,11 +163,11 @@ export default async function Home({
       <Hero
         variant="mission"
         image="/images/hero/Image.jpg"
-        heading="Buy directly from creators. Not corporations. Not middlemen."
-        paragraph="From handcrafted goods and fresh produce to digital products and professional services—every purchase supports independent makers, artists, and entrepreneurs. Transparent pricing. Verified sources. Real community impact."
+        heading="Shop, sell, invest, and grow—in a marketplace owned by its community."
+        paragraph="Browse farm-fresh produce, handcrafted goods, digital products, event tickets, rentals, and professional services from verified independent creators who keep 97% of every sale. Invest directly in local producers, join community gardens and shared kitchens, or open your own storefront. Transparent pricing. Blockchain-verified. Zero hidden fees."
         buttons={[
-          { label: "Shop the Market", path: "/categories" },
-          { label: "Meet Our Creators", path: "/producers" },
+          { label: "Explore the Marketplace", path: "/categories" },
+          { label: "See How It Works", path: "/how-it-works" },
         ]}
       />
 
