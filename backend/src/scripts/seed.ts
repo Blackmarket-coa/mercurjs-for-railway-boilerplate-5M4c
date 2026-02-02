@@ -430,6 +430,32 @@ export default async function seedDemoData({ container }: ExecArgs) {
 
   logger.info("Seeding product data...");
 
+  // Seed Medusa core product types (these show in admin dashboard Product Types page)
+  logger.info("Seeding product types...");
+  const productModuleService = container.resolve(Modules.PRODUCT);
+  try {
+    const existingTypes = await productModuleService.listProductTypes({});
+    if (!existingTypes || existingTypes.length === 0) {
+      await productModuleService.createProductTypes([
+        { value: "food", metadata: { allow_internal_fulfillment: true, community_priority: true } },
+        { value: "land_access", metadata: { allow_internal_fulfillment: true, inventory_tracking: false, reservation_required: true } },
+        { value: "tools_and_infrastructure", metadata: { allow_internal_fulfillment: true } },
+        { value: "electronics_and_networks", metadata: { allow_internal_fulfillment: true } },
+        { value: "digital_services", metadata: { allow_internal_fulfillment: true, digital: true } },
+        { value: "community_and_events", metadata: { allow_internal_fulfillment: true, capacity_based: true } },
+        { value: "mutual_aid", metadata: { allow_internal_fulfillment: true, manual_fulfillment_required: true, community_priority: true } },
+        { value: "circular_economy", metadata: { allow_internal_fulfillment: true, requires_condition_grade: true } },
+        { value: "membership", metadata: { allow_internal_fulfillment: true, digital: true } },
+        { value: "experimental", metadata: { allow_internal_fulfillment: true, requires_governance_review: true } },
+      ]);
+      logger.info("Finished seeding product types.");
+    } else {
+      logger.info("Product types already exist, skipping...");
+    }
+  } catch (error: any) {
+    logger.warn(`Warning seeding product types: ${error.message}`);
+  }
+
   // Community-aligned product categories matching the new architecture
   const categoryNames = [
     "Fresh Produce",
@@ -471,7 +497,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
   // Seed product collections (operational logic layer)
   logger.info("Seeding product collections...");
   try {
-    const productModuleService = container.resolve(Modules.PRODUCT);
     const existingCollections = await productModuleService.listProductCollections({});
     if (!existingCollections || existingCollections.length === 0) {
       await productModuleService.createProductCollections([
