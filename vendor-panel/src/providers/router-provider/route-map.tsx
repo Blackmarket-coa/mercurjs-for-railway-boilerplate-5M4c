@@ -1057,11 +1057,10 @@ export const RouteMap: RouteObject[] = [
                   breadcrumb: () => "Delivery Details",
                 },
                 lazy: async () => {
-                  const { DeliveryList } = await import(
-                    "../../routes/deliveries/delivery-list"
+                  const { DeliveryDetail } = await import(
+                    "../../routes/deliveries/delivery-detail"
                   )
-                  // TODO: Create delivery detail page
-                  return { Component: DeliveryList }
+                  return { Component: DeliveryDetail }
                 },
               },
             ],
@@ -1100,15 +1099,109 @@ export const RouteMap: RouteObject[] = [
                   breadcrumb: () => "Edit Zone",
                 },
                 lazy: async () => {
-                  const { DeliveryZoneCreate } = await import(
-                    "../../routes/delivery-zones/delivery-zone-create"
+                  const { DeliveryZoneEdit } = await import(
+                    "../../routes/delivery-zones/delivery-zone-edit"
                   )
-                  // TODO: Create zone edit component
-                  return { Component: DeliveryZoneCreate }
+                  return { Component: DeliveryZoneEdit }
                 },
               },
             ],
-          },{
+          },
+          {
+            path: "/menu",
+            errorElement: <ErrorBoundary />,
+            handle: {
+              breadcrumb: () => "Menu",
+            },
+            children: [
+              {
+                path: "",
+                lazy: () => import("../../routes/menu"),
+              },
+              {
+                path: "items",
+                handle: {
+                  breadcrumb: () => "Menu Items",
+                },
+                lazy: () => import("../../routes/menu"),
+              },
+              {
+                path: "categories",
+                handle: {
+                  breadcrumb: () => "Menu Categories",
+                },
+                lazy: () => import("../../routes/menu"),
+              },
+            ],
+          },
+          {
+            path: "/plots",
+            errorElement: <ErrorBoundary />,
+            handle: {
+              breadcrumb: () => "Plots",
+            },
+            children: [
+              {
+                path: "",
+                lazy: () => import("../../routes/plots"),
+              },
+              {
+                path: "available",
+                handle: {
+                  breadcrumb: () => "Available Plots",
+                },
+                lazy: () => import("../../routes/plots"),
+              },
+              {
+                path: "assignments",
+                handle: {
+                  breadcrumb: () => "Plot Assignments",
+                },
+                lazy: () => import("../../routes/plots"),
+              },
+            ],
+          },
+          {
+            path: "/volunteers",
+            errorElement: <ErrorBoundary />,
+            handle: {
+              breadcrumb: () => "Volunteers",
+            },
+            children: [
+              {
+                path: "",
+                lazy: () => import("../../routes/volunteers"),
+              },
+              {
+                path: "list",
+                handle: {
+                  breadcrumb: () => "Volunteer List",
+                },
+                lazy: () => import("../../routes/volunteers"),
+              },
+              {
+                path: "schedule",
+                handle: {
+                  breadcrumb: () => "Schedule",
+                },
+                lazy: () => import("../../routes/volunteers"),
+              },
+            ],
+          },
+          {
+            path: "/donations",
+            errorElement: <ErrorBoundary />,
+            handle: {
+              breadcrumb: () => "Donations",
+            },
+            children: [
+              {
+                path: "",
+                lazy: () => import("../../routes/donations"),
+              },
+            ],
+          },
+          {
             path: "/venues",
             errorElement: <ErrorBoundary />,
             handle: {
