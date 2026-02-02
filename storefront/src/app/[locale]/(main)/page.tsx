@@ -164,7 +164,7 @@ export default async function Home({
         variant="mission"
         image="/images/hero/Image.jpg"
         heading="Shop, sell, invest, and grow—in a marketplace owned by its community."
-        paragraph="Browse farm-fresh produce, handcrafted goods, digital products, event tickets, rentals, and professional services from verified independent creators who keep 97% of every sale. Invest directly in local producers, join community gardens and shared kitchens, or open your own storefront. Transparent pricing. Blockchain-verified. Zero hidden fees."
+        paragraph="Browse farm-fresh produce, handcrafted goods, digital products, event tickets, rentals, and professional services from verified independent creators who keep 97% of every sale. Invest directly in local producers, join community gardens and shared kitchens, or open your own storefront. Transparent pricing. Zero hidden fees."
         buttons={[
           { label: "Explore the Marketplace", path: "/categories" },
           { label: "See How It Works", path: "/how-it-works" },
