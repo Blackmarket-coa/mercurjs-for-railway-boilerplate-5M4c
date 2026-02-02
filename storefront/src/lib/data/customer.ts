@@ -277,7 +277,7 @@ export const sendResetPasswordEmail = async (email: string) => {
     })
     return { success: true, error: null }
   } catch (err) {
-    return { success: false, error: err.toString() }
+    return { success: false, error: getErrorMessage(err) }
   }
 }
 
@@ -291,6 +291,6 @@ export const updateCustomerPassword = async (
     }, token)
     return { success: true, error: null }
   } catch (err) {
-    return { success: false, error: err.toString() }
+    return { success: false, error: getErrorMessage(err) }
   }
 }
