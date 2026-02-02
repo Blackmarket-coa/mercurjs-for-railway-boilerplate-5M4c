@@ -526,17 +526,22 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
             "name",
             "slug",
             "description",
-            "location.*",
+            "city",
+            "state",
+            "zip",
+            "coordinates",
             "status",
             "total_plots",
             "total_sqft",
-            "image_urls",
+            "cover_image_url",
+            "gallery_urls",
           ],
           filters: { status: "active" } as any,
         })
 
         for (const g of gardens || []) {
-          const loc = g.location as any
+          const coords = g.coordinates as { lat?: number; lng?: number } | null
+          const galleryUrls = g.gallery_urls as string[] | null
           vendors.push({
             id: g.id,
             name: g.name,
@@ -544,13 +549,13 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
             description: g.description,
             vendor_type: "garden",
             vendor_type_label: "Community Garden",
-            photo: Array.isArray(g.image_urls) ? g.image_urls[0] : undefined,
+            photo: g.cover_image_url || (galleryUrls?.[0] ?? undefined),
             location: {
-              city: loc?.city,
-              state: loc?.state,
-              zip: loc?.zip,
-              latitude: loc?.coordinates?.lat,
-              longitude: loc?.coordinates?.lng,
+              city: g.city,
+              state: g.state,
+              zip: g.zip,
+              latitude: coords?.lat,
+              longitude: coords?.lng,
             },
             total_plots: g.total_plots,
             total_sqft: g.total_sqft,
