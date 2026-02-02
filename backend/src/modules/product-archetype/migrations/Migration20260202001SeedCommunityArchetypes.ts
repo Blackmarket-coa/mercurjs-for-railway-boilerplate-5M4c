@@ -1,41 +1,21 @@
 import { Migration } from "@mikro-orm/migrations"
 
 /**
- * Add community-aligned product archetypes.
- * Extends the product archetype system to support mutual aid, circular economy,
- * land access, community services, and experimental products.
+ * Seed community-aligned product archetypes.
  *
- * No drop-shipping: all fulfillment is community-internal.
+ * This migration runs AFTER Migration20260202AddCommunityArchetypes which adds
+ * the enum values. PostgreSQL requires enum values to be committed in a separate
+ * transaction before they can be used in INSERT statements.
+ *
+ * Archetypes added:
+ * - LAND_ACCESS: Community garden plots, farm plots
+ * - MUTUAL_AID: Care kits, essentials, emergency support
+ * - CIRCULAR_ECONOMY: Repaired goods, salvaged materials
+ * - COMMUNITY_SERVICE: Shared spaces, skill shares, community events
+ * - EXPERIMENTAL: Prototype devices, pilot farming projects
  */
-export class Migration20260202AddCommunityArchetypes extends Migration {
+export class Migration20260202001SeedCommunityArchetypes extends Migration {
   async up(): Promise<void> {
-    // Add new enum values to product_archetype_code_enum
-    this.addSql(`
-      DO $$ BEGIN
-        ALTER TYPE "product_archetype_code_enum" ADD VALUE IF NOT EXISTS 'LAND_ACCESS';
-      EXCEPTION WHEN duplicate_object THEN null; END $$;
-    `)
-    this.addSql(`
-      DO $$ BEGIN
-        ALTER TYPE "product_archetype_code_enum" ADD VALUE IF NOT EXISTS 'MUTUAL_AID';
-      EXCEPTION WHEN duplicate_object THEN null; END $$;
-    `)
-    this.addSql(`
-      DO $$ BEGIN
-        ALTER TYPE "product_archetype_code_enum" ADD VALUE IF NOT EXISTS 'CIRCULAR_ECONOMY';
-      EXCEPTION WHEN duplicate_object THEN null; END $$;
-    `)
-    this.addSql(`
-      DO $$ BEGIN
-        ALTER TYPE "product_archetype_code_enum" ADD VALUE IF NOT EXISTS 'COMMUNITY_SERVICE';
-      EXCEPTION WHEN duplicate_object THEN null; END $$;
-    `)
-    this.addSql(`
-      DO $$ BEGIN
-        ALTER TYPE "product_archetype_code_enum" ADD VALUE IF NOT EXISTS 'EXPERIMENTAL';
-      EXCEPTION WHEN duplicate_object THEN null; END $$;
-    `)
-
     // Seed new community archetypes
     this.addSql(`
       INSERT INTO "product_archetype" (
@@ -87,7 +67,7 @@ export class Migration20260202AddCommunityArchetypes extends Migration {
   }
 
   async down(): Promise<void> {
-    // Remove the seeded archetypes (enum values cannot be removed in PostgreSQL)
+    // Remove the seeded archetypes
     this.addSql(`
       DELETE FROM "product_archetype"
       WHERE "code" IN ('LAND_ACCESS', 'MUTUAL_AID', 'CIRCULAR_ECONOMY', 'COMMUNITY_SERVICE', 'EXPERIMENTAL');
