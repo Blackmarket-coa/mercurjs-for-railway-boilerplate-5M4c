@@ -113,14 +113,14 @@ const ProductRequestsRow = ({
   handleDetail: (request: AdminRequest) => void;
 }) => {
   const navigate = useNavigate();
-  const requestData = request.payload as ProductDTO;
+  const requestData = request.payload as ProductDTO | undefined;
 
   return (
     <Table.Row key={request.id}>
-      <Table.Cell>{requestData.title}</Table.Cell>
+      <Table.Cell>{requestData?.title ?? "—"}</Table.Cell>
       <Table.Cell>{request.seller?.name}</Table.Cell>
       <Table.Cell>
-        {requestData.variants?.length || 0}
+        {requestData?.variants?.length || 0}
         {" variant(s)"}
       </Table.Cell>
       <Table.Cell>
