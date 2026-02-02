@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react"
 import { useMe } from "../../hooks/api"
 import { sdk } from "../../lib/client"
+import { devLogger } from "../../lib/logger"
 
 interface RocketChatConfig {
   configured: boolean
@@ -72,9 +73,7 @@ export const RocketChatProvider = ({ children }: { children: ReactNode }) => {
           }
         }
       } catch (error) {
-        if (import.meta.env.DEV) {
-          console.error("Failed to fetch RocketChat config:", error)
-        }
+        devLogger.error("Failed to fetch RocketChat config:", error)
         setIsConfigured(false)
       }
     }

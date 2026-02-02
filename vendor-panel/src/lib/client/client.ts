@@ -1,4 +1,5 @@
 import Medusa from "@medusajs/js-sdk"
+import { devLogger } from "../logger"
 
 // PUBLIC ROUTE CHECKER
 export const isPublicAuthRoute = (url: string) => {
@@ -47,7 +48,7 @@ export const getAuthTokenPayload = (): Record<string, unknown> | null => {
     return JSON.parse(decoded) as Record<string, unknown>
   } catch (error) {
     if (import.meta.env.DEV) {
-      console.warn("Failed to decode auth token payload:", error)
+      devLogger.warn("Failed to decode auth token payload:", error)
     }
     return null
   }

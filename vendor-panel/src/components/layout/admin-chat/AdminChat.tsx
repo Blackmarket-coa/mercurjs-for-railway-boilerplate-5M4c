@@ -3,6 +3,7 @@ import { Drawer, Heading, IconButton, Text } from "@medusajs/ui"
 import { useState, useRef, useEffect, useCallback } from "react"
 import { useMe } from "../../../hooks/api"
 import { useRocketChat } from "../../../providers/rocketchat-provider"
+import { devLogger } from "../../../lib/logger"
 
 export const AdminChat = () => {
   const [open, setOpen] = useState(false)
@@ -27,16 +28,12 @@ export const AdminChat = () => {
       }, targetOrigin)
 
       loginAttemptedRef.current = true
-      if (import.meta.env.DEV) {
-        console.log("[RocketChat] Admin chat: Sent auto-login token to iframe")
-      }
+      devLogger.log("[RocketChat] Admin chat: Sent auto-login token to iframe")
     } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error(
-          "[RocketChat] Admin chat: Failed to send login token:",
-          error
-        )
-      }
+      devLogger.error(
+        "[RocketChat] Admin chat: Failed to send login token:",
+        error
+      )
     }
   }, [loginToken, rocketChatUrl])
 
@@ -51,11 +48,9 @@ export const AdminChat = () => {
 
       // Handle RocketChat ready event
       if (event.data?.eventName === 'startup') {
-        if (import.meta.env.DEV) {
-          console.log(
-            "[RocketChat] Admin chat: Iframe ready, attempting auto-login"
-          )
-        }
+        devLogger.log(
+          "[RocketChat] Admin chat: Iframe ready, attempting auto-login"
+        )
         handleIframeLogin()
       }
     }

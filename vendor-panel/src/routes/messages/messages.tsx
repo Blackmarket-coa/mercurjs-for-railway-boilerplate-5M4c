@@ -1,6 +1,7 @@
 import { Container, Heading, Text, Badge } from "@medusajs/ui"
 import { useRocketChat } from "../../providers/rocketchat-provider"
 import { useRef, useEffect, useCallback, useState } from "react"
+import { devLogger } from "../../lib/logger"
 
 export const Messages = () => {
   const {
@@ -32,13 +33,9 @@ export const Messages = () => {
       }, targetOrigin)
 
       loginAttemptedRef.current = true
-      if (import.meta.env.DEV) {
-        console.log("[RocketChat] Sent auto-login token to iframe")
-      }
+      devLogger.log("[RocketChat] Sent auto-login token to iframe")
     } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error("[RocketChat] Failed to send login token:", error)
-      }
+      devLogger.error("[RocketChat] Failed to send login token:", error)
     }
   }, [loginToken, rocketChatUrl])
 
@@ -53,18 +50,14 @@ export const Messages = () => {
 
       // Handle RocketChat ready event
       if (event.data?.eventName === 'startup') {
-        if (import.meta.env.DEV) {
-          console.log("[RocketChat] Iframe ready, attempting auto-login")
-        }
+        devLogger.log("[RocketChat] Iframe ready, attempting auto-login")
         handleIframeLogin()
       }
 
       // Handle successful login
       if (event.data?.eventName === 'login') {
         setIsLoggedIn(true)
-        if (import.meta.env.DEV) {
-          console.log("[RocketChat] Auto-login successful")
-        }
+        devLogger.log("[RocketChat] Auto-login successful")
       }
     }
 

@@ -42,6 +42,7 @@ import {
   countries as staticCountries,
 } from "../../../../../lib/data/countries"
 import { formatProvider } from "../../../../../lib/format-provider"
+import { devLogger } from "../../../../../lib/logger"
 import {
   getShippingProfileName,
   isReturnOption,
@@ -324,7 +325,7 @@ function ServiceZone({
       .filter((c) => !!c) as StaticCountry[]
 
     if (import.meta.env.DEV && countryGeoZones?.length !== countries?.length) {
-      console.warn(
+      devLogger.warn(
         "Some countries are missing in the static countries list",
         countryGeoZones
           .filter((g) => !countries.find((c) => c.iso_2 === g.country_code))
