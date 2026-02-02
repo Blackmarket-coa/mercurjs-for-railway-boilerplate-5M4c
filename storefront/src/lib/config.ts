@@ -1,5 +1,6 @@
 import Medusa from "@medusajs/js-sdk"
 import type { NextFetchRequestConfig } from "next/dist/server/config-shared"
+import { logger } from "./logger"
 
 // Defaults to standard port for Medusa server
 const MEDUSA_BACKEND_URL =
@@ -8,9 +9,15 @@ const MEDUSA_BACKEND_URL =
 const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || ""
 
 // Log configuration in development/server startup
-if (typeof window === 'undefined') {
-  console.log('[Medusa Config] Backend URL:', MEDUSA_BACKEND_URL || '(not set)')
-  console.log('[Medusa Config] Publishable Key:', PUBLISHABLE_KEY ? `${PUBLISHABLE_KEY.slice(0, 20)}...` : '(not set)')
+if (typeof window === "undefined") {
+  logger.info(
+    "[Medusa Config] Backend URL:",
+    MEDUSA_BACKEND_URL || "(not set)"
+  )
+  logger.info(
+    "[Medusa Config] Publishable Key:",
+    PUBLISHABLE_KEY ? `${PUBLISHABLE_KEY.slice(0, 20)}...` : "(not set)"
+  )
 }
 
 export const sdk = new Medusa({
@@ -62,8 +69,11 @@ export async function medusaFetch<T>(
       },
     })
   } catch (error: any) {
-    console.error(`[medusaFetch] Error fetching ${path}:`, error?.message || error)
-    console.error(`[medusaFetch] Backend URL: ${MEDUSA_BACKEND_URL}`)
+    logger.error(
+      `[medusaFetch] Error fetching ${path}:`,
+      error?.message || error
+    )
+    logger.error(`[medusaFetch] Backend URL: ${MEDUSA_BACKEND_URL}`)
     throw error
   }
 }
@@ -109,7 +119,7 @@ export async function fetchQuery(
     })
 
     if (!res.ok) {
-      console.error(`[fetchQuery] HTTP ${res.status} error for ${fullUrl}`)
+      logger.error(`[fetchQuery] HTTP ${res.status} error for ${fullUrl}`)
     }
 
     let data
@@ -126,7 +136,10 @@ export async function fetchQuery(
       data: res.ok ? data : null,
     }
   } catch (error: any) {
-    console.error(`[fetchQuery] Network error for ${fullUrl}:`, error?.message || error)
+    logger.error(
+      `[fetchQuery] Network error for ${fullUrl}:`,
+      error?.message || error
+    )
     throw error
   }
 }
