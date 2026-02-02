@@ -252,8 +252,9 @@ export const createTicketProductWorkflow = createWorkflow(
       }
     }).config({ name: "retrieve-ticket-product" })
 
-    // Use transform to flatten the type and avoid TS2321 excessive stack depth
-    const result = transform({ finalTicketProduct }, (data) => ({
+    // Use transform with explicit any cast to break the recursive type chain
+    // and avoid TS2321 excessive stack depth errors from deeply nested MikroORM types
+    const result = transform({ finalTicketProduct: finalTicketProduct as any }, (data: any) => ({
       ticket_product: data.finalTicketProduct[0],
     }))
 
