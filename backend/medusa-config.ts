@@ -112,6 +112,7 @@ const getRedisOptions = () => {
 const coreModules = [
   { resolve: './src/modules/seller-extension' },
   { resolve: './src/modules/product-archetype' },
+  { resolve: './src/modules/password-history' },
 ]
 
 // Agricultural/barn-to-door modules
