@@ -101,7 +101,7 @@ const UserBadge = () => {
           )}
         >
           <div className="flex size-7 items-center justify-center">
-            <ImageAvatar src="/logo.svg" size={7} rounded />
+            <ImageAvatar src="/Logo.svg" size={7} rounded />
           </div>
           <div className="flex items-center overflow-hidden">
             <Text
@@ -132,7 +132,7 @@ const UserBadge = () => {
       >
         <div className="flex size-7 items-center justify-center">
           {fallback ? (
-            <ImageAvatar src={avatar || "/logo.svg"} size={7} rounded />
+            <ImageAvatar src={avatar || "/Logo.svg"} size={7} rounded />
           ) : (
             <Skeleton className="h-6 w-6 rounded-full" />
           )}
@@ -327,7 +327,7 @@ const UserItem = () => {
   return (
     <div className="flex items-center gap-x-3 overflow-hidden px-2 py-1">
       <div className="w-10">
-        <ImageAvatar src={avatar || "/logo.svg"} size={8} rounded />
+        <ImageAvatar src={avatar || "/Logo.svg"} size={8} rounded />
       </div>
       <div className="block w-full min-w-0 max-w-[187px] overflow-hidden whitespace-nowrap">
         <Text
