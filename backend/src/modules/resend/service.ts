@@ -14,17 +14,23 @@ import {
 import { orderPlacedEmail } from "./emails/order-placed";
 import { userInvitedEmail } from "./emails/user-invited";
 import { passwordResetEmail } from "./emails/password-reset";
+import { vendorAcceptedEmail } from "./emails/vendor-accepted";
+import { customerAcceptedEmail } from "./emails/customer-accepted";
 
 enum Templates {
   ORDER_PLACED = "order-placed",
   USER_INVITED = "user-invited",
   PASSWORD_RESET = "password-reset",
+  VENDOR_ACCEPTED = "vendor-accepted",
+  CUSTOMER_ACCEPTED = "customer-accepted",
 }
 
 const templates: {[key in Templates]?: (props: unknown) => React.ReactNode} = {
   [Templates.ORDER_PLACED]: orderPlacedEmail,
   [Templates.USER_INVITED]: userInvitedEmail,
-  [Templates.PASSWORD_RESET]: passwordResetEmail
+  [Templates.PASSWORD_RESET]: passwordResetEmail,
+  [Templates.VENDOR_ACCEPTED]: vendorAcceptedEmail,
+  [Templates.CUSTOMER_ACCEPTED]: customerAcceptedEmail,
 }
 
 type ResendOptions = {
@@ -96,6 +102,10 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
         return "You're Invited!"
       case Templates.PASSWORD_RESET:
         return "Reset Your Password"
+      case Templates.VENDOR_ACCEPTED:
+        return "Your vendor account is approved"
+      case Templates.CUSTOMER_ACCEPTED:
+        return "Your account has been approved"
       default:
         return "New Email"
     }

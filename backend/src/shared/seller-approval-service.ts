@@ -2,6 +2,8 @@ import { MedusaContainer } from "@medusajs/framework/types"
 import { Modules, ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { createSellerWorkflow } from "@mercurjs/b2c-core/workflows"
 import { createSellerMetadataWorkflow } from "../workflows/create-seller-metadata"
+import { sendVendorAcceptedNotificationWorkflow } from "../workflows/send-vendor-accepted-notification"
+import { sendCustomerAcceptedNotificationWorkflow } from "../workflows/send-customer-accepted-notification"
 import { VendorType } from "../modules/seller-extension/models/seller-metadata"
 import { getRocketChatService } from "./rocketchat-service"
 import { REQUEST_MODULE } from "../modules/request"
@@ -155,6 +157,56 @@ export class SellerApprovalService {
 
   constructor(container: MedusaContainer) {
     this.container = container
+  }
+
+  private async resolveCustomerContact(request: {
+    submitter_id?: string | null
+    data?: Record<string, unknown>
+  }): Promise<{ email: string; name?: string } | null> {
+    if (request.submitter_id) {
+      const query = this.container.resolve(ContainerRegistrationKeys.QUERY)
+      const { data: [customer] } = await query.graph({
+        entity: "customer",
+        fields: ["id", "email", "first_name", "last_name"],
+        filters: {
+          id: request.submitter_id,
+        },
+      })
+
+      if (customer?.email) {
+        const fullName = [customer.first_name, customer.last_name].filter(Boolean).join(" ")
+        return {
+          email: customer.email,
+          name: fullName || customer.email.split("@")[0],
+        }
+      }
+    }
+
+    const data = request.data
+    if (!data) {
+      return null
+    }
+
+    const directEmail = typeof data.email === "string" ? data.email : undefined
+    const member = typeof data.member === "object" && data.member ? (data.member as Record<string, unknown>) : undefined
+    const customer = typeof data.customer === "object" && data.customer ? (data.customer as Record<string, unknown>) : undefined
+
+    const fallbackEmail = directEmail ||
+      (typeof member?.email === "string" ? member.email : undefined) ||
+      (typeof customer?.email === "string" ? customer.email : undefined)
+
+    if (!fallbackEmail) {
+      return null
+    }
+
+    const fallbackName = (typeof data.name === "string" ? data.name : undefined) ||
+      (typeof member?.name === "string" ? member.name : undefined) ||
+      (typeof customer?.name === "string" ? customer.name : undefined)
+
+    return {
+      email: fallbackEmail,
+      name: fallbackName,
+    }
   }
 
   /**
@@ -411,6 +463,28 @@ export class SellerApprovalService {
 
       console.log(`[SellerApproval] Request ${requestId} approved by reviewer ${reviewerId}`)
 
+      try {
+        const vendorPanelUrl = process.env.VENDOR_PANEL_URL || process.env.VENDOR_URL || ""
+        const onboardingUrl = process.env.VENDOR_ONBOARDING_URL || (vendorPanelUrl ? `${vendorPanelUrl}/onboarding` : "")
+        const loginUrl = vendorPanelUrl ? `${vendorPanelUrl}/login` : ""
+
+        await sendVendorAcceptedNotificationWorkflow.run({
+          container: this.container,
+          input: {
+            seller_id: seller.id,
+            seller_name: seller.name,
+            member_email: data.member.email,
+            member_name: data.member.name,
+            vendor_panel_url: vendorPanelUrl || undefined,
+            onboarding_url: onboardingUrl || undefined,
+            login_url: loginUrl || undefined,
+          },
+        })
+        console.log(`[SellerApproval] Vendor acceptance notification sent to ${maskEmail(data.member.email)}`)
+      } catch (notificationError: any) {
+        console.warn(`[SellerApproval] Failed to send vendor acceptance notification: ${notificationError.message}`)
+      }
+
       return {
         seller: {
           id: seller.id,
@@ -507,6 +581,33 @@ export class SellerApprovalService {
     )
 
     console.log(`[SellerApproval] Generic request ${requestId} approved by reviewer ${reviewerId}`)
+
+    try {
+      const customerContact = await this.resolveCustomerContact({
+        submitter_id: request.submitter_id,
+        data: request.data as Record<string, unknown> | undefined,
+      })
+
+      if (!customerContact?.email) {
+        console.warn(`[SellerApproval] No customer contact found for request ${requestId}`)
+      } else {
+        const storefrontUrl = process.env.STOREFRONT_URL || process.env.NEXT_PUBLIC_BASE_URL || ""
+        const loginUrl = storefrontUrl ? `${storefrontUrl}/account` : ""
+
+        await sendCustomerAcceptedNotificationWorkflow.run({
+          container: this.container,
+          input: {
+            customer_email: customerContact.email,
+            customer_name: customerContact.name,
+            storefront_url: storefrontUrl || undefined,
+            login_url: loginUrl || undefined,
+          },
+        })
+        console.log(`[SellerApproval] Customer acceptance notification sent to ${maskEmail(customerContact.email)}`)
+      }
+    } catch (notificationError: any) {
+      console.warn(`[SellerApproval] Failed to send customer acceptance notification: ${notificationError.message}`)
+    }
 
     return {
       id: updatedRequest.id,

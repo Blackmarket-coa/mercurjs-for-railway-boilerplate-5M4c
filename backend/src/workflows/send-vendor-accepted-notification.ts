@@ -15,6 +15,8 @@ export type SendVendorAcceptedNotificationInput = {
   member_email: string
   member_name: string
   vendor_panel_url?: string
+  onboarding_url?: string
+  login_url?: string
 }
 
 /**
@@ -31,6 +33,10 @@ export const sendVendorAcceptedNotificationStep = createStep(
     const vendorPanelUrl = input.vendor_panel_url ||
       process.env.VENDOR_PANEL_URL ||
       ""
+    const onboardingUrl = input.onboarding_url ||
+      (vendorPanelUrl ? `${vendorPanelUrl}/onboarding` : "")
+    const loginUrl = input.login_url ||
+      (vendorPanelUrl ? `${vendorPanelUrl}/login` : "")
 
     const notification = await notificationModuleService.createNotifications({
       to: input.member_email,
@@ -40,7 +46,8 @@ export const sendVendorAcceptedNotificationStep = createStep(
         seller_name: input.seller_name,
         member_name: input.member_name,
         vendor_panel_url: vendorPanelUrl,
-        login_url: vendorPanelUrl ? `${vendorPanelUrl}/login` : undefined,
+        onboarding_url: onboardingUrl || undefined,
+        login_url: loginUrl || undefined,
       }
     })
 
