@@ -192,7 +192,7 @@ const paymentModule = {
   },
 }
 
-// Fulfillment providers
+// Fulfillment providers (community-internal only — no external/drop-ship fulfillment)
 const fulfillmentModule = {
   resolve: '@medusajs/medusa/fulfillment',
   options: {
@@ -200,17 +200,6 @@ const fulfillmentModule = {
       { resolve: '@medusajs/medusa/fulfillment-manual', id: 'manual' },
       { resolve: './src/modules/local-delivery-fulfillment', id: 'local-delivery' },
       { resolve: './src/modules/digital-product-fulfillment', id: 'digital' },
-      // ShipStation fulfillment (optional)
-      ...(process.env.SHIPSTATION_API_KEY && process.env.SHIPSTATION_API_SECRET
-        ? [{
-            resolve: './src/modules/shipstation',
-            id: 'shipstation',
-            options: {
-              apiKey: process.env.SHIPSTATION_API_KEY,
-              apiSecret: process.env.SHIPSTATION_API_SECRET,
-            },
-          }]
-        : []),
     ],
   },
 }
