@@ -29,6 +29,8 @@ export interface VendorFeatures {
   hasHarvests: boolean
   hasPlots: boolean
   hasRequests: boolean
+  hasFarm: boolean
+  hasShows: boolean
 }
 
 /**
@@ -62,6 +64,8 @@ function getFeaturesByType(type: VendorType): VendorFeatures {
       hasHarvests: true,
       hasPlots: false,
       hasRequests: false,
+      hasFarm: true,
+      hasShows: false,
     },
     garden: {
       hasProducts: true,  // Harvest shares, seedlings
@@ -76,6 +80,8 @@ function getFeaturesByType(type: VendorType): VendorFeatures {
       hasHarvests: true,
       hasPlots: true,
       hasRequests: false,
+      hasFarm: true,
+      hasShows: false,
     },
     kitchen: {
       hasProducts: true,  // Prepared foods, catering items
@@ -90,6 +96,8 @@ function getFeaturesByType(type: VendorType): VendorFeatures {
       hasHarvests: false,
       hasPlots: false,
       hasRequests: true,  // Kitchen time requests
+      hasFarm: false,
+      hasShows: false,
     },
     maker: {
       hasProducts: true,
@@ -104,6 +112,8 @@ function getFeaturesByType(type: VendorType): VendorFeatures {
       hasHarvests: false,
       hasPlots: false,
       hasRequests: false,
+      hasFarm: false,
+      hasShows: false,
     },
     restaurant: {
       hasProducts: false,  // Uses menu items instead
@@ -118,6 +128,8 @@ function getFeaturesByType(type: VendorType): VendorFeatures {
       hasHarvests: false,
       hasPlots: false,
       hasRequests: false,
+      hasFarm: false,
+      hasShows: true,
     },
     mutual_aid: {
       hasProducts: false,
@@ -132,6 +144,8 @@ function getFeaturesByType(type: VendorType): VendorFeatures {
       hasHarvests: false,
       hasPlots: false,
       hasRequests: true,
+      hasFarm: false,
+      hasShows: false,
     },
     default: {
       hasProducts: true,
@@ -146,6 +160,8 @@ function getFeaturesByType(type: VendorType): VendorFeatures {
       hasHarvests: false,
       hasPlots: false,
       hasRequests: false,
+      hasFarm: false,
+      hasShows: false,
     },
   }
   
