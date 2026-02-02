@@ -19,4 +19,18 @@ export type SellerProps = SellerAddress & {
   products?: Product[]
   email?: string
   store_status?: "ACTIVE" | "SUSPENDED" | "INACTIVE"
+  metadata?: SellerMetadata
+}
+
+export type SellerScheduling = {
+  booking_url?: string
+  meeting_platform?: "rocketchat" | "zoom" | "signal" | "custom" | string
+  meeting_url?: string
+  meeting_instructions?: string
+  ticket_product_handle?: string
+}
+
+export type SellerMetadata = {
+  scheduling?: SellerScheduling
+  [key: string]: unknown
 }

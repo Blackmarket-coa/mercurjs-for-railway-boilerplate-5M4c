@@ -1,6 +1,7 @@
 "use client"
 
 import { SellerFooter, SellerHeading } from "@/components/organisms"
+import { SellerScheduling } from "../SellerScheduling/SellerScheduling"
 import { HttpTypes } from "@medusajs/types"
 import DOMPurify from "dompurify"
 import { useState, useEffect } from "react"
@@ -37,6 +38,7 @@ export const SellerPageHeader = ({
         }}
         className="label-md my-5"
       />
+      <SellerScheduling seller={seller} />
       <SellerFooter seller={seller} />
     </div>
   )
