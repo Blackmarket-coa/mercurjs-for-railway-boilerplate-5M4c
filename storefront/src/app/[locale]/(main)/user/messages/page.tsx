@@ -1,12 +1,14 @@
-import { LoginForm } from "@/components/molecules/LoginForm/LoginForm"
-import { UserNavigation } from "@/components/molecules/UserNavigation/UserNavigation"
+import { AccountLoadingState, LoginForm, UserNavigation } from "@/components/molecules"
 import { UserMessagesSection } from "@/components/sections/UserMessagesSection/UserMessagesSection"
-import { retrieveCustomer } from "@/lib/data/customer"
+import { retrieveCustomerContext } from "@/lib/data/customer"
 
 export default async function MessagesPage() {
-  const user = await retrieveCustomer()
+  const { customer, isAuthenticated } = await retrieveCustomerContext()
 
-  if (!user) return <LoginForm />
+  if (!customer) {
+    if (!isAuthenticated) return <LoginForm />
+    return <AccountLoadingState title="Messages" />
+  }
 
   return (
     <main className="container">

@@ -37,6 +37,31 @@ export const retrieveCustomer =
     }
   }
 
+export const retrieveCustomerContext = async (): Promise<{
+  customer: HttpTypes.StoreCustomer | null
+  isAuthenticated: boolean
+}> => {
+  const authHeaders = await getAuthHeaders()
+  if (!authHeaders) {
+    return { customer: null, isAuthenticated: false }
+  }
+
+  try {
+    const { customer } = await medusaFetch<{
+      customer: HttpTypes.StoreCustomer
+    }>(`/store/customers/me`, {
+      method: "GET",
+      headers: authHeaders,
+      cache: "no-store",
+    })
+
+    return { customer: customer ?? null, isAuthenticated: true }
+  } catch (error) {
+    console.warn("[retrieveCustomerContext] Failed to fetch customer:", error)
+    return { customer: null, isAuthenticated: true }
+  }
+}
+
 /* ---------------------------------------------
  * UPDATE CUSTOMER
  * -------------------------------------------- */

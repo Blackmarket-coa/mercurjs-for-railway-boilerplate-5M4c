@@ -1,12 +1,14 @@
-import { LoginForm, ProfileDetails } from "@/components/molecules"
-import { UserNavigation } from "@/components/molecules"
+import { AccountLoadingState, LoginForm, ProfileDetails, UserNavigation } from "@/components/molecules"
 import { ProfilePassword } from "@/components/molecules/ProfileDetails/ProfilePassword"
-import { retrieveCustomer } from "@/lib/data/customer"
+import { retrieveCustomerContext } from "@/lib/data/customer"
 
 export default async function ReviewsPage() {
-  const user = await retrieveCustomer()
+  const { customer, isAuthenticated } = await retrieveCustomerContext()
 
-  if (!user) return <LoginForm />
+  if (!customer) {
+    if (!isAuthenticated) return <LoginForm />
+    return <AccountLoadingState title="Settings" />
+  }
 
   return (
     <main className="container">
@@ -14,8 +16,8 @@ export default async function ReviewsPage() {
         <UserNavigation />
         <div className="md:col-span-3">
           <h1 className="heading-md uppercase mb-8">Settings</h1>
-          <ProfileDetails user={user} />
-          <ProfilePassword user={user} />
+          <ProfileDetails user={customer} />
+          <ProfilePassword user={customer} />
         </div>
       </div>
     </main>

@@ -1,12 +1,15 @@
-import { LoginForm, UserNavigation } from "@/components/molecules"
+import { AccountLoadingState, LoginForm, UserNavigation } from "@/components/molecules"
 import { ReviewsToWrite } from "@/components/organisms"
-import { retrieveCustomer } from "@/lib/data/customer"
+import { retrieveCustomerContext } from "@/lib/data/customer"
 import { listOrders } from "@/lib/data/orders"
 
 export default async function Page() {
-  const user = await retrieveCustomer()
+  const { customer, isAuthenticated } = await retrieveCustomerContext()
 
-  if (!user) return <LoginForm />
+  if (!customer) {
+    if (!isAuthenticated) return <LoginForm />
+    return <AccountLoadingState title="Reviews" />
+  }
 
   const orders = await listOrders()
 

@@ -1,4 +1,4 @@
-import { retrieveCustomer } from "@/lib/data/customer"
+import { retrieveCustomerContext } from "@/lib/data/customer"
 import { redirect } from "next/navigation"
 import { isEmpty } from "lodash"
 import { Wishlist as WishlistType } from "@/types/wishlist"
@@ -7,22 +7,21 @@ import { Button } from "@/components/atoms"
 import { WishlistItem } from "@/components/cells"
 import { getUserWishlists } from "@/lib/data/wishlist"
 import { HttpTypes } from "@medusajs/types"
-import { UserNavigation } from "@/components/molecules"
+import { AccountLoadingState, UserNavigation } from "@/components/molecules"
 
 export default async function Wishlist() {
-  const user = await retrieveCustomer()
+  const { customer, isAuthenticated } = await retrieveCustomerContext()
 
-  let wishlist: WishlistType[] = []
-  if (user) {
-    const response = await getUserWishlists()
-    wishlist = response.wishlists
+  if (!customer) {
+    if (!isAuthenticated) {
+      redirect("/user")
+    }
+    return <AccountLoadingState title="Wishlist" />
   }
 
+  const response = await getUserWishlists()
+  const wishlist: WishlistType[] = response.wishlists
   const count = wishlist?.[0]?.products?.length || 0
-
-  if (!user) {
-    redirect("/user")
-  }
 
   return (
     <main className="container">
@@ -58,7 +57,7 @@ export default async function Wishlist() {
                       }
                     }
                     wishlist={wishlist}
-                    user={user}
+                    user={customer}
                   />
                 ))}
               </div>

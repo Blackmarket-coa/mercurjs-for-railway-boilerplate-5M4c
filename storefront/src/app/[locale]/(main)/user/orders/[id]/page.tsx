@@ -1,5 +1,5 @@
-import { UserNavigation } from "@/components/molecules"
-import { retrieveCustomer } from "@/lib/data/customer"
+import { AccountLoadingState, UserNavigation } from "@/components/molecules"
+import { retrieveCustomerContext } from "@/lib/data/customer"
 import { Button } from "@/components/atoms"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { ArrowLeftIcon } from "@/icons"
@@ -15,10 +15,14 @@ export default async function UserPage({
 }) {
   const { id } = await params
 
-  const user = await retrieveCustomer()
-  const orderSet = await retrieveOrderSet(id)
+  const { customer, isAuthenticated } = await retrieveCustomerContext()
 
-  if (!user) return redirect("/user")
+  if (!customer) {
+    if (!isAuthenticated) return redirect("/user")
+    return <AccountLoadingState title="Orders" />
+  }
+
+  const orderSet = await retrieveOrderSet(id)
 
   return (
     <main className="container">
