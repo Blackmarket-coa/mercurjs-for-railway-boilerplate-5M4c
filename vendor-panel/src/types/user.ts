@@ -31,6 +31,19 @@ export interface StorefrontLinks {
   other?: { name: string; url: string }[]
 }
 
+export interface SellerScheduling {
+  booking_url?: string
+  meeting_platform?: string
+  meeting_url?: string
+  meeting_instructions?: string
+  ticket_product_handle?: string
+}
+
+export interface SellerMetadata {
+  scheduling?: SellerScheduling
+  [key: string]: unknown
+}
+
 export interface StoreVendor {
   id?: string
   name?: string
@@ -54,6 +67,7 @@ export interface StoreVendor {
   social_links?: SocialLinks
   storefront_links?: StorefrontLinks
   website_url?: string
+  metadata?: SellerMetadata
 }
 
 export interface TeamMemberProps {

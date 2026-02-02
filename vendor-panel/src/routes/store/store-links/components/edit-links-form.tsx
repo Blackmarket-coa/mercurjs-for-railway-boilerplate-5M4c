@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Button, Input, Text, toast } from "@medusajs/ui"
+import { Button, Input, Text, Textarea, toast } from "@medusajs/ui"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -32,6 +32,13 @@ export const EditLinksSchema = z.object({
   storefront_shopify: urlSchema,
   storefront_ebay: urlSchema,
   storefront_farmers_market: z.string().optional(),
+
+  // Scheduling / digital services
+  scheduling_booking_url: urlSchema,
+  scheduling_meeting_platform: z.string().optional().or(z.literal("")),
+  scheduling_meeting_url: urlSchema,
+  scheduling_meeting_instructions: z.string().optional().or(z.literal("")),
+  scheduling_ticket_product_handle: z.string().optional().or(z.literal("")),
 })
 
 export const EditLinksForm = ({ seller }: { seller: StoreVendor }) => {
@@ -53,6 +60,13 @@ export const EditLinksForm = ({ seller }: { seller: StoreVendor }) => {
       storefront_shopify: seller.storefront_links?.shopify || "",
       storefront_ebay: seller.storefront_links?.ebay || "",
       storefront_farmers_market: seller.storefront_links?.farmers_market || "",
+      scheduling_booking_url: seller.metadata?.scheduling?.booking_url || "",
+      scheduling_meeting_platform: seller.metadata?.scheduling?.meeting_platform || "",
+      scheduling_meeting_url: seller.metadata?.scheduling?.meeting_url || "",
+      scheduling_meeting_instructions:
+        seller.metadata?.scheduling?.meeting_instructions || "",
+      scheduling_ticket_product_handle:
+        seller.metadata?.scheduling?.ticket_product_handle || "",
     },
     resolver: zodResolver(EditLinksSchema),
   })
@@ -80,12 +94,32 @@ export const EditLinksForm = ({ seller }: { seller: StoreVendor }) => {
       farmers_market: values.storefront_farmers_market || undefined,
     }
 
+    const scheduling = {
+      booking_url: values.scheduling_booking_url || undefined,
+      meeting_platform: values.scheduling_meeting_platform || undefined,
+      meeting_url: values.scheduling_meeting_url || undefined,
+      meeting_instructions: values.scheduling_meeting_instructions || undefined,
+      ticket_product_handle: values.scheduling_ticket_product_handle || undefined,
+    }
+
+    const hasScheduling = Object.values(scheduling).some(Boolean)
+    const metadata = {
+      ...(seller.metadata ?? {}),
+    }
+
+    if (hasScheduling) {
+      metadata.scheduling = scheduling
+    } else {
+      delete metadata.scheduling
+    }
+
     await mutateAsync(
       {
         ...seller,
         website_url: values.website_url || undefined,
         social_links,
         storefront_links,
+        metadata: Object.keys(metadata).length > 0 ? metadata : undefined,
       },
       {
         onSuccess: () => {
@@ -331,6 +365,95 @@ export const EditLinksForm = ({ seller }: { seller: StoreVendor }) => {
                         <Input 
                           {...field} 
                           placeholder="e.g., Downtown Saturday Market, Booth 12"
+                        />
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Text size="large" weight="plus" className="mb-4">
+                Scheduling
+              </Text>
+              <Text size="small" className="text-ui-fg-subtle mb-4">
+                Share booking links for digital services like coaching or readings.
+              </Text>
+              <div className="flex flex-col gap-y-4">
+                <Form.Field
+                  name="scheduling_booking_url"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Booking Page URL</Form.Label>
+                      <Form.Control>
+                        <Input
+                          {...field}
+                          placeholder="https://calendly.com/yourname"
+                        />
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  name="scheduling_meeting_platform"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Meeting Platform</Form.Label>
+                      <Form.Control>
+                        <Input
+                          {...field}
+                          placeholder="Rocket.Chat, Zoom, Signal, etc."
+                        />
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  name="scheduling_meeting_url"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Meeting Link</Form.Label>
+                      <Form.Control>
+                        <Input
+                          {...field}
+                          placeholder="https://zoom.us/j/..."
+                        />
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  name="scheduling_ticket_product_handle"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Ticket Product Handle</Form.Label>
+                      <Form.Control>
+                        <Input {...field} placeholder="private-consulting" />
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  name="scheduling_meeting_instructions"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Meeting Instructions</Form.Label>
+                      <Form.Control>
+                        <Textarea
+                          {...field}
+                          placeholder="Share any prep details or access steps."
+                          rows={3}
                         />
                       </Form.Control>
                       <Form.ErrorMessage />
