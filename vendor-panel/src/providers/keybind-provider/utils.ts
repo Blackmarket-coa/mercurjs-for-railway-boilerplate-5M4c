@@ -22,13 +22,15 @@ export const getShortcutKeys = (shortcut: Shortcut) => {
   if (!keys) {
     const defaultPlatform = findFirstPlatformMatch(shortcut.keys)
 
-    console.warn(
-      `No keys found for platform "${platform}" in "${shortcut.label}" ${
-        defaultPlatform
-          ? `using keys for platform "${defaultPlatform.platform}"`
-          : ""
-      }`
-    )
+    if (import.meta.env.DEV) {
+      console.warn(
+        `No keys found for platform "${platform}" in "${shortcut.label}" ${
+          defaultPlatform
+            ? `using keys for platform "${defaultPlatform.platform}"`
+            : ""
+        }`
+      )
+    }
 
     return defaultPlatform ? defaultPlatform.keys : []
   }

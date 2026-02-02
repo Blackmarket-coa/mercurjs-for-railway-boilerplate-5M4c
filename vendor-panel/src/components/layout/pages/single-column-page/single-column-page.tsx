@@ -27,7 +27,7 @@ export const SingleColumnPage = <TData,>({
   const widgetProps = { data }
 
   if (showJSON && !data) {
-    if (process.env.NODE_ENV === "development") {
+    if (import.meta.env.DEV) {
       console.warn(
         "`showJSON` is true but no data is provided. To display JSON, provide data prop."
       )
@@ -37,7 +37,7 @@ export const SingleColumnPage = <TData,>({
   }
 
   if (showMetadata && !data) {
-    if (process.env.NODE_ENV === "development") {
+    if (import.meta.env.DEV) {
       console.warn(
         "`showMetadata` is true but no data is provided. To display metadata, provide data prop."
       )

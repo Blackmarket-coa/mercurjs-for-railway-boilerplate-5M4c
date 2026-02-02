@@ -105,6 +105,9 @@ export const Dashboard = () => {
         locations_shipping={onboarding?.locations_shipping}
         store_information={onboarding?.store_information}
         stripe_connect={onboarding?.stripe_connect}
+        menu={onboarding?.menu}
+        plots={onboarding?.plots}
+        volunteers={onboarding?.volunteers}
       />
     )
 

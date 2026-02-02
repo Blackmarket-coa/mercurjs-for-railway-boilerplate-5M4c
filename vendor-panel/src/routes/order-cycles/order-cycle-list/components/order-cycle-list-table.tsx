@@ -62,7 +62,6 @@ export const OrderCycleListTable = () => {
   }
 
   const handleImportComplete = (products: any[]) => {
-    console.log("Imported products:", products)
     // TODO: Add products to order cycle or create them
   }
 

@@ -57,7 +57,6 @@ export const ImportOFNModal = ({
       }
     } catch (error) {
       toast.error("Failed to parse CSV file")
-      console.error(error)
     } finally {
       setImporting(false)
     }
@@ -155,20 +154,20 @@ export const ImportOFNModal = ({
                 <div className="bg-ui-bg-subtle rounded-lg p-4">
                   <Text className="font-medium mb-2">Required CSV Columns:</Text>
                   <ul className="text-sm text-ui-fg-subtle space-y-1">
-                    <li>• <strong>name</strong> - Product name</li>
-                    <li>• <strong>category</strong> - Product category (e.g., Vegetables, Dairy)</li>
-                    <li>• <strong>units</strong> - Quantity value (e.g., 500, 1)</li>
-                    <li>• <strong>price</strong> - Price per unit</li>
+                    <li>â€¢ <strong>name</strong> - Product name</li>
+                    <li>â€¢ <strong>category</strong> - Product category (e.g., Vegetables, Dairy)</li>
+                    <li>â€¢ <strong>units</strong> - Quantity value (e.g., 500, 1)</li>
+                    <li>â€¢ <strong>price</strong> - Price per unit</li>
                   </ul>
                   <Text className="font-medium mt-4 mb-2">Optional Columns:</Text>
                   <ul className="text-sm text-ui-fg-subtle space-y-1">
-                    <li>• <strong>unit_type</strong> - g, kg, mL, L (for weight/volume)</li>
-                    <li>• <strong>variant_unit_name</strong> - For items (e.g., loaf, bunch)</li>
-                    <li>• <strong>display_name</strong> - Variant name</li>
-                    <li>• <strong>description</strong> - Product description</li>
-                    <li>• <strong>sku</strong> - SKU code</li>
-                    <li>• <strong>on_hand</strong> - Stock quantity</li>
-                    <li>• <strong>on_demand</strong> - 1 for unlimited stock</li>
+                    <li>â€¢ <strong>unit_type</strong> - g, kg, mL, L (for weight/volume)</li>
+                    <li>â€¢ <strong>variant_unit_name</strong> - For items (e.g., loaf, bunch)</li>
+                    <li>â€¢ <strong>display_name</strong> - Variant name</li>
+                    <li>â€¢ <strong>description</strong> - Product description</li>
+                    <li>â€¢ <strong>sku</strong> - SKU code</li>
+                    <li>â€¢ <strong>on_hand</strong> - Stock quantity</li>
+                    <li>â€¢ <strong>on_demand</strong> - 1 for unlimited stock</li>
                   </ul>
                 </div>
               </div>

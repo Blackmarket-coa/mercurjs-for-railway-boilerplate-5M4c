@@ -32,13 +32,14 @@ const CreateAccountSchema = z
     }
   })
 
-// TODO: Update to V2 format
 type DecodedInvite = {
-  id: string
-  jti: any
-  exp: string
+  id?: string
+  invite_id?: string
+  jti?: string
+  sub?: string
+  exp: number
   iat: number
-  email: string
+  email?: string
 }
 
 export const Invite = () => {
@@ -181,7 +182,7 @@ const CreateView = ({
   const form = useForm<z.infer<typeof CreateAccountSchema>>({
     resolver: zodResolver(CreateAccountSchema),
     defaultValues: {
-      email: isFirstRun ? "" : invite.email || "",
+      email: isFirstRun ? "" : invite.email || invite.sub || "",
       first_name: "",
       last_name: "",
       password: "",
@@ -399,10 +400,15 @@ const SuccessView = () => {
 }
 
 const InviteSchema = z.object({
-  id: z.string(),
-  // jti: z.string(),
+  id: z.string().optional(),
+  invite_id: z.string().optional(),
+  jti: z.string().optional(),
+  sub: z.string().optional(),
+  email: z.string().email().optional(),
   exp: z.number(),
   iat: z.number(),
+}).refine((data) => Boolean(data.id || data.invite_id), {
+  message: "Missing invite identifier",
 })
 
 const validateDecodedInvite = (decoded: any): decoded is DecodedInvite => {

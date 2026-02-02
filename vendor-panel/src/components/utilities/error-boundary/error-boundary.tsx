@@ -26,7 +26,7 @@ export const ErrorBoundary = () => {
    * react-router-dom will sometimes swallow the error,
    * so this ensures that we always log it.
    */
-  if (process.env.NODE_ENV === "development") {
+  if (import.meta.env.DEV) {
     console.error(error)
   }
 

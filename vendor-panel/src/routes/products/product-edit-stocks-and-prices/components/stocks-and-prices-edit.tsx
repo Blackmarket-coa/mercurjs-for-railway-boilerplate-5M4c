@@ -80,25 +80,27 @@ const createFormValues = (
 }
 const getPricesPayload = (
   variants: UpdateVariantStocksSchemaType["variants"]
-) => {
-  return variants
-    .filter((variant) => Object.keys(variant.prices || {}).length)
-    .map((variant) => {
-      const prices = Object.entries(variant.prices || {})
-        .filter(
-          ([_, amount]) =>
-            amount !== null && amount !== undefined && amount !== ""
-        )
-        .map(([currency_code, amount]) => ({
-          currency_code,
-          amount: typeof amount === "string" ? parseFloat(amount) : amount,
-        }))
+) : HttpTypes.AdminBatchProductVariantRequest => {
+  return {
+    update: variants
+      .filter((variant) => Object.keys(variant.prices || {}).length)
+      .map((variant) => {
+        const prices = Object.entries(variant.prices || {})
+          .filter(
+            ([_, amount]) =>
+              amount !== null && amount !== undefined && amount !== ""
+          )
+          .map(([currency_code, amount]) => ({
+            currency_code,
+            amount: typeof amount === "string" ? parseFloat(amount) : amount,
+          }))
 
-      return {
-        id: variant.id,
-        prices,
-      }
-    })
+        return {
+          id: variant.id,
+          prices,
+        }
+      }),
+  }
 }
 
 const getInventoryLocationLevelsPayload = (
