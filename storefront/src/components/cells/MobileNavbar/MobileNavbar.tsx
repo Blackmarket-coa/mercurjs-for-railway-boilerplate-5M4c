@@ -99,6 +99,20 @@ export const MobileNavbar = ({
                 <span className="text-lg">👨‍🌾</span> Our Producers
               </LocalizedClientLink>
               <LocalizedClientLink
+                href="/vendors"
+                onClick={closeMenuHandler}
+                className="font-medium text-primary hover:text-green-700 flex items-center gap-2"
+              >
+                <span className="text-lg">🏪</span> All Vendors
+              </LocalizedClientLink>
+              <LocalizedClientLink
+                href="/collections"
+                onClick={closeMenuHandler}
+                className="font-medium text-primary hover:text-green-700 flex items-center gap-2"
+              >
+                <span className="text-lg">📦</span> Collections
+              </LocalizedClientLink>
+              <LocalizedClientLink
                 href="/sell"
                 onClick={closeMenuHandler}
                 className="font-medium text-green-700 hover:text-green-800 flex items-center gap-2"

@@ -170,16 +170,28 @@ export const TypeNavbar = ({
         </div>
       ))}
 
-      {/* Our Producers */}
+      {/* Vendors Directory */}
       <LocalizedClientLink
-        href="/producers"
+        href="/vendors"
         onClick={() => onClose?.(false)}
         className={cn(
           "label-md uppercase px-4 py-2 hover:bg-secondary transition-colors",
-          pathname?.includes("/producers") && "bg-secondary font-semibold"
+          pathname?.includes("/vendors") && "bg-secondary font-semibold"
         )}
       >
-        Producers
+        Vendors
+      </LocalizedClientLink>
+
+      {/* Collections */}
+      <LocalizedClientLink
+        href="/collections"
+        onClick={() => onClose?.(false)}
+        className={cn(
+          "label-md uppercase px-4 py-2 hover:bg-secondary transition-colors",
+          pathname?.includes("/collections") && "bg-secondary font-semibold"
+        )}
+      >
+        Collections
       </LocalizedClientLink>
     </nav>
   )

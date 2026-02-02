@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { LocationIcon, AwardIcon, SearchIcon, FilterIcon, ForwardIcon, LeafIcon } from "@/icons"
@@ -19,6 +19,14 @@ const PRACTICE_LABELS: Record<string, string> = {
   IPM: "IPM",
 }
 
+const RADIUS_OPTIONS = [
+  { value: "10", label: "10 miles" },
+  { value: "25", label: "25 miles" },
+  { value: "50", label: "50 miles" },
+  { value: "100", label: "100 miles" },
+  { value: "250", label: "250 miles" },
+]
+
 interface Producer {
   id: string
   name: string
@@ -33,6 +41,7 @@ interface Producer {
   featured?: boolean
   verified?: boolean
   year_established?: number
+  distance?: number | null
 }
 
 interface ProducersPageProps {
@@ -44,28 +53,56 @@ export function ProducersPage({ locale }: ProducersPageProps) {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [showFeatured, setShowFeatured] = useState(false)
+  const [zipCode, setZipCode] = useState("")
+  const [radiusMiles, setRadiusMiles] = useState("50")
+  const [distanceActive, setDistanceActive] = useState(false)
+  const [showDistancePanel, setShowDistancePanel] = useState(false)
+
+  const fetchProducers = useCallback(async () => {
+    setLoading(true)
+    try {
+      const params = new URLSearchParams({
+        limit: "50",
+        ...(showFeatured && { featured: "true" }),
+        ...(search && { search }),
+      })
+
+      if (distanceActive && zipCode) {
+        // Look up zip coordinates via geocode API
+        const geoRes = await fetch(`/api/geocode?zip=${zipCode}`)
+        if (geoRes.ok) {
+          const geo = await geoRes.json()
+          params.set("lat", String(geo.latitude))
+          params.set("lng", String(geo.longitude))
+          params.set("radius_miles", radiusMiles)
+        }
+      }
+
+      const response = await fetch(`/api/producers?${params}`)
+      const data = await response.json()
+      setProducers(data.producers || [])
+    } catch (error) {
+      console.error("Error fetching producers:", error)
+    } finally {
+      setLoading(false)
+    }
+  }, [search, showFeatured, distanceActive, zipCode, radiusMiles])
 
   useEffect(() => {
-    async function fetchProducers() {
-      try {
-        const params = new URLSearchParams({
-          limit: "50",
-          ...(showFeatured && { featured: "true" }),
-          ...(search && { search }),
-        })
-        
-        const response = await fetch(`/api/producers?${params}`)
-        const data = await response.json()
-        setProducers(data.producers || [])
-      } catch (error) {
-        console.error("Error fetching producers:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
+    const debounce = setTimeout(fetchProducers, 300)
+    return () => clearTimeout(debounce)
+  }, [fetchProducers])
 
-    fetchProducers()
-  }, [search, showFeatured])
+  const handleZipSearch = () => {
+    if (zipCode.length >= 3) {
+      setDistanceActive(true)
+    }
+  }
+
+  const clearDistanceFilter = () => {
+    setDistanceActive(false)
+    setZipCode("")
+  }
 
   const featuredProducers = producers.filter((p) => p.featured)
   const regularProducers = producers.filter((p) => !p.featured)
@@ -103,7 +140,70 @@ export function ProducersPage({ locale }: ProducersPageProps) {
           <FilterIcon className="w-4 h-4" />
           Featured Only
         </button>
+        <button
+          onClick={() => setShowDistancePanel(!showDistancePanel)}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+            distanceActive
+              ? "bg-green-100 border-green-300 text-green-800"
+              : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+          }`}
+        >
+          <LocationIcon className="w-4 h-4" />
+          {distanceActive ? `Within ${radiusMiles} mi` : "Near Me"}
+        </button>
       </div>
+
+      {/* Distance Filter Panel */}
+      {showDistancePanel && (
+        <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 mb-8">
+          <div className="flex flex-col sm:flex-row gap-3 items-end">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Zip Code
+              </label>
+              <input
+                type="text"
+                placeholder="Enter zip code..."
+                value={zipCode}
+                onChange={(e) => setZipCode(e.target.value.replace(/\D/g, "").slice(0, 5))}
+                maxLength={5}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Radius
+              </label>
+              <select
+                value={radiusMiles}
+                onChange={(e) => setRadiusMiles(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              >
+                {RADIUS_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button
+              onClick={handleZipSearch}
+              disabled={zipCode.length < 3}
+              className="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            >
+              Search
+            </button>
+            {distanceActive && (
+              <button
+                onClick={clearDistanceFilter}
+                className="px-4 py-2 text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
