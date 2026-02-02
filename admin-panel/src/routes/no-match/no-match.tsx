@@ -3,7 +3,6 @@ import { Button, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
-// TODO: Add 404 page
 export const NoMatch = () => {
   const { t } = useTranslation()
 

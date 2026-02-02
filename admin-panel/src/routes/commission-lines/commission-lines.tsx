@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { History } from "@medusajs/icons";
 import { Container, Heading, Table, Text } from "@medusajs/ui";
@@ -31,10 +31,6 @@ export const CommissionLines = () => {
     offset: currentPage * PAGE_SIZE,
     limit: PAGE_SIZE,
   });
-
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
 
   return (
     <Container>

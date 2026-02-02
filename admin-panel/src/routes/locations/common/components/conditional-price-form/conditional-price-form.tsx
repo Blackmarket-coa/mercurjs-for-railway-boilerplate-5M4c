@@ -137,8 +137,6 @@ export const ConditionalPriceForm = ({
   // Intercept the Cmd + Enter key to only save the inner form.
   const handleOnKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
-      console.log("Fired")
-
       event.preventDefault()
       event.stopPropagation()
 
