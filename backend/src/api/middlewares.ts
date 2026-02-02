@@ -14,6 +14,9 @@ import {
   vendorRegistrationRateLimiter,
 } from "../shared/rate-limiter"
 import { ensureSellerContext } from "./vendor/_middlewares"
+import { CreateVenueSchema } from "./admin/venues/route"
+import { CreateTicketProductSchema } from "./admin/ticket-products/route"
+import { GetTicketProductSeatsSchema } from "./store/ticket-products/[id]/seats/route"
 
 // Basic email validation regex
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -634,6 +637,30 @@ export default defineMiddlewares({
       middlewares: [
         validateAndTransformBody(PostCartItemsRentalsBody)
       ]
+    },
+    // Ticket booking routes - admin venues
+    {
+      matcher: "/admin/venues",
+      method: "POST",
+      middlewares: [
+        validateAndTransformBody(CreateVenueSchema),
+      ],
+    },
+    // Ticket booking routes - admin ticket products
+    {
+      matcher: "/admin/ticket-products",
+      method: "POST",
+      middlewares: [
+        validateAndTransformBody(CreateTicketProductSchema),
+      ],
+    },
+    // Ticket booking routes - store seat map
+    {
+      matcher: "/store/ticket-products/:id/seats",
+      method: "GET",
+      middlewares: [
+        validateAndTransformQuery(GetTicketProductSeatsSchema, {}),
+      ],
     },
   ],
 })

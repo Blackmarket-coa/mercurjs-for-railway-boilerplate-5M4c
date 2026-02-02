@@ -86,8 +86,6 @@ export async function POST(
   }
 
   try {
-    console.log("Creating ticket product with input:", JSON.stringify(req.body, null, 2))
-    
     const { result } = await createTicketProductWorkflow(req.scope).run({
       input: {
         ...req.body,
@@ -97,11 +95,9 @@ export async function POST(
 
     res.status(201).json(result)
   } catch (error: any) {
-    console.error("Failed to create ticket product:", error)
-    res.status(500).json({ 
-      message: "Failed to create ticket product", 
+    res.status(500).json({
+      message: "Failed to create ticket product",
       error: error.message,
-      details: error.stack
     })
   }
 }

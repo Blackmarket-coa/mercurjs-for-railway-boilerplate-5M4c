@@ -29,8 +29,6 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     throw new MedusaError(MedusaError.Types.NOT_FOUND, "Ticket product not found")
   }
 
-  console.log(ticketProduct)
-
   // Calculate availability for each date and row type
   const availability = ticketProduct.dates.map((date: string) => {
     // Group rows by row_type to get total seats per row type
