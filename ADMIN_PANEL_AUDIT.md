@@ -12,10 +12,10 @@ The admin panel is a feature-rich React application with strong structural organ
 
 | Category | Severity | Issues Found |
 |----------|----------|--------------|
-| Missing Routes / UX Gaps | Medium | 1 TODO for missing 404 page, multiple TODOs for workflow gaps |
-| Incomplete Features | Medium | 64 TODO/FIXME markers |
+| Missing Routes / UX Gaps | Medium | Multiple TODOs for workflow gaps |
+| Incomplete Features | Medium | 63 TODO/FIXME markers |
 | Type Safety | Medium | 671 uses of `any` |
-| Console Statements | Low | 31 console log/warn/error/debug statements |
+| Console Statements | Low | 27 console log/warn/error/debug statements |
 
 ---
 
@@ -41,11 +41,10 @@ Notable concentrations:
 
 ### 2. Incomplete Features (TODO/FIXME)
 
-**64 TODO/FIXME markers** were found, including items that imply unfinished workflows:
+**63 TODO/FIXME markers** were found, including items that imply unfinished workflows:
 
 | Feature | Location | Description |
 |---------|----------|-------------|
-| 404 page | `src/routes/no-match/no-match.tsx` | TODO indicates missing 404 UI |
 | Order/fulfillment linking | `src/components/table/table-cells/order/fulfillment-status-cell/fulfillment-status-cell.tsx` | Awaiting fulfillment<>order link |
 | Order sorting | `src/routes/orders/order-detail/order-detail.tsx` | JS sort until API ordering available |
 | Shipping option pricing | `src/routes/locations/location-service-zone-shipping-option-pricing/components/create-shipping-options-form/edit-shipping-options-pricing-form.tsx` | Updating existing region prices currently erroring |
@@ -67,7 +66,7 @@ Several TODO comments imply missing backend capabilities (e.g., order/fulfillmen
 
 ### 4. Console Statements in Production Code
 
-**31 console statements** exist in runtime code (not just tests), including:
+**27 console statements** exist in runtime code (not just tests), including:
 
 - Query/mutation error logging in `src/lib/query-client.ts`
 - Layout metadata warnings in `src/components/layout/pages/*`
@@ -112,7 +111,7 @@ Several TODO comments imply missing backend capabilities (e.g., order/fulfillmen
 ### Short-term Actions (Medium Priority)
 
 1. Replace `any` types in API hooks and shared types with typed interfaces.
-2. Resolve high-impact TODOs (404 page, order/fulfillment linking, return validation).
+2. Resolve high-impact TODOs (order/fulfillment linking, return validation).
 
 ### Long-term Actions (Low Priority)
 
