@@ -9,6 +9,10 @@ import { Migration } from "@mikro-orm/migrations"
  * No drop-shipping: all fulfillment is community-internal.
  */
 export class Migration20260202000AddCommunityArchetypeEnums extends Migration {
+  isTransactional(): boolean {
+    return false
+  }
+
   async up(): Promise<void> {
     // Add new enum values to product_archetype_code_enum
     // These must be committed before they can be used in INSERT statements
