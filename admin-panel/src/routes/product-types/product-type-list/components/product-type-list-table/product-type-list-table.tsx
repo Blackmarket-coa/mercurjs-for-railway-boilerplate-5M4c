@@ -14,7 +14,7 @@ import { useProductTypeTableQuery } from "../../../../../hooks/table/query/use-p
 import { useDataTable } from "../../../../../hooks/use-data-table"
 import { ProductTypeRowActions } from "./product-table-row-actions"
 
-const PAGE_SIZE = 20
+const PAGE_SIZE = 100
 
 export const ProductTypeListTable = () => {
   const { t } = useTranslation()
@@ -28,6 +28,7 @@ export const ProductTypeListTable = () => {
       placeholderData: keepPreviousData,
     }
   )
+  const totalCount = count ?? product_types?.length ?? 0
 
   const filters = useProductTypeTableFilters()
   const columns = useColumns()
@@ -35,7 +36,7 @@ export const ProductTypeListTable = () => {
   const { table } = useDataTable({
     columns,
     data: product_types,
-    count,
+    count: totalCount,
     getRowId: (row) => row.id,
     pageSize: PAGE_SIZE,
   })
@@ -63,7 +64,7 @@ export const ProductTypeListTable = () => {
         isLoading={isLoading}
         columns={columns}
         pageSize={PAGE_SIZE}
-        count={count}
+        count={totalCount}
         orderBy={[
           { key: "value", label: t("fields.value") },
           { key: "created_at", label: t("fields.createdAt") },
