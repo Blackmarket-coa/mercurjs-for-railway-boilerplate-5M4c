@@ -1,6 +1,6 @@
-import { LoginForm, ParcelAccordion } from "@/components/molecules"
+import { AccountLoadingState, LoginForm, ParcelAccordion } from "@/components/molecules"
 import { UserNavigation } from "@/components/molecules"
-import { retrieveCustomer } from "@/lib/data/customer"
+import { retrieveCustomerContext } from "@/lib/data/customer"
 import { OrdersPagination } from "@/components/sections"
 import { isEmpty } from "lodash"
 import { listOrders } from "@/lib/data/orders"
@@ -12,9 +12,12 @@ export default async function UserPage({
 }: {
   searchParams: Promise<{ page: string }>
 }) {
-  const user = await retrieveCustomer()
+  const { customer, isAuthenticated } = await retrieveCustomerContext()
 
-  if (!user) return <LoginForm />
+  if (!customer) {
+    if (!isAuthenticated) return <LoginForm />
+    return <AccountLoadingState title="Orders" />
+  }
 
   const orders = await listOrders()
 

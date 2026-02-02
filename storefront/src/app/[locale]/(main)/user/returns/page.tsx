@@ -1,7 +1,6 @@
-import { LoginForm } from "@/components/molecules"
-import { UserNavigation } from "@/components/molecules/UserNavigation/UserNavigation"
+import { AccountLoadingState, LoginForm, UserNavigation } from "@/components/molecules"
 import { OrderReturnRequests } from "@/components/sections/OrderReturnRequests/OrderReturnRequests"
-import { retrieveCustomer } from "@/lib/data/customer"
+import { retrieveCustomerContext } from "@/lib/data/customer"
 import { getReturns, retrieveReturnReasons } from "@/lib/data/orders"
 
 export default async function ReturnsPage({
@@ -10,9 +9,12 @@ export default async function ReturnsPage({
   searchParams: Promise<{ page: string; return: string }>
 }) {
   // Check authentication first
-  const user = await retrieveCustomer()
+  const { customer, isAuthenticated } = await retrieveCustomerContext()
 
-  if (!user) return <LoginForm />
+  if (!customer) {
+    if (!isAuthenticated) return <LoginForm />
+    return <AccountLoadingState title="Returns" />
+  }
 
   // Fetch returns data with error handling
   const returnsData = await getReturns()
@@ -36,7 +38,7 @@ export default async function ReturnsPage({
                 new Date(a.line_items[0].created_at).getTime()
               )
             })}
-            user={user}
+            user={customer}
             page={page}
             currentReturn={returnId || ""}
             returnReasons={returnReasons}

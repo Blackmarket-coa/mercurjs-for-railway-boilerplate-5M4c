@@ -29,6 +29,7 @@ import { CartDropdownItem } from "./CartDropdownItem/CartDropdownItem"
 import { LoginForm } from "./LoginForm/LoginForm"
 import { RegisterForm } from "./RegisterForm/RegisterForm"
 import { UserNavigation } from "./UserNavigation/UserNavigation"
+import { AccountLoadingState } from "./AccountLoadingState/AccountLoadingState"
 import { ParcelAccordion } from "./ParcelAccordion/ParcelAccordion"
 import { AddressForm } from "./AddressForm/AddressForm"
 import { ReviewForm } from "./ReviewForm/ReviewForm"
@@ -78,6 +79,7 @@ export {
   LoginForm,
   RegisterForm,
   UserNavigation,
+  AccountLoadingState,
   ParcelAccordion,
   AddressForm,
   ReviewForm,
