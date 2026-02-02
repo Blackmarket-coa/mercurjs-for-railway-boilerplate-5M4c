@@ -13,6 +13,7 @@ import {
   strictAuthRateLimiter,
   vendorRegistrationRateLimiter,
 } from "../shared/rate-limiter"
+import { preventPasswordReuseMiddleware } from "./middlewares/password-history"
 import { ensureSellerContext } from "./vendor/_middlewares"
 import { CreateVenueSchema } from "./admin/venues/route"
 import { CreateTicketProductSchema } from "./admin/ticket-products/route"
@@ -544,6 +545,12 @@ export default defineMiddlewares({
       matcher: "/auth/*/reset-password",
       method: "POST",
       middlewares: [strictAuthRateLimiter, normalizeEmailMiddleware],
+    },
+    // Password update - prevent password reuse
+    {
+      matcher: "/auth/*/emailpass/update",
+      method: "POST",
+      middlewares: [preventPasswordReuseMiddleware],
     },
     // Store customer routes
     {
