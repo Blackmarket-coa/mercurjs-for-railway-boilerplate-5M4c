@@ -28,7 +28,7 @@ export async function GET(
 export const CreateTicketProductSchema = z.object({
   name: z.string().min(1, "Name is required"),
   venue_id: z.string().min(1, "Venue ID is required"),
-  seller_id: z.string().min(1, "Seller ID is required"),
+  seller_id: z.string().optional(),
   dates: z.array(z.string()).min(1, "At least one date is required"),
   variants: z.array(z.object({
     row_type: z.nativeEnum(RowType),
