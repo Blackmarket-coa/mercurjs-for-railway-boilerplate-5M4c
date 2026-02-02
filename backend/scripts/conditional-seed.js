@@ -72,6 +72,52 @@ async function checkDatabaseEmpty() {
       return true;
     }
 
+    // Check if product types exist (added with community architecture update)
+    try {
+      const ptResult = await pool.query(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables
+          WHERE table_schema = 'public'
+          AND table_name = 'product_type'
+        ) as table_exists
+      `);
+
+      if (ptResult.rows[0].table_exists) {
+        const ptCount = await pool.query('SELECT COUNT(*) as count FROM product_type');
+        const ptCountVal = parseInt(ptCount.rows[0].count, 10);
+
+        if (ptCountVal === 0) {
+          log('No product types found, seed needed to create community product types');
+          return true;
+        }
+      }
+    } catch (error) {
+      // Non-critical check, continue
+    }
+
+    // Check if product collections exist (added with community architecture update)
+    try {
+      const pcResult = await pool.query(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables
+          WHERE table_schema = 'public'
+          AND table_name = 'product_collection'
+        ) as table_exists
+      `);
+
+      if (pcResult.rows[0].table_exists) {
+        const pcCount = await pool.query('SELECT COUNT(*) as count FROM product_collection');
+        const pcCountVal = parseInt(pcCount.rows[0].count, 10);
+
+        if (pcCountVal === 0) {
+          log('No product collections found, seed needed to create operational collections');
+          return true;
+        }
+      }
+    } catch (error) {
+      // Non-critical check, continue
+    }
+
     log(`Found ${count} region(s), database is already seeded`);
     return false;
   } catch (error) {
