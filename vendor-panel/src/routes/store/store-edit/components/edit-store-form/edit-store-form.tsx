@@ -23,7 +23,7 @@ export const EditStoreSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
   phone: z.string().optional(),
-  email: z.string().optional(),
+  email: z.string().email("Invalid email address").or(z.literal("")).optional(),
   media: z.array(MediaSchema).optional(),
 })
 
@@ -58,6 +58,7 @@ export const EditStoreForm = ({ seller }: { seller: StoreVendor }) => {
       media: [],
     },
     resolver: zodResolver(EditStoreSchema),
+    mode: "onChange",
   })
 
   const { fields } = useFieldArray({
