@@ -227,9 +227,31 @@ export interface AuthTokenInfo {
   sellerId: string | null
 }
 
+export type TokenDecodeError =
+  | "no_token"
+  | "no_secret"
+  | "token_expired"
+  | "invalid_signature"
+  | "malformed_token"
+  | "unknown_error"
+
+export type TokenDecodeResult =
+  | { success: true; token: AuthTokenInfo }
+  | { success: false; error: TokenDecodeError; message: string }
+
 export function decodeAuthToken(token: string): AuthTokenInfo | null {
+  const result = decodeAuthTokenWithError(token)
+  return result.success ? result.token : null
+}
+
+export function decodeAuthTokenWithError(token: string): TokenDecodeResult {
   if (!config.JWT_SECRET) {
-    return null
+    console.error("[Auth] JWT_SECRET not configured")
+    return {
+      success: false,
+      error: "no_secret",
+      message: "Server authentication configuration error. Please contact support.",
+    }
   }
 
   try {
@@ -255,20 +277,60 @@ export function decodeAuthToken(token: string): AuthTokenInfo | null {
       (payload.app_metadata as { seller_id?: string } | undefined)?.seller_id ||
       null
 
-    return { authIdentityId, actorId, actorType, sellerId }
-  } catch {
-    return null
+    return {
+      success: true,
+      token: { authIdentityId, actorId, actorType, sellerId },
+    }
+  } catch (err: unknown) {
+    if (err instanceof jwt.TokenExpiredError) {
+      return {
+        success: false,
+        error: "token_expired",
+        message: "Your session has expired. Please log in again.",
+      }
+    }
+    if (err instanceof jwt.JsonWebTokenError) {
+      if (err.message.includes("signature")) {
+        return {
+          success: false,
+          error: "invalid_signature",
+          message: "Invalid authentication token. Please log in again.",
+        }
+      }
+      return {
+        success: false,
+        error: "malformed_token",
+        message: "Invalid authentication token format. Please log in again.",
+      }
+    }
+    console.error("[Auth] Unknown JWT verification error:", err)
+    return {
+      success: false,
+      error: "unknown_error",
+      message: "Authentication verification failed. Please log in again.",
+    }
   }
 }
 
 export function decodeAuthTokenFromAuthorization(
   authorization?: string
 ): AuthTokenInfo | null {
+  const result = decodeAuthTokenFromAuthorizationWithError(authorization)
+  return result.success ? result.token : null
+}
+
+export function decodeAuthTokenFromAuthorizationWithError(
+  authorization?: string
+): TokenDecodeResult {
   const token = extractBearerToken(authorization)
   if (!token) {
-    return null
+    return {
+      success: false,
+      error: "no_token",
+      message: "No authentication token provided.",
+    }
   }
-  return decodeAuthToken(token)
+  return decodeAuthTokenWithError(token)
 }
 
 /**

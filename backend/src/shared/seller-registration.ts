@@ -2,7 +2,7 @@ import { MedusaRequest } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import { REQUEST_MODULE } from "../modules/request"
 import RequestModuleService from "../modules/request/service"
-import { decodeAuthTokenFromAuthorization } from "./auth-helpers"
+import { decodeAuthTokenFromAuthorizationWithError } from "./auth-helpers"
 
 export interface RegistrationStatusResponse {
   status:
@@ -59,21 +59,45 @@ export const getSellerRegistrationStatus = async (
   req: MedusaRequest
 ): Promise<{ status: RegistrationStatusResponse; statusCode: number }> => {
   try {
-    const decodedToken = decodeAuthTokenFromAuthorization(req.headers.authorization)
-    if (!decodedToken && !(req as any).auth_context?.auth_identity_id) {
+    const tokenResult = decodeAuthTokenFromAuthorizationWithError(req.headers.authorization)
+    const authContextIdentityId = (req as any).auth_context?.auth_identity_id
+
+    // Check for authentication: either valid token or auth_context
+    if (!tokenResult.success && !authContextIdentityId) {
+      // Provide specific error message based on token decode failure
+      if (tokenResult.error === "no_token") {
+        return {
+          statusCode: 401,
+          status: {
+            status: "unauthenticated",
+            message: "Authentication required. Please provide a valid bearer token.",
+          },
+        }
+      }
+      if (tokenResult.error === "token_expired") {
+        return {
+          statusCode: 401,
+          status: {
+            status: "unauthenticated",
+            message: "Your session has expired. Please log in again.",
+          },
+        }
+      }
+      // For other errors (invalid_signature, malformed_token, etc.)
       return {
         statusCode: 401,
         status: {
           status: "unauthenticated",
-          message: "Authentication required. Please provide a valid bearer token.",
+          message: tokenResult.message || "Invalid or expired authentication. Please log in again.",
         },
       }
     }
 
+    const decodedToken = tokenResult.success ? tokenResult.token : null
     const authModule = req.scope.resolve(Modules.AUTH)
 
     const authIdentityId =
-      decodedToken?.authIdentityId ?? (req as any).auth_context?.auth_identity_id ?? null
+      decodedToken?.authIdentityId ?? authContextIdentityId ?? null
     const sellerId = decodedToken?.sellerId ?? (req as any).auth_context?.actor_id ?? null
 
     if (sellerId) {
