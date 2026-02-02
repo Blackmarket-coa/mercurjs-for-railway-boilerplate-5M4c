@@ -101,7 +101,7 @@ export const Messages = () => {
 
   // Quick links to common channels
   const quickLinks = [
-    { label: "My Store", channelName: seller?.id ? `vendor-${seller.id}` : null },
+    { label: "My Store", channelName: seller?.handle ? `vendor-${seller.handle}` : (seller?.id ? `vendor-${seller.id}` : null) },
     { label: "Support", channelName: "support" },
     { label: "General", channelName: "general" },
   ].filter(link => link.channelName)
@@ -111,6 +111,11 @@ export const Messages = () => {
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-3">
           <Heading>Messages</Heading>
+          {isLoggedIn && (
+            <Badge color="green" size="small">
+              Connected
+            </Badge>
+          )}
           {unreadCount > 0 && (
             <Badge color="red" size="small">
               {unreadCount} unread
