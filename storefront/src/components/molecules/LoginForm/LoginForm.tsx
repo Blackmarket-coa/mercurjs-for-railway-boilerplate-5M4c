@@ -90,6 +90,14 @@ const Form = () => {
               )}
             </button>
           </div>
+          <div className="text-right">
+            <LocalizedClientLink
+              href="/forgot-password"
+              className="label-md text-secondary hover:text-primary underline"
+            >
+              Forgot password?
+            </LocalizedClientLink>
+          </div>
           {error && <p className="label-md text-negative">{error}</p>}
           <Button className="w-full" disabled={isSubmitting}>
             Log in

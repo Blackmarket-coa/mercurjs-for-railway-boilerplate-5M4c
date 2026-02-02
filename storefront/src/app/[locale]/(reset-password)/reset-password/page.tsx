@@ -1,6 +1,5 @@
 import { Card } from "@/components/atoms"
-import { ProfilePasswordForm } from "@/components/molecules/ProfilePasswordForm/ProfilePasswordForm"
-import { retrieveCustomer } from "@/lib/data/customer"
+import { ResetPasswordForm } from "@/components/molecules/ResetPasswordForm"
 
 export default async function ResetPasswordPage({
   searchParams,
@@ -10,9 +9,9 @@ export default async function ResetPasswordPage({
   const { token } = await searchParams
 
   return (
-    <main className="container flex justify-center">
-      <Card className="w-full max-w-lg">
-        <ProfilePasswordForm token={token} />
+    <main className="container flex justify-center py-8">
+      <Card className="w-full max-w-md">
+        <ResetPasswordForm token={token} />
       </Card>
     </main>
   )
