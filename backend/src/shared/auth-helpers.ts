@@ -290,7 +290,8 @@ export function decodeAuthTokenWithError(token: string): TokenDecodeResult {
       }
     }
     if (err instanceof jwt.JsonWebTokenError) {
-      if (err.message.includes("signature")) {
+      const errorMessage = (err as Error).message || ""
+      if (errorMessage.includes("signature")) {
         return {
           success: false,
           error: "invalid_signature",
