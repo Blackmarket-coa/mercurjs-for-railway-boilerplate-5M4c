@@ -267,7 +267,7 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
     {
       icon: <BottomToTop />,
       label: t("requests.domain"),
-      to: "requests/seller",
+      to: "/requests/seller",
       items: [
         {
           label: t("requests.seller"),
