@@ -18,6 +18,8 @@ export const CategoryNavbar = ({
   const pathname = usePathname()
   const isGardensActive = pathname?.includes("/gardens")
   const isProducersActive = pathname?.includes("/producers")
+  const isVendorsActive = pathname?.includes("/vendors")
+  const isCollectionsActive = pathname?.includes("/collections")
   const isAboutActive = pathname?.includes("/how-it-works") || pathname?.includes("/sell") || pathname?.includes("/kitchens") || pathname?.includes("/invest")
   const [showAboutDropdown, setShowAboutDropdown] = useState(false)
   const aboutDropdownRef = useRef<HTMLDivElement>(null)
@@ -62,6 +64,26 @@ export const CategoryNavbar = ({
         )}
       >
         Gardens
+      </LocalizedClientLink>
+      <LocalizedClientLink
+        href="/vendors"
+        onClick={() => (onClose ? onClose(false) : null)}
+        className={cn(
+          "label-md uppercase px-4 my-3 md:my-0 flex items-center justify-between",
+          isVendorsActive && "md:border-b md:border-primary"
+        )}
+      >
+        All Vendors
+      </LocalizedClientLink>
+      <LocalizedClientLink
+        href="/collections"
+        onClick={() => (onClose ? onClose(false) : null)}
+        className={cn(
+          "label-md uppercase px-4 my-3 md:my-0 flex items-center justify-between",
+          isCollectionsActive && "md:border-b md:border-primary"
+        )}
+      >
+        Collections
       </LocalizedClientLink>
       {categories?.map(({ id, handle, name }) => (
         <LocalizedClientLink

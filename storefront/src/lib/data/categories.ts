@@ -67,3 +67,40 @@ export const getCategoryByHandle = async (categoryHandle: string[]) => {
     )
     .then(({ product_categories }) => product_categories[0])
 }
+
+/**
+ * List all product collections
+ */
+export const listCollections = async (limit = 50) => {
+  return sdk.client
+    .fetch<{
+      collections: HttpTypes.StoreCollection[]
+      count: number
+    }>("/store/collections", {
+      query: {
+        limit,
+        fields: "id,title,handle,metadata",
+      },
+      cache: "force-cache",
+      next: { revalidate: 3600 },
+    })
+    .then(({ collections }) => collections)
+}
+
+/**
+ * Get a single collection by handle
+ */
+export const getCollectionByHandle = async (handle: string) => {
+  return sdk.client
+    .fetch<{
+      collections: HttpTypes.StoreCollection[]
+    }>("/store/collections", {
+      query: {
+        handle,
+        fields: "id,title,handle,metadata",
+      },
+      cache: "force-cache",
+      next: { revalidate: 300 },
+    })
+    .then(({ collections }) => collections?.[0] || null)
+}
