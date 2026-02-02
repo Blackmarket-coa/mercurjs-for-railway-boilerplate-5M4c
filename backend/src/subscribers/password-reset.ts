@@ -26,23 +26,32 @@ export default async function passwordResetHandler({
     const actorType = actor_type || "customer" // Default to customer if not specified
     let baseUrl = ""
 
+    // Helper to get env var, treating "undefined" string as empty
+    const getEnvVar = (name: string): string => {
+      const value = process.env[name]
+      if (!value || value === "undefined" || value === "null") {
+        return ""
+      }
+      return value.trim()
+    }
+
     switch (actorType) {
       case "customer":
-        baseUrl = process.env.STOREFRONT_URL || process.env.NEXT_PUBLIC_BASE_URL || ""
+        baseUrl = getEnvVar("STOREFRONT_URL") || getEnvVar("NEXT_PUBLIC_BASE_URL")
         break
       case "seller":
-        baseUrl = process.env.VENDOR_URL || process.env.VENDOR_PANEL_URL || ""
+        baseUrl = getEnvVar("VENDOR_URL") || getEnvVar("VENDOR_PANEL_URL")
         break
       case "user":
-        baseUrl = process.env.ADMIN_URL || ""
+        baseUrl = getEnvVar("ADMIN_URL")
         break
       case "driver":
         // Drivers use the same URL as sellers for now
-        baseUrl = process.env.VENDOR_URL || process.env.VENDOR_PANEL_URL || ""
+        baseUrl = getEnvVar("VENDOR_URL") || getEnvVar("VENDOR_PANEL_URL")
         break
       default:
         console.warn(`Unknown actor_type: ${actorType}, defaulting to storefront`)
-        baseUrl = process.env.STOREFRONT_URL || process.env.NEXT_PUBLIC_BASE_URL || ""
+        baseUrl = getEnvVar("STOREFRONT_URL") || getEnvVar("NEXT_PUBLIC_BASE_URL")
     }
 
     // Trim whitespace from base URL
