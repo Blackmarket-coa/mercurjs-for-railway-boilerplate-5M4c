@@ -4,6 +4,7 @@ import type { FieldValues } from "react-hook-form"
 
 import { DataGridMatrix } from "../models"
 import { GridColumnOption } from "../types"
+import { devLogger } from "../../../lib/logger"
 
 export function useDataGridColumnVisibility<
   TData,
@@ -59,7 +60,7 @@ function getColumnName<TData>(column: Column<TData, unknown>): string {
   }
 
   if (import.meta.env.DEV && !meta?.name && enableHiding) {
-    console.warn(
+    devLogger.warn(
       `Column "${id}" does not have a name. You should add a name to the column definition. Falling back to the column id.`
     )
   }

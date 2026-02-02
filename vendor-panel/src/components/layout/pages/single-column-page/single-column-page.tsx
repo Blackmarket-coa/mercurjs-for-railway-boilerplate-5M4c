@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom"
 import { JsonViewSection } from "../../../common/json-view-section"
 import { MetadataSection } from "../../../common/metadata-section"
 import { PageProps } from "../types"
+import { devLogger } from "../../../../lib/logger"
 
 export const SingleColumnPage = <TData,>({
   children,
@@ -27,21 +28,17 @@ export const SingleColumnPage = <TData,>({
   const widgetProps = { data }
 
   if (showJSON && !data) {
-    if (import.meta.env.DEV) {
-      console.warn(
-        "`showJSON` is true but no data is provided. To display JSON, provide data prop."
-      )
-    }
+    devLogger.warn(
+      "`showJSON` is true but no data is provided. To display JSON, provide data prop."
+    )
 
     showJSON = false
   }
 
   if (showMetadata && !data) {
-    if (import.meta.env.DEV) {
-      console.warn(
-        "`showMetadata` is true but no data is provided. To display metadata, provide data prop."
-      )
-    }
+    devLogger.warn(
+      "`showMetadata` is true but no data is provided. To display metadata, provide data prop."
+    )
 
     showMetadata = false
   }

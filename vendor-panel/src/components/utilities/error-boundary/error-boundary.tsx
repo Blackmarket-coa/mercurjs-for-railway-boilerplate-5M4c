@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 import { Navigate, useLocation, useRouteError } from "react-router-dom"
 
 import { isFetchError } from "../../../lib/is-fetch-error"
+import { devLogger } from "../../../lib/logger"
 
 export const ErrorBoundary = () => {
   const error = useRouteError()
@@ -27,7 +28,7 @@ export const ErrorBoundary = () => {
    * so this ensures that we always log it.
    */
   if (import.meta.env.DEV) {
-    console.error(error)
+    devLogger.error(error)
   }
 
   let title: string

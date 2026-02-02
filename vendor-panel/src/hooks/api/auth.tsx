@@ -10,6 +10,7 @@ import {
   sdk,
   setAuthToken,
 } from "../../lib/client"
+import { devLogger } from "../../lib/logger"
 
 const fetchRegistrationStatus = async (token: string) => {
   const response = await fetch(`${backendUrl}/auth/seller/registration-status`, {
@@ -137,12 +138,10 @@ export const useSignUpWithEmailPass = (
           headers: token ? { authorization: `Bearer ${token}` } : undefined,
         })
       } catch (error) {
-        if (import.meta.env.DEV) {
-          console.error(
-            "Failed to create seller registration request:",
-            error
-          )
-        }
+        devLogger.error(
+          "Failed to create seller registration request:",
+          error
+        )
       }
 
       // Call user's onSuccess callback if provided

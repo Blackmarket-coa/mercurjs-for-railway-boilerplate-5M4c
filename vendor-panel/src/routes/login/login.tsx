@@ -17,6 +17,7 @@ import {
 } from "../../hooks/api/users"
 import { isFetchError } from "../../lib/is-fetch-error"
 import { getAuthToken } from "../../lib/client"
+import { devLogger } from "../../lib/logger"
 
 const LoginSchema = z.object({
   email: z.string().email(),
@@ -92,10 +93,7 @@ export const Login = () => {
               })
               .catch((sessionError) => {
                 if (import.meta.env.DEV) {
-                  console.warn(
-                    "Failed to prefetch seller session:",
-                    sessionError
-                  )
+                  devLogger.warn("Failed to prefetch seller session:", sessionError)
                 }
               })
           }

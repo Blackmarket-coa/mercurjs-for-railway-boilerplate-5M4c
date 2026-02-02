@@ -1,4 +1,5 @@
 import { Keys, Platform, Shortcut } from "./types"
+import { devLogger } from "../../lib/logger"
 
 export const findFirstPlatformMatch = (keys: Keys) => {
   const match =
@@ -23,7 +24,7 @@ export const getShortcutKeys = (shortcut: Shortcut) => {
     const defaultPlatform = findFirstPlatformMatch(shortcut.keys)
 
     if (import.meta.env.DEV) {
-      console.warn(
+      devLogger.warn(
         `No keys found for platform "${platform}" in "${shortcut.label}" ${
           defaultPlatform
             ? `using keys for platform "${defaultPlatform.platform}"`
