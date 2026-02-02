@@ -21,27 +21,25 @@ const PASSWORD_HISTORY_CONFIG = {
 
 /**
  * Decode a password reset token to extract auth identity info
+ * MedusaJS password reset tokens contain: entity_id (email), provider, exp, iat
  */
-function decodeResetToken(token: string): { authIdentityId: string; entityId: string } | null {
+function decodeResetToken(token: string): { entityId: string; provider: string } | null {
   try {
     // Password reset tokens are JWTs - decode without verification to get payload
     // (the actual verification is done by MedusaJS)
     const payload = jwt.decode(token) as Record<string, unknown> | null
     if (!payload) return null
 
-    const authIdentityId =
-      (payload.auth_identity_id as string) ||
-      (payload.sub as string) ||
-      null
-
     const entityId =
       (payload.entity_id as string) ||
       (payload.email as string) ||
       null
 
-    if (!authIdentityId || !entityId) return null
+    const provider = (payload.provider as string) || "emailpass"
 
-    return { authIdentityId, entityId }
+    if (!entityId) return null
+
+    return { entityId, provider }
   } catch (error) {
     console.error("[password-history] Failed to decode reset token:", error)
     return null
@@ -93,22 +91,29 @@ export async function preventPasswordReuseMiddleware(
     return next()
   }
 
-  const { authIdentityId, entityId } = tokenInfo
+  const { entityId, provider } = tokenInfo
 
   try {
     const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION)
 
-    // Get the current password hash from provider_identity
+    // Look up the auth_identity_id using the email (entity_id) from the token
+    // The provider_identity table stores the email in entity_id field
     const providerResult = await pgConnection.raw(`
-      SELECT pi.provider_metadata
+      SELECT pi.auth_identity_id, pi.provider_metadata
       FROM provider_identity pi
-      WHERE pi.auth_identity_id = ?
-        AND pi.provider = 'emailpass'
+      WHERE pi.entity_id = ?
+        AND pi.provider = ?
       LIMIT 1
-    `, [authIdentityId])
+    `, [entityId, provider])
 
-    const currentProviderData = providerResult.rows?.[0]
-    const currentPasswordHash = currentProviderData?.provider_metadata?.password
+    const providerData = providerResult.rows?.[0]
+    if (!providerData?.auth_identity_id) {
+      console.warn(`[password-history] Could not find auth identity for email: ${entityId}`)
+      return next()
+    }
+
+    const authIdentityId = providerData.auth_identity_id
+    const currentPasswordHash = providerData.provider_metadata?.password
 
     // Get password history for this auth identity
     let passwordHistoryService: PasswordHistoryService | null = null
