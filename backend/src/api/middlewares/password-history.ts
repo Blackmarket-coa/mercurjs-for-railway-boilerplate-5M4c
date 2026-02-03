@@ -61,14 +61,18 @@ export async function preventPasswordReuseMiddleware(
   res: MedusaResponse,
   next: MedusaNextFunction
 ) {
+  console.log(`[password-history] Middleware invoked for ${req.method} ${req.path}`)
+
   // Skip if password history is disabled
   if (!PASSWORD_HISTORY_CONFIG.enabled) {
+    console.log("[password-history] Password history disabled, skipping")
     return next()
   }
 
   // Only process requests with password in the body
   const body = req.body as Record<string, unknown> | undefined
   if (!body?.password || typeof body.password !== "string") {
+    console.log("[password-history] No password in body, skipping")
     return next()
   }
 
@@ -81,6 +85,7 @@ export async function preventPasswordReuseMiddleware(
     : (req.query.token as string)
 
   if (!token) {
+    console.log("[password-history] No token found, skipping")
     return next()
   }
 
