@@ -78,7 +78,7 @@ export default function SellPage() {
   const benefits = [
     {
       icon: CurrencyDollarIcon,
-      title: "Keep 97% of Every Sale",
+      title: "Keep 97% of Every Transaction",
       description: "Just a 3% coalition fee—that's it. No hidden fees, no monthly charges, no listing fees, no payment processing fees passed to you.",
     },
     {
@@ -99,7 +99,7 @@ export default function SellPage() {
     {
       icon: CalendarIcon,
       title: "Standing Orders & Subscriptions",
-      description: "Build predictable income with recurring orders. Know what you're selling before you even harvest.",
+      description: "Build predictable income with recurring orders. Plan ahead with committed customers before you even harvest.",
     },
     {
       icon: ChartBarIcon,

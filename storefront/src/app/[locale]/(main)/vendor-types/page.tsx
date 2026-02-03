@@ -165,7 +165,7 @@ export default function VendorTypesPage() {
 
   const vendorFeatures = [
     {
-      category: "Selling & Payments",
+      category: "Revenue & Payments",
       icon: "💰",
       items: [
         { name: "97% Revenue Share", description: "Keep 97% of every sale, just 3% coalition fee" },
@@ -511,7 +511,7 @@ export default function VendorTypesPage() {
               href={`${VENDOR_PANEL_URL}/register`}
               className="inline-flex items-center gap-2 px-8 py-4 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-400 transition-colors"
             >
-              Start Selling Today
+              Get Started Today
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -603,7 +603,7 @@ export default function VendorTypesPage() {
             Ready to Get Started?
           </h2>
           <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
-            Whether you're looking to sell or shop, you're joining a movement to build
+            Whether you're here to provide or to shop, you're joining a movement to build
             a fairer, more transparent food economy.
           </p>
 

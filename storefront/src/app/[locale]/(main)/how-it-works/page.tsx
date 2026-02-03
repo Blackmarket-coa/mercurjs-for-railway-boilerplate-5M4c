@@ -126,7 +126,7 @@ export default function HowItWorksPage() {
     {
       icon: ShieldCheckIcon,
       title: "Verified Creators",
-      description: "Every seller is verified. See exactly where your products come from and who made them.",
+      description: "Every provider is verified. See exactly where your products come from and who made them.",
       color: "bg-blue-100 text-blue-600",
     },
     {
@@ -211,7 +211,7 @@ export default function HowItWorksPage() {
               href="/sell"
               className="px-8 py-4 bg-green-700 text-white font-semibold rounded-lg border-2 border-green-500 hover:bg-green-600 transition-colors"
             >
-              Become a Seller
+              Become a Provider
             </Link>
           </div>
         </div>
@@ -319,10 +319,10 @@ export default function HowItWorksPage() {
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-800 text-green-200 rounded-full text-sm font-medium mb-4">
               <UserGroupIcon className="w-5 h-5" />
-              For Sellers
+              For Providers
             </div>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Sell on Your Terms
+              Share on Your Terms
             </h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
               Whether you're a farmer, artist, baker, or service provider—
@@ -363,7 +363,7 @@ export default function HowItWorksPage() {
               href={`${VENDOR_PANEL_URL}/register`}
               className="inline-flex items-center gap-2 px-6 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-400 transition-colors"
             >
-              Start Selling Free
+              Get Started Free
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -441,7 +441,7 @@ export default function HowItWorksPage() {
               Special Programs
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Beyond buying and selling—ways to invest in and support your community.
+              Beyond transactions—ways to invest in and support your community.
             </p>
           </div>
 
@@ -642,7 +642,7 @@ export default function HowItWorksPage() {
 
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                How do sellers get paid?
+                How do providers get paid?
               </h3>
               <p className="text-gray-600">
                 Through Stripe Connect. When you make a sale, 97% goes directly to your bank account
@@ -657,7 +657,7 @@ export default function HowItWorksPage() {
               <p className="text-gray-600">
                 Everything. Platform hosting, development, payment processing, customer support,
                 and community programs. There are no hidden fees, no subscriptions, no listing fees,
-                and no payment processing fees passed to sellers.
+                and no payment processing fees passed to providers.
               </p>
             </div>
 
@@ -668,13 +668,13 @@ export default function HowItWorksPage() {
               <p className="text-gray-600">
                 We have buyer protection. If your order doesn't arrive or isn't as described,
                 we'll step in to make it right. Payments are held until delivery is confirmed,
-                protecting both buyers and honest sellers.
+                protecting both buyers and honest providers.
               </p>
             </div>
 
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Can I sell food or homemade products?
+                Can I offer food or homemade products?
               </h3>
               <p className="text-gray-600">
                 Yes! Many states have cottage food laws that allow home-based food production.
@@ -693,7 +693,7 @@ export default function HowItWorksPage() {
             Ready to Join the Movement?
           </h2>
           <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
-            Whether you're buying or selling, you're part of building a fairer economy—
+            Whether you're shopping or providing, you're part of building a fairer economy—
             one where creators keep what they earn and communities thrive.
           </p>
 
@@ -708,7 +708,7 @@ export default function HowItWorksPage() {
               href="/sell"
               className="px-8 py-4 bg-green-700 text-white font-semibold rounded-lg border-2 border-green-500 hover:bg-green-600 transition-colors"
             >
-              Become a Seller
+              Become a Provider
             </Link>
           </div>
         </div>
