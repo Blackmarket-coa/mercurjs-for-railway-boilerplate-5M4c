@@ -113,7 +113,20 @@ export async function preventPasswordReuseMiddleware(
     }
 
     const authIdentityId = providerData.auth_identity_id
-    const currentPasswordHash = providerData.provider_metadata?.password
+
+    // Parse provider_metadata - it may come as a JSON string from raw SQL query
+    let providerMetadata = providerData.provider_metadata
+    if (typeof providerMetadata === "string") {
+      try {
+        providerMetadata = JSON.parse(providerMetadata)
+      } catch {
+        console.warn("[password-history] Could not parse provider_metadata JSON")
+        providerMetadata = {}
+      }
+    }
+    const currentPasswordHash = providerMetadata?.password
+
+    console.log(`[password-history] Checking password reuse for auth_identity: ${authIdentityId}, has current hash: ${!!currentPasswordHash}`)
 
     // Get password history for this auth identity
     let passwordHistoryService: PasswordHistoryService | null = null
