@@ -56,9 +56,20 @@ export const retrieveCustomerContext = async (): Promise<{
     })
 
     return { customer: customer ?? null, isAuthenticated: true }
-  } catch (error) {
+  } catch (error: any) {
     console.warn("[retrieveCustomerContext] Failed to fetch customer:", error)
-    return { customer: null, isAuthenticated: true }
+
+    // Check if token is invalid/expired (401 Unauthorized)
+    const status = error?.status || error?.response?.status
+    if (status === 401) {
+      // Clear the invalid token so user can re-authenticate
+      await removeAuthToken()
+      return { customer: null, isAuthenticated: false }
+    }
+
+    // For other errors (network issues, etc.), still indicate not authenticated
+    // so user sees login form instead of being stuck on loading state
+    return { customer: null, isAuthenticated: false }
   }
 }
 
