@@ -1,7 +1,6 @@
 import { Button, ProgressStatus, ProgressTabs, toast } from "@medusajs/ui"
 import { HttpTypes } from "@medusajs/types"
-import { useEffect, useMemo, useState } from "react"
-import { useWatch } from "react-hook-form"
+import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import {
   RouteFocusModal,
@@ -82,20 +81,25 @@ export const ProductCreateForm = ({
 
   const { mutateAsync, isPending } = useCreateProduct()
 
-  /**
-   * TODO: Important to revisit this - use variants watch so high in the tree can cause needless rerenders of the entire page
-   * which is suboptimal when rerenders are caused by bulk editor changes
-   */
-
-  const watchedVariants = useWatch({
-    control: form.control,
-    name: "variants",
-  })
-
-  const showInventoryTab = useMemo(
-    () => watchedVariants.some((v) => v.manage_inventory && v.inventory_kit),
-    [watchedVariants]
+  const [showInventoryTab, setShowInventoryTab] = useState(() =>
+    form.getValues("variants").some((v) => v.manage_inventory && v.inventory_kit)
   )
+
+  useEffect(() => {
+    const subscription = form.watch((values, { name }) => {
+      if (!name?.startsWith("variants")) {
+        return
+      }
+
+      const shouldShow = (values.variants || []).some(
+        (variant) => variant.manage_inventory && variant.inventory_kit
+      )
+
+      setShowInventoryTab((prev) => (prev !== shouldShow ? shouldShow : prev))
+    })
+
+    return () => subscription.unsubscribe()
+  }, [form])
 
   const handleSubmit = form.handleSubmit(async (values, e) => {
     let isDraftSubmission = false

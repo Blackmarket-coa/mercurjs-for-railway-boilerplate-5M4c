@@ -15,7 +15,6 @@ import { campaignsQueryKeys } from "./campaigns"
 const PROMOTIONS_QUERY_KEY = "promotions" as const
 export const promotionsQueryKeys = {
   ...queryKeysFactory(PROMOTIONS_QUERY_KEY),
-  // TODO: handle invalidations properly
   listRules: (
     id: string | null,
     ruleType: string,

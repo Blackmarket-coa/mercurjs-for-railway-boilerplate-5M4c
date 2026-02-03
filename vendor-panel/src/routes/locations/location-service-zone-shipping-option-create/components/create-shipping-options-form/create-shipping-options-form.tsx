@@ -4,7 +4,7 @@ import { Button, ProgressStatus, ProgressTabs, toast } from "@medusajs/ui"
 import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import {
   RouteFocusModal,
   useRouteModal,
@@ -79,6 +79,22 @@ export function CreateShippingOptionsForm({
 
   const { mutateAsync, isPending: isLoading } = useCreateShippingOptions()
 
+  const typeConfig = useMemo(() => {
+    if (type === FulfillmentSetType.Pickup) {
+      return {
+        label: "Pickup",
+        description: "Pickup fulfillment",
+        code: "pickup",
+      }
+    }
+
+    return {
+      label: "Shipping",
+      description: "Shipping fulfillment",
+      code: "shipping",
+    }
+  }, [type])
+
   const handleSubmit = form.handleSubmit(async (data) => {
     const currencyPrices = Object.entries(data.currency_prices)
       .map(([code, value]) => {
@@ -130,12 +146,7 @@ export function CreateShippingOptionsForm({
             operator: "eq",
           },
         ],
-        type: {
-          // TODO: FETCH TYPES
-          label: "Type label",
-          description: "Type description",
-          code: "type-code",
-        },
+        type: typeConfig,
       },
       {
         onSuccess: ({ shipping_option }) => {

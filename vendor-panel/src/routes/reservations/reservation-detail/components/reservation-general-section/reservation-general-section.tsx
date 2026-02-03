@@ -7,6 +7,7 @@ import { SectionRow } from "../../../../../components/common/section"
 import { useInventoryItem } from "../../../../../hooks/api/inventory"
 import { useStockLocation } from "../../../../../hooks/api/stock-locations"
 import { useTranslation } from "react-i18next"
+import { Link } from "react-router-dom"
 
 type ReservationGeneralSectionProps = {
   reservation: AdminReservationResponse["reservation"]
@@ -55,7 +56,18 @@ export const ReservationGeneralSection = ({
       </div>
       <SectionRow
         title={t("inventory.reservation.lineItemId")}
-        value={reservation.line_item_id} // TODO fetch order instead + add link
+        value={
+          reservation.line_item_id ? (
+            <Link
+              to={`/orders?q=${reservation.line_item_id}`}
+              className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
+            >
+              {reservation.line_item_id}
+            </Link>
+          ) : (
+            "-"
+          )
+        }
       />
       <SectionRow
         title={t("inventory.reservation.description")}

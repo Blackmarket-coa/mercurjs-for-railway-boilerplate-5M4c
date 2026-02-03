@@ -127,7 +127,28 @@ export const CreateProductVariantForm = ({
     }
 
     if (tabOrder.indexOf(update) < tabOrder.indexOf(tab)) {
-      const isCurrentTabDirty = false // isTabDirty(tab) TODO
+      const dirtyFields = form.formState.dirtyFields
+      const hasDirtyFields = (fields: string[]) =>
+        fields.some((field) => {
+          const value = (dirtyFields as Record<string, unknown>)[field]
+          if (!value) {
+            return false
+          }
+          if (typeof value === "boolean") {
+            return value
+          }
+          if (typeof value === "object") {
+            return Object.keys(value as Record<string, unknown>).length > 0
+          }
+          return false
+        })
+
+      const isCurrentTabDirty =
+        tab === Tab.DETAIL
+          ? hasDirtyFields(CreateVariantDetailsFields)
+          : tab === Tab.PRICE
+          ? hasDirtyFields(CreateVariantPriceFields)
+          : hasDirtyFields(["inventory"])
 
       setTabState((prev) => ({
         ...prev,

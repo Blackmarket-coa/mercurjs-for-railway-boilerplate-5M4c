@@ -41,7 +41,6 @@ const ProductEditVariantSchema = z.object({
   options: z.record(z.string()),
 })
 
-// TODO: Either pass option ID or make the backend handle options constraints differently to handle the lack of IDs
 export const ProductEditVariantForm = ({
   variant,
   product,
@@ -50,7 +49,7 @@ export const ProductEditVariantForm = ({
   const { handleSuccess } = useRouteModal()
   const defaultOptions = product.options?.reduce((acc: any, option: any) => {
     const varOpt = variant?.options?.find((o: any) => o.option_id === option.id)
-    acc[option.title] = varOpt?.value
+    acc[option.id] = varOpt?.value
     return acc
   }, {})
 
@@ -163,7 +162,7 @@ export const ProductEditVariantForm = ({
                 <Form.Field
                   key={option.id}
                   control={form.control}
-                  name={`options.${option.title}`}
+                  name={`options.${option.id}`}
                   render={({ field: { value, onChange, ...field } }) => {
                     return (
                       <Form.Item>

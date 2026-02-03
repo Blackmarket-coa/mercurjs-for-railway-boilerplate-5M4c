@@ -38,7 +38,12 @@ export const ReturnBody = ({
   }
 
   const numberOfItems = orderReturn.items.reduce((acc, item) => {
-    return acc + (isReceived ? item.received_quantity : item.quantity) // TODO: revisit when we add dismissed quantity on ReturnItem
+    const dismissed = (item as typeof item & { dismissed_quantity?: number })
+      .dismissed_quantity
+    const baseQuantity = isReceived ? item.received_quantity : item.quantity
+    const effectiveQuantity = Math.max(baseQuantity - (dismissed ?? 0), 0)
+
+    return acc + effectiveQuantity
   }, 0)
 
   return (
@@ -64,4 +69,3 @@ export const ReturnBody = ({
     </div>
   )
 }
-

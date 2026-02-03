@@ -7,9 +7,7 @@ export const useOrderTableFilters = (): Filter[] => {
 
   let filters: Filter[] = []
 
-  // Note: paymentStatusFilter is defined but not currently used
-  // @ts-ignore - Filter preserved for future use
-  const _paymentStatusFilter: Filter = {
+  const paymentStatusFilter: Filter = {
     key: "payment_status",
     label: t("orders.payment.statusLabel"),
     type: "select",
@@ -46,6 +44,51 @@ export const useOrderTableFilters = (): Filter[] => {
     ],
   }
 
+  const fulfillmentStatusFilter: Filter = {
+    key: "fulfillment_status",
+    label: t("orders.fulfillment.statusLabel"),
+    type: "select",
+    multiple: true,
+    options: [
+      {
+        label: t("orders.fulfillment.status.notFulfilled"),
+        value: "not_fulfilled",
+      },
+      {
+        label: t("orders.fulfillment.status.fulfilled"),
+        value: "fulfilled",
+      },
+      {
+        label: t("orders.fulfillment.status.partiallyFulfilled"),
+        value: "partially_fulfilled",
+      },
+      {
+        label: t("orders.fulfillment.status.returned"),
+        value: "returned",
+      },
+      {
+        label: t("orders.fulfillment.status.partiallyReturned"),
+        value: "partially_returned",
+      },
+      {
+        label: t("orders.fulfillment.status.shipped"),
+        value: "shipped",
+      },
+      {
+        label: t("orders.fulfillment.status.partiallyShipped"),
+        value: "partially_shipped",
+      },
+      {
+        label: t("orders.fulfillment.status.canceled"),
+        value: "canceled",
+      },
+      {
+        label: t("orders.fulfillment.status.requiresAction"),
+        value: "requires_action",
+      },
+    ],
+  }
+
   const dateFilters: Filter[] = [
     { label: "Created At", key: "created_at" },
     { label: "Updated At", key: "updated_at" },
@@ -57,9 +100,8 @@ export const useOrderTableFilters = (): Filter[] => {
 
   filters = [
     ...filters,
-    // TODO: enable when Payment, Fulfillments <> Orders are linked
-    // paymentStatusFilter,
-    // fulfillmentStatusFilter,
+    paymentStatusFilter,
+    fulfillmentStatusFilter,
     ...dateFilters,
   ]
 

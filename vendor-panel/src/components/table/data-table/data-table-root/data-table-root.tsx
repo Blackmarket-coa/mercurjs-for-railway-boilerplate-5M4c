@@ -63,17 +63,6 @@ export interface DataTableRootProps<TData> {
 }
 
 /**
- * TODO
- *
- * Add a sticky header to the table that shows the column name when scrolling through the table vertically.
- *
- * This is a bit tricky as we can't support horizontal scrolling and sticky headers at the same time, natively
- * with CSS. We need to implement a custom solution for this. One solution is to render a duplicate table header
- * using a DIV that, but it will require rerendeing the duplicate header every time the window is resized, to keep
- * the columns aligned.
- */
-
-/**
  * Table component for rendering a table with pagination, filtering and ordering.
  */
 export const DataTableRoot = <TData,>({
@@ -139,7 +128,12 @@ export const DataTableRoot = <TData,>({
         {!noResults ? (
           <Table className="relative w-full">
             {!noHeader && (
-              <Table.Header className="border-t-0">
+              <Table.Header
+                className={clx(
+                  "border-t-0 sticky top-0 z-10 bg-ui-bg-base",
+                  showStickyBorder && "shadow-borders-base"
+                )}
+              >
                 {table.getHeaderGroups().map((headerGroup) => {
                   return (
                     <Table.Row

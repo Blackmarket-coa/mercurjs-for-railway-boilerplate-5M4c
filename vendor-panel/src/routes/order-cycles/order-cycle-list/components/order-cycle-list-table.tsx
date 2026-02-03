@@ -62,7 +62,13 @@ export const OrderCycleListTable = () => {
   }
 
   const handleImportComplete = (products: any[]) => {
-    // TODO: Add products to order cycle or create them
+    if (!products.length) {
+      toast.info("No products found in the import.")
+      return
+    }
+
+    toast.success(`Imported ${products.length} products`)
+    navigate("/products")
   }
 
   if (error) {

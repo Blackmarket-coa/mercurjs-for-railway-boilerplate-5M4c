@@ -89,11 +89,6 @@ const getCommonPinningStyles = <TData,>(
   }
 }
 
-/**
- * TODO:
- * - [Minor] Extend the commands to also support modifying the anchor and rangeEnd, to restore the previous focus after undo/redo.
- */
-
 export const DataGridRoot = <
   TData,
   TFieldValues extends FieldValues = FieldValues,

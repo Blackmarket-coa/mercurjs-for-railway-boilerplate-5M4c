@@ -55,27 +55,70 @@ export async function GET(
     // OPTIMIZATION: If we have harvests, get lot counts
     // Future: add parallel queries for available_products and pending_orders
     let lotsCount = 0
+    let availableProductsCount = 0
+    let pendingOrdersCount = 0
+    let lots: Array<{ id: string; quantity_reserved?: number }> = []
     if (harvestIds.length > 0) {
-      const { data: lots } = await query.graph({
+      const { data: fetchedLots } = await query.graph({
         entity: "lot",
-        fields: ["id"],
+        fields: ["id", "quantity_reserved"],
         filters: {
           harvest_id: { $in: harvestIds },
           is_active: true,
         },
       })
-      lotsCount = lots?.length || 0
+      lots = fetchedLots || []
+      lotsCount = lots.length
     }
 
-    // TODO: Get availability windows linked to products for "available_products"
-    // TODO: Get pending orders from order service
+    const lotIds = lots.map((lot) => lot.id)
+
+    if (lotIds.length > 0) {
+      const { data: availabilityWindows } = await query.graph({
+        entity: "availability_window",
+        fields: ["product_id", "available_from", "available_until", "is_active"],
+        filters: {
+          lot_id: { $in: lotIds },
+          is_active: true,
+        },
+      })
+
+      const now = new Date()
+      const availableProductIds = new Set<string>()
+
+      for (const window of availabilityWindows || []) {
+        if (!window?.product_id) {
+          continue
+        }
+
+        const availableFrom = window.available_from
+          ? new Date(window.available_from)
+          : null
+        const availableUntil = window.available_until
+          ? new Date(window.available_until)
+          : null
+        const isWithinWindow =
+          (!availableFrom || availableFrom <= now) &&
+          (!availableUntil || availableUntil >= now)
+
+        if (isWithinWindow) {
+          availableProductIds.add(window.product_id)
+        }
+      }
+
+      availableProductsCount = availableProductIds.size
+    }
+
+    pendingOrdersCount = lots.reduce((count, lot) => {
+      return (lot.quantity_reserved ?? 0) > 0 ? count + 1 : count
+    }, 0)
 
     res.json({
       stats: {
         active_harvests: harvests?.length || 0,
         total_lots: lotsCount,
-        available_products: 0, // TODO: implement
-        pending_orders: 0, // TODO: implement
+        available_products: availableProductsCount,
+        pending_orders: pendingOrdersCount,
       }
     })
   } catch (error: any) {

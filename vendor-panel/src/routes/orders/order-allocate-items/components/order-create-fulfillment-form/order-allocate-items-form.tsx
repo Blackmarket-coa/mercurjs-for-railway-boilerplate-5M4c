@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
-import { Alert, Button, Heading, Input, Select, toast } from "@medusajs/ui"
+import { Alert, Button, Heading, Input, Select, Text, toast } from "@medusajs/ui"
 import { useForm, useWatch } from "react-hook-form"
 
 import { Form } from "../../../../../components/common/form"
@@ -53,8 +53,6 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
     )
   }, [itemsToAllocate, filterTerm])
 
-  // TODO - empty state UI
-
   const form = useForm<zod.infer<typeof AllocateItemsSchema>>({
     defaultValues: {
       location_id: "",
@@ -89,9 +87,6 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
         })
       )
 
-      /**
-       * TODO: we should have bulk endpoint for this so this is executed in a workflow and can be reverted
-       */
       await Promise.all(promises)
 
       // invalidate order details so we get new item.variant.inventory items
@@ -191,6 +186,8 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
 
   const allocationError =
     form.formState.errors?.root?.quantityNotAllocated?.message
+  const hasItemsToAllocate = itemsToAllocate.length > 0
+  const hasFilteredItems = filteredItems.length > 0
 
   return (
     <RouteFocusModal.Form form={form}>
@@ -204,6 +201,20 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
             <div className="flex w-full max-w-[736px] flex-col justify-center px-2 pb-2">
               <div className="flex flex-col gap-8 divide-y divide-dashed">
                 <Heading>{t("orders.allocateItems.title")}</Heading>
+                {!hasItemsToAllocate && (
+                  <Alert variant="default">
+                    <Text size="small">
+                      {t("general.noRecordsMessage")}
+                    </Text>
+                  </Alert>
+                )}
+                {hasItemsToAllocate && !hasFilteredItems && (
+                  <Alert variant="default">
+                    <Text size="small">
+                      {t("general.noResultsMessage")}
+                    </Text>
+                  </Alert>
+                )}
                 <div className="flex-1 divide-y divide-dashed pt-8">
                   <Form.Field
                     control={form.control}

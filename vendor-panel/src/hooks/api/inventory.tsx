@@ -315,7 +315,6 @@ export const useBatchInventoryItemsLocationLevels = (
   })
 }
 
-// TODO: Change this to use endpoint that returns location levels for specific inventory items insted of mapping inventory items to location levels
 export const useMultipleInventoryItemLevels = (
   inventoryItemIds: string[],
   query?: Record<string, any>
