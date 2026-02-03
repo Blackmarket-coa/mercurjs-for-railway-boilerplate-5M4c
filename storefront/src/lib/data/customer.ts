@@ -43,8 +43,13 @@ export const retrieveCustomerContext = async (): Promise<{
 }> => {
   const authHeaders = await getAuthHeaders()
   if (!authHeaders) {
+    console.log("[retrieveCustomerContext] No auth headers found")
     return { customer: null, isAuthenticated: false }
   }
+
+  // Log token info (safely, without exposing full token)
+  const tokenPreview = authHeaders.authorization?.substring(0, 20) + "..."
+  console.log("[retrieveCustomerContext] Auth headers present, token preview:", tokenPreview)
 
   try {
     const { customer } = await medusaFetch<{
@@ -55,13 +60,16 @@ export const retrieveCustomerContext = async (): Promise<{
       cache: "no-store",
     })
 
+    console.log("[retrieveCustomerContext] Customer fetched:", customer?.id)
     return { customer: customer ?? null, isAuthenticated: true }
   } catch (error: any) {
     console.warn("[retrieveCustomerContext] Failed to fetch customer:", error)
+    console.warn("[retrieveCustomerContext] Error status:", error?.status)
 
     // Check if token is invalid/expired (401 Unauthorized)
     const status = error?.status || error?.response?.status
     if (status === 401) {
+      console.log("[retrieveCustomerContext] 401 detected, clearing token")
       // Try to clear the invalid token (may fail in Server Component context)
       try {
         await removeAuthToken()
@@ -178,12 +186,23 @@ export async function login(formData: FormData) {
   const password = String(formData.get("password") || "")
 
   try {
-    const token = await sdk.auth.login("customer", "emailpass", {
+    const tokenResponse = await sdk.auth.login("customer", "emailpass", {
       email,
       password,
     })
 
-    await setAuthToken(token as string)
+    // Handle both string token and object response { token: string }
+    const token = typeof tokenResponse === "string"
+      ? tokenResponse
+      : (tokenResponse as any)?.token
+
+    if (!token || typeof token !== "string") {
+      console.error("[login] Invalid token response:", tokenResponse)
+      return "Login failed: Invalid authentication response"
+    }
+
+    console.log("[login] Token received, length:", token.length)
+    await setAuthToken(token)
 
     const customerCacheTag = await getCacheTag("customers")
     revalidateTag(customerCacheTag)
