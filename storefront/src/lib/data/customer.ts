@@ -76,10 +76,15 @@ export const retrieveCustomerContext = async (): Promise<{
       } catch {
         // Cookie modification not allowed in Server Components - that's OK
       }
+      // Token was invalid, user should see login form
+      return { customer: null, isAuthenticated: false }
     }
 
-    // Return not authenticated so user sees login form instead of stuck loading state
-    return { customer: null, isAuthenticated: false }
+    // For transient errors (network issues, server overload, etc.),
+    // return isAuthenticated: true so user sees loading state instead of login form.
+    // This prevents logged-in users from being redirected to login during temporary failures.
+    console.log("[retrieveCustomerContext] Transient error, showing loading state")
+    return { customer: null, isAuthenticated: true }
   }
 }
 
