@@ -67,6 +67,23 @@ export const MobileNavbar = ({
             </button>
           </div>
 
+          {/* Vendor CTA Banner */}
+          <a
+            href={process.env.NEXT_PUBLIC_VENDOR_URL || "https://vendor.mercurjs.com"}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={closeMenuHandler}
+            className="flex items-center justify-between mb-4 p-4 bg-green-700 hover:bg-green-600 text-white rounded-lg transition-colors"
+          >
+            <div className="flex flex-col">
+              <span className="font-bold text-base">Sell With Us</span>
+              <span className="text-green-200 text-xs">Start your vendor journey today</span>
+            </div>
+            <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+
           {/* Search Bar */}
           <form onSubmit={handleSearch} className='mb-4'>
             <div className='relative'>
@@ -124,7 +141,7 @@ export const MobileNavbar = ({
                 onClick={closeMenuHandler}
                 className="font-medium text-green-700 hover:text-green-800 flex items-center gap-2"
               >
-                <span className="text-lg">✨</span> Sell on FreeBlackMarket
+                <span className="text-lg">✨</span> Learn About Selling
               </LocalizedClientLink>
             </div>
           </div>

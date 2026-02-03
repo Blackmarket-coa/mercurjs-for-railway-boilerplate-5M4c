@@ -43,15 +43,13 @@ export const Header = async () => {
   return (
     <header>
       <div className="flex py-2 lg:px-8 px-4">
-        <div className="flex items-center lg:w-1/3">
+        <div className="flex items-center gap-2 lg:w-1/3">
           <MobileNavbar
             parentCategories={parentCategories}
             childrenCategories={categories}
             cmsTypes={cmsTypes}
           />
-          <div className="hidden lg:block">
-            <SellNowButton />
-          </div>
+          <SellNowButton />
         </div>
         <div className="flex lg:justify-center lg:w-1/3 items-center pl-4 lg:pl-0">
           <LocalizedClientLink href="/" className="text-2xl font-bold">
