@@ -136,6 +136,13 @@ export async function preventPasswordReuseMiddleware(
 
     const currentPasswordHash = providerMetadata.password as string | undefined
 
+    console.log(`[password-history] Auth identity: ${authIdentityId}`)
+    console.log(`[password-history] Provider metadata keys: ${Object.keys(providerMetadata).join(", ")}`)
+    console.log(`[password-history] Has current password hash: ${!!currentPasswordHash}`)
+    if (currentPasswordHash) {
+      console.log(`[password-history] Password hash prefix: ${currentPasswordHash.substring(0, 10)}...`)
+    }
+
     // Get password history for this auth identity
     let passwordHistoryService: PasswordHistoryService | null = null
     try {
@@ -148,7 +155,9 @@ export async function preventPasswordReuseMiddleware(
     // Always check against current password (shouldn't set same password)
     // This check runs regardless of whether the password history module is available
     if (currentPasswordHash) {
+      console.log(`[password-history] Comparing new password against current hash...`)
       const matchesCurrent = await bcrypt.compare(newPassword, currentPasswordHash)
+      console.log(`[password-history] Password match result: ${matchesCurrent}`)
       if (matchesCurrent) {
         console.log(`[password-history] User tried to reuse current password for auth_identity: ${authIdentityId}`)
         return res.status(400).json({
@@ -156,6 +165,8 @@ export async function preventPasswordReuseMiddleware(
           type: "password_same_as_current",
         })
       }
+    } else {
+      console.log(`[password-history] No current password hash found, skipping current password check`)
     }
 
     if (passwordHistoryService) {
