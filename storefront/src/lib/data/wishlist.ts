@@ -37,9 +37,11 @@ export const addWishlistItem = async ({
       reference,
       reference_id,
     },
-  }).then(() => {
-    revalidatePath("/wishlist")
   })
+
+  revalidatePath("/user/wishlist")
+
+  return response
 }
 
 export const removeWishlistItem = async ({
@@ -56,7 +58,9 @@ export const removeWishlistItem = async ({
   const response = await medusaFetch(`/store/wishlist/${wishlist_id}/product/${product_id}`, {
     headers,
     method: "DELETE",
-  }).then(() => {
-    revalidatePath("/wishlist")
   })
+
+  revalidatePath("/user/wishlist")
+
+  return response
 }
