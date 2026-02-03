@@ -46,11 +46,17 @@ export const WishlistButton = ({
   }
 
   const handleRemoveFromWishlist = async () => {
+    const wishlistId = wishlist?.[0]?.id
+    if (!wishlistId) {
+      console.error("Cannot remove from wishlist: wishlist ID not found")
+      return
+    }
+
     try {
       setIsWishlistAdding(true)
 
       await removeWishlistItem({
-        wishlist_id: wishlist?.[0].id!,
+        wishlist_id: wishlistId,
         product_id: productId,
       })
     } catch (error) {
