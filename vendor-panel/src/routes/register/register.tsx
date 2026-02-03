@@ -18,7 +18,7 @@ const urlSchema = z.string().url().optional().or(z.literal(""))
 
 const RegisterSchema = z
   .object({
-    name: z.string().min(2, { message: "Name should be a string" }),
+    name: z.string().min(1, { message: "Business name is required" }),
     email: z.string().email({ message: "Invalid email" }),
     password: z
       .string()
