@@ -4,10 +4,24 @@ import type {
   MedusaNextFunction,
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import bcrypt from "bcryptjs"
+import Scrypt from "scrypt-kdf"
 import jwt from "jsonwebtoken"
 import { PASSWORD_HISTORY_MODULE } from "../../modules/password-history"
 import type PasswordHistoryService from "../../modules/password-history/service"
+
+/**
+ * Verify a password against a scrypt hash (base64 encoded)
+ * MedusaJS uses scrypt-kdf for password hashing
+ */
+async function verifyPassword(password: string, hashBase64: string): Promise<boolean> {
+  try {
+    const hashBuffer = Buffer.from(hashBase64, "base64")
+    return await Scrypt.verify(hashBuffer, password)
+  } catch (error) {
+    console.error("[password-history] Error verifying password:", error)
+    return false
+  }
+}
 
 /**
  * Configuration for password history checking
@@ -155,8 +169,8 @@ export async function preventPasswordReuseMiddleware(
     // Always check against current password (shouldn't set same password)
     // This check runs regardless of whether the password history module is available
     if (currentPasswordHash) {
-      console.log(`[password-history] Comparing new password against current hash...`)
-      const matchesCurrent = await bcrypt.compare(newPassword, currentPasswordHash)
+      console.log(`[password-history] Comparing new password against current hash using scrypt...`)
+      const matchesCurrent = await verifyPassword(newPassword, currentPasswordHash)
       console.log(`[password-history] Password match result: ${matchesCurrent}`)
       if (matchesCurrent) {
         console.log(`[password-history] User tried to reuse current password for auth_identity: ${authIdentityId}`)
@@ -181,7 +195,7 @@ export async function preventPasswordReuseMiddleware(
 
       // Check if new password matches any historical password
       for (const entry of historyEntries) {
-        const isMatch = await bcrypt.compare(newPassword, entry.password_hash)
+        const isMatch = await verifyPassword(newPassword, entry.password_hash)
         if (isMatch) {
           console.log(`[password-history] Password reuse detected for auth_identity: ${authIdentityId}`)
           return res.status(400).json({
