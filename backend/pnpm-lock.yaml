@@ -136,6 +136,9 @@ importers:
       resend:
         specifier: ^6.6.0
         version: 6.7.0(@react-email/render@2.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+      scrypt-kdf:
+        specifier: ^2.0.1
+        version: 2.0.1
       stripe:
         specifier: ^17.7.0
         version: 17.7.0
