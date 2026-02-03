@@ -178,7 +178,19 @@ export function OrderCreateFulfillmentForm({
             "shipping_option_id",
             initialShippingOptionId || undefined
           )
-        } // else -> TODO: what if original shipping option is deleted?
+        } else {
+          const fallbackOption = shipping_options.find(
+            (option) => option !== null && !isReturnOption(option)
+          )
+
+          if (fallbackOption) {
+            form.setValue(
+              "location_id",
+              fallbackOption.service_zone.fulfillment_set.location.id
+            )
+            form.setValue("shipping_option_id", fallbackOption.id)
+          }
+        }
       }
     }
   }, [stock_locations?.length, shipping_options?.length])

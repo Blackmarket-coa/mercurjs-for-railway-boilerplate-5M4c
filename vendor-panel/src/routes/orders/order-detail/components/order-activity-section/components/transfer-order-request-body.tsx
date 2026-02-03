@@ -37,21 +37,19 @@ export const TransferOrderRequestBody = ({
     await cancelTransfer()
   }
 
-  /**
-   * TODO: change original_email to customer info when action details is changed
-   */
+  const fromLabel = action.details?.original_email ?? customer?.email ?? "-"
+  const toLabel = customer?.first_name
+    ? `${customer?.first_name} ${customer?.last_name}`
+    : customer?.email ?? "-"
 
   return (
     <div>
       <Text size="small" className="text-ui-fg-subtle">
-        {t("orders.activity.from")}: {String(action.details?.original_email || "")}
+        {t("orders.activity.from")}: {fromLabel}
       </Text>
 
       <Text size="small" className="text-ui-fg-subtle">
-        {t("orders.activity.to")}:{" "}
-        {customer?.first_name
-          ? `${customer?.first_name} ${customer?.last_name}`
-          : customer?.email}
+        {t("orders.activity.to")}: {toLabel}
       </Text>
       {!isCompleted && (
         <Button
@@ -66,4 +64,3 @@ export const TransferOrderRequestBody = ({
     </div>
   )
 }
-

@@ -25,7 +25,13 @@ const EditLocationSchema = zod.object({
     postal_code: zod.string().optional(),
     province: zod.string().optional(),
     company: zod.string().optional(),
-    phone: zod.string().optional(), // TODO: Add validation
+    phone: zod
+      .string()
+      .optional()
+      .refine(
+        (value) => !value || /^[0-9+()\\s.-]+$/.test(value),
+        "Invalid phone number"
+      ),
   }),
 })
 

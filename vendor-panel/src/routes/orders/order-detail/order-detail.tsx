@@ -1,4 +1,5 @@
 import { useLoaderData, useParams } from "react-router-dom"
+import { useMemo } from "react"
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TwoColumnPage } from "../../../components/layout/pages"
@@ -29,22 +30,28 @@ export const OrderDetail = () => {
     }
   )
 
-  // TODO: Retrieve endpoints don't have an order ability, so a JS sort until this is available
-  if (order) {
-    order.items = order.items.sort((itemA: any, itemB: any) => {
-      if (itemA.created_at > itemB.created_at) {
-        return 1
-      }
+  const sortedOrder = useMemo(() => {
+    if (!order) {
+      return order
+    }
 
-      if (itemA.created_at < itemB.created_at) {
-        return -1
-      }
+    return {
+      ...order,
+      items: [...order.items].sort((itemA: any, itemB: any) => {
+        if (itemA.created_at > itemB.created_at) {
+          return 1
+        }
 
-      return 0
-    })
-  }
+        if (itemA.created_at < itemB.created_at) {
+          return -1
+        }
 
-  if (isLoading || !order) {
+        return 0
+      }),
+    }
+  }, [order])
+
+  if (isLoading || !sortedOrder) {
     return (
       <TwoColumnPageSkeleton mainSections={4} sidebarSections={2} showJSON />
     )
@@ -62,18 +69,18 @@ export const OrderDetail = () => {
         sideAfter: getWidgets("order.details.side.after"),
         sideBefore: getWidgets("order.details.side.before"),
       }}
-      data={order}
+      data={sortedOrder}
       hasOutlet
     >
       <TwoColumnPage.Main>
-        <OrderGeneralSection order={order} />
-        <OrderSummarySection order={order} />
-        <OrderPaymentSection order={order} />
-        <OrderFulfillmentSection order={order} />
+        <OrderGeneralSection order={sortedOrder} />
+        <OrderSummarySection order={sortedOrder} />
+        <OrderPaymentSection order={sortedOrder} />
+        <OrderFulfillmentSection order={sortedOrder} />
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar>
-        <OrderCustomerSection order={order} />
-        <OrderActivitySection order={order} />
+        <OrderCustomerSection order={sortedOrder} />
+        <OrderActivitySection order={sortedOrder} />
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   )

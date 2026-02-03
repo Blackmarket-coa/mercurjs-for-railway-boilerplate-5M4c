@@ -26,6 +26,41 @@ type WorkflowExecutionHistorySectionProps = {
   execution: HttpTypes.AdminWorkflowExecution
 }
 
+const resolveDisplayValue = (value: unknown): unknown => {
+  if (Array.isArray(value)) {
+    return value.map((entry) => resolveDisplayValue(entry))
+  }
+
+  if (!value || typeof value !== "object") {
+    return value
+  }
+
+  const record = value as Record<string, unknown>
+
+  if (
+    record.__type === "ref" ||
+    record.__type === "reference" ||
+    record.__type === "step"
+  ) {
+    return record.value ?? record.path ?? record.ref ?? record.id ?? record
+  }
+
+  if ("$ref" in record && typeof record.$ref === "string") {
+    return record.$ref
+  }
+
+  if ("ref" in record && typeof record.ref === "string") {
+    return record.ref
+  }
+
+  return Object.fromEntries(
+    Object.entries(record).map(([key, val]) => [
+      key,
+      resolveDisplayValue(val),
+    ])
+  )
+}
+
 export const WorkflowExecutionHistorySection = ({
   execution,
 }: WorkflowExecutionHistorySectionProps) => {
@@ -200,8 +235,7 @@ const Event = ({
                   snippets={[
                     {
                       code: JSON.stringify(
-                        // TODO: Apply resolve value: packages/core/workflows-sdk/src/utils/composer/helpers/resolve-value.ts
-                        stepInvokeContext?.output?.output ?? {},
+                        resolveDisplayValue(stepInvokeContext?.output?.output ?? {}),
                         null,
                         2
                       ),
@@ -224,9 +258,10 @@ const Event = ({
                   <CodeBlock
                     snippets={[
                       {
-                        // TODO: Apply resolve value: packages/core/workflows-sdk/src/utils/composer/helpers/resolve-value.ts
                         code: JSON.stringify(
-                          stepInvokeContext?.output?.compensateInput ?? {},
+                          resolveDisplayValue(
+                            stepInvokeContext?.output?.compensateInput ?? {}
+                          ),
                           null,
                           2
                         ),

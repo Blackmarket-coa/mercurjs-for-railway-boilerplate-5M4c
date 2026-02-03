@@ -9,17 +9,23 @@ type ProductSalesChannelSectionProps = {
   product: ExtendedAdminProduct
 }
 
-// TODO: The fetched sales channel doesn't contain all necessary info
 export const ProductSalesChannelSection = ({
   product,
 }: ProductSalesChannelSectionProps) => {
-  const { count } = useSalesChannels()
+  const { count, sales_channels } = useSalesChannels({
+    limit: 200,
+    fields: "id,name",
+  })
   const { t } = useTranslation()
+
+  const salesChannelLookup = new Map(
+    (sales_channels || []).map((channel) => [channel.id, channel.name])
+  )
 
   const availableInSalesChannels =
     product.sales_channels?.map((sc) => ({
       id: sc.id,
-      name: sc.name,
+      name: salesChannelLookup.get(sc.id) ?? sc.name,
     })) ?? []
 
   const firstChannels = availableInSalesChannels.slice(0, 3)
