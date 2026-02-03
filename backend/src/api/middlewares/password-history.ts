@@ -124,6 +124,19 @@ export async function preventPasswordReuseMiddleware(
       console.warn("[password-history] Password history module not available - skipping history check")
     }
 
+    // Always check against current password (shouldn't set same password)
+    // This check runs regardless of whether the password history module is available
+    if (currentPasswordHash) {
+      const matchesCurrent = await bcrypt.compare(newPassword, currentPasswordHash)
+      if (matchesCurrent) {
+        console.log(`[password-history] User tried to reuse current password for auth_identity: ${authIdentityId}`)
+        return res.status(400).json({
+          message: "New password must be different from your current password.",
+          type: "password_same_as_current",
+        })
+      }
+    }
+
     if (passwordHistoryService) {
       // Get historical password hashes
       const historyEntries = await passwordHistoryService.listPasswordHistoryEntries(
@@ -142,18 +155,6 @@ export async function preventPasswordReuseMiddleware(
           return res.status(400).json({
             message: "This password has been used before. Please choose a different password.",
             type: "password_reuse",
-          })
-        }
-      }
-
-      // Also check against current password (shouldn't set same password)
-      if (currentPasswordHash) {
-        const matchesCurrent = await bcrypt.compare(newPassword, currentPasswordHash)
-        if (matchesCurrent) {
-          console.log(`[password-history] User tried to reuse current password for auth_identity: ${authIdentityId}`)
-          return res.status(400).json({
-            message: "New password must be different from your current password.",
-            type: "password_same_as_current",
           })
         }
       }
