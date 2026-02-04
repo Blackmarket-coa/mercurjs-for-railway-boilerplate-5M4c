@@ -46,35 +46,23 @@ export const CreateProductTypeForm = () => {
   return (
     <RouteFocusModal.Form form={form}>
       <KeyboundForm
+        className="flex size-full flex-col overflow-hidden"
         onSubmit={handleSubmit}
-        className="flex flex-col overflow-hidden"
       >
-        <RouteFocusModal.Header>
-          <div className="flex items-center justify-end gap-x-2">
-            <RouteFocusModal.Close asChild>
-              <Button size="small" variant="secondary">
-                {t("actions.cancel")}
-              </Button>
-            </RouteFocusModal.Close>
-            <Button
-              size="small"
-              variant="primary"
-              type="submit"
-              isLoading={isPending}
-            >
-              Request
-            </Button>
-          </div>
-        </RouteFocusModal.Header>
-        <RouteFocusModal.Body className="flex flex-col items-center overflow-y-auto p-16">
+        <RouteFocusModal.Header />
+        <RouteFocusModal.Body className="flex flex-1 justify-center overflow-auto px-6 py-16">
           <div className="flex w-full max-w-[720px] flex-col gap-y-8">
-            <div>
-              <Heading>Request Product Type</Heading>
-              <Text size="small" className="text-ui-fg-subtle">
-                {t("productTypes.create.hint")}
-              </Text>
+            <div className="flex flex-col gap-y-1">
+              <RouteFocusModal.Title asChild>
+                <Heading>Request Product Type</Heading>
+              </RouteFocusModal.Title>
+              <RouteFocusModal.Description asChild>
+                <Text size="small" className="text-ui-fg-subtle">
+                  {t("productTypes.create.hint")}
+                </Text>
+              </RouteFocusModal.Description>
             </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               <Form.Field
                 control={form.control}
                 name="value"
@@ -93,6 +81,18 @@ export const CreateProductTypeForm = () => {
             </div>
           </div>
         </RouteFocusModal.Body>
+        <RouteFocusModal.Footer>
+          <div className="flex items-center justify-end gap-2">
+            <RouteFocusModal.Close asChild>
+              <Button size="small" variant="secondary" type="button">
+                {t("actions.cancel")}
+              </Button>
+            </RouteFocusModal.Close>
+            <Button size="small" type="submit" isLoading={isPending}>
+              Request
+            </Button>
+          </div>
+        </RouteFocusModal.Footer>
       </KeyboundForm>
     </RouteFocusModal.Form>
   )
