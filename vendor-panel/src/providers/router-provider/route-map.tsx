@@ -1,5 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
-import { Outlet, RouteObject, UIMatch } from "react-router-dom"
+import { Navigate, Outlet, RouteObject, UIMatch } from "react-router-dom"
 
 import { t } from "i18next"
 import { ProtectedRoute } from "../../components/authentication/protected-route"
@@ -1421,6 +1421,10 @@ export const RouteMap: RouteObject[] = [
                 lazy: () => import("../../routes/store/store-links"),
               },
             ],
+          },
+          {
+            path: "store-detail",
+            element: <Navigate to="/settings/store" replace />,
           },
           {
             path: "users",
