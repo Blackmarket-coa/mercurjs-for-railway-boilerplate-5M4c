@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-query";
 
 import type { AdminRequest, AdminReviewRequest } from "@custom-types/requests";
+import { sellerQueryKeys } from "./sellers";
 
 export const requestsQueryKeys = queryKeysFactory("requests");
 
@@ -153,7 +154,7 @@ export const useReviewRequest = (
         );
       }
     },
-    onSettled: () => {
+    onSettled: (data, _error, variables) => {
       // Delay refetch to avoid overwriting optimistic updates with stale data.
       setTimeout(() => {
         queryClient.invalidateQueries({
@@ -161,6 +162,16 @@ export const useReviewRequest = (
           refetchType: "inactive",
         });
       }, 2000);
+
+      // When a request is accepted, a seller may have been created.
+      // Invalidate the sellers cache so the new seller shows up on /sellers.
+      const nextStatus =
+        data?.request?.status || data?.status || variables.payload.status;
+      if (nextStatus === "accepted") {
+        queryClient.invalidateQueries({
+          queryKey: sellerQueryKeys.all,
+        });
+      }
     },
     ...options,
   });
