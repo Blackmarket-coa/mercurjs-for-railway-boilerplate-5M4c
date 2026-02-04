@@ -5,7 +5,7 @@ import { Suspense } from "react"
 import type { Metadata } from "next"
 import { Breadcrumbs } from "@/components/atoms"
 import { AlgoliaProductsListing, ProductListing } from "@/components/sections"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import isBot from "@/lib/helpers/isBot"
 import { headers } from "next/headers"
 import Script from "next/script"
@@ -14,6 +14,23 @@ import { listProducts } from "@/lib/data/products"
 import { toHreflang } from "@/lib/helpers/hreflang"
 
 export const revalidate = 60
+
+const LEGACY_CATEGORY_HANDLES = new Set([
+  "direct-marketplace",
+  "pre-order-drops",
+  "subscriptions",
+  "wholesale",
+  "digital-downloads",
+  "services",
+  "local-pickup",
+  "custom-orders",
+  "partnerships",
+  "community-drops",
+  "food-beverage",
+  "electronics",
+  "digital-products",
+  "bulk",
+])
 
 export async function generateMetadata({
   params,
@@ -92,6 +109,9 @@ async function Category({
   const category = await getCategoryByHandle([handle])
 
   if (!category) {
+    if (LEGACY_CATEGORY_HANDLES.has(handle)) {
+      return redirect(`/${locale}/categories`)
+    }
     return notFound()
   }
   const currency_code = (await getRegion(locale))?.currency_code || "usd"

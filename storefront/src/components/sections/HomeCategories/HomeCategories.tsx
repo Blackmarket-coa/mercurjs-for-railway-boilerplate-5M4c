@@ -72,7 +72,7 @@ export const HomeCategories = async ({ heading }: { heading: string }) => {
       </div>
       <Carousel
         items={categories?.map((category) => (
-          <CategoryCard key={category.id} category={category} />
+          <CategoryCard key={category.handle} category={category} />
         ))}
       />
     </section>

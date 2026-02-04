@@ -28,7 +28,7 @@ export const EmptyCart = async () => {
         <h3 className="heading-sm text-center mb-6 uppercase">Browse Categories</h3>
         <Carousel
           items={featuredCategories.map((category) => (
-            <CategoryCard key={category.id} category={category} />
+            <CategoryCard key={category.handle} category={category} />
           ))}
         />
       </div>
