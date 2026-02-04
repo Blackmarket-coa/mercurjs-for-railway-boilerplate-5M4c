@@ -1,7 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { Modules } from "@medusajs/framework/utils"
 import { INotificationModuleService } from "@medusajs/framework/types"
-import { appendPath } from "../../../shared/url"
+import { appendPath } from "../../../../shared/url"
 
 /**
  * POST /admin/sellers/invite
