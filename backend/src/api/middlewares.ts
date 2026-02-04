@@ -615,6 +615,15 @@ export default defineMiddlewares({
       matcher: "/vendor/subscriptions/*",
       middlewares: [authenticate("seller", "bearer")],
     },
+    // Vendor requests routes - seller authentication
+    {
+      matcher: "/vendor/requests",
+      middlewares: [authenticate("seller", "bearer")],
+    },
+    {
+      matcher: "/vendor/requests/*",
+      middlewares: [authenticate("seller", "bearer")],
+    },
     // Rental routes - admin
     {
       matcher: "/admin/products/:id/rental-config",
