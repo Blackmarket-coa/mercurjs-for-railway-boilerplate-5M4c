@@ -147,8 +147,8 @@ async function AllCategories({
       {/* Category Grid Section */}
       <section className="mb-12">
         <div className="inline-flex items-center gap-3 rounded-full border border-emerald-200/80 bg-emerald-50/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-900 mb-4">
-          <span className="text-lg">🌾</span>
-          Solar Punk Market
+          <span className="text-lg">🌻</span>
+          Free Black Market
         </div>
         <h1 className="heading-xl uppercase mb-2 text-emerald-950">
           Shop by Category

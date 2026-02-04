@@ -1,17 +1,17 @@
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 
-// Category emoji mapping for visual appeal
+// Category emoji mapping - solar punk themed icons
 const categoryEmojis: Record<string, string> = {
-  "direct-marketplace": "☀️",
-  "pre-order-drops": "🌱",
-  "subscriptions": "🍃",
-  "wholesale": "🌾",
-  "digital-downloads": "🔋",
-  "services": "🛠️",
-  "local-pickup": "🚲",
-  "custom-orders": "🧵",
-  partnerships: "🤝",
-  "community-drops": "🏘️",
+  "direct-marketplace": "🌻",
+  "pre-order-drops": "🌅",
+  "subscriptions": "🌿",
+  "wholesale": "🏡",
+  "digital-downloads": "⚡",
+  "services": "🪴",
+  "local-pickup": "🚴",
+  "custom-orders": "🪡",
+  partnerships: "🌈",
+  "community-drops": "🌾",
 }
 
 export function CategoryCard({

@@ -14,7 +14,7 @@ interface CollectionsPageProps {
   collections: Collection[]
 }
 
-// Solar punk palette for collection cards
+// Nature-inspired palette for collection cards
 const CARD_STYLES = [
   { bg: "from-emerald-500 via-green-500 to-lime-400", text: "text-white", icon: "🌞" },
   { bg: "from-teal-500 via-cyan-500 to-sky-400", text: "text-white", icon: "🌿" },
@@ -51,8 +51,8 @@ export function CollectionsPage({ collections }: CollectionsPageProps) {
     <div>
       <div className="mb-8">
         <div className="inline-flex items-center gap-3 rounded-full border border-emerald-200/80 bg-emerald-50/70 px-4 py-2 text-sm font-semibold uppercase tracking-[0.2em] text-emerald-900 mb-4">
-          <span className="text-xl">☀️</span>
-          Solar Punk Collections
+          <span className="text-xl">🌿</span>
+          Curated Collections
         </div>
         <h1 className="text-3xl font-bold text-emerald-950 mb-2">
           Shop by Collection
