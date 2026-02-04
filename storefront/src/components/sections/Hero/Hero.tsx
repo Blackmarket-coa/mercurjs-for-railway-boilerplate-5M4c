@@ -32,10 +32,10 @@ export const Hero = ({ image, heading, paragraph, buttons, variant = "default" }
               <Link
                 key={path}
                 href={path}
-                className={`inline-flex items-center gap-2 px-6 py-3 rounded-sm font-medium transition-all duration-300 ${
+                className={`inline-flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-all duration-300 ${
                   idx === 0
-                    ? "bg-action text-action-on-primary hover:bg-action-hover shadow-solarpunk-md hover:shadow-solarpunk-lg"
-                    : "bg-primary text-action border-2 border-action hover:bg-action-secondary"
+                    ? "button-filled shadow-solarpunk-md hover:shadow-solarpunk-lg"
+                    : "button-tonal text-action-on-secondary"
                 }`}
               >
                 {label}
@@ -67,7 +67,7 @@ export const Hero = ({ image, heading, paragraph, buttons, variant = "default" }
         sizes="(min-width: 1024px) 50vw, 100vw"
       />
       <div className="w-full lg:order-2">
-        <div className="border rounded-sm w-full px-6 flex items-end h-[calc(100%-144px)]">
+        <div className="border border-forest rounded-md w-full px-6 flex items-end h-[calc(100%-144px)] card-organic">
           <div>
             <h2 className="font-bold mb-6 uppercase display-md max-w-[652px] text-4xl md:text-5xl leading-tight">
               {heading}
@@ -81,7 +81,7 @@ export const Hero = ({ image, heading, paragraph, buttons, variant = "default" }
               <Link
                 key={path}
                 href={path}
-                className="group flex border rounded-sm h-full w-1/2 bg-content hover:bg-action hover:text-tertiary transition-all duration-300 p-6 justify-between items-end"
+                className="group flex border border-forest rounded-md h-full w-1/2 bg-gradient-solarpunk hover:bg-action hover:text-tertiary transition-all duration-300 p-6 justify-between items-end text-action-on-primary shadow-solarpunk-sm"
                 aria-label={label}
                 title={label}
               >

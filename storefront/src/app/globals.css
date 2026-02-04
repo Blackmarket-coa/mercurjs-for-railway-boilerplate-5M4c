@@ -61,21 +61,21 @@
 /* Atoms components */
 
 .button-icon {
-  @apply bg-primary hover:bg-action-secondary-hover active:bg-action-secondary-pressed disabled:bg-primary;
+  @apply bg-primary hover:bg-action-secondary-hover active:bg-action-secondary-pressed disabled:bg-primary border border-forest rounded-md shadow-solarpunk-sm transition-all duration-200;
 }
 .button-icon svg path {
   @apply fill-secondary;
 }
 
 .button-filled {
-  @apply bg-action hover:bg-action-hover active:bg-action-pressed disabled:bg-disabled;
+  @apply bg-gradient-solarpunk text-action-on-primary border border-forest hover:shadow-amber-glow active:shadow-forest-glow disabled:bg-disabled rounded-md transition-all duration-200;
 }
 .button-filled svg path {
   @apply fill-primary;
 }
 
 .button-tonal {
-  @apply bg-action-secondary hover:bg-action-secondary-hover active:bg-action-secondary-pressed disabled:bg-disabled;
+  @apply bg-action-secondary hover:bg-action-secondary-hover active:bg-action-secondary-pressed disabled:bg-disabled border border-amber rounded-md shadow-solarpunk-sm transition-all duration-200;
 }
 .button-tonal svg path {
   @apply fill-secondary;
