@@ -44,7 +44,7 @@ export async function generateMetadata({
   }
 
   const title = "Shop by Category"
-  const description = `Discover products from Black-owned businesses. Browse food, beauty, art, fashion, handmade goods, and more on ${
+  const description = `Discover products from conscious businesses. Browse food, beauty, art, fashion, handmade goods, and more on ${
     process.env.NEXT_PUBLIC_SITE_NAME || "FreeBlackMarket"
   }`
   const canonical = `${baseUrl}/${locale}/categories`
@@ -154,7 +154,7 @@ async function AllCategories({
           Shop by Category
         </h1>
         <p className="text-emerald-900/80 mb-6">
-          Discover products from Black-owned businesses across different categories
+          Discover products from conscious businesses across different categories
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 justify-items-center">
           {featuredCategories.length > 0 ? (

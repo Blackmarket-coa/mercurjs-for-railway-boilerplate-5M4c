@@ -68,7 +68,7 @@ export type BadgeType =
   | "REGENERATIVE"
   | "FAIR_TRADE"
   | "WOMAN_OWNED"
-  | "BLACK_OWNED"
+  | "CONSCIOUS"
   | "VETERAN_OWNED"
   | "COOPERATIVE"
   | "FAMILY_FARM"
@@ -130,9 +130,9 @@ const BADGE_CONFIG: Record<
     icon: UserGroupIcon,
     color: "#EC4899",
   },
-  BLACK_OWNED: {
-    name: "Black-Owned",
-    description: "Majority Black-owned business.",
+  CONSCIOUS: {
+    name: "Conscious",
+    description: "Committed to conscious and ethical business practices.",
     icon: UserGroupIcon,
     color: "#1F2937",
   },
