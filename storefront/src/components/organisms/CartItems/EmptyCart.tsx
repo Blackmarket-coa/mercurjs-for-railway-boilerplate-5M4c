@@ -17,7 +17,7 @@ export const EmptyCart = async () => {
           Your shopping cart is currently empty.
         </p>
         <p className="text-sm text-center text-gray-500 mb-4">
-          Discover products from Black-owned businesses
+          Discover products from conscious businesses
         </p>
         <LocalizedClientLink href="/categories" className="w-full mt-2">
           <Button className="w-full py-3 md:px-24 uppercase">Shop Now</Button>

@@ -21,7 +21,7 @@ export async function generateMetadata({
 
   return {
     title: `${seller.name} | Shop from this Producer`,
-    description: seller.description || `Shop directly from ${seller.name} on FreeBlackMarket. Support Black-owned businesses.`,
+    description: seller.description || `Shop directly from ${seller.name} on FreeBlackMarket. Support conscious businesses.`,
   }
 }
 

@@ -58,9 +58,9 @@ export const BADGE_CONFIG: Record<BadgeType, {
     icon: "user",
     color: "#EC4899",
   },
-  [BadgeType.BLACK_OWNED]: {
-    name: "Black-Owned",
-    description: "Majority Black-owned business.",
+  [BadgeType.CONSCIOUS]: {
+    name: "Conscious",
+    description: "Committed to conscious and ethical business practices.",
     icon: "user",
     color: "#1F2937",
   },
