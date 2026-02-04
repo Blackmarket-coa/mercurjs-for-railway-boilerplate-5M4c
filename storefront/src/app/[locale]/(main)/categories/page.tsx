@@ -146,8 +146,14 @@ async function AllCategories({
 
       {/* Category Grid Section */}
       <section className="mb-12">
-        <h1 className="heading-xl uppercase mb-2">Shop by Category</h1>
-        <p className="text-secondary mb-6">
+        <div className="inline-flex items-center gap-3 rounded-full border border-emerald-200/80 bg-emerald-50/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-900 mb-4">
+          <span className="text-lg">🛍️</span>
+          Marketplace Highlights
+        </div>
+        <h1 className="heading-xl uppercase mb-2 text-emerald-950">
+          Shop by Category
+        </h1>
+        <p className="text-emerald-900/80 mb-6">
           Discover products from Black-owned businesses across different categories
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 justify-items-center">
