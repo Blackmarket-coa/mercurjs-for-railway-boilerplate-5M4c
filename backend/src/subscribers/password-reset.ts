@@ -1,4 +1,5 @@
 import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import { appendPath } from "../shared/url"
 
 /**
  * Subscriber: Password Reset
@@ -65,7 +66,8 @@ export default async function passwordResetHandler({
       return
     }
 
-    const resetUrl = `${baseUrl}/reset-password?token=${token}`
+    const resetBaseUrl = appendPath(baseUrl, "/reset-password")
+    const resetUrl = resetBaseUrl ? `${resetBaseUrl}?token=${token}` : ""
 
     // Send notification using the password-reset template
     await notificationModuleService.createNotifications({
