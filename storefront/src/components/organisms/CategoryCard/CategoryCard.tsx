@@ -2,15 +2,27 @@ import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedL
 
 // Category emoji mapping - solar punk themed icons
 const categoryEmojis: Record<string, string> = {
+  // Product categories
+  "apparel": "👕",
+  "clothing": "🧥",
+  "electronics": "⚡",
+  "home-garden": "🌻",
+  "home-&-garden": "🌻",
+  "crafted": "🪡",
+  "food-beverage": "🌿",
+  "digital-products": "💿",
+  "bulk": "🌾",
+  "services": "🪴",
+  "accessories": "🎒",
+  // Legacy/marketplace categories
   "direct-marketplace": "🌻",
   "pre-order-drops": "🌅",
-  "subscriptions": "🌿",
+  "subscriptions": "🍃",
   "wholesale": "🏡",
-  "digital-downloads": "⚡",
-  "services": "🪴",
+  "digital-downloads": "💿",
   "local-pickup": "🚴",
   "custom-orders": "🪡",
-  partnerships: "🌈",
+  "partnerships": "🌈",
   "community-drops": "🌾",
 }
 
