@@ -97,7 +97,7 @@ export function getOnboardingSteps(type: VendorType, features: VendorFeatures) {
         : type === "restaurant"
         ? "Add your restaurant details and cuisine"
         : "Complete your store information",
-      to: "/settings/store-detail",
+      to: "/settings/store",
       icon: "Building",
     },
     {
