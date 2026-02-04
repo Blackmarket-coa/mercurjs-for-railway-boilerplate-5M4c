@@ -1,6 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { Modules } from "@medusajs/framework/utils"
 import { INotificationModuleService } from "@medusajs/framework/types"
+import { appendPath } from "../../../shared/url"
 
 /**
  * POST /admin/sellers/invite
@@ -33,7 +34,7 @@ export const POST = async (
     const resolvedRegistrationUrl =
       registration_url ||
       (fallbackBaseUrl
-        ? new URL("/vendor/register", fallbackBaseUrl).toString()
+        ? appendPath(fallbackBaseUrl, "/vendor/register")
         : "")
 
     await notificationModule.createNotifications({

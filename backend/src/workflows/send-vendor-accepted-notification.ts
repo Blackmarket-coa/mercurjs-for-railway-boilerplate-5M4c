@@ -8,6 +8,7 @@ import {
   INotificationModuleService,
 } from "@medusajs/framework/types"
 import { Modules } from "@medusajs/framework/utils"
+import { appendPath } from "../shared/url"
 
 export type SendVendorAcceptedNotificationInput = {
   seller_id: string
@@ -34,9 +35,9 @@ export const sendVendorAcceptedNotificationStep = createStep(
       process.env.VENDOR_PANEL_URL ||
       ""
     const onboardingUrl = input.onboarding_url ||
-      (vendorPanelUrl ? `${vendorPanelUrl}/onboarding` : "")
+      (vendorPanelUrl ? appendPath(vendorPanelUrl, "/onboarding") : "")
     const loginUrl = input.login_url ||
-      (vendorPanelUrl ? `${vendorPanelUrl}/login` : "")
+      (vendorPanelUrl ? appendPath(vendorPanelUrl, "/login") : "")
 
     const notification = await notificationModuleService.createNotifications({
       to: input.member_email,

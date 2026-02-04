@@ -3,6 +3,7 @@ import { Modules, ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { createSellerWorkflow } from "@mercurjs/b2c-core/workflows"
 import { createSellerMetadataWorkflow } from "../workflows/create-seller-metadata"
 import { sendVendorAcceptedNotificationWorkflow } from "../workflows/send-vendor-accepted-notification"
+import { appendPath } from "./url"
 import { sendCustomerAcceptedNotificationWorkflow } from "../workflows/send-customer-accepted-notification"
 import { VendorType } from "../modules/seller-extension/models/seller-metadata"
 import { getRocketChatService } from "./rocketchat-service"
@@ -465,8 +466,10 @@ export class SellerApprovalService {
 
       try {
         const vendorPanelUrl = process.env.VENDOR_PANEL_URL || process.env.VENDOR_URL || ""
-        const onboardingUrl = process.env.VENDOR_ONBOARDING_URL || (vendorPanelUrl ? `${vendorPanelUrl}/onboarding` : "")
-        const loginUrl = vendorPanelUrl ? `${vendorPanelUrl}/login` : ""
+        const onboardingUrl =
+          process.env.VENDOR_ONBOARDING_URL ||
+          (vendorPanelUrl ? appendPath(vendorPanelUrl, "/onboarding") : "")
+        const loginUrl = vendorPanelUrl ? appendPath(vendorPanelUrl, "/login") : ""
 
         await sendVendorAcceptedNotificationWorkflow.run({
           container: this.container,
