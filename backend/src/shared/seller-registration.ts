@@ -4,6 +4,51 @@ import { REQUEST_MODULE } from "../modules/request"
 import RequestModuleService from "../modules/request/service"
 import { decodeAuthTokenFromAuthorizationWithError } from "./auth-helpers"
 
+/**
+ * Resolve a potential member ID to a seller ID.
+ * If the ID starts with "sel_", return it as-is (it's already a seller ID).
+ * If the ID starts with "mem_", look up the seller_id from the member table.
+ * Otherwise, return the ID as-is (may be a seller ID with different prefix or invalid).
+ */
+async function resolveToSellerId(req: MedusaRequest, id: string | null | undefined): Promise<string | null> {
+  if (!id) {
+    return null
+  }
+
+  // If it's already a seller ID, return it directly
+  if (id.startsWith("sel_")) {
+    return id
+  }
+
+  // If it's a member ID, look up the seller_id from the member table
+  if (id.startsWith("mem_")) {
+    try {
+      const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION)
+      const result = await pgConnection.raw(
+        `
+        SELECT seller_id
+        FROM member
+        WHERE id = ?
+        `,
+        [id]
+      )
+      const sellerId = result.rows?.[0]?.seller_id
+      if (sellerId) {
+        console.log(`[SellerRegistration] Resolved member ${id} to seller ${sellerId}`)
+        return sellerId
+      }
+      console.warn(`[SellerRegistration] Member ${id} has no associated seller_id`)
+      return null
+    } catch (err) {
+      console.error(`[SellerRegistration] Error resolving member to seller:`, err)
+      return null
+    }
+  }
+
+  // Return the ID as-is for other cases (might be a different entity type)
+  return id
+}
+
 export interface RegistrationStatusResponse {
   status:
     | "approved"
@@ -98,7 +143,11 @@ export const getSellerRegistrationStatus = async (
 
     const authIdentityId =
       decodedToken?.authIdentityId ?? authContextIdentityId ?? null
-    const sellerId = decodedToken?.sellerId ?? (req as any).auth_context?.actor_id ?? null
+
+    // Get the raw ID which might be a member ID (mem_*) or seller ID (sel_*)
+    const rawActorId = decodedToken?.sellerId ?? (req as any).auth_context?.actor_id ?? null
+    // Resolve to actual seller ID (handles member ID to seller ID lookup)
+    const sellerId = await resolveToSellerId(req, rawActorId)
 
     if (sellerId) {
       const seller = await findSellerById(req, sellerId)
