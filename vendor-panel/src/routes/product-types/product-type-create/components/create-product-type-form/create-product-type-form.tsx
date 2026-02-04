@@ -50,7 +50,7 @@ export const CreateProductTypeForm = () => {
         onSubmit={handleSubmit}
       >
         <RouteFocusModal.Header />
-        <RouteFocusModal.Body className="flex flex-1 justify-center overflow-auto px-6 py-16">
+        <RouteFocusModal.Body className="flex flex-1 justify-center overflow-auto bg-ui-bg-base px-6 py-16">
           <div className="flex w-full max-w-[720px] flex-col gap-y-8">
             <div className="flex flex-col gap-y-1">
               <RouteFocusModal.Title asChild>
