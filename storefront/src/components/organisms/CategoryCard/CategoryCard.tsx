@@ -2,13 +2,13 @@ import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedL
 
 // Category emoji mapping for visual appeal
 const categoryEmojis: Record<string, string> = {
-  "direct-marketplace": "🛒",
-  "pre-order-drops": "⏳",
-  subscriptions: "🔁",
-  wholesale: "📦",
-  "digital-downloads": "💾",
-  services: "🧰",
-  "local-pickup": "🚗",
+  "direct-marketplace": "☀️",
+  "pre-order-drops": "🌱",
+  "subscriptions": "🍃",
+  "wholesale": "🌾",
+  "digital-downloads": "🔋",
+  "services": "🛠️",
+  "local-pickup": "🚲",
   "custom-orders": "🧵",
   partnerships: "🤝",
   "community-drops": "🏘️",
