@@ -3,8 +3,8 @@ import { Suspense } from "react"
 
 import { Breadcrumbs } from "@/components/atoms"
 import { AlgoliaProductsListing, ProductListing } from "@/components/sections"
-import { categories as featuredCategories } from "@/components/sections/HomeCategories/HomeCategories"
 import { CategoryCard } from "@/components/organisms"
+import { listFeaturedCategories } from "@/lib/data/categories"
 import { getRegion } from "@/lib/data/regions"
 import isBot from "@/lib/helpers/isBot"
 import { headers } from "next/headers"
@@ -79,6 +79,7 @@ async function AllCategories({
 
   const ua = (await headers()).get("user-agent") || ""
   const bot = isBot(ua)
+  const featuredCategories = await listFeaturedCategories()
 
   const breadcrumbsItems = [
     {
@@ -150,9 +151,15 @@ async function AllCategories({
           Discover products from Black-owned businesses across different categories
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 justify-items-center">
-          {featuredCategories.map((category) => (
-            <CategoryCard key={category.id} category={category} />
-          ))}
+          {featuredCategories.length > 0 ? (
+            featuredCategories.map((category) => (
+              <CategoryCard key={category.handle} category={category} />
+            ))
+          ) : (
+            <p className="text-sm text-secondary col-span-full text-center">
+              Categories are loading. Check back soon for more to explore.
+            </p>
+          )}
         </div>
       </section>
 
