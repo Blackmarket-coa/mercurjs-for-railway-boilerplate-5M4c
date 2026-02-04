@@ -15,7 +15,7 @@ import { toHreflang } from "@/lib/helpers/hreflang"
 
 export const revalidate = 60
 
-const LEGACY_CATEGORY_HANDLES = new Set([
+const LEGACY_SALES_CHANNEL_HANDLES = new Set([
   "direct-marketplace",
   "pre-order-drops",
   "subscriptions",
@@ -26,10 +26,6 @@ const LEGACY_CATEGORY_HANDLES = new Set([
   "custom-orders",
   "partnerships",
   "community-drops",
-  "food-beverage",
-  "electronics",
-  "digital-products",
-  "bulk",
 ])
 
 export async function generateMetadata({
@@ -109,7 +105,7 @@ async function Category({
   const category = await getCategoryByHandle([handle])
 
   if (!category) {
-    if (LEGACY_CATEGORY_HANDLES.has(handle)) {
+    if (LEGACY_SALES_CHANNEL_HANDLES.has(handle)) {
       return redirect(`/${locale}/categories`)
     }
     return notFound()
