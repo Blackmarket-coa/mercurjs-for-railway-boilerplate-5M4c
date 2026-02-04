@@ -10,8 +10,8 @@ const categoryEmojis: Record<string, string> = {
   "services": "🛠️",
   "local-pickup": "🚲",
   "custom-orders": "🧵",
-  "partnerships": "🌿",
-  "community-drops": "🌻",
+  partnerships: "🤝",
+  "community-drops": "🏘️",
 }
 
 export function CategoryCard({
