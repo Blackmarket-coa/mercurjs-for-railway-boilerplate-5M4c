@@ -1,37 +1,21 @@
 import Image from "next/image"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { ArrowRightIcon } from "@/icons"
+import { listFeaturedCategories } from "@/lib/data/categories"
 import { Style } from "@type/categories"
 
-export const styles: Style[] = [
-  {
-    id: 1,
-    name: "FOOD & BEVERAGE",
-    href: "/categories/food-beverage",
-  },
-  {
-    id: 2,
-    name: "ELECTRONICS",
-    href: "/categories/electronics",
-  },
-  {
-    id: 3,
-    name: "DIGITAL PRODUCTS",
-    href: "/categories/digital-products",
-  },
-  {
-    id: 4,
-    name: "SERVICES",
-    href: "/categories/services",
-  },
-  {
-    id: 5,
-    name: "BULK & WHOLESALE",
-    href: "/categories/bulk",
-  },
-]
+export async function ShopByStyleSection() {
+  const featuredCategories = await listFeaturedCategories(5)
+  const styles: Style[] = featuredCategories.map((category, index) => ({
+    id: index + 1,
+    name: category.name.toUpperCase(),
+    href: `/categories/${category.handle}`,
+  }))
 
-export function ShopByStyleSection() {
+  if (styles.length === 0) {
+    return null
+  }
+
   return (
     <section className="bg-primary container">
       <h2 className="heading-lg text-primary mb-12">SHOP BY TYPE</h2>

@@ -104,3 +104,13 @@ export const getCollectionByHandle = async (handle: string) => {
     })
     .then(({ collections }) => collections?.[0] || null)
 }
+
+export const listFeaturedCategories = async (limit = 10) => {
+  try {
+    const { categories } = await listCategories({ query: { limit } })
+    return categories
+  } catch (error) {
+    console.error("Failed to fetch featured categories:", error)
+    return []
+  }
+}
