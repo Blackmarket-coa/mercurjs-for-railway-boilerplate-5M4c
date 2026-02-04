@@ -1,6 +1,9 @@
 import { Button } from "@/components/atoms/Button/Button"
+import { AccountLoadingState } from "@/components/molecules"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { UserNavigation } from "@/components/molecules/UserNavigation/UserNavigation"
+import { retrieveCustomerContext } from "@/lib/data/customer"
+import { redirect } from "next/navigation"
 
 export default async function RequestSuccessPage({
   params,
@@ -8,6 +11,13 @@ export default async function RequestSuccessPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
+
+  const { customer, isAuthenticated } = await retrieveCustomerContext()
+
+  if (!customer) {
+    if (!isAuthenticated) return redirect("/user")
+    return <AccountLoadingState title="Return Requested" />
+  }
 
   return (
     <main className="container">
