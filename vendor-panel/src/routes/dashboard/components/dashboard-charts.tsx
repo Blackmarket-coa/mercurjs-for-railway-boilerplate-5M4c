@@ -113,7 +113,21 @@ export const DashboardCharts = ({
 
   const [filters, setFilters] = useState(["customers", "orders"])
 
-  const { unreadCount } = useRocketChat()
+  const { unreadCount, isConfigured: isRocketChatConfigured } = useRocketChat()
+
+  const quickActions = useMemo(
+    () => [
+      ...QUICK_ACTIONS,
+      {
+        title: "Video Chat",
+        description: isRocketChatConfigured ? "Start a Jitsi call in chat" : "Enable Rocket.Chat to use video",
+        link: "/messages",
+        icon: CalendarMini,
+        color: "indigo",
+      },
+    ],
+    [isRocketChatConfigured]
+  )
 
   const from = useMemo(() => {
     const value = searchParams.get("from")
@@ -278,8 +292,8 @@ export const DashboardCharts = ({
             Common tasks to manage your store
           </Text>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-ui-border-base">
-          {QUICK_ACTIONS.map((action, index) => (
+        <div className="grid grid-cols-2 md:grid-cols-5 divide-x divide-y md:divide-y-0 divide-ui-border-base">
+          {quickActions.map((action, index) => (
             <Link
               key={index}
               to={action.link}
