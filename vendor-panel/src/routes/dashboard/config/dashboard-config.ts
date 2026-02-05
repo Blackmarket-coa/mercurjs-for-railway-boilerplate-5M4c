@@ -29,12 +29,13 @@ export function getDashboardTitle(type: VendorType): string {
   const titles: Record<VendorType, string> = {
     producer: "Farm Dashboard",
     garden: "Garden Dashboard",
+    kitchen: "Kitchen Dashboard",
     maker: "Maker Dashboard",
     restaurant: "Restaurant Dashboard",
     mutual_aid: "Community Dashboard",
     default: "Vendor Dashboard",
   }
-  return titles[type]
+  return titles[type] ?? titles.default
 }
 
 /**
@@ -44,12 +45,13 @@ export function getWelcomeMessage(type: VendorType): string {
   const messages: Record<VendorType, string> = {
     producer: "Manage your farm products, orders, and connect with local customers.",
     garden: "Organize your garden plots, volunteers, and harvest shares.",
+    kitchen: "Manage your kitchen space, bookings, and connect with food entrepreneurs.",
     maker: "Showcase your creations, manage orders, and grow your craft business.",
     restaurant: "Handle orders, manage your menu, and delight customers.",
     mutual_aid: "Coordinate resources, volunteers, and community support.",
     default: "Manage your store, products, and orders.",
   }
-  return messages[type]
+  return messages[type] ?? messages.default
 }
 
 /**
@@ -59,12 +61,13 @@ export function getPrimaryCTALabel(type: VendorType): string {
   const labels: Record<VendorType, string> = {
     producer: "Add New Product",
     garden: "Post Harvest",
+    kitchen: "Add Availability",
     maker: "Add Creation",
     restaurant: "Add Menu Item",
     mutual_aid: "Add Resource",
     default: "Add Product",
   }
-  return labels[type]
+  return labels[type] ?? labels.default
 }
 
 /**
@@ -74,12 +77,13 @@ export function getPrimaryCTARoute(type: VendorType): string {
   const routes: Record<VendorType, string> = {
     producer: "/products/create",
     garden: "/products/create",
+    kitchen: "/schedule",
     maker: "/products/create",
     restaurant: "/menu/items/create",
     mutual_aid: "/inventory/create",
     default: "/products/create",
   }
-  return routes[type]
+  return routes[type] ?? routes.default
 }
 
 /**
@@ -239,6 +243,20 @@ export function getBeginnerTips(type: VendorType): Array<{
         description: "Document your community impact to inspire more support.",
       },
     ],
+    kitchen: [
+      {
+        title: "Highlight your facilities",
+        description: "Showcase your kitchen equipment and capabilities to attract users.",
+      },
+      {
+        title: "Clear scheduling",
+        description: "Keep your availability calendar up to date for smooth booking.",
+      },
+      {
+        title: "Build community",
+        description: "Connect with local food entrepreneurs and organizations to grow your network.",
+      },
+    ],
     default: [
       {
         title: "High-quality photos sell",
@@ -255,5 +273,5 @@ export function getBeginnerTips(type: VendorType): Array<{
     ],
   }
   
-  return tipsByType[type]
+  return tipsByType[type] ?? tipsByType.default
 }
