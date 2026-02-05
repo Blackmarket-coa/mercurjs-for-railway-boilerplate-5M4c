@@ -229,7 +229,7 @@ export const useMe = (
         method: "GET",
         query: {
           fields:
-            "id,name,description,phone,email,media,address_line,postal_code,country_code,city,metadata,tax_id,photo,store_status,website_url,social_links,storefront_links",
+            "id,name,handle,description,phone,email,media,address_line,postal_code,country_code,city,metadata,tax_id,photo,store_status,website_url,social_links,storefront_links,vendor_type",
         },
       })
     },
