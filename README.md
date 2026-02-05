@@ -36,9 +36,11 @@ MercurJS Marketplace is an enterprise-grade marketplace platform that combines m
 - **Storage**: MinIO (S3-compatible) + Local fallback
 - **Email**: SMTP (Brevo, Gmail, etc.) + Resend
 - **Search**: Algolia + PostgreSQL fallback
-- **Messaging**: Rocket.Chat
+- **Messaging**: Rocket.Chat + Jitsi Meet (via Rocket.Chat video conferencing)
 - **Shipping**: ShipStation (optional)
 - **ERP**: Odoo integration (optional)
+
+Deployment guide for Jitsi on Railway: [`infrastructure/jitsi/README.md`](infrastructure/jitsi/README.md).
 
 ## Project Structure
 
