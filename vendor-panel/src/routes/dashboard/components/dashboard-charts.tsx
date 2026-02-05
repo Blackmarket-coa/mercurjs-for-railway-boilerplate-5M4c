@@ -24,6 +24,7 @@ import { useMemo, useState } from "react"
 import { addDays, differenceInDays, format, parseISO } from "date-fns"
 import { Calendar } from "../../../components/common/calendar/calendar"
 import { useRocketChat } from "../../../providers/rocketchat-provider"
+import { CopyStorefrontLink } from "./copy-storefront-link"
 
 // Quick actions for established vendors
 const QUICK_ACTIONS = [
@@ -174,10 +175,17 @@ export const DashboardCharts = ({
       {/* Welcome Back Header */}
       <Container className="p-0 mb-4">
         <div className="px-6 py-6 bg-gradient-to-r from-ui-bg-subtle to-ui-bg-base">
-          <Heading level="h1" className="text-2xl mb-2">Welcome Back! 👋</Heading>
-          <Text className="text-ui-fg-subtle">
-            Here's what's happening with your store today. Check your pending tasks and track your progress.
-          </Text>
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <Heading level="h1" className="text-2xl mb-2">Welcome Back! 👋</Heading>
+              <Text className="text-ui-fg-subtle">
+                Here's what's happening with your store today. Check your pending tasks and track your progress.
+              </Text>
+            </div>
+            <div className="lg:min-w-[320px]">
+              <CopyStorefrontLink />
+            </div>
+          </div>
         </div>
       </Container>
 
