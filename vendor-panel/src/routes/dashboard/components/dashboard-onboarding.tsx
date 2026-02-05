@@ -90,10 +90,10 @@ export const DashboardOnboarding = ({
     mutateAsync()
   }, [])
 
-  // Get type-specific content
-  const welcomeMessage = getWelcomeMessage(vendorType)
-  const onboardingSteps = getOnboardingSteps(vendorType, features)
-  const beginnerTips = getBeginnerTips(vendorType)
+  // Get type-specific content with defensive fallbacks
+  const welcomeMessage = getWelcomeMessage(vendorType) ?? "Manage your store, products, and orders."
+  const onboardingSteps = getOnboardingSteps(vendorType, features) ?? []
+  const beginnerTips = getBeginnerTips(vendorType) ?? []
 
   // Build completion map from props
   const completionMap: Record<string, boolean> = {

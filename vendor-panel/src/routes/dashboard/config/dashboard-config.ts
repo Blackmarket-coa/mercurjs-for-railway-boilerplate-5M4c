@@ -239,6 +239,20 @@ export function getBeginnerTips(type: VendorType): Array<{
         description: "Document your community impact to inspire more support.",
       },
     ],
+    kitchen: [
+      {
+        title: "Highlight your facilities",
+        description: "Showcase your kitchen equipment and capabilities to attract users.",
+      },
+      {
+        title: "Clear scheduling",
+        description: "Keep your availability calendar up to date for smooth booking.",
+      },
+      {
+        title: "Build community",
+        description: "Connect with local food entrepreneurs and organizations to grow your network.",
+      },
+    ],
     default: [
       {
         title: "High-quality photos sell",
@@ -255,5 +269,5 @@ export function getBeginnerTips(type: VendorType): Array<{
     ],
   }
   
-  return tipsByType[type]
+  return tipsByType[type] ?? tipsByType.default
 }
