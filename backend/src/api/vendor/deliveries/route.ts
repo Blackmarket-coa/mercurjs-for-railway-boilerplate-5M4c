@@ -2,7 +2,6 @@ import { z } from "zod"
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework"
 import { FOOD_DISTRIBUTION_MODULE } from "../../../modules/food-distribution"
 import type FoodDistributionService from "../../../modules/food-distribution/service"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { requireSellerId, notFound, validationError } from "../../../shared"
 
 // ===========================================
@@ -51,22 +50,27 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
     if (!sellerId) return
 
     const query = listDeliveriesQuerySchema.parse(req.query)
-    const queryService = req.scope.resolve(ContainerRegistrationKeys.QUERY)
     const foodDistribution = req.scope.resolve<FoodDistributionService>(FOOD_DISTRIBUTION_MODULE)
 
-    // Get producer linked to this seller via the producer_seller link table
-    const { data: producerLinks } = await queryService.graph({
-      entity: "producer_seller",
-      fields: ["producer_id"],
-      filters: { seller_id: sellerId },
-    }) as { data: Array<{ producer_id: string }> }
+    // Find the food producer linked to this seller via seller_id on food_producer
+    const producers = await foodDistribution.listFoodProducers(
+      { seller_id: sellerId },
+      { select: ["id"], take: 1 }
+    )
 
-    if (!producerLinks.length) {
-      res.status(404).json({ message: "No producer profile linked to this seller" })
+    if (!producers.length) {
+      // No producer profile yet — return empty list instead of an error
+      res.json({
+        deliveries: [],
+        count: 0,
+        summary: { pending: 0, active: 0, completed: 0, failed: 0 },
+        limit: query.limit,
+        offset: query.offset,
+      })
       return
     }
 
-    const producerId = producerLinks[0].producer_id
+    const producerId = producers[0].id
 
     // Build filters
     const filters: Record<string, any> = {
