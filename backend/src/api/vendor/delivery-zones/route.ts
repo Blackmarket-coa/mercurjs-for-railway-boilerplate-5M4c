@@ -2,8 +2,7 @@ import { z } from "zod"
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework"
 import { FOOD_DISTRIBUTION_MODULE } from "../../../modules/food-distribution"
 import type FoodDistributionService from "../../../modules/food-distribution/service"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { requireSellerId, validationError } from "../../../shared"
+import { requireSellerId } from "../../../shared"
 
 // ===========================================
 // VALIDATION SCHEMAS
@@ -61,26 +60,10 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
     if (!sellerId) return
 
     const query = listZonesQuerySchema.parse(req.query)
-    const queryService = req.scope.resolve(ContainerRegistrationKeys.QUERY)
     const foodDistribution = req.scope.resolve<FoodDistributionService>(FOOD_DISTRIBUTION_MODULE)
 
-    // Get producer linked to this seller
-    const { data: sellerData } = await queryService.graph({
-      entity: "seller",
-      filters: { id: sellerId },
-      fields: ["id", "producer.*"],
-    }) as { data: Array<{ id: string; producer?: { id: string } | null }> }
-
-    if (!sellerData.length || !sellerData[0].producer) {
-      res.status(404).json({ message: "No producer profile linked to this seller" })
-      return
-    }
-
-    const producerId = sellerData[0].producer.id
-
-    // Get zones linked to this producer
-    // Note: In a full implementation, you'd have a producer_id on DeliveryZone
-    // For now, we'll get all active zones (they can be linked to producers later)
+    // Note: In a full implementation, zones would be filtered by producer_id.
+    // For now, we return all zones for any authenticated vendor.
     const filters: Record<string, any> = {}
     if (query.active !== undefined) filters.active = query.active
 
@@ -120,20 +103,7 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
     if (!sellerId) return
 
     const data = createZoneSchema.parse(req.body)
-    const queryService = req.scope.resolve(ContainerRegistrationKeys.QUERY)
     const foodDistribution = req.scope.resolve<FoodDistributionService>(FOOD_DISTRIBUTION_MODULE)
-
-    // Get producer linked to this seller
-    const { data: sellerData } = await queryService.graph({
-      entity: "seller",
-      filters: { id: sellerId },
-      fields: ["id", "producer.*"],
-    }) as { data: Array<{ id: string; producer?: { id: string } | null }> }
-
-    if (!sellerData.length || !sellerData[0].producer) {
-      res.status(404).json({ message: "No producer profile linked to this seller" })
-      return
-    }
 
     // Check for duplicate code
     const existing = await foodDistribution.listDeliveryZones({ code: data.code })
