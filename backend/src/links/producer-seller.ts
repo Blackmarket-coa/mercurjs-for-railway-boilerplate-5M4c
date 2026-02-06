@@ -12,8 +12,9 @@ import ProducerModule from "../modules/producer"
  *
  * Usage in queries:
  *   query.graph({
- *     entity: "seller",
- *     fields: ["*", "producer.*"],
+ *     entity: "producer_seller",
+ *     fields: ["producer_id", "producer.*"],
+ *     filters: { seller_id: sellerId },
  *   })
  */
 
