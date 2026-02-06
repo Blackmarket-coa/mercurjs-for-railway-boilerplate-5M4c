@@ -465,6 +465,30 @@ export default defineMiddlewares({
       method: "GET",
       middlewares: [stripQueryParamForAdminMiddleware],
     },
+    // Block vendor access to API key management endpoints
+    // Vendors should not be able to create, read, update, or delete API keys
+    {
+      matcher: "/vendor/api-keys",
+      middlewares: [
+        (req: MedusaRequest, res: MedusaResponse) => {
+          res.status(403).json({
+            message: "Vendors do not have access to API key management",
+            type: "forbidden",
+          })
+        },
+      ],
+    },
+    {
+      matcher: "/vendor/api-keys/**",
+      middlewares: [
+        (req: MedusaRequest, res: MedusaResponse) => {
+          res.status(403).json({
+            message: "Vendors do not have access to API key management",
+            type: "forbidden",
+          })
+        },
+      ],
+    },
     // Ensure all vendor routes (including nested plugin routes) are guarded
     {
       matcher: "/vendor/**",
