@@ -36,19 +36,19 @@ export async function GET(
     const queryService = req.scope.resolve(ContainerRegistrationKeys.QUERY)
     const foodDistribution = req.scope.resolve<FoodDistributionService>(FOOD_DISTRIBUTION_MODULE)
 
-    // Get producer linked to this seller
-    const { data: sellerData } = await queryService.graph({
-      entity: "seller",
-      filters: { id: sellerId },
-      fields: ["id", "producer.*"],
-    }) as { data: Array<{ id: string; producer?: { id: string } | null }> }
+    // Get producer linked to this seller via the producer_seller link table
+    const { data: producerLinks } = await queryService.graph({
+      entity: "producer_seller",
+      fields: ["producer_id"],
+      filters: { seller_id: sellerId },
+    }) as { data: Array<{ producer_id: string }> }
 
-    if (!sellerData.length || !sellerData[0].producer) {
+    if (!producerLinks.length) {
       res.status(404).json({ message: "No producer profile linked to this seller" })
       return
     }
 
-    const producerId = sellerData[0].producer.id
+    const producerId = producerLinks[0].producer_id
 
     // Get the delivery
     const delivery = await foodDistribution.retrieveFoodDelivery(id, {
@@ -91,19 +91,19 @@ export async function POST(
     const queryService = req.scope.resolve(ContainerRegistrationKeys.QUERY)
     const foodDistribution = req.scope.resolve<FoodDistributionService>(FOOD_DISTRIBUTION_MODULE)
 
-    // Get producer linked to this seller
-    const { data: sellerData } = await queryService.graph({
-      entity: "seller",
-      filters: { id: sellerId },
-      fields: ["id", "producer.*"],
-    }) as { data: Array<{ id: string; producer?: { id: string } | null }> }
+    // Get producer linked to this seller via the producer_seller link table
+    const { data: producerLinks } = await queryService.graph({
+      entity: "producer_seller",
+      fields: ["producer_id"],
+      filters: { seller_id: sellerId },
+    }) as { data: Array<{ producer_id: string }> }
 
-    if (!sellerData.length || !sellerData[0].producer) {
+    if (!producerLinks.length) {
       res.status(404).json({ message: "No producer profile linked to this seller" })
       return
     }
 
-    const producerId = sellerData[0].producer.id
+    const producerId = producerLinks[0].producer_id
 
     // Get the delivery
     const delivery = await foodDistribution.retrieveFoodDelivery(id)
