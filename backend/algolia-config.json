@@ -26,6 +26,7 @@
       "seller.store_status",
       "filterOnly(supported_countries)",
       "searchable(title)",
+      "seller.vendor_type",
       "variants.color",
       "variants.condition",
       "variants.prices.currency_code",
@@ -56,7 +57,7 @@
     "renderingContent": {
       "facetOrdering": {
         "facets": {
-          "order": ["variants.color", "variants.size", "variants.condition"]
+          "order": ["seller.vendor_type", "variants.color", "variants.size", "variants.condition"]
         },
         "values": {
           "variants.color": {

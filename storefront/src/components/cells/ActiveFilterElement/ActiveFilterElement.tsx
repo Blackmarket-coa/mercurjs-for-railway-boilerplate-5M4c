@@ -13,6 +13,7 @@ const filtersLabels = {
   query: "Search",
   condition: "Condition",
   rating: "Rating",
+  vendor_type: "Vendor Type",
 }
 
 export const ActiveFilterElement = ({ filter }: { filter: string[] }) => {
