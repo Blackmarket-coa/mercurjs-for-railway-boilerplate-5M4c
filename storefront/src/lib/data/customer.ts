@@ -43,49 +43,49 @@ export const retrieveCustomerContext = async (): Promise<{
 }> => {
   const authHeaders = await getAuthHeaders()
   if (!authHeaders) {
-    console.log("[retrieveCustomerContext] No auth headers found")
     return { customer: null, isAuthenticated: false }
   }
 
-  // Log token info (safely, without exposing full token)
-  const tokenPreview = authHeaders.authorization?.substring(0, 20) + "..."
-  console.log("[retrieveCustomerContext] Auth headers present, token preview:", tokenPreview)
+  const maxAttempts = 2
 
-  try {
-    const { customer } = await medusaFetch<{
-      customer: HttpTypes.StoreCustomer
-    }>(`/store/customers/me`, {
-      method: "GET",
-      headers: authHeaders,
-      cache: "no-store",
-    })
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const { customer } = await medusaFetch<{
+        customer: HttpTypes.StoreCustomer
+      }>(`/store/customers/me`, {
+        method: "GET",
+        headers: authHeaders,
+        cache: "no-store",
+      })
 
-    console.log("[retrieveCustomerContext] Customer fetched:", customer?.id)
-    return { customer: customer ?? null, isAuthenticated: true }
-  } catch (error: any) {
-    console.warn("[retrieveCustomerContext] Failed to fetch customer:", error)
-    console.warn("[retrieveCustomerContext] Error status:", error?.status)
+      return { customer: customer ?? null, isAuthenticated: true }
+    } catch (error: any) {
+      const status =
+        error?.status ||
+        error?.statusCode ||
+        error?.response?.status ||
+        error?.cause?.status
 
-    // Check if token is invalid/expired (401 Unauthorized)
-    const status = error?.status || error?.response?.status
-    if (status === 401) {
-      console.log("[retrieveCustomerContext] 401 detected, clearing token")
-      // Try to clear the invalid token (may fail in Server Component context)
-      try {
-        await removeAuthToken()
-      } catch {
-        // Cookie modification not allowed in Server Components - that's OK
+      if (status === 401) {
+        // Try to clear invalid tokens (best effort in Server Component context)
+        try {
+          await removeAuthToken()
+        } catch {
+          // noop
+        }
+
+        return { customer: null, isAuthenticated: false }
       }
-      // Token was invalid, user should see login form
-      return { customer: null, isAuthenticated: false }
-    }
 
-    // For transient errors (network issues, server overload, etc.),
-    // return isAuthenticated: true so user sees loading state instead of login form.
-    // This prevents logged-in users from being redirected to login during temporary failures.
-    console.log("[retrieveCustomerContext] Transient error, showing loading state")
-    return { customer: null, isAuthenticated: true }
+      const isLastAttempt = attempt === maxAttempts
+      if (isLastAttempt) {
+        // Transient failure: keep user in authenticated state to avoid flashing login.
+        return { customer: null, isAuthenticated: true }
+      }
+    }
   }
+
+  return { customer: null, isAuthenticated: true }
 }
 
 /* ---------------------------------------------
