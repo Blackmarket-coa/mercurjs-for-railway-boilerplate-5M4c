@@ -115,7 +115,7 @@ export default function VendorTypesPage() {
       borderColor: "border-purple-200",
       iconBg: "bg-purple-100",
       iconColor: "text-purple-600",
-      link: "/vendors?type=maker",
+      link: "/vendors?vendor_type=maker",
     },
     {
       type: "Restaurants",
@@ -137,7 +137,7 @@ export default function VendorTypesPage() {
       borderColor: "border-red-200",
       iconBg: "bg-red-100",
       iconColor: "text-red-600",
-      link: "/vendors?type=restaurant",
+      link: "/vendors?vendor_type=restaurant",
     },
     {
       type: "Mutual Aid",
@@ -159,7 +159,7 @@ export default function VendorTypesPage() {
       borderColor: "border-pink-200",
       iconBg: "bg-pink-100",
       iconColor: "text-pink-600",
-      link: "/vendors?type=mutual_aid",
+      link: "/vendors?vendor_type=mutual_aid",
     },
   ]
 
