@@ -67,6 +67,8 @@ export interface StoreVendor {
   social_links?: SocialLinks
   storefront_links?: StorefrontLinks
   website_url?: string
+  // Custom-selected dashboard extensions (feature keys)
+  enabled_extensions?: string[] | null
   metadata?: SellerMetadata
 }
 

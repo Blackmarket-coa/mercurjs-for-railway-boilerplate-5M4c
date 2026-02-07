@@ -88,6 +88,7 @@ export const PUT = async (
     service_types?: string[]
     featured?: boolean
     verified?: boolean
+    enabled_extensions?: string[] | null
     metadata?: Record<string, any>
   }
 

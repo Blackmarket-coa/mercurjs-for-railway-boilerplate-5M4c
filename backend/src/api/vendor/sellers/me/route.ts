@@ -61,7 +61,7 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
       "name", "description", "phone", "email", "handle", "photo",
       "address_line", "postal_code", "city", "country_code", "tax_id", "metadata"
     ]
-    const metadataUpdateFields = ["vendor_type", "website_url", "social_links", "storefront_links", "certifications"]
+    const metadataUpdateFields = ["vendor_type", "website_url", "social_links", "storefront_links", "certifications", "enabled_extensions"]
 
     const sellerUpdate: Record<string, unknown> = {}
     const metadataUpdate: Record<string, unknown> = {}
