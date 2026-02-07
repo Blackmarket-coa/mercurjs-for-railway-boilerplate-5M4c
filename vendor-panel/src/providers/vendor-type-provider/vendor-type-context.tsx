@@ -34,6 +34,35 @@ export interface VendorFeatures {
 }
 
 /**
+ * All available feature keys with display metadata
+ */
+export const ALL_EXTENSION_OPTIONS: {
+  key: keyof VendorFeatures
+  label: string
+  description: string
+}[] = [
+  { key: "hasProducts", label: "Products", description: "Manage and sell products from your dashboard" },
+  { key: "hasInventory", label: "Inventory", description: "Track stock levels and manage inventory" },
+  { key: "hasSeasons", label: "Seasons", description: "Organize products by growing seasons" },
+  { key: "hasVolunteers", label: "Volunteers", description: "Manage volunteer sign-ups and schedules" },
+  { key: "hasMenu", label: "Menu", description: "Create and manage food menus" },
+  { key: "hasDeliveryZones", label: "Delivery Zones", description: "Define delivery areas and service zones" },
+  { key: "hasDonations", label: "Donations", description: "Accept and track donations" },
+  { key: "hasSubscriptions", label: "Subscriptions", description: "Offer recurring orders and subscription plans" },
+  { key: "hasSupport", label: "Support", description: "Customer support and help desk" },
+  { key: "hasHarvests", label: "Harvests", description: "Track and manage harvest records" },
+  { key: "hasPlots", label: "Plots", description: "Manage garden plots and assignments" },
+  { key: "hasRequests", label: "Requests", description: "Handle incoming requests and inquiries" },
+  { key: "hasFarm", label: "Farm", description: "Farm profile, details, and harvest tracking" },
+  { key: "hasShows", label: "Shows", description: "Manage events and show listings" },
+]
+
+/**
+ * All feature keys for programmatic use
+ */
+export const ALL_FEATURE_KEYS: (keyof VendorFeatures)[] = ALL_EXTENSION_OPTIONS.map(o => o.key)
+
+/**
  * Context value type
  */
 type VendorTypeContextValue = {
@@ -42,14 +71,18 @@ type VendorTypeContextValue = {
   features: VendorFeatures
   typeLabel: string
   typeLabelPlural: string
+  /** The raw enabled_extensions array from the seller, or null if using type defaults */
+  enabledExtensions: string[] | null
+  /** The default features for this vendor type (before custom overrides) */
+  defaultFeatures: VendorFeatures
 }
 
 const VendorTypeContext = createContext<VendorTypeContextValue | null>(null)
 
 /**
- * Get feature flags for a specific vendor type
+ * Get default feature flags for a specific vendor type
  */
-function getFeaturesByType(type: VendorType): VendorFeatures {
+export function getFeaturesByType(type: VendorType): VendorFeatures {
   const featureMap: Record<VendorType, VendorFeatures> = {
     producer: {
       hasProducts: true,
@@ -68,14 +101,14 @@ function getFeaturesByType(type: VendorType): VendorFeatures {
       hasShows: false,
     },
     garden: {
-      hasProducts: true,  // Harvest shares, seedlings
+      hasProducts: true,
       hasInventory: false,
       hasSeasons: true,
       hasVolunteers: true,
       hasMenu: false,
       hasDeliveryZones: false,
       hasDonations: true,
-      hasSubscriptions: true,  // Seasonal shares
+      hasSubscriptions: true,
       hasSupport: true,
       hasHarvests: true,
       hasPlots: true,
@@ -84,18 +117,18 @@ function getFeaturesByType(type: VendorType): VendorFeatures {
       hasShows: false,
     },
     kitchen: {
-      hasProducts: true,  // Prepared foods, catering items
-      hasInventory: true,  // Kitchen supplies, ingredients
+      hasProducts: true,
+      hasInventory: true,
       hasSeasons: false,
       hasVolunteers: true,
-      hasMenu: true,  // Food preparation capabilities
-      hasDeliveryZones: true,  // Service areas
+      hasMenu: true,
+      hasDeliveryZones: true,
       hasDonations: true,
-      hasSubscriptions: true,  // Recurring kitchen time
+      hasSubscriptions: true,
       hasSupport: true,
       hasHarvests: false,
       hasPlots: false,
-      hasRequests: true,  // Kitchen time requests
+      hasRequests: true,
       hasFarm: false,
       hasShows: false,
     },
@@ -116,7 +149,7 @@ function getFeaturesByType(type: VendorType): VendorFeatures {
       hasShows: false,
     },
     restaurant: {
-      hasProducts: false,  // Uses menu items instead
+      hasProducts: false,
       hasInventory: false,
       hasSeasons: false,
       hasVolunteers: false,
@@ -133,11 +166,11 @@ function getFeaturesByType(type: VendorType): VendorFeatures {
     },
     mutual_aid: {
       hasProducts: false,
-      hasInventory: true,  // Resource inventory
+      hasInventory: true,
       hasSeasons: false,
       hasVolunteers: true,
       hasMenu: false,
-      hasDeliveryZones: true,  // Service areas
+      hasDeliveryZones: true,
       hasDonations: true,
       hasSubscriptions: false,
       hasSupport: false,
@@ -164,8 +197,39 @@ function getFeaturesByType(type: VendorType): VendorFeatures {
       hasShows: false,
     },
   }
-  
+
   return featureMap[type]
+}
+
+/**
+ * Build VendorFeatures from an array of enabled extension keys.
+ * Any key in the array is true; all others are false.
+ */
+function buildFeaturesFromExtensions(enabledExtensions: string[]): VendorFeatures {
+  const features: VendorFeatures = {
+    hasProducts: false,
+    hasInventory: false,
+    hasSeasons: false,
+    hasVolunteers: false,
+    hasMenu: false,
+    hasDeliveryZones: false,
+    hasDonations: false,
+    hasSubscriptions: false,
+    hasSupport: false,
+    hasHarvests: false,
+    hasPlots: false,
+    hasRequests: false,
+    hasFarm: false,
+    hasShows: false,
+  }
+
+  for (const key of enabledExtensions) {
+    if (key in features) {
+      features[key as keyof VendorFeatures] = true
+    }
+  }
+
+  return features
 }
 
 /**
@@ -185,11 +249,14 @@ function getTypeLabels(type: VendorType): { label: string; plural: string } {
 }
 
 /**
- * Provider component that wraps the app and provides vendor type context
+ * Provider component that wraps the app and provides vendor type context.
+ *
+ * When a vendor has custom `enabled_extensions` saved, those override
+ * the default features for their vendor type. When null, defaults apply.
  */
 export function VendorTypeProvider({ children }: { children: ReactNode }) {
   const { seller, isPending } = useMe()
-  
+
   // Get vendor type from seller or default
   const vendorType: VendorType = useMemo(() => {
     const type = seller?.vendor_type as VendorType
@@ -198,22 +265,42 @@ export function VendorTypeProvider({ children }: { children: ReactNode }) {
     }
     return "default"
   }, [seller?.vendor_type])
-  
-  // Memoize features and labels
-  const features = useMemo(() => getFeaturesByType(vendorType), [vendorType])
+
+  // Get the raw enabled_extensions from the seller
+  const enabledExtensions = useMemo(() => {
+    const ext = seller?.enabled_extensions
+    if (Array.isArray(ext) && ext.length > 0) {
+      return ext as string[]
+    }
+    return null
+  }, [seller?.enabled_extensions])
+
+  // Default features for this vendor type (before custom overrides)
+  const defaultFeatures = useMemo(() => getFeaturesByType(vendorType), [vendorType])
+
+  // Resolved features: use custom selections if set, otherwise type defaults
+  const features = useMemo(() => {
+    if (enabledExtensions) {
+      return buildFeaturesFromExtensions(enabledExtensions)
+    }
+    return defaultFeatures
+  }, [enabledExtensions, defaultFeatures])
+
   const { label: typeLabel, plural: typeLabelPlural } = useMemo(
-    () => getTypeLabels(vendorType), 
+    () => getTypeLabels(vendorType),
     [vendorType]
   )
-  
+
   const value: VendorTypeContextValue = {
     vendorType,
     isLoading: isPending,
     features,
     typeLabel,
     typeLabelPlural,
+    enabledExtensions,
+    defaultFeatures,
   }
-  
+
   return (
     <VendorTypeContext.Provider value={value}>
       {children}

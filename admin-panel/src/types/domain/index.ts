@@ -84,6 +84,7 @@ export interface SellerMetadataDTO {
   verified: boolean
   rating?: number | null
   review_count: number
+  enabled_extensions?: string[] | null
   metadata?: Record<string, any> | null
   created_at: string
   updated_at: string

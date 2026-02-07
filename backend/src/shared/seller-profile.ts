@@ -7,6 +7,7 @@ const DEFAULT_METADATA_FIELDS = [
   "social_links",
   "storefront_links",
   "certifications",
+  "enabled_extensions",
 ]
 
 const METADATA_FIELD_SET = new Set(DEFAULT_METADATA_FIELDS)

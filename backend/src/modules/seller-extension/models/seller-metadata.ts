@@ -127,6 +127,9 @@ const SellerMetadata = model.define("seller_metadata", {
   rating: model.float().nullable(),
   review_count: model.number().default(0),
   
+  // Vendor-selected dashboard extensions (feature keys)
+  enabled_extensions: model.json().nullable(),
+
   // Metadata for additional extensions
   metadata: model.json().nullable(),
 })

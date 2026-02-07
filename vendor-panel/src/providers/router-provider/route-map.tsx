@@ -1393,6 +1393,14 @@ export const RouteMap: RouteObject[] = [
             ],
           },
           {
+            path: "extensions",
+            errorElement: <ErrorBoundary />,
+            lazy: () => import("../../routes/settings/extensions"),
+            handle: {
+              breadcrumb: () => "Extensions",
+            },
+          },
+          {
             path: "store",
             errorElement: <ErrorBoundary />,
             lazy: () => import("../../routes/store/store-detail"),

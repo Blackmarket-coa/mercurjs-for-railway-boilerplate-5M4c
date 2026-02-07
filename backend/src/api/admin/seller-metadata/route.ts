@@ -56,6 +56,7 @@ export const POST = async (
     service_types?: string[]
     featured?: boolean
     verified?: boolean
+    enabled_extensions?: string[] | null
     metadata?: Record<string, any>
   }
 
@@ -71,6 +72,7 @@ export const POST = async (
     service_types: body.service_types ? JSON.stringify(body.service_types) : null,
     featured: body.featured ?? false,
     verified: body.verified ?? false,
+    enabled_extensions: body.enabled_extensions ?? null,
     metadata: body.metadata || null,
   } as any)
 
