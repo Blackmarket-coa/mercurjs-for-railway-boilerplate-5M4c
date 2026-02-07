@@ -98,20 +98,20 @@ export default function SellPage() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // TODO: Integrate with actual signup API.
-    // For now, simulate account creation and open vendor panel register with prefilled context.
-    setTimeout(() => {
-      setIsSubmitting(false)
-      setAccountCreated(true)
+    const registrationParams = new URLSearchParams({
+      email,
+      store_name: storeName,
+      selling: selectedCategories.join(","),
+    })
 
-      const registrationParams = new URLSearchParams({
-        email,
-        store_name: storeName,
-        selling: selectedCategories.join(","),
-      })
+    window.open(
+      `${VENDOR_PANEL_URL}/register?${registrationParams.toString()}`,
+      "_blank",
+      "noopener,noreferrer"
+    )
 
-      window.open(`${VENDOR_PANEL_URL}/register?${registrationParams.toString()}`, "_blank", "noopener,noreferrer")
-    }, 500)
+    setIsSubmitting(false)
+    setAccountCreated(true)
   }
 
   const benefits = [

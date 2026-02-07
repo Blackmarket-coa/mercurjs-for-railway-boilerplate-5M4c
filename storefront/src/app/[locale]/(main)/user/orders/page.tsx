@@ -83,8 +83,7 @@ export default async function UserPage({
                   />
                 ))}
               </div>
-              {/* TODO - pagination */}
-              <OrdersPagination pages={pages} />
+              {pages > 1 && <OrdersPagination pages={pages} />}
             </>
           )}
         </div>

@@ -337,10 +337,42 @@ export async function deletePromotionCode(promoId: string) {
     .catch(medusaError)
 }
 
-// TODO: Pass a POJO instead of a form entity here
-export async function setAddresses(currentState: unknown, formData: FormData) {
+type AddressFormInput = {
+  shipping_address: {
+    first_name: FormDataEntryValue | null
+    last_name: FormDataEntryValue | null
+    address_1: FormDataEntryValue | null
+    company: FormDataEntryValue | null
+    postal_code: FormDataEntryValue | null
+    city: FormDataEntryValue | null
+    country_code: FormDataEntryValue | null
+    province: FormDataEntryValue | null
+    phone: FormDataEntryValue | null
+  }
+  email: FormDataEntryValue | null
+}
+
+const mapAddressFormData = (formData: FormData): AddressFormInput => ({
+  shipping_address: {
+    first_name: formData.get("shipping_address.first_name"),
+    last_name: formData.get("shipping_address.last_name"),
+    address_1: formData.get("shipping_address.address_1"),
+    company: formData.get("shipping_address.company"),
+    postal_code: formData.get("shipping_address.postal_code"),
+    city: formData.get("shipping_address.city"),
+    country_code: formData.get("shipping_address.country_code"),
+    province: formData.get("shipping_address.province"),
+    phone: formData.get("shipping_address.phone"),
+  },
+  email: formData.get("email"),
+})
+
+export async function setAddresses(
+  currentState: unknown,
+  formInput: FormData | AddressFormInput
+) {
   try {
-    if (!formData) {
+    if (!formInput) {
       throw new Error("No form data found when setting addresses")
     }
     const cartId = getCartId()
@@ -348,20 +380,23 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
       throw new Error("No existing cart found when setting addresses")
     }
 
+    const normalizedInput =
+      formInput instanceof FormData ? mapAddressFormData(formInput) : formInput
+
     const data = {
       shipping_address: {
-        first_name: formData.get("shipping_address.first_name"),
-        last_name: formData.get("shipping_address.last_name"),
-        address_1: formData.get("shipping_address.address_1"),
+        first_name: normalizedInput.shipping_address.first_name,
+        last_name: normalizedInput.shipping_address.last_name,
+        address_1: normalizedInput.shipping_address.address_1,
         address_2: "",
-        company: formData.get("shipping_address.company"),
-        postal_code: formData.get("shipping_address.postal_code"),
-        city: formData.get("shipping_address.city"),
-        country_code: formData.get("shipping_address.country_code"),
-        province: formData.get("shipping_address.province"),
-        phone: formData.get("shipping_address.phone"),
+        company: normalizedInput.shipping_address.company,
+        postal_code: normalizedInput.shipping_address.postal_code,
+        city: normalizedInput.shipping_address.city,
+        country_code: normalizedInput.shipping_address.country_code,
+        province: normalizedInput.shipping_address.province,
+        phone: normalizedInput.shipping_address.phone,
       },
-      email: formData.get("email"),
+      email: normalizedInput.email,
     } as any
 
     // const sameAsBilling = formData.get("same_as_billing")
