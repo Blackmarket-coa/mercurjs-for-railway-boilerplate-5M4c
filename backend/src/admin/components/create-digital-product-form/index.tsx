@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Input, Button, Select, toast } from "@medusajs/ui"
-import { MediaType } from "../../types"
+import { MediaType } from "../../types/index"
 
 type CreateMedia = {
   type: MediaType

@@ -12,7 +12,6 @@ import {
   toast,
 } from "@medusajs/ui"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { Link } from "react-router-dom"
 import React, { useState, useMemo } from "react"
 import { sdk } from "../../lib/sdk"
 import { CreateTicketProductModal } from "../../components/create-ticket-product-modal"
@@ -55,9 +54,12 @@ const columns = [
     header: "Product",
     cell: ({ row }) => {
       return (
-        <Link to={`/products/${row.original.product_id}`}>
+        <a
+          href={`/app/products/${row.original.product_id}`}
+          className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
+        >
           View Product Details
-        </Link>
+        </a>
       )
     }
   })

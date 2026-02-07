@@ -7,6 +7,10 @@ import {
   updateSellerMetadataRecord,
 } from "../../../../modules/seller-extension/metadata-service"
 
+type SellerModuleLike = {
+  updateSellers: (data: Array<Record<string, unknown>>) => Promise<unknown>
+}
+
 /**
  * GET /vendor/sellers/me
  *
@@ -81,7 +85,7 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
     // Get the seller module to update seller data
     // Note: In Medusa, we typically use workflows for updates, but for direct updates
     // we can use the module service
-    const sellerModule = req.scope.resolve("seller")
+    const sellerModule = req.scope.resolve("seller") as SellerModuleLike
 
     // Update seller if there are fields to update
     if (Object.keys(sellerUpdate).length > 0) {
@@ -104,12 +108,12 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
       if (metadataRecords && metadataRecords.length > 0) {
         // Update existing metadata
         const metadataId = (metadataRecords[0] as { id: string }).id
-        await updateSellerMetadataRecord(sellerExtensionModule, [
+        await updateSellerMetadataRecord(sellerExtensionModule as any, [
           { id: metadataId, ...metadataUpdate },
         ])
       } else {
         // Create new metadata record
-        await createSellerMetadataRecord(sellerExtensionModule, [
+        await createSellerMetadataRecord(sellerExtensionModule as any, [
           { seller_id: sellerId, ...metadataUpdate },
         ])
       }

@@ -2,8 +2,7 @@ import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { PhotoSolid } from "@medusajs/icons"
 import { Container, Heading, Table, Button, Drawer } from "@medusajs/ui"
 import { useEffect, useMemo, useState } from "react"
-import { Link } from "react-router-dom"
-import { DigitalProduct } from "../../types"
+import { DigitalProduct } from "../../types/index"
 import CreateDigitalProductForm from "../../components/create-digital-product-form"
 
 const DigitalProductsPage = () => {
@@ -106,9 +105,12 @@ const DigitalProductsPage = () => {
                 {digitalProduct.name}
               </Table.Cell>
               <Table.Cell>
-                <Link to={`/products/${digitalProduct.product_variant?.product_id}`}>
+                <a
+                  href={`/app/products/${digitalProduct.product_variant?.product_id}`}
+                  className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
+                >
                   View Product
-                </Link>
+                </a>
               </Table.Cell>
             </Table.Row>
           ))}
