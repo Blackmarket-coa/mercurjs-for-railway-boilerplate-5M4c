@@ -61,17 +61,56 @@ const VENDOR_PANEL_URL = process.env.NEXT_PUBLIC_VENDOR_PANEL_URL || "https://ve
  */
 export default function SellPage() {
   const [email, setEmail] = useState("")
+  const [storeName, setStoreName] = useState("")
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
+  const [accountCreated, setAccountCreated] = useState(false)
+
+  const saleCategories = [
+    "Fresh produce",
+    "Baked goods",
+    "Prepared meals",
+    "Pantry staples",
+    "Value-added foods",
+    "Community programs",
+  ]
+
+  const importChannels = [
+    "Amazon",
+    "Faire",
+    "Etsy",
+    "Shopify",
+    "TikTok Shop",
+    "CSV",
+    "Manual",
+    "Website URL",
+  ]
+
+  const toggleCategory = (category: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(category)
+        ? prev.filter((item) => item !== category)
+        : [...prev, category]
+    )
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    
-    // TODO: Integrate with actual signup API
-    // For now, redirect to vendor panel register
+
+    // TODO: Integrate with actual signup API.
+    // For now, simulate account creation and open vendor panel register with prefilled context.
     setTimeout(() => {
-      window.location.href = `${VENDOR_PANEL_URL}/register?email=${encodeURIComponent(email)}`
+      setIsSubmitting(false)
+      setAccountCreated(true)
+
+      const registrationParams = new URLSearchParams({
+        email,
+        store_name: storeName,
+        selling: selectedCategories.join(","),
+      })
+
+      window.open(`${VENDOR_PANEL_URL}/register?${registrationParams.toString()}`, "_blank", "noopener,noreferrer")
     }, 500)
   }
 
@@ -162,15 +201,21 @@ export default function SellPage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-              Share What You Grow.
+              Join in Minutes.
               <br />
-              <span className="text-green-300">Keep What You Earn.</span>
+              <span className="text-green-300">Start Selling on Your Terms.</span>
             </h1>
             <p className="text-xl md:text-2xl text-green-100 mb-8 leading-relaxed">
-              Join a marketplace built by the community, for the community.
-              Whether you're a farmer, community garden, shared-use kitchen, mutual aid group,
-              or any kind of community food infrastructure—connect directly with people who value what you provide.
+              Skip the giant application. Create your account in 30 seconds,
+              import what you already sell, and complete payment, shipping,
+              and compliance details later.
             </p>
+
+            <div className="bg-white/10 border border-white/20 rounded-xl p-5 mb-8 max-w-2xl">
+              <p className="text-green-100 text-sm uppercase tracking-wide font-semibold mb-2">Import-first onboarding</p>
+              <p className="text-lg font-semibold mb-2">Already selling somewhere else? Bring your store in 5 minutes.</p>
+              <p className="text-green-200 text-sm">Import from Etsy, Shopify, TikTok Shop, your website, or a CSV and preview before you publish.</p>
+            </div>
             
             {/* Trust Indicators */}
             <div className="flex flex-wrap gap-4 mb-10">
@@ -188,35 +233,88 @@ export default function SellPage() {
               </div>
             </div>
 
-            {/* Signup Form */}
-            {!submitted ? (
-              <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 max-w-xl">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  required
-                  className="flex-1 px-6 py-4 rounded-lg text-gray-900 text-lg focus:outline-none focus:ring-2 focus:ring-green-400"
-                />
+            {/* Progressive Signup */}
+            {!accountCreated ? (
+              <form onSubmit={handleSubmit} className="max-w-2xl space-y-5">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="sm:col-span-2">
+                    <p className="text-sm font-semibold text-green-200 mb-2">Step 1 · 30 seconds</p>
+                  </div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Email"
+                    required
+                    className="px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400"
+                  />
+                  <input
+                    type="text"
+                    value={storeName}
+                    onChange={(e) => setStoreName(e.target.value)}
+                    placeholder="Store name"
+                    required
+                    className="px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400"
+                  />
+                </div>
+
+                <div>
+                  <p className="text-sm text-green-100 mb-2">What do you sell?</p>
+                  <div className="grid sm:grid-cols-2 gap-2">
+                    {saleCategories.map((category) => (
+                      <label key={category} className="flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={selectedCategories.includes(category)}
+                          onChange={() => toggleCategory(category)}
+                          className="h-4 w-4 rounded border-white/30"
+                        />
+                        {category}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="px-8 py-4 bg-green-500 hover:bg-green-400 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 whitespace-nowrap"
+                  disabled={isSubmitting || selectedCategories.length === 0}
+                  className="px-8 py-4 bg-green-500 hover:bg-green-400 text-white font-semibold rounded-lg transition-colors disabled:opacity-50"
                 >
-                  {isSubmitting ? "Starting..." : "Get Started"}
+                  {isSubmitting ? "Creating your account..." : "Create account & start importing"}
                 </button>
               </form>
             ) : (
-              <div className="bg-white/10 px-6 py-4 rounded-lg max-w-xl">
-                <p className="text-green-200">
-                  ✓ Check your email for next steps. We're excited to have you!
-                </p>
+              <div className="bg-white/10 border border-white/20 px-6 py-6 rounded-lg max-w-3xl space-y-5">
+                <div>
+                  <p className="text-sm text-green-200 font-semibold">Step 2 · Import products first</p>
+                  <p className="text-green-100 mt-1">Your account is live. Pick where to import from now and publish later.</p>
+                </div>
+
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                  {importChannels.map((channel) => (
+                    <button
+                      key={channel}
+                      type="button"
+                      className="bg-white/10 hover:bg-white/20 border border-white/20 rounded-md px-3 py-2 text-sm text-left"
+                    >
+                      Import from {channel}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="rounded-md bg-white/5 px-4 py-3">
+                  <p className="text-sm text-green-100">Import progress: 3/4 products previewed · Nothing is published until you confirm.</p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-green-200 font-semibold">Step 3 · Optional later</p>
+                  <p className="text-sm text-green-100">Add payout details, shipping preferences, and compliance docs whenever you're ready.</p>
+                </div>
               </div>
             )}
-            
+
             <p className="mt-4 text-sm text-green-200">
-              Free to join. No credit card required. Get started in under 10 minutes.
+              Free to join. No credit card required. Start now and complete admin details later.
             </p>
           </div>
         </div>
