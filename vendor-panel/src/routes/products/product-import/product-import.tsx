@@ -19,29 +19,23 @@ import { getProductImportCsvTemplate } from "./helpers/import-template"
 import { ImportSummary } from "./components/import-summary"
 import { UploadImport } from "./components/upload-import"
 
-type ProductImportSource = "website" | "etsy" | "tiktok" | "shopify" | "csv"
+type ProductImportSource = "online_store" | "csv"
 
 type ExternalImportCandidate = {
   id: string
-  source: Exclude<ProductImportSource, "csv">
+  source: "online_store"
   reference: string
   title: string
 }
 
 const SOURCE_OPTIONS: { label: string; value: ProductImportSource }[] = [
-  { label: "My website", value: "website" },
-  { label: "Etsy", value: "etsy" },
-  { label: "TikTok Shop", value: "tiktok" },
-  { label: "Shopify", value: "shopify" },
+  { label: "Online store", value: "online_store" },
   { label: "CSV upload", value: "csv" },
 ]
 
 const SOURCE_HELPERS: Record<ProductImportSource, string> = {
-  website: "Paste a product or catalog URL and we’ll fetch products to review.",
-  etsy: "Connect Etsy (OAuth) or provide your shop URL to pull listings.",
-  tiktok:
-    "Connect TikTok Shop (OAuth) or paste product links to pull media and details.",
-  shopify: "Shopify connector is planned for a future release.",
+  online_store:
+    "Paste product, collection, or shop links from any online store to build your import list.",
   csv: "Upload a CSV file and import many products at once.",
 }
 
@@ -118,7 +112,7 @@ const ProductImportContent = () => {
       id: `${sourceType}-${Date.now()}`,
       source: sourceType,
       reference: trimmedReference,
-      title: `Imported item from ${trimmedReference}`,
+      title: `Product from ${trimmedReference}`,
     }
 
     setExternalCandidates((prev) => [...prev, nextCandidate])
@@ -246,7 +240,7 @@ const ProductImportContent = () => {
               <Input
                 value={sourceReference}
                 onChange={(e) => setSourceReference(e.target.value)}
-                placeholder="https://your-store.example/products/slug"
+                placeholder="https://shop.example/product or https://etsy.com/shop/..."
               />
               <Button
                 type="button"
@@ -296,7 +290,7 @@ const ProductImportContent = () => {
                             {candidate.title}
                           </Text>
                           <Text size="xsmall" className="text-ui-fg-subtle">
-                            {candidate.source.toUpperCase()} ·{" "}
+                            Online store ·{" "}
                             {candidate.reference}
                           </Text>
                         </div>
