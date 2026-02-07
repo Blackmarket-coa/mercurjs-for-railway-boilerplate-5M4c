@@ -92,12 +92,12 @@ export const listProducts = async ({
 
       const nextPage = count > offset + limit ? pageParam + 1 : null
 
-      const response = products.filter((prod) => {
-        // @ts-ignore Property 'seller' exists but TypeScript doesn't recognize it
-        const reviews = prod.seller?.reviews.filter((item) => !!item) ?? []
-        return (
+      const response = products
+        .filter((prod) => !!prod?.seller)
+        .map((prod) => {
           // @ts-ignore Property 'seller' exists but TypeScript doesn't recognize it
-          prod?.seller && {
+          const reviews = prod.seller?.reviews?.filter((item) => !!item) ?? []
+          return {
             ...prod,
             seller: {
               // @ts-ignore Property 'seller' exists but TypeScript doesn't recognize it
@@ -105,8 +105,7 @@ export const listProducts = async ({
               reviews,
             },
           }
-        )
-      })
+        })
 
       return {
         response: {
