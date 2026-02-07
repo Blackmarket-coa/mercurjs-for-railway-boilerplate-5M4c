@@ -9,6 +9,8 @@ const getOption = (label: string) => {
       return "variants.color"
     case "condition":
       return "variants.condition"
+    case "vendor_type":
+      return "seller.vendor_type"
     case "rating":
       return "average_rating"
     default:

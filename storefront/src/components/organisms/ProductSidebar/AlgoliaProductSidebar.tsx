@@ -42,6 +42,7 @@ export const AlgoliaProductSidebar = () => {
         <Modal heading="Filters" onClose={() => setIsOpen(false)}>
           <div className="px-4">
             <ProductListingActiveFilters />
+            <VendorTypeFilter defaultOpen={Boolean(allSearchParams.vendor_type)} />
             <PriceFilter
               defaultOpen={Boolean(
                 allSearchParams.min_price || allSearchParams.max_price
@@ -56,12 +57,48 @@ export const AlgoliaProductSidebar = () => {
     </>
   ) : (
     <div>
+      <VendorTypeFilter />
       <PriceFilter />
       <SizeFilter />
       <ColorFilter />
       <ConditionFilter />
       {/* <RatingFilter /> */}
     </div>
+  )
+}
+
+const vendorTypeLabels: Record<string, string> = {
+  producer: "Producers",
+  garden: "Community Gardens",
+  kitchen: "Community Kitchens",
+  maker: "Makers & Artisans",
+  restaurant: "Restaurants",
+  mutual_aid: "Mutual Aid",
+}
+
+function VendorTypeFilter({ defaultOpen = true }: { defaultOpen?: boolean }) {
+  const { items } = useRefinementList({
+    attribute: "seller.vendor_type",
+    limit: 100,
+    operator: "or",
+  })
+  const { updateFilters, isFilterActive } = useFilters("vendor_type")
+
+  return (
+    <Accordion heading="Vendor Type" defaultOpen={defaultOpen}>
+      <ul className="px-4">
+        {items.map(({ label, count }) => (
+          <li key={label} className="mb-4">
+            <FilterCheckboxOption
+              checked={isFilterActive(label)}
+              disabled={Boolean(!count)}
+              onCheck={() => updateFilters(label)}
+              label={vendorTypeLabels[label] || label}
+            />
+          </li>
+        ))}
+      </ul>
+    </Accordion>
   )
 }
 
