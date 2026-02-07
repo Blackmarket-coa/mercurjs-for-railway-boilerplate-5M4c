@@ -159,6 +159,13 @@ const communityModules = [
   { resolve: './src/modules/food-distribution' },
 ]
 
+// Collective purchasing & bargaining modules
+const collectiveModules = [
+  { resolve: './src/modules/demand-pool' },
+  { resolve: './src/modules/bargaining' },
+  { resolve: './src/modules/buyer-network' },
+]
+
 // Content/utility modules
 const utilityModules = [
   { resolve: './src/modules/cms-blueprint' },
@@ -333,6 +340,7 @@ module.exports = defineConfig({
     ...financialModules,
     ...marketplaceModules,
     ...communityModules,
+    ...collectiveModules,
     ...utilityModules,
     ...optionalModules,
 
