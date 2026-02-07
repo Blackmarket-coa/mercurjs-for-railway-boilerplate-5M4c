@@ -38,7 +38,7 @@ const DemandBounty = model.define("demand_bounty", {
   escrow_ledger_entry_id: model.text().nullable(),
 
   // Milestones for payout
-  milestones: model.json().default([]),
+  milestones: model.json().nullable(),
   milestones_completed: model.number().default(0),
   amount_paid_out: model.bigNumber().default(0),
 

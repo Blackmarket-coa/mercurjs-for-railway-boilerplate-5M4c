@@ -6,9 +6,9 @@ import {
   SupplierProposal,
   ProposalVote,
 } from "./models"
-import { DemandPostStatus } from "./models/demand-post"
+import { DemandPostStatus, DemandPostVisibility } from "./models/demand-post"
 import { ParticipantStatus } from "./models/demand-participant"
-import { BountyStatus } from "./models/demand-bounty"
+import { BountyObjective, BountyStatus, BountyVisibility } from "./models/demand-bounty"
 import { ProposalStatus } from "./models/supplier-proposal"
 
 class DemandPoolModuleService extends MedusaService({
@@ -87,6 +87,11 @@ class DemandPoolModuleService extends MedusaService({
     const [post] = await this.createDemandPosts([
       {
         ...input,
+        creator_type: (input.creator_type || "CUSTOMER") as "CUSTOMER" | "SELLER",
+        deadline_type: (input.deadline_type || "SOFT") as "HARD" | "SOFT",
+        visibility: (input.visibility || DemandPostVisibility.PUBLIC) as DemandPostVisibility,
+        delivery_address: (input.delivery_address || null) as Record<string, unknown> | null,
+        specs: (input.specs || null) as Record<string, unknown> | null,
         status: DemandPostStatus.DRAFT,
         committed_quantity: 0,
         total_bounty_amount: 0,
@@ -118,7 +123,7 @@ class DemandPoolModuleService extends MedusaService({
       )
     }
 
-    await this.updateDemandPosts({ id, status: newStatus })
+    await this.updateDemandPosts({ id, status: newStatus as DemandPostStatus })
     const [updated] = await this.listDemandPosts({ id })
     return updated
   }
@@ -262,19 +267,19 @@ class DemandPoolModuleService extends MedusaService({
       throw new Error("Demand post not found")
     }
 
-    const [bounty] = await this.createDemandBountys([
+    const [bounty] = await this.createDemandBounties([
       {
         demand_post_id: input.demand_post_id,
         contributor_id: input.contributor_id,
-        contributor_type: input.contributor_type || "CUSTOMER",
-        objective: input.objective,
+        contributor_type: (input.contributor_type || "CUSTOMER") as "CUSTOMER" | "SELLER",
+        objective: input.objective as BountyObjective,
         amount: input.amount,
         currency_code: input.currency_code || "USD",
-        milestones: input.milestones || [],
+        milestones: (input.milestones || null) as Record<string, unknown> | null,
         milestones_completed: 0,
         amount_paid_out: 0,
         status: BountyStatus.ACTIVE,
-        visibility: input.visibility || "PUBLIC",
+        visibility: (input.visibility || "PUBLIC") as BountyVisibility,
       },
     ])
 
@@ -299,7 +304,7 @@ class DemandPoolModuleService extends MedusaService({
     bountyId: string,
     milestoneIndex: number
   ) {
-    const bounties = await this.listDemandBountys({ id: bountyId })
+    const bounties = await this.listDemandBounties({ id: bountyId })
     if (bounties.length === 0) {
       throw new Error("Bounty not found")
     }
@@ -335,9 +340,9 @@ class DemandPoolModuleService extends MedusaService({
         ? BountyStatus.COMPLETED
         : BountyStatus.MILESTONE_PARTIAL
 
-    await this.updateDemandBountys({
+    await this.updateDemandBounties({
       id: bountyId,
-      milestones,
+      milestones: milestones as unknown as Record<string, unknown>,
       milestones_completed: completedCount,
       amount_paid_out: totalPaidOut,
       status: newStatus,
@@ -398,6 +403,8 @@ class DemandPoolModuleService extends MedusaService({
       {
         ...input,
         currency_code: input.currency_code || "USD",
+        certifications: (input.certifications || null) as Record<string, unknown> | null,
+        volume_tiers: (input.volume_tiers || null) as Record<string, unknown> | null,
         status: ProposalStatus.SUBMITTED,
         submitted_at: new Date(),
         votes_for: 0,
@@ -586,7 +593,7 @@ class DemandPoolModuleService extends MedusaService({
     const [participants, proposals, bounties] = await Promise.all([
       this.listDemandParticipants({ demand_post_id: demandPostId }),
       this.listSupplierProposals({ demand_post_id: demandPostId }),
-      this.listDemandBountys({ demand_post_id: demandPostId }),
+      this.listDemandBounties({ demand_post_id: demandPostId }),
     ])
 
     const post = posts[0]

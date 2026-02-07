@@ -6,9 +6,9 @@ import {
   BargainingVote,
   NegotiationThread,
 } from "./models"
-import { BargainingGroupStatus } from "./models/bargaining-group"
+import { BargainingGroupStatus, VotingRule } from "./models/bargaining-group"
 import { MemberRole, MemberStatus } from "./models/bargaining-member"
-import { BargainingProposalStatus } from "./models/bargaining-proposal"
+import { BargainingProposalStatus, BargainingProposalType } from "./models/bargaining-proposal"
 
 class BargainingModuleService extends MedusaService({
   BargainingGroup,
@@ -70,6 +70,8 @@ class BargainingModuleService extends MedusaService({
     const [group] = await this.createBargainingGroups([
       {
         ...input,
+        organizer_type: (input.organizer_type || "CUSTOMER") as "CUSTOMER" | "SELLER",
+        voting_rule: (input.voting_rule || VotingRule.SIMPLE_MAJORITY) as VotingRule,
         status: BargainingGroupStatus.FORMING,
         member_count: 1,
         total_quantity: 0,
@@ -247,7 +249,7 @@ class BargainingModuleService extends MedusaService({
 
     await this.updateBargainingMembers({
       id: memberId,
-      role: newRole,
+      role: newRole as MemberRole,
     })
 
     const [updated] = await this.listBargainingMembers({ id: memberId })
@@ -297,14 +299,14 @@ class BargainingModuleService extends MedusaService({
       {
         group_id: input.group_id,
         proposer_id: input.proposer_id,
-        proposer_type: input.proposer_type || "SELLER",
-        proposal_type: input.proposal_type || "SUPPLIER_OFFER",
+        proposer_type: (input.proposer_type || "SELLER") as "CUSTOMER" | "SELLER",
+        proposal_type: (input.proposal_type || "SUPPLIER_OFFER") as BargainingProposalType,
         title: input.title,
         description: input.description,
         terms: input.terms,
         unit_price: input.unit_price,
         total_price: input.total_price,
-        volume_tiers: input.volume_tiers,
+        volume_tiers: input.volume_tiers as Record<string, unknown> | undefined,
         fulfillment_timeline: input.fulfillment_timeline,
         valid_until: input.valid_until,
         parent_proposal_id: input.parent_proposal_id,
@@ -351,8 +353,8 @@ class BargainingModuleService extends MedusaService({
       {
         group_id: proposal.group_id,
         proposer_id: counteredById,
-        proposer_type: "CUSTOMER",
-        proposal_type: "BUYER_COUNTER",
+        proposer_type: "CUSTOMER" as const,
+        proposal_type: BargainingProposalType.BUYER_COUNTER,
         title: `Counter to: ${proposal.title}`,
         terms: counterTerms,
         parent_proposal_id: proposalId,
@@ -518,11 +520,11 @@ class BargainingModuleService extends MedusaService({
         group_id: input.group_id,
         proposal_id: input.proposal_id,
         author_id: input.author_id,
-        author_type: input.author_type || "CUSTOMER",
+        author_type: (input.author_type || "CUSTOMER") as "CUSTOMER" | "SELLER",
         message: input.message,
-        message_type: input.message_type || "COMMENT",
+        message_type: (input.message_type || "COMMENT") as "COMMENT" | "COUNTER" | "QUESTION" | "UPDATE" | "SYSTEM",
         parent_message_id: input.parent_message_id,
-        attachment_urls: input.attachment_urls,
+        attachment_urls: input.attachment_urls as Record<string, unknown> | undefined,
         posted_at: new Date(),
       },
     ])
