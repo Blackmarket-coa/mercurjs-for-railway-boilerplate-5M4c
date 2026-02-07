@@ -59,6 +59,7 @@
     "@react-email/components": "^1.0.3",
     "@stellar/stellar-sdk": "^13.1.0",
     "@types/bcryptjs": "^3.0.0",
+    "@woocommerce/woocommerce-rest-api": "^1.0.2",
     "algoliasearch": "^5.44.0",
     "awilix": "^8.0.1",
     "axios": "^1.13.2",
