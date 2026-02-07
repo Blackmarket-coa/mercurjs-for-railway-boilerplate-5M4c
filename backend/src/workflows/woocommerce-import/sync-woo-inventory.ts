@@ -110,7 +110,7 @@ const syncInventoryStep = createStep(
                 filters: {
                   sku: variant.sku,
                 },
-              })
+              }) as { data: any[] }
 
               if (inventoryItems?.[0]?.inventory_levels?.[0]) {
                 const level = inventoryItems[0].inventory_levels[0]
@@ -165,7 +165,7 @@ const syncInventoryStep = createStep(
                   filters: {
                     sku: variant.sku,
                   },
-                })
+                }) as { data: any[] }
 
                 if (inventoryItems?.[0]?.inventory_levels?.[0]) {
                   const level = inventoryItems[0].inventory_levels[0]
