@@ -1,6 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 
-export type ExtendedAdminProduct = Omit<HttpTypes.AdminProduct, 'variants'> & {
+export type ExtendedAdminProduct = Omit<HttpTypes.AdminProduct, "variants"> & {
   thumbnail: string
   images: Array<HttpTypes.AdminProductImage & { url: string }>
   attribute_values?: Array<{
@@ -117,4 +117,20 @@ export interface AdminProductWithAttributes extends HttpTypes.AdminProduct {
     attribute_id: string
     value: string
   }[]
+}
+
+export type ProductImportSourceType =
+  | "website"
+  | "etsy"
+  | "tiktok"
+  | "shopify"
+  | "csv"
+
+export interface ProductImportSourceMetadata {
+  source_type: ProductImportSourceType
+  source_metadata: Record<string, unknown>
+  fbm_product_id: string
+  fbm_price: number
+  fbm_inventory: number
+  last_imported_at: string
 }
