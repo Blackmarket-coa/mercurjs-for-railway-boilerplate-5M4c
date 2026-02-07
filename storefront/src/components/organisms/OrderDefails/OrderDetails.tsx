@@ -30,17 +30,16 @@ const OrderDetails = ({ order, showStatus }: OrderDetailsProps) => {
             <Text>
               Order status:{" "}
               <span className="text-ui-fg-subtle " data-testid="order-status">
-                {/* TODO: Check where the statuses should come from */}
-                {/* {formatStatus(order.fulfillment_status)} */}
+                {formatStatus(order.fulfillment_status || "pending")}
               </span>
             </Text>
             <Text>
               Payment status:{" "}
               <span
                 className="text-ui-fg-subtle "
-                sata-testid="order-payment-status"
+                data-testid="order-payment-status"
               >
-                {/* {formatStatus(order.payment_status)} */}
+                {formatStatus(order.payment_status || "pending")}
               </span>
             </Text>
           </>
