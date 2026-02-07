@@ -34,7 +34,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       DEMAND_POOL_MODULE
     )
 
-    const bounties = await demandPoolService.listDemandBountys({
+    const bounties = await demandPoolService.listDemandBounties({
       demand_post_id: id,
     })
 

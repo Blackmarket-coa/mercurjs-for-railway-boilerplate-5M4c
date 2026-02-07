@@ -1,6 +1,7 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { BUYER_NETWORK_MODULE } from "../../../../../modules/buyer-network"
 import BuyerNetworkModuleService from "../../../../../modules/buyer-network/service"
+import { NetworkStatus } from "../../../../../modules/buyer-network/models/buyer-network"
 
 // GET /admin/collective/buyer-networks/:id
 export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
@@ -44,7 +45,7 @@ export async function PATCH(req: AuthenticatedMedusaRequest, res: MedusaResponse
     if (action === "suspend") {
       await networkService.updateBuyerNetworks({
         id,
-        status: "SUSPENDED",
+        status: NetworkStatus.SUSPENDED,
       })
       const [updated] = await networkService.listBuyerNetworks({ id })
       return res.json({ buyer_network: updated, message: "Network suspended" })

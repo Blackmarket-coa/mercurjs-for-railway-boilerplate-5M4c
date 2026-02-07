@@ -7,6 +7,8 @@
 
 import type HawalaLedgerModuleService from "../modules/hawala-ledger/service"
 import type DemandPoolModuleService from "../modules/demand-pool/service"
+import { ParticipantStatus } from "../modules/demand-pool/models/demand-participant"
+import { DemandPostStatus } from "../modules/demand-pool/models/demand-post"
 
 export class CollectiveHawalaService {
   private hawalaService: HawalaLedgerModuleService
@@ -75,7 +77,7 @@ export class CollectiveHawalaService {
       escrow_amount: input.amount,
       escrow_locked: true,
       ledger_entry_id: entry.id,
-      status: "ESCROWED",
+      status: ParticipantStatus.ESCROWED,
       escrowed_at: new Date(),
     })
 
@@ -157,7 +159,7 @@ export class CollectiveHawalaService {
       id: input.participant_id,
       escrow_amount: 0,
       escrow_locked: false,
-      status: "REFUNDED",
+      status: ParticipantStatus.REFUNDED,
     })
 
     // Update demand post
@@ -216,7 +218,7 @@ export class CollectiveHawalaService {
     })
 
     // Update bounty record
-    await this.demandPoolService.updateDemandBountys({
+    await this.demandPoolService.updateDemandBounties({
       id: input.bounty_id,
       escrowed: true,
       escrow_ledger_entry_id: entry.id,
@@ -354,7 +356,7 @@ export class CollectiveHawalaService {
     // Update demand post status
     await this.demandPoolService.updateDemandPosts({
       id: input.demand_post_id,
-      status: "ORDER_PLACED",
+      status: DemandPostStatus.ORDER_PLACED,
     })
 
     return {

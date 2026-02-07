@@ -9,8 +9,8 @@ const BARGAINING_MODULE = "bargainingModuleService"
 
 interface BargainingServiceType {
   finalizeProposalVote: (proposalId: string) => Promise<any>
-  updateBargainingProposals: (data: Record<string, unknown>) => Promise<void>
-  updateBargainingGroups: (data: Record<string, unknown>) => Promise<void>
+  updateBargainingProposals: (data: Record<string, unknown>) => Promise<any>
+  updateBargainingGroups: (data: Record<string, unknown>) => Promise<any>
 }
 
 type FinalizeVoteInput = {

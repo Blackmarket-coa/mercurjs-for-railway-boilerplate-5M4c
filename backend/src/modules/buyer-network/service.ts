@@ -1,7 +1,7 @@
 import { MedusaService } from "@medusajs/framework/utils"
 import { BuyerNetwork, NetworkMember } from "./models"
 import { NetworkMemberRole, NetworkMemberStatus } from "./models/network-member"
-import { NetworkStatus } from "./models/buyer-network"
+import { NetworkStatus, NetworkType } from "./models/buyer-network"
 
 class BuyerNetworkModuleService extends MedusaService({
   BuyerNetwork,
@@ -36,6 +36,8 @@ class BuyerNetworkModuleService extends MedusaService({
     const [network] = await this.createBuyerNetworks([
       {
         ...input,
+        network_type: (input.network_type || NetworkType.BUYING_CLUB) as NetworkType,
+        categories: (input.categories || null) as Record<string, unknown> | null,
         status: NetworkStatus.ACTIVE,
         member_count: 1,
         total_savings: 0,

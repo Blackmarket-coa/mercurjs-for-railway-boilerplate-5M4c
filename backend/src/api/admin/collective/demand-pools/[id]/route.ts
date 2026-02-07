@@ -15,7 +15,7 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
     const details = await demandPoolService.getDemandPoolDetails(id)
 
     // Include savings calculation if fulfilled
-    let savings = null
+    let savings: any = null
     if (details.status === "FULFILLED" || details.final_unit_price) {
       const hawalaService = getCollectiveHawalaService(req.scope)
       savings = await hawalaService.calculateSavings(id)

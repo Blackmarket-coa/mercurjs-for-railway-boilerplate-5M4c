@@ -92,7 +92,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     })
 
     // Also submit to bargaining group if specified
-    let bargainingProposal = null
+    let bargainingProposal: any = null
     if (body.bargaining_group_id) {
       const bargainingService = req.scope.resolve<BargainingModuleService>(
         BARGAINING_MODULE

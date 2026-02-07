@@ -9,8 +9,8 @@ const DEMAND_POOL_MODULE = "demandPoolModuleService"
 
 interface DemandPoolServiceType {
   selectSupplier: (demandPostId: string, proposalId: string) => Promise<any>
-  updateDemandPosts: (data: Record<string, unknown>) => Promise<void>
-  updateSupplierProposals: (data: Record<string, unknown>) => Promise<void>
+  updateDemandPosts: (data: Record<string, unknown>) => Promise<any>
+  updateSupplierProposals: (data: Record<string, unknown>) => Promise<any>
 }
 
 type SelectSupplierInput = {
