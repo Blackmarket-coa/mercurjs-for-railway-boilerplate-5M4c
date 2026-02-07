@@ -5,7 +5,7 @@ import {
   HomeCategories,
   HomeProductSection,
   ShopByStyleSection,
-  ProductFeedServer,
+  JustJoinedVendors,
 } from "@/components/sections"
 import { ValueProposition, BecomeProducerCTA } from "@/components/molecules"
 
@@ -180,15 +180,7 @@ export default async function Home({
       </div>
 
       <div className="px-4 lg:px-8 w-full">
-        <ProductFeedServer
-          locale={locale}
-          mode="recent"
-          title="Just Added"
-          subtitle="Fresh listings from our community of creators"
-          limit={8}
-          showLayoutToggle
-          showFilters={false}
-        />
+        <JustJoinedVendors />
       </div>
 
       <div className="px-4 lg:px-8 w-full">

@@ -62,7 +62,7 @@ export default async function FeedPage({
     | "following"
 
   const feedModes = [
-    { id: "recent", label: "Just Added", description: "Latest listings" },
+    { id: "recent", label: "Just Joined", description: "Latest listings" },
     { id: "trending", label: "Trending", description: "Popular right now" },
     { id: "featured", label: "Featured", description: "Staff picks" },
   ]
