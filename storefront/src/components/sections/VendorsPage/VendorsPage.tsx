@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useSearchParams } from "next/navigation"
+import useUpdateSearchParams from "@/hooks/useUpdateSearchParams"
 import { LocationIcon, SearchIcon, FilterIcon, ForwardIcon, LeafIcon, AwardIcon } from "@/icons"
 
 const VENDOR_TYPE_OPTIONS = [
@@ -79,10 +81,18 @@ interface VendorsPageProps {
 }
 
 export function VendorsPage({ locale }: VendorsPageProps) {
+  const searchParams = useSearchParams()
+  const updateSearchParam = useUpdateSearchParams()
+
+  const vendorType = searchParams.get("vendor_type") || ""
+
+  const setVendorType = (value: string) => {
+    updateSearchParam("vendor_type", value || null)
+  }
+
   const [vendors, setVendors] = useState<Vendor[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
-  const [vendorType, setVendorType] = useState("")
   const [zipCode, setZipCode] = useState("")
   const [radiusMiles, setRadiusMiles] = useState("50")
   const [distanceActive, setDistanceActive] = useState(false)
