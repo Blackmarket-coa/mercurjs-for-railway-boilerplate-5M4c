@@ -1,16 +1,48 @@
-import { Button, Heading, Text, toast } from "@medusajs/ui"
-import { RouteDrawer, useRouteModal } from "../../../components/modals"
-import { useTranslation } from "react-i18next"
-import { useMemo, useState } from "react"
-import {
-  // useConfirmImportProducts,
-  useImportProducts,
-} from "../../../hooks/api"
-import { UploadImport } from "./components/upload-import"
-import { ImportSummary } from "./components/import-summary"
 import { Trash } from "@medusajs/icons"
+import {
+  Badge,
+  Button,
+  Checkbox,
+  Heading,
+  Input,
+  Select,
+  Text,
+  toast,
+} from "@medusajs/ui"
+import { useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { FilePreview } from "../../../components/common/file-preview"
+import { RouteDrawer, useRouteModal } from "../../../components/modals"
+import { useImportProducts } from "../../../hooks/api"
 import { getProductImportCsvTemplate } from "./helpers/import-template"
+import { ImportSummary } from "./components/import-summary"
+import { UploadImport } from "./components/upload-import"
+
+type ProductImportSource = "website" | "etsy" | "tiktok" | "shopify" | "csv"
+
+type ExternalImportCandidate = {
+  id: string
+  source: Exclude<ProductImportSource, "csv">
+  reference: string
+  title: string
+}
+
+const SOURCE_OPTIONS: { label: string; value: ProductImportSource }[] = [
+  { label: "My website", value: "website" },
+  { label: "Etsy", value: "etsy" },
+  { label: "TikTok Shop", value: "tiktok" },
+  { label: "Shopify", value: "shopify" },
+  { label: "CSV upload", value: "csv" },
+]
+
+const SOURCE_HELPERS: Record<ProductImportSource, string> = {
+  website: "Paste a product or catalog URL and we’ll fetch products to review.",
+  etsy: "Connect Etsy (OAuth) or provide your shop URL to pull listings.",
+  tiktok:
+    "Connect TikTok Shop (OAuth) or paste product links to pull media and details.",
+  shopify: "Shopify connector is planned for a future release.",
+  csv: "Upload a CSV file and import many products at once.",
+}
 
 export const ProductImport = () => {
   const { t } = useTranslation()
@@ -33,18 +65,24 @@ export const ProductImport = () => {
 const ProductImportContent = () => {
   const { t } = useTranslation()
   const [filename, setFilename] = useState<string>()
+  const [sourceType, setSourceType] = useState<ProductImportSource>("csv")
+  const [sourceReference, setSourceReference] = useState("")
+  const [externalCandidates, setExternalCandidates] = useState<
+    ExternalImportCandidate[]
+  >([])
+  const [selectedCandidates, setSelectedCandidates] = useState<string[]>([])
 
   const { mutateAsync: importProducts, isPending, data } = useImportProducts()
-  // const { mutateAsync: confirm } =
-  //   useConfirmImportProducts();
   const { handleSuccess } = useRouteModal()
 
-  const productImportTemplateContent = useMemo(() => {
-    return getProductImportCsvTemplate()
-  }, [])
+  const productImportTemplateContent = useMemo(
+    () => getProductImportCsvTemplate(),
+    []
+  )
 
   const handleUploaded = async (file: File) => {
     setFilename(file.name)
+
     await importProducts(
       { file },
       {
@@ -60,25 +98,53 @@ const ProductImportContent = () => {
     )
   }
 
-  // const handleConfirm = async () => {
-  //   if (!data?.transaction_id) {
-  //     return;
-  //   }
+  const handleAddExternalCandidate = () => {
+    const trimmedReference = sourceReference.trim()
 
-  //   await confirm(data.transaction_id, {
-  //     onSuccess: () => {
-  //       toast.info(t('products.import.success.title'), {
-  //         description: t(
-  //           'products.import.success.description'
-  //         ),
-  //       });
-  //       handleSuccess();
-  //     },
-  //     onError: (err) => {
-  //       toast.error(err.message);
-  //     },
-  //   });
-  // };
+    if (!trimmedReference || sourceType === "csv") {
+      toast.error("Add a source URL or account reference first.")
+      return
+    }
+
+    const nextCandidate: ExternalImportCandidate = {
+      id: `${sourceType}-${Date.now()}`,
+      source: sourceType,
+      reference: trimmedReference,
+      title: `Imported item from ${trimmedReference}`,
+    }
+
+    setExternalCandidates((prev) => [...prev, nextCandidate])
+    setSelectedCandidates((prev) => [...prev, nextCandidate.id])
+    setSourceReference("")
+  }
+
+  const handleToggleCandidate = (id: string, checked: boolean) => {
+    setSelectedCandidates((prev) =>
+      checked
+        ? [...new Set([...prev, id])]
+        : prev.filter((candidateId) => candidateId !== id)
+    )
+  }
+
+  const toggleAllCandidates = (checked: boolean) => {
+    if (checked) {
+      setSelectedCandidates(externalCandidates.map((candidate) => candidate.id))
+      return
+    }
+
+    setSelectedCandidates([])
+  }
+
+  const handleQueueSelected = () => {
+    if (!selectedCandidates.length) {
+      toast.error("Select at least one product to continue.")
+      return
+    }
+
+    toast.info(
+      `${selectedCandidates.length} products queued for review & publish.`
+    )
+  }
 
   const uploadedFileActions = [
     {
@@ -92,32 +158,171 @@ const ProductImportContent = () => {
     },
   ]
 
+  const allCandidatesSelected =
+    externalCandidates.length > 0 &&
+    selectedCandidates.length === externalCandidates.length
+
   return (
     <>
       <RouteDrawer.Body>
-        <Heading level="h2">{t("products.import.upload.title")}</Heading>
-        <Text size="small" className="text-ui-fg-subtle">
-          {t("products.import.upload.description")}
-        </Text>
-
-        <div className="mt-4">
-          {filename ? (
-            <FilePreview
-              filename={filename}
-              loading={isPending}
-              activity={t("products.import.upload.preprocessing")}
-              actions={uploadedFileActions}
-            />
-          ) : (
-            <UploadImport onUploaded={handleUploaded} />
-          )}
+        <div className="rounded-lg border border-ui-border-base p-4">
+          <Heading level="h2">Import once from your existing store</Heading>
+          <Text size="small" className="mt-2 text-ui-fg-subtle">
+            External stores are data sources only. Checkout, orders, payments,
+            and customer relationship stay in FreeBlackMarket.
+          </Text>
         </div>
 
-        {data?.summary && !!filename && (
+        <div className="mt-6">
+          <Heading level="h2">1) Choose source</Heading>
           <div className="mt-4">
-            <ImportSummary summary={data?.summary} />
+            <Select
+              value={sourceType}
+              onValueChange={(value) =>
+                setSourceType(value as ProductImportSource)
+              }
+            >
+              <Select.Trigger>
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Content>
+                {SOURCE_OPTIONS.map((option) => (
+                  <Select.Item key={option.value} value={option.value}>
+                    {option.label}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select>
           </div>
+          <Text size="small" className="mt-2 text-ui-fg-subtle">
+            {SOURCE_HELPERS[sourceType]}
+          </Text>
+        </div>
+
+        {sourceType === "csv" ? (
+          <>
+            <Heading className="mt-6" level="h2">
+              2) Upload and import
+            </Heading>
+            <Text size="small" className="text-ui-fg-subtle">
+              CSV import is multi-product by default. Upload one file to create
+              or update many products.
+            </Text>
+
+            <div className="mt-4">
+              {filename ? (
+                <FilePreview
+                  filename={filename}
+                  loading={isPending}
+                  activity={t("products.import.upload.preprocessing")}
+                  actions={uploadedFileActions}
+                />
+              ) : (
+                <UploadImport onUploaded={handleUploaded} />
+              )}
+            </div>
+
+            {data?.summary && !!filename && (
+              <div className="mt-4">
+                <ImportSummary summary={data.summary} />
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <Heading className="mt-6" level="h2">
+              2) Add source references
+            </Heading>
+
+            <div className="mt-3 flex gap-2">
+              <Input
+                value={sourceReference}
+                onChange={(e) => setSourceReference(e.target.value)}
+                placeholder="https://your-store.example/products/slug"
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleAddExternalCandidate}
+              >
+                Add
+              </Button>
+            </div>
+
+            <div className="mt-4 rounded-lg border border-ui-border-base p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    checked={allCandidatesSelected}
+                    onCheckedChange={(checked) =>
+                      toggleAllCandidates(!!checked)
+                    }
+                  />
+                  <Text size="small" weight="plus">
+                    Select all
+                  </Text>
+                </div>
+                <Badge size="2xsmall" color="grey">
+                  {selectedCandidates.length} selected
+                </Badge>
+              </div>
+
+              <div className="space-y-2">
+                {externalCandidates.length ? (
+                  externalCandidates.map((candidate) => {
+                    const checked = selectedCandidates.includes(candidate.id)
+
+                    return (
+                      <label
+                        key={candidate.id}
+                        className="flex cursor-pointer items-start gap-2 rounded-md border border-ui-border-base px-3 py-2"
+                      >
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(value) =>
+                            handleToggleCandidate(candidate.id, !!value)
+                          }
+                        />
+                        <div>
+                          <Text size="small" weight="plus">
+                            {candidate.title}
+                          </Text>
+                          <Text size="xsmall" className="text-ui-fg-subtle">
+                            {candidate.source.toUpperCase()} ·{" "}
+                            {candidate.reference}
+                          </Text>
+                        </div>
+                      </label>
+                    )
+                  })
+                ) : (
+                  <Text size="small" className="text-ui-fg-subtle">
+                    Add references to build a product selection list.
+                  </Text>
+                )}
+              </div>
+
+              <div className="mt-3">
+                <Button
+                  type="button"
+                  size="small"
+                  onClick={handleQueueSelected}
+                >
+                  Import selected products
+                </Button>
+              </div>
+            </div>
+          </>
         )}
+
+        <div className="mt-6 rounded-lg border border-ui-border-base p-4">
+          <Heading level="h3">3) Review & publish</Heading>
+          <Text size="small" className="mt-2 text-ui-fg-subtle">
+            Product names, descriptions, images, variants, pricing, and
+            inventory are normalized before publish. FBM price and inventory are
+            canonical.
+          </Text>
+        </div>
 
         <Heading className="mt-6" level="h2">
           {t("products.import.template.title")}
@@ -127,26 +332,17 @@ const ProductImportContent = () => {
         </Text>
         <div className="mt-4">
           <FilePreview
-            filename={"product-import-template.csv"}
+            filename="product-import-template.csv"
             url={productImportTemplateContent}
           />
         </div>
       </RouteDrawer.Body>
       <RouteDrawer.Footer>
-        <div className="flex items-center gap-x-2">
-          <RouteDrawer.Close asChild>
-            <Button size="small" variant="secondary">
-              {t("actions.cancel")}
-            </Button>
-          </RouteDrawer.Close>
-          {/* <Button
-            onClick={handleConfirm}
-            size='small'
-            disabled={!data?.transaction_id || !filename}
-          >
-            {t('actions.import')}
-          </Button> */}
-        </div>
+        <RouteDrawer.Close asChild>
+          <Button size="small" variant="secondary">
+            {t("actions.cancel")}
+          </Button>
+        </RouteDrawer.Close>
       </RouteDrawer.Footer>
     </>
   )
