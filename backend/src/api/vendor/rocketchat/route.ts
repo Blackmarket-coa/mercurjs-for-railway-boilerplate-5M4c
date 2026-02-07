@@ -4,6 +4,17 @@ import { requireSellerId } from "../../../shared/auth-helpers"
 import { getRocketChatService } from "../../../shared/rocketchat-service"
 import crypto from "crypto"
 
+type SellerModuleLike = {
+  retrieveSeller: (
+    sellerId: string,
+    options?: { relations?: string[] }
+  ) => Promise<{
+    handle?: string | null
+    name?: string | null
+    members?: Array<{ email?: string | null }>
+  } | null>
+}
+
 /**
  * GET /vendor/rocketchat
  * Returns Rocket.Chat configuration and login token for the authenticated vendor
@@ -28,7 +39,7 @@ export async function GET(
 
   try {
     // Get seller information from MercurJS
-    const sellerService = req.scope.resolve(SELLER_MODULE)
+    const sellerService = req.scope.resolve(SELLER_MODULE) as SellerModuleLike
     const seller = await sellerService.retrieveSeller(sellerId, {
       relations: ["members"],
     })

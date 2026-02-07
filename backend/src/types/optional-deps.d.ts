@@ -21,3 +21,21 @@ declare module "@sentry/node" {
     setLevel(level: string): void
   }
 }
+
+declare module "jsonwebtoken" {
+  export class TokenExpiredError extends Error {}
+  export class JsonWebTokenError extends Error {}
+
+  export function decode(token: string): Record<string, unknown> | null
+  export function verify(token: string, secretOrPublicKey: string): Record<string, unknown> | string
+
+  const jwt: {
+    decode: typeof decode
+    verify: typeof verify
+    TokenExpiredError: typeof TokenExpiredError
+    JsonWebTokenError: typeof JsonWebTokenError
+  }
+
+  export default jwt
+}
+

@@ -3,6 +3,17 @@ import { SELLER_MODULE } from "@mercurjs/b2c-core/modules/seller"
 import { getRocketChatService } from "../shared/rocketchat-service"
 import crypto from "crypto"
 
+type SellerModuleLike = {
+  retrieveSeller: (
+    sellerId: string,
+    options?: { relations?: string[] }
+  ) => Promise<{
+    handle?: string | null
+    name?: string | null
+    members?: Array<{ email?: string | null }>
+  } | null>
+}
+
 /**
  * Subscriber: Seller Created - RocketChat Integration
  *
@@ -32,7 +43,7 @@ export default async function sellerCreatedRocketChatHandler({
     }
 
     // Get seller information from MercurJS
-    const sellerService = container.resolve(SELLER_MODULE)
+    const sellerService = container.resolve(SELLER_MODULE) as SellerModuleLike
     const seller = await sellerService.retrieveSeller(sellerId, {
       relations: ["members"],
     })
