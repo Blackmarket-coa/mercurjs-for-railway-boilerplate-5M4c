@@ -2,6 +2,7 @@ import { Button, ProgressStatus, ProgressTabs, toast } from "@medusajs/ui"
 import { HttpTypes } from "@medusajs/types"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { Link } from "react-router-dom"
 import {
   RouteFocusModal,
   useRouteModal,
@@ -30,6 +31,14 @@ enum Tab {
   VARIANTS = "variants",
   INVENTORY = "inventory",
 }
+
+const IMPORT_SOURCE_LINKS = [
+  { label: "Website", source: "website" },
+  { label: "Etsy", source: "etsy" },
+  { label: "TikTok", source: "tiktok" },
+  { label: "Shopify", source: "shopify" },
+  { label: "CSV", source: "csv" },
+] as const
 
 type TabState = Record<Tab, ProgressStatus>
 
@@ -82,7 +91,9 @@ export const ProductCreateForm = ({
   const { mutateAsync, isPending } = useCreateProduct()
 
   const [showInventoryTab, setShowInventoryTab] = useState(() =>
-    form.getValues("variants").some((v) => v.manage_inventory && v.inventory_kit)
+    form
+      .getValues("variants")
+      .some((v) => v.manage_inventory && v.inventory_kit)
   )
 
   useEffect(() => {
@@ -363,27 +374,47 @@ export const ProductCreateForm = ({
           </RouteFocusModal.Body>
         </ProgressTabs>
         <RouteFocusModal.Footer>
-          <div className="flex items-center justify-end gap-x-2">
-            <RouteFocusModal.Close asChild>
-              <Button variant="secondary" size="small">
-                {t("actions.cancel")}
+          <div className="flex w-full flex-col gap-y-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="txt-compact-small text-ui-fg-subtle">
+                Import from:
+              </span>
+              {IMPORT_SOURCE_LINKS.map((option) => (
+                <Button
+                  key={option.source}
+                  size="small"
+                  variant="secondary"
+                  asChild
+                >
+                  <Link to={`../import?source=${option.source}`}>
+                    {option.label}
+                  </Link>
+                </Button>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-end gap-x-2">
+              <RouteFocusModal.Close asChild>
+                <Button variant="secondary" size="small">
+                  {t("actions.cancel")}
+                </Button>
+              </RouteFocusModal.Close>
+              <Button
+                data-name={SAVE_DRAFT_BUTTON}
+                size="small"
+                type="submit"
+                isLoading={isPending}
+                className="whitespace-nowrap"
+              >
+                Draft
               </Button>
-            </RouteFocusModal.Close>
-            <Button
-              data-name={SAVE_DRAFT_BUTTON}
-              size="small"
-              type="submit"
-              isLoading={isPending}
-              className="whitespace-nowrap"
-            >
-              Draft
-            </Button>
-            <PrimaryButton
-              tab={tab}
-              next={onNext}
-              isLoading={isPending}
-              showInventoryTab={showInventoryTab}
-            />
+              <PrimaryButton
+                tab={tab}
+                next={onNext}
+                isLoading={isPending}
+                showInventoryTab={showInventoryTab}
+              />
+            </div>
           </div>
         </RouteFocusModal.Footer>
       </KeyboundForm>

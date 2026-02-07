@@ -10,6 +10,7 @@ import {
   toast,
 } from "@medusajs/ui"
 import { useMemo, useState } from "react"
+import { useSearchParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { FilePreview } from "../../../components/common/file-preview"
 import { RouteDrawer, useRouteModal } from "../../../components/modals"
@@ -64,8 +65,15 @@ export const ProductImport = () => {
 
 const ProductImportContent = () => {
   const { t } = useTranslation()
+  const [searchParams] = useSearchParams()
+  const defaultSource = searchParams.get("source") as ProductImportSource | null
   const [filename, setFilename] = useState<string>()
-  const [sourceType, setSourceType] = useState<ProductImportSource>("csv")
+  const [sourceType, setSourceType] = useState<ProductImportSource>(
+    defaultSource &&
+      SOURCE_OPTIONS.some((option) => option.value === defaultSource)
+      ? defaultSource
+      : "csv"
+  )
   const [sourceReference, setSourceReference] = useState("")
   const [externalCandidates, setExternalCandidates] = useState<
     ExternalImportCandidate[]
