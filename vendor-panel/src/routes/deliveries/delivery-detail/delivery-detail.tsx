@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import { Container, Heading, Button, Text, Badge } from "@medusajs/ui"
 import { ArrowLeft, MapPin, Clock, Phone, User, Package } from "@medusajs/icons"
 import { SingleColumnPage } from "../../../components/layout/pages"
+import { useDashboardExtension } from "../../../extensions"
 import {
   useDelivery,
   useUpdateDeliveryStatus,
@@ -20,12 +21,18 @@ import {
 export function DeliveryDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { getWidgets } = useDashboardExtension()
   const { data, isLoading, error } = useDelivery(id!)
   const { mutate: updateStatus, isPending: isUpdating } = useUpdateDeliveryStatus(id!)
 
   if (isLoading) {
     return (
-      <SingleColumnPage>
+      <SingleColumnPage
+      widgets={{
+        before: getWidgets("delivery.detail.before"),
+        after: getWidgets("delivery.detail.after"),
+      }}
+    >
         <Container className="p-8">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-warm-200 rounded w-1/4" />
@@ -38,7 +45,12 @@ export function DeliveryDetail() {
 
   if (error || !data?.delivery) {
     return (
-      <SingleColumnPage>
+      <SingleColumnPage
+      widgets={{
+        before: getWidgets("delivery.detail.before"),
+        after: getWidgets("delivery.detail.after"),
+      }}
+    >
         <Container className="p-8">
           <div className="bg-red-50 text-red-800 p-4 rounded-lg">
             Delivery not found or failed to load.
@@ -63,7 +75,12 @@ export function DeliveryDetail() {
   }
 
   return (
-    <SingleColumnPage>
+    <SingleColumnPage
+      widgets={{
+        before: getWidgets("delivery.detail.before"),
+        after: getWidgets("delivery.detail.after"),
+      }}
+    >
       <Container className="p-8 max-w-4xl">
         {/* Header */}
         <div className="mb-8">

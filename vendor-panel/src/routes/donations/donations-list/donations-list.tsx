@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from "react-router-dom"
 import { Container, Heading, Button, Text, Badge, Tabs } from "@medusajs/ui"
 import { Plus, Gift, CurrencyDollar } from "@medusajs/icons"
 import { SingleColumnPage } from "../../../components/layout/pages"
+import { useDashboardExtension } from "../../../extensions"
 import { useVendorType } from "../../../providers/vendor-type-provider"
 
 /**
@@ -14,6 +15,7 @@ import { useVendorType } from "../../../providers/vendor-type-provider"
 export function DonationsList() {
   const navigate = useNavigate()
   const { vendorType } = useVendorType()
+  const { getWidgets } = useDashboardExtension()
   const [activeTab, setActiveTab] = useState("received")
 
   // Adjust terminology based on vendor type
@@ -40,7 +42,12 @@ export function DonationsList() {
   const terminology = getTerminology()
 
   return (
-    <SingleColumnPage>
+    <SingleColumnPage
+      widgets={{
+        before: getWidgets("donation.list.before"),
+        after: getWidgets("donation.list.after"),
+      }}
+    >
       <Container className="p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">

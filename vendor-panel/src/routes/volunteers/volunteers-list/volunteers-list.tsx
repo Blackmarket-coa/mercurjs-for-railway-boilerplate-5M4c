@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from "react-router-dom"
 import { Container, Heading, Button, Text, Badge, Tabs } from "@medusajs/ui"
 import { Plus, Heart, CalendarMini, Users } from "@medusajs/icons"
 import { SingleColumnPage } from "../../../components/layout/pages"
+import { useDashboardExtension } from "../../../extensions"
 import { useVendorType } from "../../../providers/vendor-type-provider"
 
 /**
@@ -14,6 +15,7 @@ import { useVendorType } from "../../../providers/vendor-type-provider"
 export function VolunteersList() {
   const navigate = useNavigate()
   const { vendorType } = useVendorType()
+  const { getWidgets } = useDashboardExtension()
   const [activeTab, setActiveTab] = useState("list")
 
   // Adjust terminology based on vendor type
@@ -22,7 +24,12 @@ export function VolunteersList() {
     : { title: "Volunteers", singular: "volunteer" }
 
   return (
-    <SingleColumnPage>
+    <SingleColumnPage
+      widgets={{
+        before: getWidgets("volunteer.list.before"),
+        after: getWidgets("volunteer.list.after"),
+      }}
+    >
       <Container className="p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
