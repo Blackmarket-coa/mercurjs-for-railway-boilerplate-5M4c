@@ -363,6 +363,8 @@ function zipToCoords(zip: string): { lat: number; lng: number } | null {
  * - lng: Longitude for distance filtering
  * - zip: US zip code for distance filtering (converted to lat/lng)
  * - radius_miles: Max distance in miles (default 50)
+ * - has_photo: "true" to show only vendors with a profile picture
+ * - sort: "newest" to sort by creation date descending (default: featured first, then name)
  * - limit: Results per page (default 50)
  * - offset: Pagination offset (default 0)
  */
@@ -377,6 +379,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     lng,
     zip,
     radius_miles = "50",
+    has_photo,
+    sort,
     limit = "50",
     offset = "0",
   } = req.query as Record<string, any>
@@ -427,6 +431,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
             "featured",
             "verified",
             "year_established",
+            "created_at",
           ],
           filters: producerFilters,
         })
@@ -453,6 +458,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
             featured: p.featured,
             verified: p.verified,
             year_established: p.year_established,
+            created_at: p.created_at,
             profile_url: `/producers/${p.handle}`,
           })
         }
@@ -481,6 +487,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
             "total_sqft",
             "hourly_rate",
             "cover_image_url",
+            "created_at",
           ],
           filters: { status: "active" },
         })
@@ -508,6 +515,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
             hourly_rate: k.hourly_rate,
             featured: false,
             verified: false,
+            created_at: k.created_at,
             profile_url: `/kitchens/${k.slug}`,
           })
         }
@@ -535,6 +543,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
             "total_sqft",
             "cover_image_url",
             "gallery_urls",
+            "created_at",
           ],
           filters: { status: "active" } as any,
         })
@@ -561,6 +570,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
             total_sqft: g.total_sqft,
             featured: false,
             verified: false,
+            created_at: g.created_at,
             profile_url: `/gardens/${g.slug}`,
           })
         }
@@ -617,7 +627,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
           try {
             const { data: sellers } = await query.graph({
               entity: "seller",
-              fields: ["id", "name", "handle", "description", "photo"],
+              fields: ["id", "name", "handle", "description", "photo", "created_at"],
               filters: { id: meta.seller_id },
             })
 
@@ -639,6 +649,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
               verified: meta.verified,
               rating: meta.rating,
               website_url: meta.website_url,
+              created_at: seller.created_at,
               profile_url: `/sellers/${seller.handle}`,
             })
           } catch {
@@ -664,6 +675,11 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       )
     }
 
+    // Apply has_photo filter
+    if (has_photo === "true") {
+      filteredVendors = filteredVendors.filter((v) => v.photo)
+    }
+
     // Apply distance filter
     if (hasLocationFilter) {
       filteredVendors = filteredVendors
@@ -678,6 +694,13 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         })
         .filter((v) => v.distance !== null && v.distance <= maxRadius)
         .sort((a, b) => (a.distance || 0) - (b.distance || 0))
+    } else if (sort === "newest") {
+      // Sort by creation date, newest first
+      filteredVendors.sort((a, b) => {
+        const dateA = a.created_at ? new Date(a.created_at).getTime() : 0
+        const dateB = b.created_at ? new Date(b.created_at).getTime() : 0
+        return dateB - dateA
+      })
     } else {
       // Sort by featured first, then name
       filteredVendors.sort((a, b) => {

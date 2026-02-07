@@ -23,6 +23,8 @@ export async function GET(request: NextRequest) {
       "lng",
       "zip",
       "radius_miles",
+      "has_photo",
+      "sort",
       "limit",
       "offset",
     ]

@@ -17,6 +17,7 @@ import { GardensLandingPage, GardenDetailPage } from "./GardensPage"
 import { TrustWidget } from "./TrustWidget"
 import { ProductFeed, ProductFeedItem, ProductFeedServer } from "./ProductFeed"
 import { VendorsPage } from "./VendorsPage/VendorsPage"
+import { JustJoinedVendors } from "./JustJoinedVendors/JustJoinedVendors"
 import { CollectionsPage } from "./CollectionsPage/CollectionsPage"
 
 export {
@@ -42,5 +43,6 @@ export {
   ProductFeedItem,
   ProductFeedServer,
   VendorsPage,
+  JustJoinedVendors,
   CollectionsPage,
 }

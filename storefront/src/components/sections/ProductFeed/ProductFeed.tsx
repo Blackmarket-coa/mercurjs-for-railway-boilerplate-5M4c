@@ -54,7 +54,7 @@ export const ProductFeed = ({
       case "trending":
         return "Trending Now"
       case "recent":
-        return "Just Added"
+        return "Just Joined"
       case "featured":
         return "Featured Picks"
       case "personalized":
