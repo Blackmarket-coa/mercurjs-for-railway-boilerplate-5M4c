@@ -132,6 +132,7 @@ const commerceModules = [
   { resolve: './src/modules/subscription' },
   { resolve: './src/modules/rental' },
   { resolve: './src/modules/wishlist' },
+  { resolve: './src/modules/woocommerce-import' },
 ]
 
 // Financial/ledger modules
