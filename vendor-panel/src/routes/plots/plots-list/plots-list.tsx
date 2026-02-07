@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from "react-router-dom"
 import { Container, Heading, Button, Text, Badge, Tabs } from "@medusajs/ui"
 import { Plus, SquaresPlus } from "@medusajs/icons"
 import { SingleColumnPage } from "../../../components/layout/pages"
+import { useDashboardExtension } from "../../../extensions"
 
 /**
  * PlotsList - Community garden plot management
@@ -12,10 +13,16 @@ import { SingleColumnPage } from "../../../components/layout/pages"
  */
 export function PlotsList() {
   const navigate = useNavigate()
+  const { getWidgets } = useDashboardExtension()
   const [activeTab, setActiveTab] = useState("available")
 
   return (
-    <SingleColumnPage>
+    <SingleColumnPage
+      widgets={{
+        before: getWidgets("plot.list.before"),
+        after: getWidgets("plot.list.after"),
+      }}
+    >
       <Container className="p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
