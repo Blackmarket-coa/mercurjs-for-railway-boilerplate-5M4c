@@ -52,15 +52,20 @@ export const Header = async () => {
           <SellNowButton />
         </div>
         <div className="flex lg:justify-center lg:w-1/3 items-center pl-4 lg:pl-0">
-          <LocalizedClientLink href="/" className="text-2xl font-bold">
-            <Image
-              src="/Logo.svg"
-              width={126}
-              height={40}
-              alt="Logo"
-              priority
-            />
-          </LocalizedClientLink>
+          <div className="flex flex-col items-center">
+            <LocalizedClientLink href="/" className="text-2xl font-bold">
+              <Image
+                src="/Logo.svg"
+                width={126}
+                height={40}
+                alt="Logo"
+                priority
+              />
+            </LocalizedClientLink>
+            <span className="text-xs text-ui-fg-subtle mt-1 hidden lg:block">
+              Features: Demand Pooling
+            </span>
+          </div>
         </div>
         <div className="flex items-center justify-end gap-2 lg:gap-4 w-full lg:w-1/3 py-2">
           <CountrySelector regions={regions} />
