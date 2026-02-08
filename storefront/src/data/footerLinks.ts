@@ -3,6 +3,7 @@ const links = {
     { label: 'Shop by Category', path: '/categories' },
     { label: 'Our Producers', path: '/producers' },
     { label: 'Track Order', path: '/user/orders' },
+    { label: 'Collective Buys', path: '/collective/demand-pools' },
     { label: 'Returns', path: '/user/returns' },
   ],
   about: [

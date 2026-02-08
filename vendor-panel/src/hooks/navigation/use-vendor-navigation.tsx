@@ -330,6 +330,12 @@ export function useVendorNavigation() {
       to: "/shows",
       showFor: (f) => f.hasShows,
     },
+    {
+      icon: <ShoppingCart />,
+      label: "Collective Buys",
+      to: "/collective-demand-pools",
+      showFor: (f) => f.hasProducts,
+    },
   ]
 
   /**
