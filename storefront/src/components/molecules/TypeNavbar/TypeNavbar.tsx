@@ -193,6 +193,10 @@ export const TypeNavbar = ({
       >
         Collections
       </LocalizedClientLink>
+
+      <span className="label-md uppercase px-4 py-2 text-ui-fg-subtle whitespace-nowrap">
+        Demand Pooling
+      </span>
     </nav>
   )
 }
