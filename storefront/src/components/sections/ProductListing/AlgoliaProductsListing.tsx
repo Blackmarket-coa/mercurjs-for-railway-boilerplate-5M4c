@@ -16,7 +16,6 @@ import { PRODUCT_LIMIT } from "@/const"
 import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
 import { useEffect, useState } from "react"
 import { listProducts } from "@/lib/data/products"
-import { getProductPrice } from "@/lib/helpers/get-product-price"
 
 export const AlgoliaProductsListing = ({
   category_id,
@@ -38,8 +37,8 @@ export const AlgoliaProductsListing = ({
 
   const filters = `${
     seller_handle
-      ? `NOT seller:null AND seller.handle:${seller_handle} AND `
-      : "NOT seller:null AND "
+      ? `seller.handle:${seller_handle} AND `
+      : ""
   }NOT seller.store_status:SUSPENDED AND supported_countries:${locale}${
     category_id
       ? ` AND categories.id:${category_id}${
@@ -91,12 +90,7 @@ const ProductsListing = ({
         },
       })
 
-      setApiProducts(
-        response.products.filter((prod) => {
-          const { cheapestPrice } = getProductPrice({ product: prod })
-          return Boolean(cheapestPrice) && prod
-        })
-      )
+      setApiProducts(response.products)
     } catch (error) {
       setApiProducts(null)
     }

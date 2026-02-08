@@ -86,31 +86,32 @@ export const listProducts = async ({
     cache: useCached ? "force-cache" : "no-cache",
   })
     .then(({ products: productsRaw, count }) => {
+      // Only exclude products from suspended sellers
       const products = productsRaw.filter(
         (product) => product.seller?.store_status !== "SUSPENDED"
       )
 
-      const nextPage = count > offset + limit ? pageParam + 1 : null
+      const response = products.map((prod) => {
+        if (!prod.seller) return prod
+        // @ts-ignore Property 'seller' exists but TypeScript doesn't recognize it
+        const reviews = prod.seller?.reviews?.filter((item) => !!item) ?? []
+        return {
+          ...prod,
+          seller: {
+            // @ts-ignore Property 'seller' exists but TypeScript doesn't recognize it
+            ...prod.seller,
+            reviews,
+          },
+        }
+      })
 
-      const response = products
-        .filter((prod) => !!prod?.seller)
-        .map((prod) => {
-          // @ts-ignore Property 'seller' exists but TypeScript doesn't recognize it
-          const reviews = prod.seller?.reviews?.filter((item) => !!item) ?? []
-          return {
-            ...prod,
-            seller: {
-              // @ts-ignore Property 'seller' exists but TypeScript doesn't recognize it
-              ...prod.seller,
-              reviews,
-            },
-          }
-        })
+      const filteredCount = response.length
+      const nextPage = count > offset + limit ? pageParam + 1 : null
 
       return {
         response: {
           products: response,
-          count,
+          count: filteredCount,
         },
         nextPage: nextPage,
         queryParams,
@@ -175,22 +176,19 @@ export const listProductsWithSort = async ({
     ? products.filter((product) => product.seller?.id === seller_id)
     : products
 
-  const pricedProducts = filteredProducts.filter((prod) =>
-    prod.variants?.some((variant) => variant.calculated_price !== null)
-  )
+  const sortedProducts = sortProducts(filteredProducts, sortBy)
 
-  const sortedProducts = sortProducts(pricedProducts, sortBy)
-
+  const totalCount = sortedProducts.length
   const pageParam = (page - 1) * limit
 
-  const nextPage = count > pageParam + limit ? pageParam + limit : null
+  const nextPage = totalCount > pageParam + limit ? pageParam + limit : null
 
   const paginatedProducts = sortedProducts.slice(pageParam, pageParam + limit)
 
   return {
     response: {
       products: paginatedProducts,
-      count,
+      count: totalCount,
     },
     nextPage,
     queryParams,
