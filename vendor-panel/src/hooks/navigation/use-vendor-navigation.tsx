@@ -333,7 +333,7 @@ export function useVendorNavigation() {
     {
       icon: <ShoppingCart />,
       label: "Collective Buys",
-      to: "/collective/demand-pools",
+      to: "/collective-demand-pools",
       showFor: (f) => f.hasProducts,
     },
   ]
