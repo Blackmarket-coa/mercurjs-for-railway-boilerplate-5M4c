@@ -44,6 +44,20 @@ const nextConfig: NextConfig = {
       },
     ]
   },
+  async redirects() {
+    return [
+      {
+        source: "/collective-demand-pools",
+        destination: "/collective/demand-pools",
+        permanent: true,
+      },
+      {
+        source: "/collective-demand-pools/:path*",
+        destination: "/collective/demand-pools/:path*",
+        permanent: true,
+      },
+    ]
+  },
   images: {
     remotePatterns: [
       {
