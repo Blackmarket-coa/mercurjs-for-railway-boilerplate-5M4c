@@ -14,7 +14,11 @@ module.exports = {
   },
   testEnvironment: "node",
   moduleFileExtensions: ["js", "ts", "json"],
-  modulePathIgnorePatterns: ["dist/", "<rootDir>/.medusa/"],
+  modulePathIgnorePatterns: [
+    "dist/",
+    "<rootDir>/.medusa/",
+    "<rootDir>/restaurant-marketplace/",
+  ],
   setupFiles: ["./integration-tests/setup.js"],
 };
 
