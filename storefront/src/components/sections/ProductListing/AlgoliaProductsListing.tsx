@@ -34,6 +34,7 @@ export const AlgoliaProductsListing = ({
 
   const facetFilters: string = getFacedFilters(searchParamas)
   const query: string = searchParamas.get("query") || ""
+  const page: number = +(searchParamas.get("page") || 1)
 
   const filters = `${
     seller_handle
@@ -51,7 +52,12 @@ export const AlgoliaProductsListing = ({
 
   return (
     <InstantSearchNext searchClient={client} indexName="products">
-      <Configure query={query} filters={filters} />
+      <Configure
+        query={query}
+        filters={filters}
+        hitsPerPage={PRODUCT_LIMIT}
+        page={Math.max(page - 1, 0)}
+      />
       <ProductsListing
         locale={locale}
         currency_code={currency_code}
@@ -77,32 +83,31 @@ const ProductsListing = ({
 
   const searchParamas = useSearchParams()
 
-  async function handleSetProducts() {
-    try {
-      setApiProducts(null)
-      const { response } = await listProducts({
-        countryCode: locale,
-        queryParams: {
-          fields:
-            "*variants.calculated_price,*seller.reviews,-thumbnail,-images,-type,-tags,-variants.options,-options,-collection,-collection_id",
-          handle: items.map((item) => item.handle),
-          limit: items.length,
-        },
-      })
-
-      setApiProducts(response.products)
-    } catch (error) {
-      setApiProducts(null)
-    }
-  }
-
   useEffect(() => {
-    handleSetProducts()
-  }, [items.length])
+    const setProducts = async () => {
+      try {
+        setApiProducts(null)
+        const { response } = await listProducts({
+          countryCode: locale,
+          queryParams: {
+            fields:
+              "*variants.calculated_price,*seller.reviews,-thumbnail,-images,-type,-tags,-variants.options,-options,-collection,-collection_id",
+            handle: items.map((item) => item.handle),
+            limit: items.length,
+          },
+        })
+
+        setApiProducts(response.products)
+      } catch {
+        setApiProducts(null)
+      }
+    }
+
+    setProducts()
+  }, [items, locale])
 
   if (!results?.processingTimeMS) return <ProductListingSkeleton />
 
-  const page: number = +(searchParamas.get("page") || 1)
   const filteredProducts = items.filter((pr) =>
     apiProducts?.some((p: any) => p.id === pr.objectID)
   )
@@ -113,10 +118,9 @@ const ProductsListing = ({
         (p: any) => p.id === pr.objectID && filterProductsByCurrencyCode(p)
       )
     )
-    .slice((page - 1) * PRODUCT_LIMIT, page * PRODUCT_LIMIT)
 
-  const count = filteredProducts?.length || 0
-  const pages = Math.ceil(count / PRODUCT_LIMIT) || 1
+  const count = results?.nbHits || 0
+  const pages = results?.nbPages || 1
 
   function filterProductsByCurrencyCode(product: HttpTypes.StoreProduct) {
     const minPrice = searchParamas.get("min_price")
