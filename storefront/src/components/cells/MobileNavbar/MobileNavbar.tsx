@@ -123,6 +123,13 @@ export const MobileNavbar = ({
                 <span className="text-lg">🏪</span> All Vendors
               </LocalizedClientLink>
               <LocalizedClientLink
+                href="/collective/demand-pools"
+                onClick={closeMenuHandler}
+                className="font-medium text-primary hover:text-green-700 flex items-center gap-2"
+              >
+                <span className="text-lg">🤝</span> Collective Buys
+              </LocalizedClientLink>
+              <LocalizedClientLink
                 href="/collections"
                 onClick={closeMenuHandler}
                 className="font-medium text-primary hover:text-green-700 flex items-center gap-2"
