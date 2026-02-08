@@ -4,6 +4,7 @@ import { REQUEST_MODULE } from "../../../modules/request"
 import RequestModuleService from "../../../modules/request/service"
 import { RequestStatus } from "../../../modules/request/models"
 import { sanitizeInput } from "../../../shared/seller-approval-service"
+import { REQUEST_TYPES } from "../../../modules/request/validators"
 import { requireAdminId } from "../../../shared/auth-helpers"
 
 // ===========================================
@@ -39,7 +40,15 @@ export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) 
     const filters: Record<string, unknown> = {}
     if (query.status) filters.status = query.status
     if (query.requester_id) filters.requester_id = query.requester_id
-    if (query.type) filters.type = query.type
+    if (query.type) {
+      // Include both canonical and legacy seller request aliases on the
+      // admin seller requests screen to avoid hiding valid registrations.
+      if (query.type === REQUEST_TYPES.SELLER) {
+        filters.type = { $in: [REQUEST_TYPES.SELLER, REQUEST_TYPES.SELLER_CREATION] }
+      } else {
+        filters.type = query.type
+      }
+    }
 
     // Use listAndCountRequests to get both results and total count for proper pagination
     const [requests, totalCount] = await requestService.listAndCountRequests(filters, {
