@@ -194,9 +194,15 @@ export const TypeNavbar = ({
         Collections
       </LocalizedClientLink>
 
-      <span className="label-md uppercase px-4 py-2 text-ui-fg-subtle whitespace-nowrap">
+      <a
+        href="https://www.freeblackmarket.com/us"
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={() => onClose?.(false)}
+        className="label-md uppercase px-4 py-2 text-ui-fg-subtle whitespace-nowrap hover:text-ui-fg-base transition-colors"
+      >
         Demand Pooling
-      </span>
+      </a>
     </nav>
   )
 }

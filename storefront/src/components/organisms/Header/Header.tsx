@@ -62,9 +62,6 @@ export const Header = async () => {
                 priority
               />
             </LocalizedClientLink>
-            <span className="text-xs text-ui-fg-subtle mt-1 hidden lg:block">
-              Features: Demand Pooling
-            </span>
           </div>
         </div>
         <div className="flex items-center justify-end gap-2 lg:gap-4 w-full lg:w-1/3 py-2">
