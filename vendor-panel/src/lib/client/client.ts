@@ -134,11 +134,6 @@ export const fetchQuery = async (
   const isPublic = isPublicAuthRoute(url)
   const token = getAuthToken()
 
-  if (!isPublic && !token) {
-    clearAuthToken()
-    throw new Error("Authorization missing. Please sign in again.")
-  }
-
   const params = new URLSearchParams()
   for (const [key, value] of Object.entries(query || {})) {
     if (value !== undefined && value !== null) {
@@ -150,9 +145,9 @@ export const fetchQuery = async (
   const requestUrl = `${backendUrl}${url}${queryString ? `?${queryString}` : ""}`
   const authHeaders = isPublic
     ? {}
-    : {
-        ...(token ? { authorization: `Bearer ${token}` } : {}),
-      }
+    : token
+      ? { authorization: `Bearer ${token}` }
+      : {}
 
   const response = await fetch(requestUrl, {
     method,
