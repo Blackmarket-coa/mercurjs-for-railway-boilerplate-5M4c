@@ -57,7 +57,7 @@ export const fetchRegistrationStatus = async (
     method: "GET",
     credentials: "include",
     headers: {
-      authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
   })
@@ -81,7 +81,7 @@ export const fetchSellerSession = async (
     method: "GET",
     credentials: "include",
     headers: {
-      authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
   })

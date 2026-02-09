@@ -140,7 +140,7 @@ export const useAcceptInvite = (
       return fetchQuery("/vendor/invites/accept", {
         method: "POST",
         headers: {
-          authorization: `Bearer ${auth_token}`,
+          Authorization: `Bearer ${auth_token}`,
         },
         body: { token: inviteToken, ...rest },
       })
