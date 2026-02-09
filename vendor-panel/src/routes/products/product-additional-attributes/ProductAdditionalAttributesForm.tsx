@@ -14,6 +14,18 @@ import { useForm } from "react-hook-form"
 import { Form } from "../../../components/common/form"
 import { useNavigate } from "react-router-dom"
 import { InformationCircleSolid } from "@medusajs/icons"
+import { HttpTypes } from "@medusajs/types"
+
+type AttributeFormValues = Record<string, string>
+
+type ExtendedAdminUpdateProduct = HttpTypes.AdminUpdateProduct & {
+  additional_data?: {
+    values: Array<{
+      attribute_id: string
+      value: string
+    }>
+  }
+}
 
 export const ProductAdditionalAttributesForm = () => {
   const { id } = useParams()
@@ -23,25 +35,22 @@ export const ProductAdditionalAttributesForm = () => {
     id!
   )
 
-  // @ts-ignore
-  const defaultValues = product?.attribute_values?.reduce(
-    (acc: any, curr: any) => {
+  const defaultValues: AttributeFormValues =
+    product?.attribute_values?.reduce<AttributeFormValues>((acc, curr) => {
       acc[curr.attribute_id] = curr.value
       return acc
-    },
-    {}
-  )
+    }, {}) ?? {}
 
-  const form = useForm({
+  const form = useForm<AttributeFormValues>({
     defaultValues,
   })
   const navigate = useNavigate()
 
-  const { mutate: updateProduct } = useUpdateProduct(id!)
+  const { mutateAsync: updateProduct } = useUpdateProduct(id!)
 
   if (isAttributesLoading || isProductLoading) return <div>Loading...</div>
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: AttributeFormValues) => {
     const values = Object.keys(data).reduce(
       (acc: Array<Record<string, string>>, key) => {
         acc.push({ attribute_id: key, value: data[key] })
@@ -52,9 +61,8 @@ export const ProductAdditionalAttributesForm = () => {
 
     await updateProduct(
       {
-        // @ts-ignore
         additional_data: { values },
-      },
+      } as ExtendedAdminUpdateProduct,
       {
         onSuccess: () => {
           toast.success("Product updated successfully")

@@ -102,8 +102,7 @@ export const OrderGeneralSection = ({ order }: OrderGeneralSectionProps) => {
                 {
                   label: t("actions.cancel"),
                   onClick: handleCancel,
-                  //@ts-ignore
-                  disabled: !!order.canceled_at,
+                  disabled: order.status === "canceled",
                   icon: <XCircle />,
                 },
               ],
