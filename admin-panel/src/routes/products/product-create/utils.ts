@@ -87,7 +87,7 @@ export const normalizeVariants = (
           return undefined
         }
 
-        if (key.startsWith("reg_")) {
+        if (regionsCurrencyMap[key]) {
           return {
             currency_code: regionsCurrencyMap[key],
             amount: castNumber(value),

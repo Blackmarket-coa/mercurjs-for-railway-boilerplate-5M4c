@@ -80,10 +80,10 @@ export const PricingEdit = ({
           ([_, value]) => value !== "" && typeof value !== "undefined" // deleted cells
         )
         .map(([currencyCodeOrRegionId, value]: any) => {
-          const regionId = currencyCodeOrRegionId.startsWith("reg_")
+          const regionId = regionsCurrencyMap[currencyCodeOrRegionId]
             ? currencyCodeOrRegionId
             : undefined
-          const currencyCode = currencyCodeOrRegionId.startsWith("reg_")
+          const currencyCode = regionId
             ? regionsCurrencyMap[regionId]
             : currencyCodeOrRegionId
 
