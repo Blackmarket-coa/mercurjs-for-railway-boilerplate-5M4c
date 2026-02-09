@@ -9,7 +9,7 @@ import {
   Badge,
   toast,
 } from "@medusajs/ui"
-import { useForm, Controller } from "react-hook-form"
+import { useForm, Controller, useFieldArray } from "react-hook-form"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "react-router-dom"
 import { sdk } from "../../../lib/sdk"
@@ -18,6 +18,13 @@ import {
   GrowingPractice,
   GrowingPracticeLabels,
 } from "../../../types/domain"
+
+interface CertificationFormValue {
+  name: string
+  issuer: string
+  valid_until: string
+  document_url: string
+}
 
 interface ProfileFormValues {
   name: string
@@ -29,16 +36,28 @@ interface ProfileFormValues {
   farm_size_acres: number | null
   year_established: number | null
   practices: GrowingPractice[]
+  certifications: CertificationFormValue[]
   story: string
   website: string
+}
+
+interface RecertificationAlert {
+  certification_name: string
+  valid_until: string
+  days_remaining: number
+  status: "expired" | "expiring_soon"
+}
+
+interface FarmProfileResponse {
+  producer: ProducerDTO | null
+  recertification_alerts?: RecertificationAlert[]
 }
 
 const useFarmProfile = () => {
   return useQuery({
     queryKey: ["farm-profile"],
     queryFn: async () => {
-      const response = await sdk.client.fetch<{ producer: ProducerDTO }>("/vendor/farm/profile")
-      return response.producer
+      return sdk.client.fetch<FarmProfileResponse>("/vendor/farm/profile")
     },
   })
 }
@@ -46,7 +65,9 @@ const useFarmProfile = () => {
 const FarmProfileEditPage = () => {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const { data: profile, isLoading } = useFarmProfile()
+  const { data: farmProfile, isLoading } = useFarmProfile()
+  const profile = farmProfile?.producer || null
+  const recertificationAlerts = farmProfile?.recertification_alerts || []
   const isCreate = !profile
 
   const form = useForm<ProfileFormValues>({
@@ -60,19 +81,44 @@ const FarmProfileEditPage = () => {
       farm_size_acres: profile?.farm_size_acres || null,
       year_established: profile?.year_established || null,
       practices: profile?.practices || [],
+      certifications: profile?.certifications?.map((cert) => ({
+        name: cert.name || "",
+        issuer: cert.issuer || "",
+        valid_until: cert.valid_until ? String(cert.valid_until).split("T")[0] : "",
+        document_url: cert.document_url || "",
+      })) || [],
       story: profile?.story || "",
       website: profile?.website || "",
     },
   })
 
+
+
+  const { fields: certificationFields, append: appendCertification, remove: removeCertification } = useFieldArray({
+    control: form.control,
+    name: "certifications",
+  })
+
   const mutation = useMutation({
     mutationFn: async (data: ProfileFormValues) => {
       const method = isCreate ? "POST" : "PUT"
+      const certifications = data.certifications
+        .filter((cert) => cert.name.trim())
+        .map((cert) => ({
+          name: cert.name.trim(),
+          issuer: cert.issuer.trim() || undefined,
+          valid_until: cert.valid_until || undefined,
+          document_url: cert.document_url.trim() || undefined,
+        }))
+
       const response = await sdk.client.fetch<{ producer: ProducerDTO }>(
         "/vendor/farm/profile",
         {
           method,
-          body: data,
+          body: {
+            ...data,
+            certifications,
+          },
         }
       )
       return response.producer
@@ -122,6 +168,20 @@ const FarmProfileEditPage = () => {
             Cancel
           </Button>
         </div>
+
+        {recertificationAlerts.length > 0 && (
+          <div className="mb-6 rounded-lg border border-orange-200 bg-orange-50 p-4">
+            <Heading level="h3" className="mb-2 text-orange-900">Recertification Notices</Heading>
+            <div className="space-y-2">
+              {recertificationAlerts.map((alert) => (
+                <Text key={`${alert.certification_name}-${alert.valid_until}`} className="text-sm text-orange-900">
+                  {alert.status === "expired" ? "Expired" : "Expiring soon"}: <strong>{alert.certification_name}</strong>
+                  {" "}({new Date(alert.valid_until).toLocaleDateString()})
+                </Text>
+              ))}
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Info */}
@@ -244,6 +304,88 @@ const FarmProfileEditPage = () => {
                 </div>
               )}
             />
+          </div>
+
+
+
+          {/* Certifications & Documents */}
+          <div className="border-t pt-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <Heading level="h3">Certifications & Documents</Heading>
+                <Text className="text-ui-fg-subtle text-sm mt-1">
+                  Add certifications customers should see on your storefront profile.
+                </Text>
+              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() =>
+                  appendCertification({
+                    name: "",
+                    issuer: "",
+                    valid_until: "",
+                    document_url: "",
+                  })
+                }
+              >
+                Add Certification
+              </Button>
+            </div>
+
+            {certificationFields.length === 0 ? (
+              <Text className="text-ui-fg-subtle text-sm">
+                No certifications added yet.
+              </Text>
+            ) : (
+              <div className="space-y-4">
+                {certificationFields.map((field, index) => (
+                  <div key={field.id} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <Heading level="h3">Certification {index + 1}</Heading>
+                      <Button type="button" variant="transparent" onClick={() => removeCertification(index)}>
+                        Remove
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor={`certifications.${index}.name`}>Certification Name *</Label>
+                        <Input
+                          id={`certifications.${index}.name`}
+                          {...form.register(`certifications.${index}.name` as const, { required: true })}
+                          placeholder="USDA Organic"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor={`certifications.${index}.issuer`}>Issuing Organization</Label>
+                        <Input
+                          id={`certifications.${index}.issuer`}
+                          {...form.register(`certifications.${index}.issuer` as const)}
+                          placeholder="USDA"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor={`certifications.${index}.valid_until`}>Valid Until</Label>
+                        <Input
+                          id={`certifications.${index}.valid_until`}
+                          type="date"
+                          {...form.register(`certifications.${index}.valid_until` as const)}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor={`certifications.${index}.document_url`}>Document URL</Label>
+                        <Input
+                          id={`certifications.${index}.document_url`}
+                          type="url"
+                          {...form.register(`certifications.${index}.document_url` as const)}
+                          placeholder="https://..."
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Story */}
