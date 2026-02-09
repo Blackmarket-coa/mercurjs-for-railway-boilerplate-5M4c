@@ -298,7 +298,7 @@ export const useGlobalShortcuts = () => {
     },
     {
       keys: {
-        Mac: ["G", ",", "M"],
+        Mac: ["G", ",", "I"],
       },
       label: t("app.keyboardShortcuts.settings.goToProfile"),
       type: "settingShortcut",
