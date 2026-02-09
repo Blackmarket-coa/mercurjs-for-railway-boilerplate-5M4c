@@ -307,6 +307,7 @@ export const ProductCreateForm = ({
             <div className="-my-2 w-full border-l">
               <ProgressTabs.List className="justify-start-start flex w-full items-center">
                 <ProgressTabs.Trigger
+                  type="button"
                   status={tabState[Tab.DETAILS]}
                   value={Tab.DETAILS}
                   className="max-w-[200px] truncate"
@@ -314,6 +315,7 @@ export const ProductCreateForm = ({
                   {t("products.create.tabs.details")}
                 </ProgressTabs.Trigger>
                 <ProgressTabs.Trigger
+                  type="button"
                   status={tabState[Tab.ORGANIZE]}
                   value={Tab.ORGANIZE}
                   className="max-w-[200px] truncate"
@@ -321,6 +323,7 @@ export const ProductCreateForm = ({
                   {t("products.create.tabs.organize")}
                 </ProgressTabs.Trigger>
                 <ProgressTabs.Trigger
+                  type="button"
                   status={tabState[Tab.VARIANTS]}
                   value={Tab.VARIANTS}
                   className="max-w-[200px] truncate"
@@ -329,6 +332,7 @@ export const ProductCreateForm = ({
                 </ProgressTabs.Trigger>
                 {showInventoryTab && (
                   <ProgressTabs.Trigger
+                    type="button"
                     status={tabState[Tab.INVENTORY]}
                     value={Tab.INVENTORY}
                     className="max-w-[200px] truncate"
@@ -384,6 +388,7 @@ export const ProductCreateForm = ({
                   key={option.source}
                   size="small"
                   variant="secondary"
+                  type="button"
                   asChild
                 >
                   <Link to={`../import?source=${option.source}`}>
@@ -395,7 +400,7 @@ export const ProductCreateForm = ({
 
             <div className="flex items-center justify-end gap-x-2">
               <RouteFocusModal.Close asChild>
-                <Button variant="secondary" size="small">
+                <Button variant="secondary" size="small" type="button">
                   {t("actions.cancel")}
                 </Button>
               </RouteFocusModal.Close>
