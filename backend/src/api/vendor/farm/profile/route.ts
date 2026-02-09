@@ -5,6 +5,57 @@ interface ProducerServiceType {
   updateProducers: (data: Record<string, unknown>) => Promise<{ id: string }>
 }
 
+const RECERTIFICATION_NOTICE_DAYS = 30
+
+const parseDateValue = (value: unknown): Date | null => {
+  if (!value || typeof value !== "string") {
+    return null
+  }
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
+const buildRecertificationAlerts = (certifications: unknown): Array<{
+  certification_name: string
+  valid_until: string
+  days_remaining: number
+  status: "expired" | "expiring_soon"
+}> => {
+  if (!Array.isArray(certifications)) {
+    return []
+  }
+
+  const now = new Date()
+  return certifications
+    .map((cert) => {
+      if (!cert || typeof cert !== "object") {
+        return null
+      }
+
+      const certRecord = cert as Record<string, unknown>
+      const validUntilRaw = certRecord.valid_until
+      const validUntilDate = parseDateValue(validUntilRaw)
+      if (!validUntilDate || typeof certRecord.name !== "string" || !certRecord.name.trim()) {
+        return null
+      }
+
+      const diffMs = validUntilDate.getTime() - now.getTime()
+      const daysRemaining = Math.ceil(diffMs / (1000 * 60 * 60 * 24))
+
+      if (daysRemaining > RECERTIFICATION_NOTICE_DAYS) {
+        return null
+      }
+
+      return {
+        certification_name: certRecord.name,
+        valid_until: validUntilDate.toISOString(),
+        days_remaining: daysRemaining,
+        status: daysRemaining < 0 ? "expired" as const : "expiring_soon" as const,
+      }
+    })
+    .filter((item): item is { certification_name: string; valid_until: string; days_remaining: number; status: "expired" | "expiring_soon" } => !!item)
+}
+
 /**
  * GET /vendor/farm/profile
  * Get the producer profile for the current seller
@@ -36,8 +87,9 @@ export async function GET(
     }
 
     const producer = producerLinks[0]?.producer
+    const recertification_alerts = buildRecertificationAlerts(producer?.certifications)
 
-    res.json({ producer })
+    res.json({ producer, recertification_alerts })
   } catch (error: any) {
     res.status(500).json({ 
       message: "Failed to fetch farm profile", 
@@ -73,6 +125,7 @@ export async function POST(
       farm_size_acres,
       year_established,
       practices,
+      certifications,
       story,
       website,
       photo,
@@ -90,6 +143,7 @@ export async function POST(
       farm_size_acres,
       year_established,
       practices,
+      certifications,
       story,
       website,
       photo,
@@ -156,6 +210,7 @@ export async function PUT(
       farm_size_acres,
       year_established,
       practices,
+      certifications,
       story,
       website,
       photo,
@@ -175,6 +230,7 @@ export async function PUT(
       farm_size_acres,
       year_established,
       practices,
+      certifications,
       story,
       website,
       photo,
