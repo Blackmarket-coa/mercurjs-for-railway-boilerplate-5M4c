@@ -64,11 +64,36 @@ const LinkItem = ({ label, url, icon }: LinkItemProps) => {
   )
 }
 
+
+const RECERTIFICATION_NOTICE_DAYS = 30
+
+const getRecertificationAlerts = (certifications: StoreVendor["certifications"]) => {
+  if (!certifications?.length) return []
+
+  const now = new Date().getTime()
+  return certifications
+    .filter((cert) => cert.name && cert.valid_until)
+    .map((cert) => {
+      const date = new Date(cert.valid_until as string)
+      if (Number.isNaN(date.getTime())) return null
+      const daysRemaining = Math.ceil((date.getTime() - now) / (1000 * 60 * 60 * 24))
+      if (daysRemaining > RECERTIFICATION_NOTICE_DAYS) return null
+      return {
+        ...cert,
+        daysRemaining,
+        status: daysRemaining < 0 ? "expired" : "expiring_soon",
+      }
+    })
+    .filter((item): item is NonNullable<typeof item> => !!item)
+}
+
 export const LinksSection = ({ seller }: { seller: StoreVendor }) => {
   const hasSocialLinks = seller.social_links && Object.values(seller.social_links).some(v => v)
   const hasStorefrontLinks = seller.storefront_links && Object.values(seller.storefront_links).some(v => v)
   const hasWebsite = !!seller.website_url
-  const hasAnyLinks = hasSocialLinks || hasStorefrontLinks || hasWebsite
+  const hasCertifications = !!seller.certifications?.length
+  const recertificationAlerts = getRecertificationAlerts(seller.certifications)
+  const hasAnyLinks = hasSocialLinks || hasStorefrontLinks || hasWebsite || hasCertifications
 
   return (
     <Container className="divide-y p-0">
@@ -214,6 +239,46 @@ export const LinksSection = ({ seller }: { seller: StoreVendor }) => {
                     </a>
                   </Badge>
                 )}
+              </div>
+            </div>
+          )}
+
+
+          {hasCertifications && (
+            <div className="px-6 py-4">
+              <Text size="small" weight="plus" className="text-ui-fg-subtle mb-3">
+                Certifications & Documents
+              </Text>
+              <div className="flex flex-col gap-2">
+                {seller.certifications?.map((cert, idx) => (
+                  <div key={`${cert.name}-${idx}`} className="rounded-md border border-ui-border-base p-2">
+                    <Text size="small" weight="plus">{cert.name}</Text>
+                    {cert.issuer && <Text size="small" className="text-ui-fg-subtle">Issuer: {cert.issuer}</Text>}
+                    {cert.valid_until && (
+                      <Text size="small" className="text-ui-fg-subtle">Valid until: {new Date(cert.valid_until).toLocaleDateString()}</Text>
+                    )}
+                    {cert.document_url && (
+                      <a href={cert.document_url} target="_blank" rel="noopener noreferrer" className="text-ui-fg-interactive hover:underline text-sm">
+                        View document
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {recertificationAlerts.length > 0 && (
+            <div className="px-6 py-4 bg-orange-50">
+              <Text size="small" weight="plus" className="text-orange-900 mb-2">
+                Recertification Notices
+              </Text>
+              <div className="flex flex-col gap-1">
+                {recertificationAlerts.map((alert, idx) => (
+                  <Text key={`${alert.name}-${idx}`} size="small" className="text-orange-900">
+                    {alert.status === "expired" ? "Expired" : "Expiring soon"}: {alert.name}
+                  </Text>
+                ))}
               </div>
             </div>
           )}

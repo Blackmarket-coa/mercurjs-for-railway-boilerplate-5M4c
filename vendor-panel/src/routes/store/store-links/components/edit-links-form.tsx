@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button, Input, Text, Textarea, toast } from "@medusajs/ui"
-import { useForm } from "react-hook-form"
+import { useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
@@ -39,6 +39,15 @@ export const EditLinksSchema = z.object({
   scheduling_meeting_url: urlSchema,
   scheduling_meeting_instructions: z.string().optional().or(z.literal("")),
   scheduling_ticket_product_handle: z.string().optional().or(z.literal("")),
+
+  certifications: z.array(
+    z.object({
+      name: z.string().optional().or(z.literal("")),
+      issuer: z.string().optional().or(z.literal("")),
+      valid_until: z.string().optional().or(z.literal("")),
+      document_url: urlSchema,
+    })
+  ).default([]),
 })
 
 export const EditLinksForm = ({ seller }: { seller: StoreVendor }) => {
@@ -67,11 +76,21 @@ export const EditLinksForm = ({ seller }: { seller: StoreVendor }) => {
         seller.metadata?.scheduling?.meeting_instructions || "",
       scheduling_ticket_product_handle:
         seller.metadata?.scheduling?.ticket_product_handle || "",
+      certifications: (seller.certifications || []).map((cert) => ({
+        name: cert.name || "",
+        issuer: cert.issuer || "",
+        valid_until: cert.valid_until ? String(cert.valid_until).split("T")[0] : "",
+        document_url: cert.document_url || "",
+      })),
     },
     resolver: zodResolver(EditLinksSchema),
   })
 
   const { mutateAsync, isPending } = useUpdateMe()
+  const { fields: certificationFields, append: appendCertification, remove: removeCertification } = useFieldArray({
+    control: form.control,
+    name: "certifications",
+  })
 
   const handleSubmit = form.handleSubmit(async (values) => {
     // Build the social_links object
@@ -113,12 +132,22 @@ export const EditLinksForm = ({ seller }: { seller: StoreVendor }) => {
       delete metadata.scheduling
     }
 
+    const certifications = values.certifications
+      .filter((cert) => cert.name?.trim())
+      .map((cert) => ({
+        name: cert.name!.trim(),
+        issuer: cert.issuer?.trim() || undefined,
+        valid_until: cert.valid_until || undefined,
+        document_url: cert.document_url || undefined,
+      }))
+
     await mutateAsync(
       {
         ...seller,
         website_url: values.website_url || undefined,
         social_links,
         storefront_links,
+        certifications,
         metadata: Object.keys(metadata).length > 0 ? metadata : undefined,
       },
       {
@@ -371,6 +400,52 @@ export const EditLinksForm = ({ seller }: { seller: StoreVendor }) => {
                     </Form.Item>
                   )}
                 />
+              </div>
+            </div>
+
+
+
+            <div>
+              <div className="mb-4 flex items-center justify-between">
+                <div>
+                  <Text size="large" weight="plus">
+                    Certifications & Documents
+                  </Text>
+                  <Text size="small" className="text-ui-fg-subtle mt-1">
+                    Add certifications for your storefront profile across all vendor types.
+                  </Text>
+                </div>
+                <Button
+                  type="button"
+                  size="small"
+                  variant="secondary"
+                  onClick={() => appendCertification({ name: "", issuer: "", valid_until: "", document_url: "" })}
+                >
+                  Add Certification
+                </Button>
+              </div>
+              <div className="flex flex-col gap-y-4">
+                {certificationFields.length === 0 && (
+                  <Text size="small" className="text-ui-fg-subtle">
+                    No certifications added yet.
+                  </Text>
+                )}
+                {certificationFields.map((field, index) => (
+                  <div key={field.id} className="rounded-md border p-4">
+                    <div className="mb-3 flex items-center justify-between">
+                      <Text size="small" weight="plus">Certification {index + 1}</Text>
+                      <Button type="button" size="small" variant="transparent" onClick={() => removeCertification(index)}>
+                        Remove
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                      <Input {...form.register(`certifications.${index}.name` as const)} placeholder="Certification name" />
+                      <Input {...form.register(`certifications.${index}.issuer` as const)} placeholder="Issuing organization" />
+                      <Input type="date" {...form.register(`certifications.${index}.valid_until` as const)} />
+                      <Input {...form.register(`certifications.${index}.document_url` as const)} placeholder="https://document-url" />
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 

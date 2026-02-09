@@ -5,7 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useSearchParams } from "next/navigation"
 import useUpdateSearchParams from "@/hooks/useUpdateSearchParams"
-import { LocationIcon, SearchIcon, FilterIcon, ForwardIcon, LeafIcon, AwardIcon } from "@/icons"
+import { LocationIcon, SearchIcon, ForwardIcon, LeafIcon } from "@/icons"
 
 const VENDOR_TYPE_OPTIONS = [
   { value: "", label: "All Vendors" },
@@ -461,6 +461,13 @@ function VendorCard({
           {vendor.year_established && (
             <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
               Est. {vendor.year_established}
+            </span>
+          )}
+          {vendor.certifications && vendor.certifications.length > 0 && (
+            <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
+              {typeof vendor.certifications[0] === "string"
+                ? vendor.certifications[0]
+                : (vendor.certifications[0]?.name || "Certified")}
             </span>
           )}
         </div>

@@ -31,6 +31,13 @@ export interface StorefrontLinks {
   other?: { name: string; url: string }[]
 }
 
+export interface CertificationRecord {
+  name: string
+  issuer?: string
+  valid_until?: string
+  document_url?: string
+}
+
 export interface SellerScheduling {
   booking_url?: string
   meeting_platform?: string
@@ -67,6 +74,7 @@ export interface StoreVendor {
   social_links?: SocialLinks
   storefront_links?: StorefrontLinks
   website_url?: string
+  certifications?: CertificationRecord[] | null
   // Custom-selected dashboard extensions (feature keys)
   enabled_extensions?: string[] | null
   metadata?: SellerMetadata

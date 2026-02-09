@@ -72,7 +72,7 @@ interface Producer {
   farm_size_acres?: number
   year_established?: number
   practices?: string[]
-  certifications?: Array<{ name: string; issuer?: string }>
+  certifications?: Array<{ name: string; issuer?: string; valid_until?: string; document_url?: string }>
   story?: string
   photo?: string
   cover_image?: string
@@ -279,12 +279,25 @@ export function ProducerDetailPage({ handle, locale }: ProducerDetailPageProps) 
             </h3>
             <div className="flex flex-wrap gap-2">
               {producer.certifications.map((cert, idx) => (
-                <span
+                <div
                   key={idx}
-                  className="text-xs bg-white text-amber-800 px-2 py-1 rounded-full border border-amber-200"
+                  className="text-xs bg-white text-amber-800 px-2 py-1 rounded-md border border-amber-200"
                 >
-                  {cert.name}
-                </span>
+                  <div className="font-medium">{cert.name}</div>
+                  {cert.valid_until && (
+                    <div className="text-[11px] text-amber-700">Valid until: {new Date(cert.valid_until).toLocaleDateString()}</div>
+                  )}
+                  {cert.document_url && (
+                    <a
+                      href={cert.document_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline"
+                    >
+                      View document
+                    </a>
+                  )}
+                </div>
               ))}
             </div>
           </div>
