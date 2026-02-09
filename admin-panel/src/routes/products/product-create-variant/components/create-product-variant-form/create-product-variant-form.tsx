@@ -222,7 +222,7 @@ export const CreateProductVariantForm = ({
             const ret: AdminCreateProductVariantPrice = {}
             const amount = castNumber(value)
 
-            if (currencyOrRegion.startsWith("reg_")) {
+            if (regionsCurrencyMap[currencyOrRegion]) {
               ret.rules = { region_id: currencyOrRegion }
               ret.currency_code = regionsCurrencyMap[currencyOrRegion]
             } else {

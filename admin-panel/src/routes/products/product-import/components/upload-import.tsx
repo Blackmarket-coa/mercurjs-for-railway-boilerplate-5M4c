@@ -1,10 +1,19 @@
 import { useState } from "react"
-import { FileType, FileUpload } from "../../../../components/common/file-upload"
+import { FileUpload } from "@/components/common/file-upload"
+import type { FileType } from "@/components/common/file-upload"
 import { Hint } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
 const SUPPORTED_FORMATS = ["text/csv"]
 const SUPPORTED_FORMATS_FILE_EXTENSIONS = [".csv"]
+
+const hasSupportedExtension = (filename: string) => {
+  const lowerCasedFilename = filename.toLowerCase()
+
+  return SUPPORTED_FORMATS_FILE_EXTENSIONS.some((ext) =>
+    lowerCasedFilename.endsWith(ext)
+  )
+}
 
 export const UploadImport = ({
   onUploaded,
@@ -16,7 +25,9 @@ export const UploadImport = ({
 
   const hasInvalidFiles = (fileList: FileType[]) => {
     const invalidFile = fileList.find(
-      (f) => !SUPPORTED_FORMATS.includes(f.file.type)
+      (f) =>
+        !SUPPORTED_FORMATS.includes(f.file.type) &&
+        !hasSupportedExtension(f.file.name)
     )
 
     if (invalidFile) {
