@@ -220,7 +220,7 @@ export const useMe = (
 
       const payload = getAuthTokenPayload()
       const actorType = payload?.actor_type
-      if (actorType && actorType !== "seller") {
+      if (actorType && actorType !== "seller" && actorType !== "member") {
         clearAuthToken()
         return null
       }

@@ -159,6 +159,7 @@ export const ProductCreateForm = ({
       if (error instanceof Error) {
         toast.error(error.message)
       }
+      return
     }
 
     await mutateAsync(
