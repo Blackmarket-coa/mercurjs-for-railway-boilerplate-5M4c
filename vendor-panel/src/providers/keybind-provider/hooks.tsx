@@ -290,14 +290,6 @@ export const useGlobalShortcuts = () => {
     // },
     {
       keys: {
-        Mac: ["G", ",", "W"],
-      },
-      label: t("app.keyboardShortcuts.settings.goToWorkflows"),
-      type: "settingShortcut",
-      to: "/settings/workflows",
-    },
-    {
-      keys: {
         Mac: ["G", ",", "I"],
       },
       label: t("app.keyboardShortcuts.settings.goToProfile"),
