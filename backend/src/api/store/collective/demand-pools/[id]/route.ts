@@ -2,6 +2,18 @@ import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { DEMAND_POOL_MODULE } from "../../../../../modules/demand-pool"
 import DemandPoolModuleService from "../../../../../modules/demand-pool/service"
 
+const getErrorMessage = (error: unknown) => {
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  if (typeof error === "string") {
+    return error
+  }
+
+  return "Unknown error"
+}
+
 // GET /store/collective/demand-pools/:id
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const { id } = req.params
@@ -13,10 +25,11 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
     const details = await demandPoolService.getDemandPoolDetails(id)
     res.json({ demand_pool: details })
-  } catch (error: any) {
-    console.error(`[GET /store/collective/demand-pools/${id}] Error:`, error.message)
-    res.status(error.message.includes("not found") ? 404 : 500).json({
-      error: error.message,
+  } catch (error: unknown) {
+    const message = getErrorMessage(error)
+    console.error(`[GET /store/collective/demand-pools/${id}] Error:`, message)
+    res.status(message.toLowerCase().includes("not found") ? 404 : 500).json({
+      error: message,
     })
   }
 }
@@ -66,8 +79,9 @@ export async function PATCH(req: MedusaRequest, res: MedusaResponse) {
     await demandPoolService.updateDemandPosts({ id, ...updateData })
     const [updated] = await demandPoolService.listDemandPosts({ id })
     res.json({ demand_post: updated })
-  } catch (error: any) {
-    console.error(`[PATCH /store/collective/demand-pools/${id}] Error:`, error.message)
-    res.status(400).json({ error: error.message })
+  } catch (error: unknown) {
+    const message = getErrorMessage(error)
+    console.error(`[PATCH /store/collective/demand-pools/${id}] Error:`, message)
+    res.status(400).json({ error: message })
   }
 }

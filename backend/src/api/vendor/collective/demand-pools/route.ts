@@ -2,6 +2,18 @@ import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { DEMAND_POOL_MODULE } from "../../../../modules/demand-pool"
 import DemandPoolModuleService from "../../../../modules/demand-pool/service"
 
+const getErrorMessage = (error: unknown) => {
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  if (typeof error === "string") {
+    return error
+  }
+
+  return "Unknown error"
+}
+
 // GET /vendor/collective/demand-pools (supplier view of open demand pools)
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   try {
@@ -31,8 +43,9 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       demand_pools: opportunities,
       count: opportunities.length,
     })
-  } catch (error: any) {
-    console.error("[GET /vendor/collective/demand-pools] Error:", error.message)
-    res.status(500).json({ error: "Failed to retrieve demand pools" })
+  } catch (error: unknown) {
+    const message = getErrorMessage(error)
+    console.error("[GET /vendor/collective/demand-pools] Error:", message)
+    res.status(500).json({ error: "Failed to retrieve demand pools", details: message })
   }
 }

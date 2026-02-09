@@ -3,6 +3,18 @@ import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { DEMAND_POOL_MODULE } from "../../../../modules/demand-pool"
 import DemandPoolModuleService from "../../../../modules/demand-pool/service"
 
+const getErrorMessage = (error: unknown) => {
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  if (typeof error === "string") {
+    return error
+  }
+
+  return "Unknown error"
+}
+
 const createDemandPostSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
@@ -52,12 +64,13 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     })
 
     res.json({ demand_pools: pools, count: pools.length, offset: query.offset, limit: query.limit })
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: "Validation failed", details: error.errors })
     }
-    console.error("[GET /store/collective/demand-pools] Error:", error.message)
-    res.status(500).json({ error: "Failed to retrieve demand pools" })
+    const message = getErrorMessage(error)
+    console.error("[GET /store/collective/demand-pools] Error:", message)
+    res.status(500).json({ error: "Failed to retrieve demand pools", details: message })
   }
 }
 
@@ -103,11 +116,12 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     })
 
     res.status(201).json({ demand_post: post })
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: "Validation failed", details: error.errors })
     }
-    console.error("[POST /store/collective/demand-pools] Error:", error.message)
-    res.status(400).json({ error: error.message })
+    const message = getErrorMessage(error)
+    console.error("[POST /store/collective/demand-pools] Error:", message)
+    res.status(400).json({ error: message })
   }
 }
