@@ -25,39 +25,39 @@ export const ReviewReplyForm = () => {
   })
 
   const { mutateAsync, isPending } = useUpdateReview(id!)
-  //@ts-ignore
-  const handleSubmit = form.handleSubmit(async (data, { deleting }) => {
-    if (deleting) {
-      await mutateAsync(
-        {
-          seller_note: "",
+
+  const handleDeleteReply = async () => {
+    await mutateAsync(
+      {
+        seller_note: "",
+      },
+      {
+        onSuccess: () => {
+          toast.success("Reply has been deleted")
+          handleSuccess(`/reviews/${id}`)
         },
-        {
-          onSuccess: () => {
-            toast.success("Reply has been deleted")
-            handleSuccess(`/reviews/${id}`)
-          },
-          onError: (error) => {
-            toast.error(error.message)
-          },
-        }
-      )
-    } else {
-      await mutateAsync(
-        {
-          seller_note: data.seller_note,
+        onError: (error) => {
+          toast.error(error.message)
         },
-        {
-          onSuccess: () => {
-            toast.success("Reply has been sent")
-            handleSuccess(`/reviews/${id}`)
-          },
-          onError: (error) => {
-            toast.error(error.message)
-          },
-        }
-      )
-    }
+      }
+    )
+  }
+
+  const handleUpsertReply = form.handleSubmit(async (data) => {
+    await mutateAsync(
+      {
+        seller_note: data.seller_note,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Reply has been sent")
+          handleSuccess(`/reviews/${id}`)
+        },
+        onError: (error) => {
+          toast.error(error.message)
+        },
+      }
+    )
   })
 
   return (
@@ -96,18 +96,12 @@ export const ReviewReplyForm = () => {
           <Button
             className="px-6"
             variant="secondary"
-            //@ts-ignore
-            onClick={() => handleSubmit({ deleting: true })}
+            onClick={handleDeleteReply}
           >
             Delete reply
           </Button>
         )}
-        <Button
-          //@ts-ignore
-          onClick={() => handleSubmit({ deleting: false })}
-          className="px-6"
-          isLoading={isPending}
-        >
+        <Button onClick={handleUpsertReply} className="px-6" isLoading={isPending}>
           {review.seller_note ? "Save" : "Reply"}
         </Button>
       </RouteDrawer.Footer>

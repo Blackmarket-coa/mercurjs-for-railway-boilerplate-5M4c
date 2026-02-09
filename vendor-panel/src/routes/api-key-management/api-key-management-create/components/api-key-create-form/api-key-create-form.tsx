@@ -56,8 +56,10 @@ export const ApiKeyCreateForm = ({ keyType }: ApiKeyCreateFormProps) => {
 
   const handleSubmit = form.handleSubmit(async (values) => {
     await mutateAsync(
-      // @ts-ignore
-      { title: values.title },
+      {
+        title: values.title,
+        type: keyType,
+      },
       {
         onSuccess: ({ api_key }) => {
           toast.success(t("apiKeyManagement.create.successToast"))
