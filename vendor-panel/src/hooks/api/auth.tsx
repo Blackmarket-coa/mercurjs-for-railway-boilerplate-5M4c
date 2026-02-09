@@ -17,7 +17,7 @@ const fetchRegistrationStatus = async (token: string) => {
     method: "GET",
     credentials: "include",
     headers: {
-      authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
   })
@@ -135,7 +135,7 @@ export const useSignUpWithEmailPass = (
               email: variables.email.toLowerCase().trim(),
             },
           },
-          headers: token ? { authorization: `Bearer ${token}` } : undefined,
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         })
       } catch (error) {
         devLogger.error(

@@ -2,7 +2,7 @@ import 'server-only';
 import { cookies as nextCookies } from 'next/headers';
 
 export const getAuthHeaders = async (): Promise<
-  { authorization: string } | null
+  { Authorization: string } | null
 > => {
   const cookies = await nextCookies();
   const token = cookies.get('_medusa_jwt')?.value;
@@ -11,7 +11,7 @@ export const getAuthHeaders = async (): Promise<
     return null;
   }
 
-  return { authorization: `Bearer ${token}` };
+  return { Authorization: `Bearer ${token}` };
 };
 
 export const getCacheTag = async (
