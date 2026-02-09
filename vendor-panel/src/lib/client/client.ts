@@ -170,7 +170,7 @@ export const fetchQuery = async (
       ? await response.text().catch(() => "")
       : ""
     const errorContext = `${method} ${url} (${response.status} ${response.statusText})`
-    if (!isPublic && (response.status === 401 || response.status === 403)) {
+    if (!isPublic && response.status === 401) {
       clearAuthToken()
     }
     const baseMessage =
