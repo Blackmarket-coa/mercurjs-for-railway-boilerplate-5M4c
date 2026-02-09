@@ -146,7 +146,7 @@ export const fetchQuery = async (
   const authHeaders = isPublic
     ? {}
     : token
-      ? { authorization: `Bearer ${token}` }
+      ? { Authorization: `Bearer ${token}` }
       : {}
 
   const response = await fetch(requestUrl, {
