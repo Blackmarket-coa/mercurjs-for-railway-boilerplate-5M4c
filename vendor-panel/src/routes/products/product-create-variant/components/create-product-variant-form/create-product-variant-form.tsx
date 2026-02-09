@@ -288,12 +288,14 @@ export const CreateProductVariantForm = ({
               <div className="-my-2 w-full max-w-[600px] border-l">
                 <ProgressTabs.List className="grid w-full grid-cols-3">
                   <ProgressTabs.Trigger
+                    type="button"
                     status={tabState.detail}
                     value={Tab.DETAIL}
                   >
                     {t("priceLists.create.tabs.details")}
                   </ProgressTabs.Trigger>
                   <ProgressTabs.Trigger
+                    type="button"
                     status={tabState.price}
                     value={Tab.PRICE}
                   >
@@ -301,6 +303,7 @@ export const CreateProductVariantForm = ({
                   </ProgressTabs.Trigger>
                   {!!inventoryTabEnabled && (
                     <ProgressTabs.Trigger
+                      type="button"
                       status={tabState.inventory}
                       value={Tab.INVENTORY}
                     >
@@ -336,7 +339,7 @@ export const CreateProductVariantForm = ({
           <RouteFocusModal.Footer>
             <div className="flex items-center justify-end gap-x-2">
               <RouteDrawer.Close asChild>
-                <Button variant="secondary" size="small">
+                <Button variant="secondary" size="small" type="button">
                   {t("actions.cancel")}
                 </Button>
               </RouteDrawer.Close>
