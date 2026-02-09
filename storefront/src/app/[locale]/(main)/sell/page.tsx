@@ -133,7 +133,7 @@ export default function SellPage() {
     {
       icon: HeartIcon,
       title: "Community, Not Competition",
-      description: "We're building a network where producers help each other. Share knowledge, coordinate deliveries, grow together.",
+      description: "We&apos;re building a network where producers help each other. Share knowledge, coordinate deliveries, grow together.",
     },
     {
       icon: CalendarIcon,
@@ -173,7 +173,7 @@ export default function SellPage() {
     },
     {
       question: "Do I need a commercial kitchen?",
-      answer: "It depends on your state's cottage food laws. Many states allow home-based food production for direct sales. We'll help you understand your local requirements during onboarding.",
+      answer: "It depends on your state's cottage food laws. Many states allow home-based food production for direct sales. We&apos;ll help you understand your local requirements during onboarding.",
     },
     {
       question: "How do I get paid?",
@@ -185,11 +185,11 @@ export default function SellPage() {
     },
     {
       question: "What if I can't fulfill an order?",
-      answer: "Life happens. You can pause orders anytime, set vacation mode, and communicate directly with customers. We're not here to punish you—we're here to support you.",
+      answer: "Life happens. You can pause orders anytime, set vacation mode, and communicate directly with customers. We&apos;re not here to punish you—we&apos;re here to support you.",
     },
     {
       question: "Is this really different from other platforms?",
-      answer: "Yes. We're community-owned and operated. Our governance gives providers voting rights. We don't compete with you, we work for you. When you succeed, we succeed—that's literally our business model.",
+      answer: "Yes. We&apos;re community-owned and operated. Our governance gives providers voting rights. We don't compete with you, we work for you. When you succeed, we succeed—that's literally our business model.",
     },
   ]
 
@@ -308,7 +308,7 @@ export default function SellPage() {
 
                 <div>
                   <p className="text-sm text-green-200 font-semibold">Step 3 · Optional later</p>
-                  <p className="text-sm text-green-100">Add payout details, shipping preferences, and compliance docs whenever you're ready.</p>
+                  <p className="text-sm text-green-100">Add payout details, shipping preferences, and compliance docs whenever you&apos;re ready.</p>
                 </div>
               </div>
             )}
@@ -328,8 +328,8 @@ export default function SellPage() {
               Built Different. Built for You.
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              This isn't another gig platform that sees you as a contractor. 
-              We're building an economy where producers thrive.
+              This isn&apos;t another gig platform that sees you as a contractor. 
+              We&apos;re building an economy where producers thrive.
             </p>
           </div>
           
@@ -354,10 +354,10 @@ export default function SellPage() {
                 If You Grow It or Make It, You Belong Here
               </h2>
               <p className="text-xl text-gray-600 mb-8">
-                Whether you're a backyard gardener with extra tomatoes, a shared-use kitchen
+                Whether you&apos;re a backyard gardener with extra tomatoes, a shared-use kitchen
                 supporting food entrepreneurs, a community garden feeding your neighbors,
                 a mutual aid group distributing food, or a farmer running a small operation—
-                there's a place for you here. We believe everyone who grows food, prepares food,
+                there&apos;s a place for you here. We believe everyone who grows food, prepares food,
                 or builds food infrastructure deserves a dignified way to reach their community.
               </p>
               <div className="flex flex-wrap gap-3">
@@ -389,7 +389,7 @@ export default function SellPage() {
                   </div>
                 </div>
                 <p className="mt-6 text-green-200 text-sm">
-                  That's it. No payment processing fees, no hidden charges.
+                  That&apos;s it. No payment processing fees, no hidden charges.
                   Compare that to farmers markets (often 30-40% in fees and time) or
                   grocery stores (where producers see only 10-20% of the retail price).
                 </p>
@@ -430,9 +430,9 @@ export default function SellPage() {
 
           <div className="mt-16 text-center">
             <p className="text-gray-300 max-w-2xl mx-auto">
-              That's it. No subscriptions. No additional fees. No payment processing fees passed to you.
+              That&apos;s it. No subscriptions. No additional fees. No payment processing fees passed to you.
               Unlike venture-backed platforms that burn cash to gain market share then raise fees,
-              we're building something sustainable for our community.
+              we&apos;re building something sustainable for our community.
             </p>
           </div>
         </div>

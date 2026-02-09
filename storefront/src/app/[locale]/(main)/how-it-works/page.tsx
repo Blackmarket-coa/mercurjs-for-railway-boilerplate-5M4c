@@ -132,7 +132,7 @@ export default function HowItWorksPage() {
     {
       icon: HeartIcon,
       title: "Community First",
-      description: "We're not venture-backed. We're community-owned. When creators succeed, we all succeed.",
+      description: "We&apos;re not venture-backed. We&apos;re community-owned. When creators succeed, we all succeed.",
       color: "bg-pink-100 text-pink-600",
     },
     {
@@ -261,7 +261,7 @@ export default function HowItWorksPage() {
               <p className="text-gray-600">
                 Just 3% covers everything: platform operations, payment processing,
                 development, and community support. No subscriptions. No additional fees.
-                That's the whole story.
+                That&apos;s the whole story.
               </p>
             </div>
           </div>
@@ -325,7 +325,7 @@ export default function HowItWorksPage() {
               Share on Your Terms
             </h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Whether you're a farmer, artist, baker, or service provider—
+              Whether you&apos;re a farmer, artist, baker, or service provider—
               keep what you earn and build real customer relationships.
             </p>
           </div>
@@ -635,7 +635,7 @@ export default function HowItWorksPage() {
               </h3>
               <p className="text-gray-600">
                 No. Those platforms take 15-40% of sales and prioritize their profits over creators.
-                We take just 3%, and we're community-owned—not venture-backed. Our success comes from
+                We take just 3%, and we&apos;re community-owned—not venture-backed. Our success comes from
                 creator success, not from squeezing them for fees.
               </p>
             </div>
@@ -666,8 +666,8 @@ export default function HowItWorksPage() {
                 What if something goes wrong with my order?
               </h3>
               <p className="text-gray-600">
-                We have buyer protection. If your order doesn't arrive or isn't as described,
-                we'll step in to make it right. Payments are held until delivery is confirmed,
+                We have buyer protection. If your order doesn&apos;t arrive or isn&apos;t as described,
+                we&apos;ll step in to make it right. Payments are held until delivery is confirmed,
                 protecting both buyers and honest providers.
               </p>
             </div>
@@ -678,7 +678,7 @@ export default function HowItWorksPage() {
               </h3>
               <p className="text-gray-600">
                 Yes! Many states have cottage food laws that allow home-based food production.
-                We'll help you understand your local requirements during onboarding. We welcome
+                We&apos;ll help you understand your local requirements during onboarding. We welcome
                 farmers, bakers, canners, beekeepers, and all kinds of food makers.
               </p>
             </div>
@@ -693,7 +693,7 @@ export default function HowItWorksPage() {
             Ready to Join the Movement?
           </h2>
           <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
-            Whether you're shopping or providing, you're part of building a fairer economy—
+            Whether you&apos;re shopping or providing, you&apos;re part of building a fairer economy—
             one where creators keep what they earn and communities thrive.
           </p>
 
