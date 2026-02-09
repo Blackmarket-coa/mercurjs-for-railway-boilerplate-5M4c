@@ -5,6 +5,18 @@ import DemandPoolModuleService from "../../../../../../modules/demand-pool/servi
 import { BARGAINING_MODULE } from "../../../../../../modules/bargaining"
 import BargainingModuleService from "../../../../../../modules/bargaining/service"
 
+const getErrorMessage = (error: unknown) => {
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  if (typeof error === "string") {
+    return error
+  }
+
+  return "Unknown error"
+}
+
 const submitProposalSchema = z.object({
   unit_price: z.number().positive(),
   currency_code: z.string().default("USD"),
@@ -52,9 +64,10 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     })
 
     res.json({ proposals })
-  } catch (error: any) {
-    console.error("[GET vendor proposals] Error:", error.message)
-    res.status(500).json({ error: "Failed to retrieve proposals" })
+  } catch (error: unknown) {
+    const message = getErrorMessage(error)
+    console.error("[GET vendor proposals] Error:", message)
+    res.status(500).json({ error: "Failed to retrieve proposals", details: message })
   }
 }
 
@@ -123,11 +136,12 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       proposal,
       bargaining_proposal: bargainingProposal,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: "Validation failed", details: error.errors })
     }
-    console.error("[POST vendor proposal] Error:", error.message)
-    res.status(400).json({ error: error.message })
+    const message = getErrorMessage(error)
+    console.error("[POST vendor proposal] Error:", message)
+    res.status(400).json({ error: message })
   }
 }
