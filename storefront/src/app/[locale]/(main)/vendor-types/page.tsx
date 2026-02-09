@@ -241,7 +241,7 @@ export default function VendorTypesPage() {
         { name: "Location-Based Search", description: "Find vendors within 10, 25, 50, 100, or 250 miles" },
         { name: "Category Navigation", description: "Browse by product type, collection, or seasonal items" },
         { name: "Vendor Profiles", description: "Learn about vendors, their story, and practices" },
-        { name: "Search & Filters", description: "Find exactly what you're looking for quickly" },
+        { name: "Search & Filters", description: "Find exactly what you&apos;re looking for quickly" },
       ],
     },
     {
@@ -370,7 +370,7 @@ export default function VendorTypesPage() {
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Hidden Fees</h3>
               <p className="text-gray-600">
-                No subscriptions, no listing fees, no payment processing fees. That's the whole story.
+                No subscriptions, no listing fees, no payment processing fees. That&apos;s the whole story.
               </p>
             </div>
           </div>
@@ -380,7 +380,7 @@ export default function VendorTypesPage() {
             <p className="text-lg text-gray-700 text-center max-w-3xl mx-auto">
               We believe in building local food economies where producers keep what they earn,
               customers know where their food comes from, and communities have access to the
-              infrastructure they need to feed themselves. We're not venture-backed—we're
+              infrastructure they need to feed themselves. We&apos;re not venture-backed—we&apos;re
               community-owned. When creators succeed, we all succeed.
             </p>
           </div>
@@ -399,7 +399,7 @@ export default function VendorTypesPage() {
               Community Providers We Support
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              From farms to mutual aid networks, we've built specialized tools for every type
+              From farms to mutual aid networks, we&apos;ve built specialized tools for every type
               of community food provider.
             </p>
           </div>
@@ -577,7 +577,7 @@ export default function VendorTypesPage() {
               Explore by Vendor Type
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Jump directly to the vendors you're looking for.
+              Jump directly to the vendors you&apos;re looking for.
             </p>
           </div>
 
@@ -603,7 +603,7 @@ export default function VendorTypesPage() {
             Ready to Get Started?
           </h2>
           <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
-            Whether you're here to provide or to shop, you're joining a movement to build
+            Whether you&apos;re here to provide or to shop, you&apos;re joining a movement to build
             a fairer, more transparent food economy.
           </p>
 

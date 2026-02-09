@@ -1,5 +1,6 @@
 import { Metadata } from "next"
 import { InvestmentPoolsSection } from "@/components/sections/InvestmentPools"
+import Link from "next/link"
 
 export const metadata: Metadata = {
   title: "Invest in Local Farms | Farm Fresh Marketplace",
@@ -101,12 +102,12 @@ export default function InvestPage() {
           <p className="text-gray-600 mb-6">
             Create your wallet to start investing in local producers today.
           </p>
-          <a
+          <Link
             href="/wallet"
             className="inline-block bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
           >
             Open Wallet
-          </a>
+          </Link>
         </div>
       </div>
     </div>
