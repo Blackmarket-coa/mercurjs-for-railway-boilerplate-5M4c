@@ -486,6 +486,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
             "total_stations",
             "total_sqft",
             "hourly_rate",
+            "certifications",
             "cover_image_url",
             "created_at",
           ],
@@ -513,6 +514,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
             total_stations: k.total_stations,
             total_sqft: k.total_sqft,
             hourly_rate: k.hourly_rate,
+            certifications: k.certifications,
             featured: false,
             verified: false,
             created_at: k.created_at,
@@ -612,6 +614,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
             "rating",
             "social_links",
             "website_url",
+            "certifications",
           ],
           filters: metadataFilters,
         })
@@ -649,6 +652,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
               verified: meta.verified,
               rating: meta.rating,
               website_url: meta.website_url,
+              certifications: meta.certifications,
               created_at: seller.created_at,
               profile_url: `/sellers/${seller.handle}`,
             })
