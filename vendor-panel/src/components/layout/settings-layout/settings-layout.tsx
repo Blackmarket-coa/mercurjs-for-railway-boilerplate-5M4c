@@ -45,10 +45,6 @@ const useSettingRoutes = (): INavItem[] => {
         to: "/settings/locations",
       },
       {
-        label: t("workflowExecutions.domain"),
-        to: "/settings/workflows",
-      },
-      {
         label: "Dashboard Extensions",
         to: "/settings/extensions",
       },
