@@ -33,15 +33,12 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({
   children,
-  params,
 }: Readonly<{
   children: React.ReactNode
-  params: Promise<{ locale: string }>
 }>) {
-  const { locale } = await params
   const cart = await retrieveCart()
   const ALGOLIA_APP = process.env.NEXT_PUBLIC_ALGOLIA_ID
-  const htmlLang = locale || "en"
+  const htmlLang = "en"
   
   return (
     <html lang={htmlLang} className="">

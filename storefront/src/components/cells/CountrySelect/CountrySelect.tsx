@@ -41,6 +41,8 @@ const CountrySelect = forwardRef<
     }))
   }, [region])
 
+  const selectedValue = typeof props.value === "string" ? props.value : ""
+
   const handleSelect = (value: string) => {
     props.onChange?.({
       target: {
@@ -53,7 +55,7 @@ const CountrySelect = forwardRef<
   return (
     <label className="label-md">
       <p className="mb-2">Country</p>
-      <Listbox onChange={handleSelect} value={props.value}>
+      <Listbox onChange={handleSelect} value={selectedValue}>
         <div className="relative">
           <Listbox.Button
             className={clsx(
@@ -65,7 +67,7 @@ const CountrySelect = forwardRef<
               <>
                 <span className="block truncate">
                   {countryOptions?.find(
-                    (country) => country.value === props.value
+                    (country) => country.value === selectedValue
                   )?.label || "Choose a country"}
                 </span>
                 <ChevronUpDown
