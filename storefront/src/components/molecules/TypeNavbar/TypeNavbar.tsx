@@ -194,15 +194,16 @@ export const TypeNavbar = ({
         Collections
       </LocalizedClientLink>
 
-      <a
-        href="https://www.freeblackmarket.com/us"
-        target="_blank"
-        rel="noopener noreferrer"
+      <LocalizedClientLink
+        href="/collective/demand-pools"
         onClick={() => onClose?.(false)}
-        className="label-md uppercase px-4 py-2 text-ui-fg-subtle whitespace-nowrap hover:text-ui-fg-base transition-colors"
+        className={cn(
+          "label-md uppercase px-4 py-2 hover:bg-secondary transition-colors",
+          pathname?.includes("/collective/demand-pools") && "bg-secondary font-semibold"
+        )}
       >
         Demand Pooling
-      </a>
+      </LocalizedClientLink>
     </nav>
   )
 }
