@@ -43,7 +43,7 @@ const Form = () => {
     "8chars": false,
     symbolOrDigit: false,
   })
-  const [error, setError] = useState()
+  const [error, setError] = useState<string>()
   const {
     handleSubmit,
     register,
@@ -61,7 +61,7 @@ const Form = () => {
 
     const res = passwordError.isValid && (await signup(formData))
 
-    if (res && !res?.id) setError(res)
+    if (typeof res === "string") setError(res)
   }
 
   return (
