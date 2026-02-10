@@ -22,17 +22,20 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   if (status) filters.status = status
   if (order_id) filters.order_id = order_id
 
+  const take = Math.min(Math.max(parseInt(limit as string) || 50, 1), 100)
+  const skip = Math.max(parseInt(offset as string) || 0, 0)
+
   const entries = await hawalaService.listLedgerEntries({
     filters,
-    take: parseInt(limit as string),
-    skip: parseInt(offset as string),
+    take,
+    skip,
   })
 
   res.json({
     entries,
     count: entries.length,
-    limit: parseInt(limit as string),
-    offset: parseInt(offset as string),
+    limit: take,
+    offset: skip,
   })
 }
 
@@ -71,6 +74,14 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     })
   }
 
+  if (typeof amount !== "number" || isNaN(amount) || amount <= 0) {
+    return res.status(400).json({ error: "Amount must be a positive number" })
+  }
+
+  if (debit_account_id === credit_account_id) {
+    return res.status(400).json({ error: "Debit and credit accounts must be different" })
+  }
+
   try {
     const entry = await hawalaService.createTransfer({
       debit_account_id,
@@ -86,6 +97,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
 
     res.status(201).json({ entry })
   } catch (error) {
-    res.status(400).json({ error: (error as Error).message })
+    console.error("Error creating transfer:", error)
+    res.status(400).json({ error: "Failed to create transfer" })
   }
 }

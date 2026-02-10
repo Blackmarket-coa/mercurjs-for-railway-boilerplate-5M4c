@@ -25,7 +25,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       },
     })
     .catch((error) => {
-      console.log(error);
+      console.error("[delivery/accept] Failed to update delivery:", error);
       return MedusaError.Types.UNEXPECTED_STATE;
     });
 
