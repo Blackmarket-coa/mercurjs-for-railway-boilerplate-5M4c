@@ -2,7 +2,13 @@ import { redirect } from "next/navigation"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { createDemandPool, publishDemandPool } from "@/lib/data/collective"
 
-export default function NewDemandPoolPage() {
+type PageProps = {
+  params: Promise<{ locale: string }>
+}
+
+export default async function NewDemandPoolPage({ params }: PageProps) {
+  const { locale } = await params
+
   async function createAction(formData: FormData) {
     "use server"
 
@@ -30,7 +36,7 @@ export default function NewDemandPoolPage() {
       await publishDemandPool(demand_post.id)
     }
 
-    redirect(`/collective/demand-pools/${demand_post.id}`)
+    redirect(`/${locale}/collective/demand-pools/${demand_post.id}`)
   }
 
   return (

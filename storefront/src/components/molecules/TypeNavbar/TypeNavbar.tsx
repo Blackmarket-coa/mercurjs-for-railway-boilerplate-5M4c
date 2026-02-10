@@ -202,7 +202,7 @@ export const TypeNavbar = ({
           pathname?.includes("/collective/demand-pools") && "bg-secondary font-semibold"
         )}
       >
-        Demand Pooling
+        Collective Buys
       </LocalizedClientLink>
     </nav>
   )
