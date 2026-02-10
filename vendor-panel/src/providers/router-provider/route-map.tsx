@@ -1228,6 +1228,20 @@ export const RouteMap: RouteObject[] = [
             ],
           },
           {
+            path: "/collective-demand-pools",
+            errorElement: <ErrorBoundary />,
+            handle: {
+              breadcrumb: () => "Collective Buys",
+            },
+            children: [
+              {
+                path: "",
+                lazy: () =>
+                  import("../../routes/collective-demand-pools"),
+              },
+            ],
+          },
+          {
             path: "/farm",
             errorElement: <ErrorBoundary />,
             handle: {
