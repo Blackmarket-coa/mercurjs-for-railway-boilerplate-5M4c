@@ -1,5 +1,7 @@
+import { notFound } from "next/navigation"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
-import { getDemandPool, joinDemandPool } from "@/lib/data/collective"
+import { getDemandPool } from "@/lib/data/collective"
+import JoinDemandPoolForm from "./join-form"
 
 type PageProps = {
   params: Promise<{ id: string }>
@@ -7,23 +9,16 @@ type PageProps = {
 
 export default async function DemandPoolDetailPage({ params }: PageProps) {
   const { id } = await params
-  const pool = await getDemandPool(id)
 
-  async function joinAction(formData: FormData) {
-    "use server"
+  let pool
+  try {
+    pool = await getDemandPool(id)
+  } catch {
+    return notFound()
+  }
 
-    const quantity_committed = Number(formData.get("quantity_committed"))
-    const price = formData.get("price_willing_to_pay")
-    const price_willing_to_pay = price ? Number(price) : undefined
-
-    if (!quantity_committed || quantity_committed <= 0) {
-      throw new Error("Quantity committed must be positive")
-    }
-
-    await joinDemandPool(id, {
-      quantity_committed,
-      price_willing_to_pay,
-    })
+  if (!pool) {
+    return notFound()
   }
 
   const progress = Math.min(
@@ -34,12 +29,12 @@ export default async function DemandPoolDetailPage({ params }: PageProps) {
   return (
     <main className="container max-w-3xl py-10">
       <LocalizedClientLink href="/collective/demand-pools" className="mb-4 inline-block text-sm underline">
-        ← Back to demand pools
+        &larr; Back to demand pools
       </LocalizedClientLink>
 
       <div className="rounded-md border p-5">
         <div className="mb-1 text-xs uppercase text-ui-fg-subtle">
-          {pool.category || "General"} · {pool.status}
+          {pool.category || "General"} &middot; {pool.status}
         </div>
         <h1 className="mb-2 text-2xl font-semibold">{pool.title}</h1>
         <p className="mb-5 text-sm text-ui-fg-subtle">{pool.description}</p>
@@ -68,23 +63,7 @@ export default async function DemandPoolDetailPage({ params }: PageProps) {
         </div>
       </div>
 
-      <form action={joinAction} className="mt-6 rounded-md border p-5">
-        <h2 className="mb-3 text-lg font-medium">Join this demand pool</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="mb-1 block text-sm">Quantity committed</label>
-            <input name="quantity_committed" type="number" min={1} required className="w-full rounded border p-2" />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm">Max unit price (optional)</label>
-            <input name="price_willing_to_pay" type="number" min={0} step="0.01" className="w-full rounded border p-2" />
-          </div>
-        </div>
-
-        <button type="submit" className="mt-4 rounded bg-primary px-4 py-2 text-white">
-          Commit quantity
-        </button>
-      </form>
+      <JoinDemandPoolForm poolId={id} />
     </main>
   )
 }
