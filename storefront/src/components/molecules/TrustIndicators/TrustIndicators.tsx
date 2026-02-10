@@ -280,19 +280,19 @@ export const VerificationBadge = ({ level, trustScore, showScore = false }: Veri
             <h4 className="font-semibold text-gray-900 mb-2">What does this mean?</h4>
             <div className="space-y-2 text-sm text-gray-600">
               {level === "UNVERIFIED" && (
-                <p>This is a new provider who hasn't completed our verification process yet.</p>
+                <p>This is a new provider who hasn&apos;t completed our verification process yet.</p>
               )}
               {level === "SELF_REPORTED" && (
-                <p>This provider has submitted their information but it hasn't been independently verified.</p>
+                <p>This provider has submitted their information but it hasn&apos;t been independently verified.</p>
               )}
               {level === "VERIFIED" && (
-                <p>We've verified this provider's identity, location, and basic information.</p>
+                <p>We&apos;ve verified this provider&apos;s identity, location, and basic information.</p>
               )}
               {level === "AUDITED" && (
                 <p>This provider has undergone an audit of their practices and operations.</p>
               )}
               {level === "CERTIFIED" && (
-                <p>This provider holds recognized third-party certifications that we've verified.</p>
+                <p>This provider holds recognized third-party certifications that we&apos;ve verified.</p>
               )}
               
               {trustScore !== undefined && (
@@ -408,12 +408,12 @@ export const DisputePolicyTooltip = ({ policy }: DisputePolicyTooltipProps) => {
             ) : (
               <div className="space-y-3 text-sm text-gray-600">
                 <p>
-                  <strong className="text-gray-900">If your order doesn't arrive:</strong>{" "}
-                  We'll work with the producer to resolve it or issue a full refund.
+                  <strong className="text-gray-900">If your order doesn&apos;t arrive:</strong>{" "}
+                  We&apos;ll work with the producer to resolve it or issue a full refund.
                 </p>
                 <p>
                   <strong className="text-gray-900">If something is damaged or wrong:</strong>{" "}
-                  Contact us within 48 hours with photos and we'll make it right.
+                  Contact us within 48 hours with photos and we&apos;ll make it right.
                 </p>
                 <p>
                   <strong className="text-gray-900">Payment protection:</strong>{" "}

@@ -439,7 +439,7 @@ export function KitchenDetailPage({ handle, locale }: KitchenDetailPageProps) {
             <ul className="space-y-2 text-gray-700">
               <li className="flex items-start gap-2">
                 <span className="text-teal-600 mt-1">✓</span>
-                Valid food handler's certification
+                Valid food handler&apos;s certification
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-teal-600 mt-1">✓</span>

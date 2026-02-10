@@ -198,7 +198,7 @@ export function FarmStory({ productId }: FarmStoryProps) {
               </div>
               {harvest.taste_notes && (
                 <p className="text-sm text-gray-600 mt-2 italic">
-                  "{harvest.taste_notes}"
+                  &ldquo;{harvest.taste_notes}&rdquo;
                 </p>
               )}
               {harvest.farmer_notes && (
@@ -280,7 +280,7 @@ export function FarmStory({ productId }: FarmStoryProps) {
             href={`/producers/${producer.handle}`}
             className="inline-flex items-center gap-1 text-sm text-green-700 hover:text-green-800 font-medium"
           >
-            Visit {producer.name}'s farm page
+            Visit {producer.name}&apos;s farm page
             <OpenIcon className="w-3 h-3" />
           </Link>
         </div>
