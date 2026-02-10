@@ -28,31 +28,29 @@ type CountrySelectProps = {
 }
 
 const CountrySelect = ({ regions }: CountrySelectProps) => {
-  const [current, setCurrent] = useState<
-    | { country: string | undefined; region: string; label: string | undefined }
-    | undefined
-  >(undefined)
+  const [current, setCurrent] = useState<CountryOption | undefined>(undefined)
 
   const { locale: countryCode } = useParams()
   const router = useRouter()
   const currentPath = usePathname().split(`/${countryCode}`)[1]
 
-  const options = useMemo(() => {
+  const options = useMemo<CountryOption[]>(() => {
     return regions
-      ?.map((r) => {
-        return r.countries?.map((c) => ({
-          country: c.iso_2,
-          region: r.id,
-          label: c.display_name,
-        }))
-      })
-      .flat()
-      .sort((a, b) => (a?.label ?? "").localeCompare(b?.label ?? ""))
+      .flatMap((region) =>
+        (region.countries ?? [])
+          .filter((country) => country.iso_2 && country.display_name)
+          .map((country) => ({
+            country: country.iso_2!,
+            region: region.id,
+            label: country.display_name!,
+          }))
+      )
+      .sort((a, b) => a.label.localeCompare(b.label))
   }, [regions])
 
   useEffect(() => {
     if (countryCode) {
-      const option = options?.find((o) => o?.country === countryCode)
+      const option = options.find((o) => o.country === countryCode)
       setCurrent(option)
     }
   }, [options, countryCode])
@@ -88,7 +86,7 @@ const CountrySelect = ({ regions }: CountrySelectProps) => {
           onChange={handleChange}
           defaultValue={
             countryCode
-              ? options?.find((o) => o?.country === countryCode)
+              ? options.find((o) => o.country === countryCode)
               : undefined
           }
         >
@@ -134,9 +132,9 @@ const CountrySelect = ({ regions }: CountrySelectProps) => {
                             width: "16px",
                             height: "16px",
                           }}
-                          countryCode={o?.country ?? ""}
+                          countryCode={o.country}
                         />{" "}
-                        {o?.country?.toUpperCase()}
+                        {o.country.toUpperCase()}
                       </span>
                     </ListboxOption>
                   )
