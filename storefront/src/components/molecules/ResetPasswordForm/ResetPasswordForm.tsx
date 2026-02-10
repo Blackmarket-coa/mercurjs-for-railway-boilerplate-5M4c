@@ -117,7 +117,7 @@ function InvalidTokenView({ error }: { error?: string }) {
           </Button>
         </LocalizedClientLink>
         <LocalizedClientLink href="/user">
-          <Button className="w-full" size="large" variant="secondary">
+          <Button className="w-full" size="large" variant="tonal">
             Back to login
           </Button>
         </LocalizedClientLink>
