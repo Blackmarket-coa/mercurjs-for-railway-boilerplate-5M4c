@@ -1,3 +1,5 @@
-export { DeliveryCheck } from "./DeliveryCheck"
-export type { DeliveryCheckResult } from "./DeliveryCheck"
-export { default } from "./DeliveryCheck"
+import DeliveryCheck, { type DeliveryCheckResult } from "./DeliveryCheck"
+
+export { DeliveryCheck }
+export type { DeliveryCheckResult }
+export default DeliveryCheck
