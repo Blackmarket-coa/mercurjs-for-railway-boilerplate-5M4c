@@ -173,6 +173,8 @@ const utilityModules = [
   { resolve: './src/modules/request' },
 ]
 
+const printfulApiKey = process.env.PRINTFUL_API_KEY || process.env.PRINTFUL_API_TOKEN || process.env.PRINTFUL_TOKEN
+
 // Optional modules (conditionally loaded based on environment)
 const optionalModules = [
   // Odoo ERP integration
@@ -208,12 +210,12 @@ const fulfillmentModule = {
       { resolve: '@medusajs/medusa/fulfillment-manual', id: 'manual' },
       { resolve: './src/modules/local-delivery-fulfillment', id: 'local-delivery' },
       { resolve: './src/modules/digital-product-fulfillment', id: 'digital' },
-      ...(process.env.PRINTFUL_API_KEY
+      ...(printfulApiKey
         ? [{
             resolve: './src/modules/printful-fulfillment',
             id: 'printful',
             options: {
-              api_key: process.env.PRINTFUL_API_KEY,
+              api_key: printfulApiKey,
               webhook_secret: process.env.PRINTFUL_WEBHOOK_SECRET,
               store_id: process.env.PRINTFUL_STORE_ID,
             },
