@@ -208,7 +208,7 @@ export const BuyerImpactDashboard = ({
           <h2 className="text-2xl font-bold text-gray-900">Your Impact</h2>
           {customerName && (
             <p className="text-gray-500">
-              {customerName}, here's the difference you've made
+              {customerName}, here&apos;s the difference you&apos;ve made
             </p>
           )}
         </div>
@@ -534,7 +534,7 @@ export const ImpactReceipt = ({
             sent directly to {producerName || "the producer"}
           </p>
           <p className="text-sm text-gray-500 mt-1">
-            That's {producerPercent}% of your purchase
+            That&apos;s {producerPercent}% of your purchase
           </p>
         </div>
         
@@ -551,7 +551,7 @@ export const ImpactReceipt = ({
           <div className="flex items-center gap-3 text-sm bg-green-100 rounded-lg p-3">
             <ArrowPathIcon className="w-5 h-5 text-green-600" />
             <span className="text-green-800">
-              You're a repeat supporter - producers love customers like you!
+              You&apos;re a repeat supporter - producers love customers like you!
             </span>
           </div>
         )}

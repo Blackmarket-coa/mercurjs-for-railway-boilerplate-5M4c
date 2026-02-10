@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
+import Link from "next/link"
 import {
   useWallet,
   useTransactions,
@@ -420,9 +421,9 @@ export function WalletDashboard() {
             ) : investments.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-gray-500 mb-4">No investments yet</p>
-                <a href="/producers" className="text-green-600 hover:underline">
+                <Link href="/producers" className="text-green-600 hover:underline">
                   Browse Producer Pools →
-                </a>
+                </Link>
               </div>
             ) : (
               <div className="space-y-4">

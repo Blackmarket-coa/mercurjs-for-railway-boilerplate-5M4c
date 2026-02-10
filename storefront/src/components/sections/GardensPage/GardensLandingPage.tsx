@@ -84,7 +84,7 @@ export function GardensLandingPage({ locale }: GardensLandingPageProps) {
           </h1>
           <p className="text-lg text-gray-600 leading-relaxed">
             Connect with local community gardens. Support their seasonal needs, 
-            volunteer your time, or simply discover what's growing in your neighborhood.
+            volunteer your time, or simply discover what&apos;s growing in your neighborhood.
           </p>
         </div>
       </section>

@@ -74,11 +74,6 @@ export const ContactSellerButton = ({
   const [showChat, setShowChat] = useState(false)
 
   const displayName = sellerName || "Provider"
-
-  if (!ROCKETCHAT_URL) {
-    return null
-  }
-
   const channelUrl = `${ROCKETCHAT_URL}/channel/vendor-${sellerHandle}`
 
   const handleClick = useCallback(() => {
@@ -92,6 +87,10 @@ export const ContactSellerButton = ({
   const handleCloseChat = useCallback(() => {
     setShowChat(false)
   }, [])
+
+  if (!ROCKETCHAT_URL) {
+    return null
+  }
 
   // Prominent variant - for product pages, stands out more
   if (variant === "prominent") {

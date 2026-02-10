@@ -326,7 +326,7 @@ export const WhereYourMoneyGoes = ({
               )}
             </div>
             <p className="text-xs text-gray-500 mt-3 pt-3 border-t">
-              You're paying the producer directly. They set the price. They get paid.
+              You&apos;re paying the producer directly. They set the price. They get paid.
             </p>
           </div>
         </>
