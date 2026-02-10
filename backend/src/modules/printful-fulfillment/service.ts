@@ -7,6 +7,7 @@ import {
   FulfillmentOrderDTO,
 } from "@medusajs/framework/types"
 import PrintfulClient, { PrintfulOrderItemInput } from "./client"
+import { getPrintfulStoreId } from "./env"
 
 type PrintfulFulfillmentOptions = {
   api_key?: string
@@ -26,7 +27,7 @@ class PrintfulFulfillmentService extends AbstractFulfillmentProviderService {
       this.client = new PrintfulClient({
         apiKey: options.api_key,
         baseUrl: options.base_url,
-        storeId: options.store_id || process.env.PRINTFUL_STORE_ID,
+        storeId: options.store_id || getPrintfulStoreId(),
       })
     }
   }

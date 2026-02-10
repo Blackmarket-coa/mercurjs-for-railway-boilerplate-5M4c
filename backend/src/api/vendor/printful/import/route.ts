@@ -1,6 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import PrintfulClient from "../../../../modules/printful-fulfillment/client"
+import { getPrintfulApiKey, getPrintfulStoreId } from "../../../../modules/printful-fulfillment/env"
 
 type PrintfulImportBody = {
   product_ids?: Array<number | string>
@@ -14,7 +15,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     return res.status(401).json({ message: "Unauthorized" })
   }
 
-  const apiKey = process.env.PRINTFUL_API_KEY
+  const apiKey = getPrintfulApiKey()
   if (!apiKey) {
     return res.status(400).json({
       message: "PRINTFUL_API_KEY is not configured on the backend.",
@@ -35,7 +36,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   try {
     const client = new PrintfulClient({
       apiKey,
-      storeId: process.env.PRINTFUL_STORE_ID,
+      storeId: getPrintfulStoreId(),
     })
 
     const productService = req.scope.resolve<any>(Modules.PRODUCT)

@@ -1,10 +1,11 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import PrintfulClient from "../../../../modules/printful-fulfillment/client"
+import { getPrintfulApiKey, getPrintfulStoreId } from "../../../../modules/printful-fulfillment/env"
 
 const DEFAULT_LIMIT = 25
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
-  const apiKey = process.env.PRINTFUL_API_KEY
+  const apiKey = getPrintfulApiKey()
 
   if (!apiKey) {
     return res.status(400).json({
@@ -21,7 +22,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   try {
     const client = new PrintfulClient({
       apiKey,
-      storeId: process.env.PRINTFUL_STORE_ID,
+      storeId: getPrintfulStoreId(),
     })
 
     const products = await client.getCatalogProducts(limit, offset)
