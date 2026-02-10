@@ -96,6 +96,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       message: "Withdrawal initiated. Funds will arrive in 2-3 business days.",
     })
   } catch (error) {
-    res.status(500).json({ error: (error as Error).message })
+    console.error("Error processing withdrawal:", error)
+    res.status(500).json({ error: "Failed to process withdrawal" })
   }
 }

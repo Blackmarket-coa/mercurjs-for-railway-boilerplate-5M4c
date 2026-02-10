@@ -8,11 +8,16 @@ async function digitalProductOrderCreatedHandler({
   event: { data },
   container,
 }: SubscriberArgs<{ id: string }>) {
-  await fulfillDigitalOrderWorkflow(container).run({
-    input: {
-      id: data.id
-    }
-  })
+  try {
+    await fulfillDigitalOrderWorkflow(container).run({
+      input: {
+        id: data.id
+      }
+    })
+  } catch (error) {
+    console.error(`[digital-order] Failed to fulfill digital order ${data.id}:`, error)
+    // Don't throw - subscriber failure shouldn't crash the event bus
+  }
 }
 
 export default digitalProductOrderCreatedHandler

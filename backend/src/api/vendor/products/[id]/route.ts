@@ -48,6 +48,18 @@ export async function GET(
   }
 
   try {
+    // Verify seller owns this product before returning it
+    const { data: sellerProducts } = await query.graph({
+      entity: "seller",
+      fields: ["products.id"],
+      filters: { id: sellerId },
+    })
+
+    const ownedProductIds = sellerProducts?.[0]?.products?.map((p: any) => p.id) || []
+    if (!ownedProductIds.includes(id)) {
+      return res.status(403).json({ message: "You do not have access to this product" })
+    }
+
     // Fetch the full product with all fields including images
     const { data: products } = await query.graph({
       entity: "product",
@@ -66,9 +78,8 @@ export async function GET(
     return res.status(404).json({ message: "Product not found" })
   } catch (error: any) {
     console.error(`Error fetching product ${id} for seller ${sellerId}:`, error)
-    res.status(500).json({ 
-      message: "Failed to fetch product", 
-      error: error.message 
+    res.status(500).json({
+      message: "Failed to fetch product"
     })
   }
 }
@@ -90,6 +101,18 @@ export async function POST(
   }
 
   try {
+    // Verify seller owns this product before allowing update
+    const { data: sellerProducts } = await query.graph({
+      entity: "seller",
+      fields: ["products.id"],
+      filters: { id: sellerId },
+    })
+
+    const ownedProductIds = sellerProducts?.[0]?.products?.map((p: any) => p.id) || []
+    if (!ownedProductIds.includes(id)) {
+      return res.status(403).json({ message: "You do not have access to this product" })
+    }
+
     const { additional_data, ...update } = req.body as any
 
     // Run the update workflow
@@ -119,9 +142,8 @@ export async function POST(
     return res.status(404).json({ message: "Product not found after update" })
   } catch (error: any) {
     console.error(`Error updating product ${id} for seller ${sellerId}:`, error)
-    res.status(500).json({ 
-      message: "Failed to update product", 
-      error: error.message 
+    res.status(500).json({
+      message: "Failed to update product"
     })
   }
 }
@@ -142,8 +164,22 @@ export async function DELETE(
   }
 
   try {
+    const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+    // Verify seller owns this product before allowing delete
+    const { data: sellerProducts } = await query.graph({
+      entity: "seller",
+      fields: ["products.id"],
+      filters: { id: sellerId },
+    })
+
+    const ownedProductIds = sellerProducts?.[0]?.products?.map((p: any) => p.id) || []
+    if (!ownedProductIds.includes(id)) {
+      return res.status(403).json({ message: "You do not have access to this product" })
+    }
+
     const { deleteProductsWorkflow } = await import("@medusajs/medusa/core-flows")
-    
+
     await deleteProductsWorkflow(req.scope).run({
       input: {
         ids: [id]
@@ -157,9 +193,8 @@ export async function DELETE(
     })
   } catch (error: any) {
     console.error(`Error deleting product ${id} for seller ${sellerId}:`, error)
-    res.status(500).json({ 
-      message: "Failed to delete product", 
-      error: error.message 
+    res.status(500).json({
+      message: "Failed to delete product"
     })
   }
 }

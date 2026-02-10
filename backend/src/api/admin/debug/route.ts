@@ -4,11 +4,16 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 /**
  * This endpoint helps diagnose and fix seller_product associations
  * Use with caution - only for debugging orphaned products
+ * SECURITY: Restricted to non-production environments
  */
 export async function GET(
   req: MedusaRequest,
   res: MedusaResponse
 ) {
+  if (process.env.NODE_ENV === "production") {
+    return res.status(404).json({ error: "Not found" })
+  }
+
   // GET request for easy browser access - diagnose only
   try {
     const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION)
@@ -46,6 +51,10 @@ export async function POST(
   req: MedusaRequest,
   res: MedusaResponse
 ) {
+  if (process.env.NODE_ENV === "production") {
+    return res.status(404).json({ error: "Not found" })
+  }
+
   const body = req.body as { action?: string }
   const { action } = body
 

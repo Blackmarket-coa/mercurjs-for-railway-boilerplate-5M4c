@@ -15,6 +15,10 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
  * 3. member/seller chain - is the seller properly linked?
  */
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
+  if (process.env.NODE_ENV === "production") {
+    return res.status(404).json({ error: "Not found" })
+  }
+
   const email = req.query.email as string
   const actorType = req.query.actor_type as string
 

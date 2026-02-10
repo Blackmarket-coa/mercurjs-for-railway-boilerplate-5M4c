@@ -230,10 +230,8 @@ function getVendorCorsOrigins(): string {
     origins.add(process.env.VENDOR_PANEL_URL.trim())
   }
 
-  // Hardcode production origins to ensure they're always allowed
-  origins.add('https://vendor.freeblackmarket.com')
-  origins.add('https://freeblackmarket.com')
-  origins.add('https://admin.freeblackmarket.com')
+  // Production origins should be configured via VENDOR_CORS, STORE_CORS,
+  // ADMIN_CORS, and AUTH_CORS environment variables rather than hardcoded.
 
   return Array.from(origins).join(',')
 }
@@ -273,17 +271,19 @@ function vendorCorsMiddleware(
       return
     }
 
-    // Check for FreeBlackMarket.com and Railway domains
+    // Check for known subdomains only (not wildcard)
     try {
       const originUrl = new URL(reqOrigin)
       const hostname = originUrl.hostname.toLowerCase()
+      const allowedSubdomains = ['vendor.freeblackmarket.com', 'admin.freeblackmarket.com', 'freeblackmarket.com', 'api.freeblackmarket.com']
 
-      if (hostname.endsWith('.freeblackmarket.com') || hostname === 'freeblackmarket.com') {
+      if (allowedSubdomains.includes(hostname)) {
         callback(null, true)
         return
       }
 
-      if (hostname.endsWith('.up.railway.app')) {
+      // Allow Railway preview deployments in non-production only
+      if (process.env.NODE_ENV !== 'production' && hostname.endsWith('.up.railway.app')) {
         callback(null, true)
         return
       }
@@ -333,18 +333,7 @@ function adminCorsMiddleware(
       return
     }
 
-    // Check for known admin origins
-    const adminOrigins = [
-      'https://admin.freeblackmarket.com',
-      'https://admin-dashboard-production-cc8f.up.railway.app',
-    ]
-
-    if (adminOrigins.includes(reqOrigin)) {
-      callback(null, true)
-      return
-    }
-
-    // Check ADMIN_CORS env var
+    // Check ADMIN_CORS env var (production origins should be set here)
     const envAdminCors = process.env.ADMIN_CORS || ''
     const envOrigins = envAdminCors.split(',').map(o => o.trim()).filter(Boolean)
     if (envOrigins.includes(reqOrigin)) {
@@ -352,17 +341,19 @@ function adminCorsMiddleware(
       return
     }
 
-    // Allow Railway domains
+    // Check for known subdomains only (not wildcard)
     try {
       const originUrl = new URL(reqOrigin)
       const hostname = originUrl.hostname.toLowerCase()
+      const allowedSubdomains = ['admin.freeblackmarket.com', 'freeblackmarket.com']
 
-      if (hostname.endsWith('.up.railway.app')) {
+      if (allowedSubdomains.includes(hostname)) {
         callback(null, true)
         return
       }
 
-      if (hostname.endsWith('.freeblackmarket.com') || hostname === 'freeblackmarket.com') {
+      // Allow Railway preview deployments in non-production only
+      if (process.env.NODE_ENV !== 'production' && hostname.endsWith('.up.railway.app')) {
         callback(null, true)
         return
       }
@@ -417,7 +408,7 @@ async function securityHeadersMiddleware(
 
   // HSTS (only in production)
   if (isProduction) {
-    res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+    res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
   }
 
   // Other security headers

@@ -6,6 +6,7 @@ export default async function handleOrderPlaced({
   event: { data },
   container,
 }: SubscriberArgs<{ id: string }>) {
+  try {
   const query = container.resolve("query")
   const notificationModuleService = container.resolve("notification") as any
   const ticketBookingModuleService = container.resolve(
@@ -67,6 +68,10 @@ export default async function handleOrderPlaced({
       billing_address: order.billing_address
     },
   })
+  } catch (error) {
+    console.error(`[order-placed] Failed to process order ${data.id}:`, error)
+    // Don't throw - notification failure shouldn't break the order flow
+  }
 }
 
 export const config: SubscriberConfig = {
