@@ -1,4 +1,4 @@
-import { AdminOrderLineItem, AdminRegion, HttpTypes } from "@medusajs/types"
+import { AdminOrderLineItem, HttpTypes } from "@medusajs/types"
 
 export type OrderPaymentStatus =
   | "pending"
