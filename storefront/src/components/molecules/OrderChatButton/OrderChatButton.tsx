@@ -1,6 +1,6 @@
 "use client"
 
-import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline"
+import { MessageCircle } from "lucide-react"
 
 const ROCKETCHAT_URL = process.env.NEXT_PUBLIC_ROCKETCHAT_URL || ""
 
@@ -36,7 +36,7 @@ export const OrderChatButton = ({
       onClick={handleClick}
       className={`flex items-center gap-2 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors ${className}`}
     >
-      <ChatBubbleLeftRightIcon className="w-4 h-4" />
+      <MessageCircle className="w-4 h-4" />
       <span>Chat about this order</span>
     </button>
   )
