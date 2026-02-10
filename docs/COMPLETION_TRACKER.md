@@ -167,3 +167,10 @@ Mark an area as fully complete only when all criteria pass:
 - If desired, this can be split into:
   - `docs/COMPLETION_TRACKER.md` (status), and
   - `docs/COMPLETION_VALIDATION_PLAN.md` (execution playbook).
+
+
+## Phase 2 Execution Status
+
+- ✅ A runnable validation script is available at `scripts/release_validation.sh` to execute backend/storefront validation, Hawala-first smoke checks, and integration contract/failure-path checks.
+- ✅ A companion runbook is available at `docs/RELEASE_VALIDATION_PLAYBOOK.md` for local + CI execution.
+- ⏭️ Next execution step: provide environment tokens/URLs and run the script in CI on each release branch.
