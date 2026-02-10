@@ -23,12 +23,14 @@ import {
   useDisconnectWooCommerce,
   useWooPreview,
   useWooImport,
+  usePrintfulCatalogPreview,
+  usePrintfulImport,
 } from "../../../hooks/api"
 import { getProductImportCsvTemplate } from "./helpers/import-template"
 import { ImportSummary } from "./components/import-summary"
 import { UploadImport } from "./components/upload-import"
 
-type ProductImportSource = "woocommerce" | "online_store" | "csv"
+type ProductImportSource = "woocommerce" | "online_store" | "csv" | "printful"
 
 type ExternalImportCandidate = {
   id: string
@@ -41,6 +43,7 @@ const SOURCE_OPTIONS: { label: string; value: ProductImportSource }[] = [
   { label: "WooCommerce", value: "woocommerce" },
   { label: "Online store", value: "online_store" },
   { label: "CSV upload", value: "csv" },
+  { label: "Printful catalog", value: "printful" },
 ]
 
 const SOURCE_HELPERS: Record<ProductImportSource, string> = {
@@ -49,6 +52,8 @@ const SOURCE_HELPERS: Record<ProductImportSource, string> = {
   online_store:
     "Paste product, collection, or shop links from any online store to build your import list.",
   csv: "Upload a CSV file and import many products at once.",
+  printful:
+    "Browse your configured Printful catalog and import POD products into your vendor catalog.",
 }
 
 export const ProductImport = () => {
@@ -215,6 +220,8 @@ const ProductImportContent = () => {
 
         {sourceType === "woocommerce" && <WooCommerceImportSection />}
 
+        {sourceType === "printful" && <PrintfulImportSection />}
+
         {sourceType === "csv" && (
           <>
             <Heading className="mt-6" level="h2">
@@ -368,6 +375,126 @@ const ProductImportContent = () => {
           </Button>
         </RouteDrawer.Close>
       </RouteDrawer.Footer>
+    </>
+  )
+}
+
+const PrintfulImportSection = () => {
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([])
+  const [importAsDraft, setImportAsDraft] = useState(true)
+
+  const {
+    products,
+    isLoading,
+    isError,
+    error,
+  } = usePrintfulCatalogPreview({ limit: 30 })
+
+  const { mutateAsync: importPrintfulProducts, isPending: isImporting } = usePrintfulImport()
+
+  const catalogProducts = Array.isArray(products) ? products : []
+
+  const toggleProduct = (productId: string, checked: boolean) => {
+    setSelectedProductIds((prev) =>
+      checked ? [...new Set([...prev, productId])] : prev.filter((id) => id !== productId)
+    )
+  }
+
+  const handleImport = async () => {
+    if (!selectedProductIds.length) {
+      toast.error("Select at least one Printful product to import.")
+      return
+    }
+
+    await importPrintfulProducts(
+      {
+        product_ids: selectedProductIds,
+        import_as_draft: importAsDraft,
+      },
+      {
+        onSuccess: (response) => {
+          toast.success(
+            `Imported ${response?.result?.imported || 0} Printful products.`
+          )
+          setSelectedProductIds([])
+        },
+        onError: (err) => {
+          toast.error(err.message || "Failed to import Printful products.")
+        },
+      }
+    )
+  }
+
+  return (
+    <>
+      <Heading className="mt-6" level="h2">
+        2) Choose Printful products
+      </Heading>
+      <Text size="small" className="mt-1 text-ui-fg-subtle">
+        This uses the backend Printful integration. Configure PRINTFUL_API_KEY on
+        the backend environment first.
+      </Text>
+
+      {isLoading ? (
+        <Text size="small" className="mt-2 text-ui-fg-subtle">
+          Loading Printful catalog...
+        </Text>
+      ) : isError ? (
+        <Text size="small" className="mt-2 text-red-500">
+          {(error as Error)?.message || "Unable to load Printful catalog."}
+        </Text>
+      ) : (
+        <div className="mt-3 space-y-2 rounded-lg border border-ui-border-base p-3">
+          {catalogProducts.length ? (
+            catalogProducts.map((product: any) => {
+              const id = String(product.id)
+              const checked = selectedProductIds.includes(id)
+
+              return (
+                <label
+                  key={id}
+                  className="flex cursor-pointer items-start gap-2 rounded-md border border-ui-border-base px-3 py-2"
+                >
+                  <Checkbox
+                    checked={checked}
+                    onCheckedChange={(value) => toggleProduct(id, !!value)}
+                  />
+                  <div>
+                    <Text size="small" weight="plus">
+                      {product.name}
+                    </Text>
+                    <Text size="xsmall" className="text-ui-fg-subtle">
+                      #{product.id} {product.brand ? `· ${product.brand}` : ""}
+                    </Text>
+                  </div>
+                </label>
+              )
+            })
+          ) : (
+            <Text size="small" className="text-ui-fg-subtle">
+              No catalog products found in Printful.
+            </Text>
+          )}
+        </div>
+      )}
+
+      <div className="mt-4 flex items-center justify-between rounded-lg border border-ui-border-base p-4">
+        <div>
+          <Text size="small" weight="plus">
+            Import as draft
+          </Text>
+          <Text size="xsmall" className="text-ui-fg-subtle">
+            Keep imported Printful products in draft mode for review.
+          </Text>
+        </div>
+        <Switch checked={importAsDraft} onCheckedChange={setImportAsDraft} />
+      </div>
+
+      <div className="mt-4">
+        <Button type="button" size="small" onClick={handleImport} isLoading={isImporting}>
+          Import {selectedProductIds.length} Printful products
+        </Button>
+      </div>
     </>
   )
 }
