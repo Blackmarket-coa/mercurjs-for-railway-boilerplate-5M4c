@@ -173,16 +173,14 @@ export const useSellerSession = (
         }
       }
 
-      return fetchSellerSession(token)
+      const session = await fetchSellerSession(token)
+      hydrateSellerSessionCache(queryClient, session)
+      return session
     },
     queryKey: usersQueryKeys.session(),
     staleTime: 30000,
     retry: false,
     ...options,
-    onSuccess: (session) => {
-      hydrateSellerSessionCache(queryClient, session)
-      options?.onSuccess?.(session)
-    },
   })
 
   return {

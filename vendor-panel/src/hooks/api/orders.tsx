@@ -77,7 +77,7 @@ export const useOrder = (
 
       return fetchQuery(`/vendor/orders/${id}`, {
         method: "GET",
-        query,
+        query: query as Record<string, string | number>,
       })
     },
     queryKey: ordersQueryKeys.detail(id, query),
@@ -104,7 +104,7 @@ export const useOrderCommission = (
 
       return fetchQuery(`/vendor/orders/${id}/commission`, {
         method: "GET",
-        query,
+        query: query as Record<string, string | number>,
       })
     },
     queryKey: ordersQueryKeys.detail(`${id}/commission`, query),
@@ -136,7 +136,7 @@ export const useOrderPreview = (
 
       return fetchQuery(`/vendor/orders/${id}`, {
         method: "GET",
-        query,
+        query: query as Record<string, string | number>,
       })
     },
     queryKey: ordersQueryKeys.preview(id),

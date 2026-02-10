@@ -1,38 +1,19 @@
-import {
-  Buildings,
-  ChevronDownMini,
-  CogSixTooth,
-  CurrencyDollar,
-  MagnifyingGlass,
-  MinusMini,
-  ReceiptPercent,
-  ShoppingCart,
-  Tag,
-  Users,
-  Component,
-  Star,
-  ListCheckbox,
-  ChatBubbleLeftRight,
-  CalendarMini,
-  CashSolid,
-} from "@medusajs/icons"
+import { ChevronDownMini, CogSixTooth, MagnifyingGlass, MinusMini } from "@medusajs/icons"
 import { Badge, Divider, Text, clx } from "@medusajs/ui"
 import { Collapsible as RadixCollapsible } from "radix-ui"
 import { useTranslation } from "react-i18next"
 
 import { Skeleton } from "../../common/skeleton"
-import { INavItem, NavItem } from "../../layout/nav-item"
+import { NavItem } from "../../layout/nav-item"
 import { Shell } from "../../layout/shell"
 
 import { useLocation } from "react-router-dom"
 import { useMe } from "../../../hooks/api"
-import { useVendorNavigation, NavItemConfig } from "../../../hooks/navigation"
+import { useVendorNavigation } from "../../../hooks/navigation"
 
 import { useSearch } from "../../../providers/search-provider"
 import { UserMenu } from "../user-menu"
-import { StripeIcon } from "../../../assets/icons/Stripe"
 import { ImageAvatar } from "../../common/image-avatar"
-import { useRocketChat } from "../../../providers/rocketchat-provider"
 import { useVendorType } from "../../../providers/vendor-type-provider"
 
 export const MainLayout = () => {

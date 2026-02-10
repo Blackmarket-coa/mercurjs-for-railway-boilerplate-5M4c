@@ -12,7 +12,6 @@ import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 export const ExtensionsSettings = () => {
   const { seller, isPending: sellerPending } = useMe()
   const {
-    vendorType,
     features,
     defaultFeatures,
     enabledExtensions,

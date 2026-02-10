@@ -8,7 +8,7 @@ const REFUND_REASON_QUERY_KEY = "refund-reason" as const
 export const refundReasonQueryKeys = queryKeysFactory(REFUND_REASON_QUERY_KEY)
 
 export const useRefundReasons = (
-  query?: HttpTypes.RefundReasonFilters,
+  query?: HttpTypes.AdminRefundReasonListParams,
   options?: Omit<
     UseQueryOptions<
       HttpTypes.RefundReasonsResponse,
