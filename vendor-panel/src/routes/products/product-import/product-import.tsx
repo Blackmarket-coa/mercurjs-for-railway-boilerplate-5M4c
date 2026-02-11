@@ -90,6 +90,7 @@ const ProductImportContent = () => {
     ExternalImportCandidate[]
   >([])
   const [selectedCandidates, setSelectedCandidates] = useState<string[]>([])
+  const [queuedCandidateIds, setQueuedCandidateIds] = useState<string[]>([])
 
   const { mutateAsync: importProducts, isPending, data } = useImportProducts()
   const { handleSuccess } = useRouteModal()
@@ -160,9 +161,27 @@ const ProductImportContent = () => {
       return
     }
 
+    setQueuedCandidateIds(selectedCandidates)
+
     toast.info(
       `${selectedCandidates.length} products queued for review & publish.`
     )
+  }
+
+  const handleReviewAndPublish = () => {
+    if (sourceType === "online_store" && !queuedCandidateIds.length) {
+      toast.error("Import selected products before review & publish.")
+      return
+    }
+
+    const queuedCount = queuedCandidateIds.length
+
+    toast.success(
+      queuedCount
+        ? `${queuedCount} products sent to review & publish.`
+        : "Products sent to review & publish."
+    )
+    handleSuccess()
   }
 
   const uploadedFileActions = [
@@ -369,11 +388,18 @@ const ProductImportContent = () => {
         )}
       </RouteDrawer.Body>
       <RouteDrawer.Footer>
-        <RouteDrawer.Close asChild>
-          <Button size="small" variant="secondary">
-            {t("actions.cancel")}
-          </Button>
-        </RouteDrawer.Close>
+        <div className="flex w-full items-center justify-end gap-2">
+          <RouteDrawer.Close asChild>
+            <Button size="small" variant="secondary">
+              {t("actions.cancel")}
+            </Button>
+          </RouteDrawer.Close>
+          {sourceType === "online_store" && (
+            <Button size="small" onClick={handleReviewAndPublish}>
+              Review &amp; publish
+            </Button>
+          )}
+        </div>
       </RouteDrawer.Footer>
     </>
   )
