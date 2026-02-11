@@ -66,16 +66,18 @@ const getDatabaseDriverOptions = () => {
   const databaseUrl = process.env.DATABASE_URL
   if (!databaseUrl) return undefined
   const isProduction = process.env.NODE_ENV === 'production'
-  const sslRejectUnauthorizedEnv = process.env.DB_SSL_REJECT_UNAUTHORIZED
-  const shouldRejectUnauthorized = sslRejectUnauthorizedEnv == null
-    ? true
-    : sslRejectUnauthorizedEnv.toLowerCase() !== 'false'
-
   // Auto-detect Railway PostgreSQL and enable SSL
   const isRailway = databaseUrl.includes('railway.app') ||
                     databaseUrl.includes('railway.internal') ||
                     databaseUrl.includes('sslmode=require') ||
                     !!process.env.RAILWAY_ENVIRONMENT
+
+  const sslRejectUnauthorizedEnv = process.env.DB_SSL_REJECT_UNAUTHORIZED
+  // Default to false for Railway (self-signed certs) and true otherwise.
+  // Can always be overridden via DB_SSL_REJECT_UNAUTHORIZED env var.
+  const shouldRejectUnauthorized = sslRejectUnauthorizedEnv == null
+    ? !isRailway
+    : sslRejectUnauthorizedEnv.toLowerCase() !== 'false'
 
   // Connection pool settings — applied to all environments to prevent
   // KnexTimeoutError on "SELECT 1" health-check queries.
@@ -95,9 +97,9 @@ const getDatabaseDriverOptions = () => {
     return { pool }
   }
 
-  // SECURITY: Default to strict TLS verification everywhere.
-  // Operational escape hatch: explicit DB_SSL_REJECT_UNAUTHORIZED=false can be used
-  // temporarily in any environment while CA trust is corrected.
+  // Railway uses self-signed certs so rejectUnauthorized defaults to false there.
+  // Non-Railway environments default to strict verification.
+  // Override via DB_SSL_REJECT_UNAUTHORIZED env var in any environment.
   const ssl: { rejectUnauthorized: boolean; ca?: string } = {
     rejectUnauthorized: shouldRejectUnauthorized,
   }
@@ -105,11 +107,6 @@ const getDatabaseDriverOptions = () => {
   // Optional custom CA bundle for managed DBs that don't chain to system trust.
   if (process.env.DB_SSL_CA) {
     ssl.ca = process.env.DB_SSL_CA.replace(/\\n/g, '\n')
-  }
-
-  // Extra guardrail: keep production strict unless explicitly overridden.
-  if (isProduction && sslRejectUnauthorizedEnv == null) {
-    ssl.rejectUnauthorized = true
   }
 
   return {
