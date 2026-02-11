@@ -27,6 +27,8 @@
       "filterOnly(supported_countries)",
       "searchable(title)",
       "seller.vendor_type",
+      "type.value",
+      "sales_channels.name",
       "variants.color",
       "variants.condition",
       "variants.prices.currency_code",
