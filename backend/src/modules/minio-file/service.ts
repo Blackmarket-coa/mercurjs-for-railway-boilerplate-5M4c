@@ -46,6 +46,23 @@ class MinioFileProviderService extends AbstractFileProviderService {
   protected readonly useSSL: boolean
   protected readonly publicUrl: string | null
 
+  private getErrorDetails(error: unknown): string {
+    if (error instanceof Error) {
+      const details = [error.name, error.message, error.stack].filter(Boolean).join(' | ')
+      return details || 'Unknown Error'
+    }
+
+    if (typeof error === 'string') {
+      return error
+    }
+
+    try {
+      return JSON.stringify(error)
+    } catch {
+      return String(error)
+    }
+  }
+
   constructor({ logger }: InjectedDependencies, options: MinioFileProviderOptions) {
     super()
     this.logger_ = logger
@@ -104,7 +121,8 @@ class MinioFileProviderService extends AbstractFileProviderService {
 
     // Initialize bucket and policy
     this.initializeBucket().catch(error => {
-      this.logger_.error(`Failed to initialize MinIO bucket: ${error.message}`)
+      const errorDetails = this.getErrorDetails(error)
+      this.logger_.error(`Failed to initialize MinIO bucket "${this.bucket}": ${errorDetails}`)
     })
   }
 
@@ -171,11 +189,13 @@ class MinioFileProviderService extends AbstractFileProviderService {
           await this.client.setBucketPolicy(this.bucket, JSON.stringify(policy))
           this.logger_.info(`Updated public read policy for existing bucket: ${this.bucket}`)
         } catch (policyError) {
-          this.logger_.warn(`Failed to update policy for existing bucket: ${policyError.message}`)
+          const policyErrorDetails = this.getErrorDetails(policyError)
+          this.logger_.warn(`Failed to update policy for existing bucket "${this.bucket}": ${policyErrorDetails}`)
         }
       }
     } catch (error) {
-      this.logger_.error(`Error initializing bucket: ${error.message}`)
+      const errorDetails = this.getErrorDetails(error)
+      this.logger_.error(`Error initializing bucket "${this.bucket}": ${errorDetails}`)
       throw error
     }
   }
