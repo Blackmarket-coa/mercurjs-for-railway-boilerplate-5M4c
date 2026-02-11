@@ -12,6 +12,7 @@ import Script from "next/script"
 import { getRegion, listRegions } from "@/lib/data/regions"
 import { listProducts } from "@/lib/data/products"
 import { toHreflang } from "@/lib/helpers/hreflang"
+import { isUnifiedListingEnabled } from "@/lib/feature-flags"
 
 export const revalidate = 60
 
@@ -183,8 +184,10 @@ async function Category({
       <h1 className="heading-xl uppercase">{category.name}</h1>
 
       <Suspense key={page} fallback={<ProductListingSkeleton />}>
-        {bot || !ALGOLIA_ID || !ALGOLIA_SEARCH_KEY ? (
-          <ProductListing category_id={category.id} showSidebar page={page} />
+        {isUnifiedListingEnabled() ? (
+          <ProductListing category_id={category.id} showSidebar locale={locale} page={page} />
+        ) : bot || !ALGOLIA_ID || !ALGOLIA_SEARCH_KEY ? (
+          <ProductListing category_id={category.id} showSidebar locale={locale} page={page} />
         ) : (
           <AlgoliaProductsListing
             category_id={category.id}
