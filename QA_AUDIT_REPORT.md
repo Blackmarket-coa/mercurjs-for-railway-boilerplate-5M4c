@@ -11,7 +11,7 @@
 This audit covers the full MercurJS marketplace platform: a MedusaJS v2 backend with 42 custom modules, 214 API routes (admin/store/vendor), a Next.js 15 storefront, and React-based admin + vendor panels. The codebase is feature-rich but has **critical security gaps**, **missing authorization checks**, **weak input validation**, and **near-zero test coverage**.
 
 **Issues found:** 58 total (11 CRITICAL, 15 HIGH, 20 MEDIUM, 12 LOW)
-**Issues fixed in this audit:** 10 (all CRITICAL/HIGH)
+**Issues fixed in this audit:** 14 (CRITICAL/HIGH + hardening improvements)
 
 ---
 
@@ -30,6 +30,9 @@ This audit covers the full MercurJS marketplace platform: a MedusaJS v2 backend 
 | 9 | **HIGH** | Multiple API routes leaked internal error.message to client responses | `backend/src/api/store/hawala/withdraw/route.ts`, `backend/src/api/admin/hawala/transfers/route.ts` |
 | 10 | **MEDIUM** | Next.js `ignoreBuildErrors: true` and `ignoreDuringBuilds: true` masked type/lint errors in production | `storefront/next.config.ts` |
 | 11 | **MEDIUM** | HSTS header missing `preload` directive | `backend/src/api/middlewares.ts` |
+| 12 | **CRITICAL** | Database SSL certificate verification now enforced in production (no `rejectUnauthorized: false`) | `backend/medusa-config.ts` |
+| 13 | **CRITICAL** | Hawala investments endpoint N+1 pool queries replaced with bulk pool fetch | `backend/src/api/store/hawala/investments/route.ts` |
+| 14 | **CRITICAL** | Store Hawala deposit/withdraw now correctly rate-limited via exact middleware matchers | `backend/src/api/store/hawala/middlewares.ts` |
 
 ---
 
@@ -37,11 +40,9 @@ This audit covers the full MercurJS marketplace platform: a MedusaJS v2 backend 
 
 ### CRITICAL
 
-| # | Issue | File | Details |
-|---|-------|------|---------|
-| C1 | SSL `rejectUnauthorized: false` disables certificate verification | `backend/medusa-config.ts:79` | Vulnerable to MITM attacks. Should validate certificates in production. |
-| C2 | N+1 query patterns in hawala investment/pool routes | `backend/src/api/store/hawala/investments/route.ts:24-38` | Each investment triggers separate DB query. DoS risk with many records. |
-| C3 | Missing rate limiting on financial operations (withdraw/deposit) | `backend/src/api/store/hawala/withdraw/route.ts` | Compromised account could drain funds rapidly. |
+✅ Previously listed CRITICAL findings (C1–C3) were remediated in code.
+
+⚠️ Operational note: if managed DB TLS trust is misconfigured, production startup can still fail until CA trust is provided (`DB_SSL_CA`) or an explicit temporary override (`DB_SSL_REJECT_UNAUTHORIZED=false`) is set.
 
 ### HIGH
 
@@ -200,4 +201,7 @@ backend/src/api/admin/hawala/transfers/route.ts    — Added pagination bounds, 
 backend/src/api/store/hawala/withdraw/route.ts     — Removed error.message exposure
 backend/src/api/deliveries/[id]/accept/route.ts    — Changed console.log to console.error for error logging
 storefront/next.config.ts                          — Set ignoreBuildErrors and ignoreDuringBuilds to false
+backend/medusa-config.ts                            — Enforced DB SSL certificate verification in production (dev-only insecure opt-out)
+backend/src/api/store/hawala/investments/route.ts  — Removed N+1 pool fetch pattern by batching investment pool retrieval
+backend/src/api/store/hawala/middlewares.ts         — Corrected deposit/withdraw rate-limit route matchers
 ```

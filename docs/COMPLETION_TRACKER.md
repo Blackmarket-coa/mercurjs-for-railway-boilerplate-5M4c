@@ -1,6 +1,6 @@
 # Repository Completion Tracker
 
-_Last updated: 2026-02-10_
+_Last updated: 2026-02-11_
 
 This tracker summarizes implementation coverage found in the repository for the requested areas: **modules**, **extensions/integrations**, **custom features**, **Hawala system**, and **storefront features**.
 
@@ -173,4 +173,5 @@ Mark an area as fully complete only when all criteria pass:
 
 - ✅ A runnable validation script is available at `scripts/release_validation.sh` to execute backend/storefront validation, Hawala-first smoke checks, and integration contract/failure-path checks.
 - ✅ A companion runbook is available at `docs/RELEASE_VALIDATION_PLAYBOOK.md` for local + CI execution.
+- ✅ Critical security remediations landed: DB SSL now defaults to strict verification with explicit env-based operational controls (`DB_SSL_CA`, `DB_SSL_REJECT_UNAUTHORIZED`), Hawala investments N+1 query pattern removed, and store Hawala deposit/withdraw rate-limit matchers corrected.
 - ⏭️ Next execution step: provide environment tokens/URLs and run the script in CI on each release branch.
