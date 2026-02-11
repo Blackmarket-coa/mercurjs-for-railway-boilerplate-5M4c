@@ -87,6 +87,8 @@ const ONLINE_STORE_IMPORT_BASE_HEADERS = [
 
 const ONLINE_STORE_FALLBACK_CURRENCIES = ["usd"]
 const ONLINE_STORE_DEFAULT_PRICE_AMOUNT = 100
+const ONLINE_STORE_DEFAULT_OPTION_NAME = "Title"
+const ONLINE_STORE_DEFAULT_OPTION_VALUE = "Default Title"
 
 const SOURCE_OPTIONS: { label: string; value: ProductImportSource }[] = [
   { label: "WooCommerce", value: "woocommerce" },
@@ -319,8 +321,8 @@ const ProductImportContent = () => {
         ...onlineStorePriceCurrencies.map(() =>
           String(ONLINE_STORE_DEFAULT_PRICE_AMOUNT)
         ),
-        "",
-        "",
+        ONLINE_STORE_DEFAULT_OPTION_NAME,
+        ONLINE_STORE_DEFAULT_OPTION_VALUE,
         "",
         "",
       ]
