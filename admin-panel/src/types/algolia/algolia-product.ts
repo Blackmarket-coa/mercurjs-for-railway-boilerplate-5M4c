@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { StoreStatus } from "../seller";
+import { VendorType } from "../domain";
 
 export type AlgoliaProduct = z.infer<typeof AlgoliaProductValidator>;
 export const AlgoliaProductValidator = z.object({
@@ -82,8 +83,17 @@ export const AlgoliaProductValidator = z.object({
       id: z.string(),
       handle: z.string().nullish(),
       store_status: z.nativeEnum(StoreStatus).nullish(),
+      vendor_type: z.nativeEnum(VendorType).nullish(),
     })
     .nullable(),
+  sales_channels: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+      })
+    )
+    .optional(),
 });
 
 export const AlgoliaVariantValidator = z.object({

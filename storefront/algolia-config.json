@@ -68,6 +68,9 @@
       "facetOrdering": {
         "facets": {
           "order": [
+            "categories.name",
+            "type.value",
+            "sales_channels.name",
             "seller.vendor_type",
             "variants.color",
             "variants.size",
@@ -75,6 +78,18 @@
           ]
         },
         "values": {
+          "categories.name": {
+            "sortRemainingBy": "alpha"
+          },
+          "type.value": {
+            "sortRemainingBy": "alpha"
+          },
+          "sales_channels.name": {
+            "sortRemainingBy": "alpha"
+          },
+          "seller.vendor_type": {
+            "sortRemainingBy": "count"
+          },
           "variants.color": {
             "sortRemainingBy": "count"
           },
