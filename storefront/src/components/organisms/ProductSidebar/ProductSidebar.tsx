@@ -16,6 +16,10 @@ import useFilters from "@/hooks/useFilters"
 export const ProductSidebar = () => {
   const [filterModal, setFilterModal] = useState(false)
   const { clearAllFilters } = useFilters("")
+  const isAlgoliaConfigured = Boolean(
+    process.env.NEXT_PUBLIC_ALGOLIA_ID &&
+      process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY
+  )
 
   return (
     <aside className="w-full relative">
@@ -66,9 +70,11 @@ export const ProductSidebar = () => {
           </Button>
         </div>
       </div>
-      <div className="absolute z-10 bg-primary p-8 w-full top-4 heading-md text-center rounded-lg shadow-md">
-        Set your Algolia ID and configure filters to enable product filtering
-      </div>
+      {!isAlgoliaConfigured && (
+        <div className="absolute z-10 bg-primary p-8 w-full top-4 heading-md text-center rounded-lg shadow-md">
+          Set your Algolia ID and configure filters to enable product filtering
+        </div>
+      )}
     </aside>
   )
 }
