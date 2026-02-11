@@ -15,13 +15,13 @@ const getOption = (label: string) => {
       return "average_rating"
     case "category":
     case "categories":
-      return "categories.id"
+      return "categories.name"
     case "type":
     case "product_type":
       return "type.value"
     case "sales_channel":
     case "sales_channel_id":
-      return "sales_channels.id"
+      return "sales_channels.name"
     default:
       return ""
   }
