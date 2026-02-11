@@ -354,6 +354,23 @@ const notificationModules = (() => {
 // Export Configuration
 // ============================================================================
 
+
+const isMedusaBuildCommand = process.argv.some(arg => arg === 'build')
+
+const getRequiredSecret = (envName: 'JWT_SECRET' | 'COOKIE_SECRET'): string => {
+  const configured = process.env[envName]
+  if (configured) return configured
+
+  if (process.env.NODE_ENV !== 'production' || isMedusaBuildCommand) {
+    if (process.env.NODE_ENV === 'production' && isMedusaBuildCommand) {
+      console.warn(`[medusa-config] ${envName} is not set during build; using a temporary fallback secret for build-time config loading.`)
+    }
+    return 'dev-only-secret-change-in-production-32chars'
+  }
+
+  throw new Error(`${envName} is required in production`)
+}
+
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
@@ -364,12 +381,8 @@ module.exports = defineConfig({
       adminCors,
       vendorCors,
       authCors,
-      jwtSecret: process.env.JWT_SECRET || (process.env.NODE_ENV === 'production'
-        ? (() => { throw new Error('JWT_SECRET is required in production') })()
-        : 'dev-only-secret-change-in-production-32chars'),
-      cookieSecret: process.env.COOKIE_SECRET || (process.env.NODE_ENV === 'production'
-        ? (() => { throw new Error('COOKIE_SECRET is required in production') })()
-        : 'dev-only-secret-change-in-production-32chars'),
+      jwtSecret: getRequiredSecret('JWT_SECRET'),
+      cookieSecret: getRequiredSecret('COOKIE_SECRET'),
     } as any,
   },
   admin: {
