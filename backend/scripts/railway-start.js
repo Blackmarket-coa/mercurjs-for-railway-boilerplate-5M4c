@@ -170,16 +170,29 @@ async function main() {
     shell: true,
   });
 
+  let shutdownSignal = null;
+
   // Handle server process signals
   serverProcess.on('error', (error) => {
     log(`Server failed to start: ${error.message}`, 'error');
     process.exit(1);
   });
 
-  serverProcess.on('exit', (code) => {
+  serverProcess.on('exit', (code, signal) => {
+    if (signal && shutdownSignal === signal) {
+      log(`Server shutdown completed after ${signal}`);
+      process.exit(0);
+    }
+
+    if (signal) {
+      log(`Server exited due to signal ${signal}`, 'error');
+      process.exit(1);
+    }
+
     if (code !== 0) {
       log(`Server exited with code ${code}`, 'error');
     }
+
     process.exit(code || 0);
   });
 
@@ -187,7 +200,15 @@ async function main() {
   ['SIGTERM', 'SIGINT'].forEach((signal) => {
     process.on(signal, () => {
       log(`Received ${signal}, forwarding to server...`);
+      shutdownSignal = signal;
       serverProcess.kill(signal);
+
+      setTimeout(() => {
+        if (!serverProcess.killed) {
+          log(`Server did not stop after ${signal}, sending SIGKILL`, 'warn');
+          serverProcess.kill('SIGKILL');
+        }
+      }, 10_000);
     });
   });
 }
