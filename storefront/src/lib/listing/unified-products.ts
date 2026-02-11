@@ -46,6 +46,23 @@ const DEFAULT_DIAGNOSTICS = {
 const isSuspended = (product: HttpTypes.StoreProduct) =>
   ((product as any)?.seller?.store_status as string | undefined) === "SUSPENDED"
 
+const getProductSellerIdentifiers = (product: HttpTypes.StoreProduct) => {
+  const productAny = product as any
+
+  return {
+    id:
+      (productAny?.seller?.id as string | undefined) ??
+      (productAny?.seller?.seller_id as string | undefined) ??
+      (productAny?.seller_id as string | undefined) ??
+      (productAny?.metadata?.seller_id as string | undefined) ??
+      "",
+    handle:
+      (productAny?.seller?.handle as string | undefined) ??
+      (productAny?.metadata?.seller_handle as string | undefined) ??
+      "",
+  }
+}
+
 const applyPolicyFilters = (
   products: HttpTypes.StoreProduct[],
   input: UnifiedProductListInput
@@ -59,7 +76,7 @@ const applyPolicyFilters = (
     }
 
     if (input.sellerId) {
-      const sellerId = ((product as any)?.seller?.id as string | undefined) ?? ""
+      const sellerId = getProductSellerIdentifiers(product).id
       if (sellerId !== input.sellerId) {
         diagnostics.droppedByPolicy += 1
         return false
@@ -67,8 +84,7 @@ const applyPolicyFilters = (
     }
 
     if (input.sellerHandle) {
-      const sellerHandle =
-        ((product as any)?.seller?.handle as string | undefined) ?? ""
+      const sellerHandle = getProductSellerIdentifiers(product).handle
       if (sellerHandle !== input.sellerHandle) {
         diagnostics.droppedByPolicy += 1
         return false
