@@ -33,7 +33,9 @@
       "variants.size",
       "filterOnly(collection.id)",
       "filterOnly(collection_id)",
-      "filterOnly(variants.prices.amount)"
+      "filterOnly(variants.prices.amount)",
+      "filterOnly(type.value)",
+      "filterOnly(sales_channels.id)"
     ],
     "attributesToSnippet": null,
     "attributesToHighlight": null,

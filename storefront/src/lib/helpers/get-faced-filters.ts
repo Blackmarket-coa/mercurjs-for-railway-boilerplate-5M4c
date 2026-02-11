@@ -13,6 +13,15 @@ const getOption = (label: string) => {
       return "seller.vendor_type"
     case "rating":
       return "average_rating"
+    case "category":
+    case "categories":
+      return "categories.id"
+    case "type":
+    case "product_type":
+      return "type.value"
+    case "sales_channel":
+    case "sales_channel_id":
+      return "sales_channels.id"
     default:
       return ""
   }
@@ -38,17 +47,23 @@ export const getFacedFilters = (filters: ReadonlyURLSearchParams): string => {
       key !== "sortBy" &&
       key !== "rating"
     ) {
+      const filterKey = getOption(key)
+
+      if (!filterKey) {
+        continue
+      }
+
       let values = ""
       const splittedSize = value.split(",")
       if (splittedSize.length > 1) {
         splittedSize.map(
           (value, index) =>
-            (values += `${getOption(key)}:"${value}" ${
+            (values += `${filterKey}:"${value}" ${
               index + 1 < splittedSize.length ? "OR " : ""
             }`)
         )
       } else {
-        values += `${getOption(key)}:"${splittedSize[0]}"`
+        values += `${filterKey}:"${splittedSize[0]}"`
       }
       facet += ` AND ${values}`
     } else {
