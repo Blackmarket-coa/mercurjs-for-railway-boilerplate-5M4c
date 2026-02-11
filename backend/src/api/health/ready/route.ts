@@ -57,9 +57,9 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         variables: { take: 1 },
       })
 
-      await withTimeout(dbCheckPromise, 5000, null)
-      checks.database = true
-      lastDbCheck = { healthy: true, timestamp: now }
+      const result = await withTimeout(dbCheckPromise, 5000, null)
+      checks.database = result !== null
+      lastDbCheck = { healthy: checks.database, timestamp: now }
     } catch (error) {
       console.error("[Health] Database check failed:", error)
       checks.database = false

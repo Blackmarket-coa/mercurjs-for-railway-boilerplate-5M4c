@@ -92,7 +92,7 @@ const getDatabaseDriverOptions = () => {
   }
 
   if (!isRailway) {
-    return { connection: { pool } }
+    return { pool }
   }
 
   // SECURITY: Default to strict TLS verification everywhere.
@@ -113,7 +113,8 @@ const getDatabaseDriverOptions = () => {
   }
 
   return {
-    connection: { ssl, pool },
+    connection: { ssl },
+    pool,
   }
 }
 
