@@ -59,6 +59,10 @@ const nextConfig: NextConfig = {
     ]
   },
   images: {
+    // Railway deployments can intermittently time out on server-side image optimization
+    // for remote object storage URLs. Serving remote images directly avoids upstream
+    // optimizer timeouts while still allowing the same remote hosts.
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
