@@ -269,7 +269,7 @@ const ProductImportContent = () => {
         "",
         "",
         "",
-        "imported,online-store",
+        "",
         "true",
         reference,
         "",
