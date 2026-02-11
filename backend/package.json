@@ -40,7 +40,7 @@
     "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit --passWithNoTests"
   },
   "dependencies": {
-    "@bmc/restaurant-marketplace": "file:.yalc/@bmc/restaurant-marketplace",
+    "@bmc/restaurant-marketplace": "file:./restaurant-marketplace",
     "@medusajs/admin-sdk": "2.12.5",
     "@medusajs/cart": "2.12.5",
     "@medusajs/cli": "2.12.5",
@@ -77,7 +77,6 @@
     "medusajs-launch-utils": "^0.0.18",
     "minio": "^8.0.3",
     "multer": "^2.0.2",
-    "my-plugin": "file:.yalc/my-plugin",
     "nodemailer": "^6.9.15",
     "pg": "^8.13.0",
     "qrcode": "^1.5.4",

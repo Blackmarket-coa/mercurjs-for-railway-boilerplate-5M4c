@@ -21,8 +21,8 @@ importers:
   .:
     dependencies:
       '@bmc/restaurant-marketplace':
-        specifier: file:.yalc/@bmc/restaurant-marketplace
-        version: file:.yalc/@bmc/restaurant-marketplace(@medusajs/framework@2.12.5(@medusajs/cli@2.12.5(@types/node@20.19.28))(@types/node@20.19.28)(ioredis@5.9.1)(vite@5.4.21(@types/node@20.19.28)))(@medusajs/medusa@2.12.5)(@types/node@20.19.28)
+        specifier: file:./restaurant-marketplace
+        version: file:restaurant-marketplace(@medusajs/framework@2.12.5(@medusajs/cli@2.12.5(@types/node@20.19.28))(@types/node@20.19.28)(ioredis@5.9.1)(vite@5.4.21(@types/node@20.19.28)))(@medusajs/medusa@2.12.5)(@types/node@20.19.28)
       '@medusajs/admin-sdk':
         specifier: 2.12.5
         version: 2.12.5
@@ -131,9 +131,6 @@ importers:
       multer:
         specifier: ^2.0.2
         version: 2.0.2
-      my-plugin:
-        specifier: file:.yalc/my-plugin
-        version: file:.yalc/my-plugin(@medusajs/admin-sdk@2.12.5)(@medusajs/cli@2.12.5(@types/node@20.19.28))(@medusajs/framework@2.12.5(@medusajs/cli@2.12.5(@types/node@20.19.28))(@types/node@20.19.28)(ioredis@5.9.1)(vite@5.4.21(@types/node@20.19.28)))(@medusajs/icons@2.12.5(react@18.3.1))(@medusajs/medusa@2.12.5)(@medusajs/test-utils@2.12.5)(@medusajs/ui@4.0.28(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))
       nodemailer:
         specifier: ^6.9.15
         version: 6.10.1
@@ -792,8 +789,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@bmc/restaurant-marketplace@file:.yalc/@bmc/restaurant-marketplace':
-    resolution: {directory: .yalc/@bmc/restaurant-marketplace, type: directory}
+  '@bmc/restaurant-marketplace@file:restaurant-marketplace':
+    resolution: {directory: restaurant-marketplace, type: directory}
     engines: {node: '>=20'}
     peerDependencies:
       '@medusajs/framework': ^2.0.0
@@ -6376,18 +6373,6 @@ packages:
     resolution: {integrity: sha512-avsJQhyd+680gKXyG/sQc0nXaC6rBkPOfyHYcFb9+hdkqQkR9bdnkJ0AMZhke0oesPqIO+mFFJ+IdBc7mst4IA==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
 
-  my-plugin@file:.yalc/my-plugin:
-    resolution: {directory: .yalc/my-plugin, type: directory}
-    engines: {node: '>=20'}
-    peerDependencies:
-      '@medusajs/admin-sdk': 2.11.3
-      '@medusajs/cli': 2.11.3
-      '@medusajs/framework': 2.11.3
-      '@medusajs/icons': 2.11.3
-      '@medusajs/medusa': 2.11.3
-      '@medusajs/test-utils': 2.11.3
-      '@medusajs/ui': 4.0.27
-
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
 
@@ -9040,7 +9025,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@bmc/restaurant-marketplace@file:.yalc/@bmc/restaurant-marketplace(@medusajs/framework@2.12.5(@medusajs/cli@2.12.5(@types/node@20.19.28))(@types/node@20.19.28)(ioredis@5.9.1)(vite@5.4.21(@types/node@20.19.28)))(@medusajs/medusa@2.12.5)(@types/node@20.19.28)':
+  '@bmc/restaurant-marketplace@file:restaurant-marketplace(@medusajs/framework@2.12.5(@medusajs/cli@2.12.5(@types/node@20.19.28))(@types/node@20.19.28)(ioredis@5.9.1)(vite@5.4.21(@types/node@20.19.28)))(@medusajs/medusa@2.12.5)(@types/node@20.19.28)':
     dependencies:
       '@medusajs/admin-sdk': 2.12.3
       '@medusajs/cli': 2.12.3(@types/node@20.19.28)
@@ -16336,17 +16321,6 @@ snapshots:
   mute-stream@0.0.8: {}
 
   mute-stream@1.0.0: {}
-
-  my-plugin@file:.yalc/my-plugin(@medusajs/admin-sdk@2.12.5)(@medusajs/cli@2.12.5(@types/node@20.19.28))(@medusajs/framework@2.12.5(@medusajs/cli@2.12.5(@types/node@20.19.28))(@types/node@20.19.28)(ioredis@5.9.1)(vite@5.4.21(@types/node@20.19.28)))(@medusajs/icons@2.12.5(react@18.3.1))(@medusajs/medusa@2.12.5)(@medusajs/test-utils@2.12.5)(@medusajs/ui@4.0.28(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)):
-    dependencies:
-      '@medusajs/admin-sdk': 2.12.5
-      '@medusajs/cli': 2.12.5(@types/node@20.19.28)
-      '@medusajs/framework': 2.12.5(@medusajs/cli@2.12.5(@types/node@20.19.28))(@types/node@20.19.28)(ioredis@5.9.1)(vite@5.4.21(@types/node@20.19.28))
-      '@medusajs/icons': 2.12.5(react@18.3.1)
-      '@medusajs/medusa': 2.12.5(@medusajs/admin-sdk@2.12.5)(@medusajs/cli@2.12.5(@types/node@20.19.28))(@medusajs/framework@2.12.5(@medusajs/cli@2.12.5(@types/node@20.19.28))(@types/node@20.19.28)(ioredis@5.9.1)(vite@5.4.21(@types/node@20.19.28)))(@medusajs/icons@2.12.5(react@18.3.1))(@medusajs/test-utils@2.12.5)(@medusajs/ui@4.0.28(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@swc/core@1.15.7(@swc/helpers@0.5.18))(@types/node@20.19.28)(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(awilix@8.0.1)(picomatch@4.0.3)(posthog-node@5.20.0)(react-dom@18.3.1(react@18.3.1))(react-router-dom@6.20.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(typescript@5.9.3)(yalc@1.0.0-pre.53)
-      '@medusajs/test-utils': 2.12.5(@medusajs/core-flows@2.12.5(@medusajs/framework@2.12.5(@medusajs/cli@2.12.5(@types/node@20.19.28))(@types/node@20.19.28)(ioredis@5.9.1)(vite@5.4.21(@types/node@20.19.28))))(@medusajs/framework@2.12.5(@medusajs/cli@2.12.5(@types/node@20.19.28))(@types/node@20.19.28)(ioredis@5.9.1)(vite@5.4.21(@types/node@20.19.28)))(@medusajs/medusa@2.12.5)
-      '@medusajs/ui': 4.0.28(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
-      qrcode: 1.5.4
 
   mz@2.7.0:
     dependencies:
