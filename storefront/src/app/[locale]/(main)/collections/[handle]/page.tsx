@@ -5,6 +5,7 @@ import { AlgoliaProductsListing, ProductListing } from "@/components/sections"
 import { getCollectionByHandle } from "@/lib/data/categories"
 import { getRegion } from "@/lib/data/regions"
 import isBot from "@/lib/helpers/isBot"
+import { headers } from "next/headers"
 import { Suspense } from "react"
 
 const ALGOLIA_ID = process.env.NEXT_PUBLIC_ALGOLIA_ID
@@ -12,12 +13,17 @@ const ALGOLIA_SEARCH_KEY = process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY
 
 const SingleCollectionsPage = async ({
   params,
+  searchParams,
 }: {
   params: Promise<{ handle: string; locale: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) => {
   const { handle, locale } = await params
+  const { page: pageParam } = await searchParams
+  const page = Number(pageParam) || 1
 
-  const bot = isBot(navigator.userAgent)
+  const ua = (await headers()).get("user-agent") || ""
+  const bot = isBot(ua)
   const collection = await getCollectionByHandle(handle)
 
   if (!collection) return <NotFound />
@@ -39,9 +45,9 @@ const SingleCollectionsPage = async ({
 
       <h1 className="heading-xl uppercase">{collection.title}</h1>
 
-      <Suspense fallback={<ProductListingSkeleton />}>
+      <Suspense key={page} fallback={<ProductListingSkeleton />}>
         {bot || !ALGOLIA_ID || !ALGOLIA_SEARCH_KEY ? (
-          <ProductListing collection_id={collection.id} showSidebar />
+          <ProductListing collection_id={collection.id} showSidebar page={page} />
         ) : (
           <AlgoliaProductsListing
             collection_id={collection.id}
