@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom"
 import { Container, Heading, Button, Text, Badge } from "@medusajs/ui"
-import { ArrowLeft, MapPin, Clock, Phone, User, Package } from "@medusajs/icons"
+import { ArrowLeft, MapPin, Clock, Phone, User, ArchiveBox } from "@medusajs/icons"
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { useDashboardExtension } from "../../../extensions"
 import {
@@ -267,7 +267,7 @@ export function DeliveryDetail() {
             {/* Fees */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-warm-200">
               <div className="flex items-center gap-2 mb-4">
-                <Package className="text-warm-500" />
+                <ArchiveBox className="text-warm-500" />
                 <Heading level="h3" className="text-lg font-medium text-warm-900">
                   Order Details
                 </Heading>

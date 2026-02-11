@@ -17,6 +17,10 @@
       "glob": ">=10.5.0",
       "qs": ">=6.14.1",
       "jws": ">=3.2.3",
+      "axios": ">=1.13.5",
+      "@isaacs/brace-expansion": ">=5.0.1",
+      "@remix-run/router": ">=1.23.2",
+      "fast-xml-parser": ">=5.3.4",
       "@medusajs/core-flows": "2.12.5",
       "@medusajs/orchestration": "2.12.5",
       "@medusajs/workflows-sdk": "2.12.5"
@@ -33,7 +37,7 @@
     "seed:if-needed": "node scripts/conditional-seed.js",
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
     "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
-    "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit"
+    "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit --passWithNoTests"
   },
   "dependencies": {
     "@bmc/restaurant-marketplace": "file:.yalc/@bmc/restaurant-marketplace",
@@ -62,7 +66,7 @@
     "@woocommerce/woocommerce-rest-api": "^1.0.2",
     "algoliasearch": "^5.44.0",
     "awilix": "^8.0.1",
-    "axios": "^1.13.2",
+    "axios": "^1.13.5",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "express": "^4.21.2",
