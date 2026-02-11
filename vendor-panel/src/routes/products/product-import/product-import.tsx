@@ -16,7 +16,7 @@ import { useSearchParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { FilePreview } from "../../../components/common/file-preview"
 import { RouteDrawer, useRouteModal } from "../../../components/modals"
-import { useImportProducts } from "../../../hooks/api"
+import { useConfirmImportProducts, useImportProducts } from "../../../hooks/api"
 import {
   useWooConnection,
   useConnectWooCommerce,
@@ -38,6 +38,53 @@ type ExternalImportCandidate = {
   reference: string
   title: string
 }
+
+const ONLINE_STORE_IMPORT_HEADERS = [
+  "Product Id",
+  "Product Handle",
+  "Product Title",
+  "Product Subtitle",
+  "Product Description",
+  "Product Status",
+  "Product Thumbnail",
+  "Product Weight",
+  "Product Length",
+  "Product Width",
+  "Product Height",
+  "Product HS Code",
+  "Product Origin Country",
+  "Product MID Code",
+  "Product Material",
+  "Product Collection Title",
+  "Product Collection Handle",
+  "Product Type",
+  "Product Tags",
+  "Product Discountable",
+  "Product External Id",
+  "Product Profile Name",
+  "Product Profile Type",
+  "Variant Id",
+  "Variant Title",
+  "Variant SKU",
+  "Variant Barcode",
+  "Variant Inventory Quantity",
+  "Variant Allow Backorder",
+  "Variant Manage Inventory",
+  "Variant Weight",
+  "Variant Length",
+  "Variant Width",
+  "Variant Height",
+  "Variant HS Code",
+  "Variant Origin Country",
+  "Variant MID Code",
+  "Variant Material",
+  "Price EUR",
+  "Price USD",
+  "Option 1 Name",
+  "Option 1 Value",
+  "Image 1 Url",
+  "Image 2 Url",
+]
 
 const SOURCE_OPTIONS: { label: string; value: ProductImportSource }[] = [
   { label: "WooCommerce", value: "woocommerce" },
@@ -93,6 +140,8 @@ const ProductImportContent = () => {
   const [queuedCandidateIds, setQueuedCandidateIds] = useState<string[]>([])
 
   const { mutateAsync: importProducts, isPending, data } = useImportProducts()
+  const { mutateAsync: confirmImportProducts, isPending: isConfirmingImport } =
+    useConfirmImportProducts()
   const { handleSuccess } = useRouteModal()
 
   const productImportTemplateContent = useMemo(
@@ -168,9 +217,127 @@ const ProductImportContent = () => {
     )
   }
 
-  const handleReviewAndPublish = () => {
+  const buildOnlineStoreImportFile = (candidates: ExternalImportCandidate[]) => {
+    const rows = candidates.map((candidate) => {
+      const reference = candidate.reference
+      const parsedUrl = (() => {
+        try {
+          return new URL(reference)
+        } catch {
+          return null
+        }
+      })()
+
+      const hostName = parsedUrl?.hostname?.replace(/^www\./, "") || "online-store"
+      const slugPart =
+        parsedUrl?.pathname
+          ?.split("/")
+          .filter(Boolean)
+          .pop() ||
+        candidate.id
+      const normalizedSlug = slugPart
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "")
+      const handle = `${hostName}-${normalizedSlug || "product"}`
+
+      const titleFromSlug = normalizedSlug
+        .split("-")
+        .filter(Boolean)
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ")
+
+      const productTitle = titleFromSlug || candidate.title
+
+      const row = [
+        "",
+        handle,
+        productTitle,
+        "",
+        `Imported from ${reference}`,
+        "draft",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "imported,online-store",
+        "true",
+        reference,
+        "",
+        "",
+        "",
+        "Default",
+        "",
+        "",
+        "0",
+        "false",
+        "true",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "0",
+        "0",
+        "",
+        "",
+        "",
+        "",
+      ]
+
+      return row.join(";")
+    })
+
+    const content = [ONLINE_STORE_IMPORT_HEADERS.join(";"), ...rows].join("\n")
+
+    return new File([content], `online-store-import-${Date.now()}.csv`, {
+      type: "text/csv;charset=utf-8",
+    })
+  }
+
+  const handleReviewAndPublish = async () => {
     if (sourceType === "online_store" && !queuedCandidateIds.length) {
       toast.error("Import selected products before review & publish.")
+      return
+    }
+
+    const queuedCandidates = externalCandidates.filter((candidate) =>
+      queuedCandidateIds.includes(candidate.id)
+    )
+
+    if (!queuedCandidates.length) {
+      toast.error("No products found in the review queue.")
+      return
+    }
+
+    const importFile = buildOnlineStoreImportFile(queuedCandidates)
+
+    try {
+      const importResponse = await importProducts({ file: importFile })
+
+      if (!importResponse?.transaction_id) {
+        throw new Error("Import review could not be created.")
+      }
+
+      await confirmImportProducts(importResponse.transaction_id)
+    } catch (err) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Failed to import online store products."
+      )
       return
     }
 
@@ -395,7 +562,11 @@ const ProductImportContent = () => {
             </Button>
           </RouteDrawer.Close>
           {sourceType === "online_store" && (
-            <Button size="small" onClick={handleReviewAndPublish}>
+            <Button
+              size="small"
+              onClick={handleReviewAndPublish}
+              isLoading={isPending || isConfirmingImport}
+            >
               Review &amp; publish
             </Button>
           )}
