@@ -42,6 +42,9 @@ export const AlgoliaProductSidebar = () => {
         <Modal heading="Filters" onClose={() => setIsOpen(false)}>
           <div className="px-4">
             <ProductListingActiveFilters />
+            <CategoryFilter defaultOpen={Boolean(allSearchParams.category || allSearchParams.categories)} />
+            <ProductTypeFilter defaultOpen={Boolean(allSearchParams.type || allSearchParams.product_type)} />
+            <SalesChannelFilter defaultOpen={Boolean(allSearchParams.sales_channel)} />
             <VendorTypeFilter defaultOpen={Boolean(allSearchParams.vendor_type)} />
             <PriceFilter
               defaultOpen={Boolean(
@@ -57,6 +60,9 @@ export const AlgoliaProductSidebar = () => {
     </>
   ) : (
     <div>
+      <CategoryFilter />
+      <ProductTypeFilter />
+      <SalesChannelFilter />
       <VendorTypeFilter />
       <PriceFilter />
       <SizeFilter />
@@ -74,6 +80,87 @@ const vendorTypeLabels: Record<string, string> = {
   maker: "Makers & Artisans",
   restaurant: "Restaurants",
   mutual_aid: "Mutual Aid",
+}
+
+function CategoryFilter({ defaultOpen = true }: { defaultOpen?: boolean }) {
+  const { items } = useRefinementList({
+    attribute: "categories.name",
+    limit: 100,
+    operator: "or",
+  })
+
+  const { updateFilters, isFilterActive } = useFilters("category")
+
+  return (
+    <Accordion heading="Category" defaultOpen={defaultOpen}>
+      <ul className="px-4">
+        {items.map(({ label, count }) => (
+          <li key={label} className="mb-4">
+            <FilterCheckboxOption
+              checked={isFilterActive(label)}
+              disabled={Boolean(!count)}
+              onCheck={() => updateFilters(label)}
+              label={`${label} (${count})`}
+            />
+          </li>
+        ))}
+      </ul>
+    </Accordion>
+  )
+}
+
+function ProductTypeFilter({ defaultOpen = true }: { defaultOpen?: boolean }) {
+  const { items } = useRefinementList({
+    attribute: "type.value",
+    limit: 100,
+    operator: "or",
+  })
+
+  const { updateFilters, isFilterActive } = useFilters("type")
+
+  return (
+    <Accordion heading="Product Type" defaultOpen={defaultOpen}>
+      <ul className="px-4">
+        {items.map(({ label, count }) => (
+          <li key={label} className="mb-4">
+            <FilterCheckboxOption
+              checked={isFilterActive(label)}
+              disabled={Boolean(!count)}
+              onCheck={() => updateFilters(label)}
+              label={`${label} (${count})`}
+            />
+          </li>
+        ))}
+      </ul>
+    </Accordion>
+  )
+}
+
+function SalesChannelFilter({ defaultOpen = true }: { defaultOpen?: boolean }) {
+  const { items } = useRefinementList({
+    attribute: "sales_channels.name",
+    limit: 100,
+    operator: "or",
+  })
+
+  const { updateFilters, isFilterActive } = useFilters("sales_channel")
+
+  return (
+    <Accordion heading="Sales Channel" defaultOpen={defaultOpen}>
+      <ul className="px-4">
+        {items.map(({ label, count }) => (
+          <li key={label} className="mb-4">
+            <FilterCheckboxOption
+              checked={isFilterActive(label)}
+              disabled={Boolean(!count)}
+              onCheck={() => updateFilters(label)}
+              label={`${label} (${count})`}
+            />
+          </li>
+        ))}
+      </ul>
+    </Accordion>
+  )
 }
 
 function VendorTypeFilter({ defaultOpen = true }: { defaultOpen?: boolean }) {

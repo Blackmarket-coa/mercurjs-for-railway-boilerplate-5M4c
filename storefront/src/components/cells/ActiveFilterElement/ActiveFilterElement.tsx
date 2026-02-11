@@ -5,6 +5,7 @@ import { CloseIcon } from "@/icons"
 
 const filtersLabels = {
   category: "Category",
+  categories: "Category",
   brand: "Brand",
   min_price: "Min Price",
   max_price: "Max Price",
@@ -14,6 +15,10 @@ const filtersLabels = {
   condition: "Condition",
   rating: "Rating",
   vendor_type: "Vendor Type",
+  type: "Product Type",
+  product_type: "Product Type",
+  sales_channel: "Sales Channel",
+  sales_channel_id: "Sales Channel",
 }
 
 export const ActiveFilterElement = ({ filter }: { filter: string[] }) => {
