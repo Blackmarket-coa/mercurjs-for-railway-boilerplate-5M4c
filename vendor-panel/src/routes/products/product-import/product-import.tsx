@@ -381,7 +381,7 @@ const ProductImportContent = () => {
 
 const PrintfulImportSection = () => {
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([])
-  const [importAsDraft, setImportAsDraft] = useState(true)
+  const [importAsDraft, setImportAsDraft] = useState(false)
 
   const {
     products,
@@ -638,7 +638,7 @@ const WooConnectedView = ({
     last_synced_at?: string
   }
 }) => {
-  const [importAsDraft, setImportAsDraft] = useState(true)
+  const [importAsDraft, setImportAsDraft] = useState(false)
   const [enableSync, setEnableSync] = useState(true)
   const [importResult, setImportResult] = useState<{
     message: string

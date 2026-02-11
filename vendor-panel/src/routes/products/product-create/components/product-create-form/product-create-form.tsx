@@ -164,7 +164,7 @@ export const ProductCreateForm = ({
     await mutateAsync(
       {
         ...payload,
-        status: isDraftSubmission ? "draft" : "proposed",
+        status: isDraftSubmission ? "draft" : "published",
         images: uploadedMedia,
         weight: parseInt(payload.weight || "") || undefined,
         length: parseInt(payload.length || "") || undefined,
