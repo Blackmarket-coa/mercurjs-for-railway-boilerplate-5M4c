@@ -7,6 +7,17 @@ import { SortOptions } from "@/types/product"
 import { getAuthHeaders } from "./cookies"
 import { getRegion, retrieveRegion } from "./regions"
 import { SellerProps } from "@/types/seller"
+import { normalizeImageUrl } from "@/lib/helpers/normalize-image-url"
+
+const normalizeProductImages = (product: HttpTypes.StoreProduct) => ({
+  ...product,
+  thumbnail: normalizeImageUrl(product.thumbnail),
+  images:
+    product.images?.map((image) => ({
+      ...image,
+      url: normalizeImageUrl(image.url),
+    })) || [],
+})
 
 export const listProducts = async ({
   pageParam = 1,
@@ -92,11 +103,13 @@ export const listProducts = async ({
       )
 
       const response = products.map((prod) => {
-        if (!prod.seller) return prod
+        const normalizedProduct = normalizeProductImages(prod)
+
+        if (!prod.seller) return normalizedProduct
         // @ts-ignore Property 'seller' exists but TypeScript doesn't recognize it
         const reviews = prod.seller?.reviews?.filter((item) => !!item) ?? []
         return {
-          ...prod,
+          ...normalizedProduct,
           seller: {
             // @ts-ignore Property 'seller' exists but TypeScript doesn't recognize it
             ...prod.seller,

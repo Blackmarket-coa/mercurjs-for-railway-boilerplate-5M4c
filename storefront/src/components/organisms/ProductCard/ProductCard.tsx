@@ -7,6 +7,7 @@ import { BaseHit, Hit } from "instantsearch.js"
 import clsx from "clsx"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { getProductPrice } from "@/lib/helpers/get-product-price"
+import { normalizeImageUrl } from "@/lib/helpers/normalize-image-url"
 
 type ProductCardVariant = "default" | "producer-forward"
 
@@ -17,6 +18,14 @@ interface ProductCardProps {
   variant?: ProductCardVariant
   /** Impact tag to show (e.g., "Supports local gardens", "Regenerative") */
   impactTag?: string
+}
+
+const safelyDecodeImageUrl = (url: string) => {
+  try {
+    return decodeURIComponent(url)
+  } catch {
+    return url
+  }
 }
 
 export const ProductCard = ({
@@ -34,6 +43,9 @@ export const ProductCard = ({
   })
 
   const productName = String(product.title || "Product")
+  const normalizedThumbnail = safelyDecodeImageUrl(
+    normalizeImageUrl(api_product?.thumbnail || product.thumbnail || "")
+  )
   
   // Get seller/producer info from product metadata or collection
   const sellerName = (product as any).seller?.name || 
@@ -61,11 +73,11 @@ export const ProductCard = ({
             aria-label={`View ${productName}`}
             title={`View ${productName}`}
           >
-            {product.thumbnail ? (
+            {normalizedThumbnail ? (
               <Image
                 priority
                 fetchPriority="high"
-                src={decodeURIComponent(product.thumbnail)}
+                src={normalizedThumbnail}
                 alt={`${productName} image`}
                 width={100}
                 height={100}
@@ -144,11 +156,11 @@ export const ProductCard = ({
           title={`View ${productName}`}
         >
           <div className="overflow-hidden rounded-sm w-full h-full flex justify-center align-center ">
-            {product.thumbnail ? (
+            {normalizedThumbnail ? (
               <Image
                 priority
                 fetchPriority="high"
-                src={decodeURIComponent(product.thumbnail)}
+                src={normalizedThumbnail}
                 alt={`${productName} image`}
                 width={100}
                 height={100}
