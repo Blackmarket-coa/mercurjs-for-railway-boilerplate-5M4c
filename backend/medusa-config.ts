@@ -77,7 +77,23 @@ const getDatabaseDriverOptions = () => {
                     databaseUrl.includes('sslmode=require') ||
                     !!process.env.RAILWAY_ENVIRONMENT
 
-  if (!isRailway) return undefined
+  // Connection pool settings — applied to all environments to prevent
+  // KnexTimeoutError on "SELECT 1" health-check queries.
+  // pool.min=0 avoids stale-connection errors after idle periods (see
+  // https://github.com/medusajs/medusa/issues/10729).
+  const pool = {
+    min: 0,
+    max: parseInt(process.env.DB_POOL_MAX || '10', 10),
+    acquireTimeoutMillis: 60_000,
+    createTimeoutMillis: 30_000,
+    createRetryIntervalMillis: 200,
+    idleTimeoutMillis: 30_000,
+    reapIntervalMillis: 1_000,
+  }
+
+  if (!isRailway) {
+    return { pool }
+  }
 
   // SECURITY: Default to strict TLS verification everywhere.
   // Operational escape hatch: explicit DB_SSL_REJECT_UNAUTHORIZED=false can be used
@@ -98,6 +114,7 @@ const getDatabaseDriverOptions = () => {
 
   return {
     connection: { ssl },
+    pool,
   }
 }
 
