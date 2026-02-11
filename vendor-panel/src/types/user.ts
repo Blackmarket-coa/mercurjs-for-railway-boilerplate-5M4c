@@ -1,6 +1,12 @@
 import { HttpTypes } from "@medusajs/types"
 
-export type VendorTypeValue = "producer" | "garden" | "maker" | "restaurant" | "mutual_aid"
+export type VendorTypeValue =
+  | "producer"
+  | "garden"
+  | "kitchen"
+  | "maker"
+  | "restaurant"
+  | "mutual_aid"
 
 export interface Review {
   id: string
