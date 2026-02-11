@@ -26,11 +26,11 @@ importers:
         specifier: ^2.13.1
         version: 2.13.1(react@19.2.0)
       '@medusajs/js-sdk':
-        specifier: ^2.12.5
-        version: 2.13.0
+        specifier: 2.12.5
+        version: 2.12.5
       '@medusajs/types':
-        specifier: ^2.12.5
-        version: 2.13.0
+        specifier: 2.12.5
+        version: 2.12.5
       '@medusajs/ui':
         specifier: ^4.0.28
         version: 4.1.0(@types/react-dom@19.2.3(@types/react@19.2.5))(@types/react@19.2.5)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
@@ -1430,12 +1430,12 @@ packages:
     peerDependencies:
       react: ^18.3.1
 
-  '@medusajs/js-sdk@2.13.0':
-    resolution: {integrity: sha512-Eu5EPzOvbsCykbQCTh4c3zD/i0zKaM7rOOJbKvF7F9vgIEXB4T5sC9o/fpByI6T5Sav3YfXv6fZaQDQV21QX2g==}
+  '@medusajs/js-sdk@2.12.5':
+    resolution: {integrity: sha512-z7h1xxvx4lc1SMqOgihVAbqnZd0Yxq4u/s1JnI24e4kdr9A+lmbtajvpdD6/9gAf9HfL4qNDOJMb4rl8E+x8sQ==}
     engines: {node: '>=20'}
 
-  '@medusajs/types@2.13.0':
-    resolution: {integrity: sha512-uGjriYN9nFb1GCrLEYFbuxAnLmRFstu8kyZHi4GKH9h2ddGQZP2e1e91kolrSHVtbiI5tJ2tJZ6zwhgm4dO/IA==}
+  '@medusajs/types@2.12.5':
+    resolution: {integrity: sha512-8VyCFX2JQIHQxbHZla+nr4kAXuJB4d0rhrcGHGvx4h0dYcZlcl4DJWfdtn6/2rvEWMQwb5NDCBzH1tfEvj1lyQ==}
     engines: {node: '>=20'}
     peerDependencies:
       ioredis: ^5.4.1
@@ -7696,12 +7696,12 @@ snapshots:
     dependencies:
       react: 19.2.0
 
-  '@medusajs/js-sdk@2.13.0':
+  '@medusajs/js-sdk@2.12.5':
     dependencies:
       fetch-event-stream: 0.1.6
       qs: 6.14.1
 
-  '@medusajs/types@2.13.0':
+  '@medusajs/types@2.12.5':
     dependencies:
       bignumber.js: 9.3.1
 

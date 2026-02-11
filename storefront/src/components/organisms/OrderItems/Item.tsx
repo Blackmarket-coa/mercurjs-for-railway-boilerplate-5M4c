@@ -8,13 +8,16 @@ export const Item = ({
   item: HttpTypes.StoreCartLineItem | HttpTypes.StoreOrderLineItem
   currencyCode: string
 }) => {
+  const originalTotalAmount = item.original_total ?? item.total ?? 0
+  const totalAmount = item.total ?? item.original_total ?? 0
+
   const original_total = convertToLocale({
-    amount: item.original_total ?? 0,
+    amount: originalTotalAmount,
     currency_code: currencyCode,
   })
 
   const total = convertToLocale({
-    amount: item.total ?? 0,
+    amount: totalAmount,
     currency_code: currencyCode,
   })
 

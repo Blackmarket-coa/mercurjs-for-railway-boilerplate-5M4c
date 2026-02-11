@@ -61,14 +61,15 @@ type ShippingProps = {
     items?: CartItem[]
   }
   availableShippingMethods:
-    | (StoreCardShippingMethod &
-        {
+    | Array<
+        StoreCardShippingMethod & {
           rules: any
           seller_id: string
           price_type: string
           id: string
           amount?: number
-        }[])
+        }
+      >
     | null
 }
 
@@ -103,7 +104,7 @@ const CartShippingMethodsSection: React.FC<ShippingProps> = ({
   const [missingShippingSellers, setMissingShippingSellers] = useState<
     string[]
   >([])
-  const [selectedFulfillmentType, setSelectedFulfillmentType] = useState<FulfillmentType | null>(null)
+  const [selectedFulfillmentType, setSelectedFulfillmentType] = useState<FulfillmentType | undefined>(undefined)
 
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -232,7 +233,7 @@ const CartShippingMethodsSection: React.FC<ShippingProps> = ({
   }, [isOpen])
 
   // Get methods based on selected fulfillment type
-  const getMethodsForType = (type: FulfillmentType | null) => {
+  const getMethodsForType = (type: FulfillmentType | undefined) => {
     switch (type) {
       case FULFILLMENT_TYPE.DELIVERY:
         return _deliveryMethods
@@ -508,7 +509,7 @@ const CartShippingMethodsSection: React.FC<ShippingProps> = ({
                   })}
                   {cart && (cart.shipping_methods?.length ?? 0) > 0 && (
                     <div className="flex flex-col mt-4">
-                      <Heading level="h4" className="mb-2 text-sm font-medium text-ui-fg-subtle">
+                      <Heading level="h3" className="mb-2 text-sm font-medium text-ui-fg-subtle">
                         Selected Options:
                       </Heading>
                       {cart.shipping_methods?.map((method) => (

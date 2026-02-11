@@ -9,9 +9,7 @@ import { toast } from "@/lib/helpers/toast"
 export default function CartPromotionCode({
   cart,
 }: {
-  cart:
-    | (HttpTypes.StoreCart & { promotions?: HttpTypes.StorePromotion[] })
-    | null
+  cart: HttpTypes.StoreCart | null
 }) {
   const [promotionCode, setPromotionCode] = useState("")
   const [isLoading, setIsLoading] = useState(false)
