@@ -68,6 +68,50 @@ function runCommand(command, description) {
   }
 }
 
+/**
+ * Wait for the database to accept connections before proceeding.
+ * Retries with exponential back-off (1s → 2s → 4s … up to 30s cap).
+ */
+async function waitForDatabase(maxAttempts = 15) {
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) {
+    log('DATABASE_URL not set, skipping readiness check', 'warn');
+    return;
+  }
+
+  const { Pool } = require('pg');
+
+  const sslEnabled = databaseUrl.includes('railway.app') ||
+    databaseUrl.includes('railway.internal') ||
+    databaseUrl.includes('sslmode=require') ||
+    !!process.env.RAILWAY_ENVIRONMENT;
+
+  const pool = new Pool({
+    connectionString: databaseUrl,
+    ssl: sslEnabled ? { rejectUnauthorized: false } : false,
+    connectionTimeoutMillis: 10_000,
+    max: 1,
+  });
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const client = await pool.connect();
+      await client.query('SELECT 1');
+      client.release();
+      log('Database is ready', 'success');
+      await pool.end();
+      return;
+    } catch (err) {
+      const delay = Math.min(1000 * Math.pow(2, attempt - 1), 30_000);
+      log(`Database not ready (attempt ${attempt}/${maxAttempts}): ${err.message}. Retrying in ${delay / 1000}s...`, 'warn');
+      await new Promise((r) => setTimeout(r, delay));
+    }
+  }
+
+  await pool.end();
+  log('Database did not become ready in time — proceeding anyway', 'warn');
+}
+
 async function main() {
   log('='.repeat(60));
   log('Railway-Optimized Startup Sequence');
@@ -82,6 +126,9 @@ async function main() {
 
   // Step 0: Apply MercurJS patches (null-safety for store_status)
   runCommand('node scripts/patch-mercurjs.js', 'MercurJS patches');
+
+  // Step 0.5: Wait for database to accept connections
+  await waitForDatabase();
 
   // Step 1: Database Migrations
   if (!SKIP_MIGRATIONS) {
