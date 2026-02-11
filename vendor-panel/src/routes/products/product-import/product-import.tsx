@@ -97,6 +97,7 @@ const ONLINE_STORE_FALLBACK_CURRENCIES = ["usd"]
 const ONLINE_STORE_DEFAULT_PRICE_AMOUNT = 100
 const ONLINE_STORE_DEFAULT_OPTION_NAME = "Title"
 const ONLINE_STORE_DEFAULT_OPTION_VALUE = "Default Title"
+const ONLINE_STORE_WRAPPING_QUOTES = /^["'`“”‘’]+|["'`“”‘’]+$/g
 
 const SOURCE_OPTIONS: { label: string; value: ProductImportSource }[] = [
   { label: "WooCommerce", value: "woocommerce" },
@@ -185,7 +186,9 @@ const ProductImportContent = () => {
   }
 
   const handleAddExternalCandidate = async () => {
-    const trimmedReference = sourceReference.trim()
+    const trimmedReference = sourceReference
+      .trim()
+      .replace(ONLINE_STORE_WRAPPING_QUOTES, "")
 
     if (!trimmedReference || sourceType === "csv") {
       toast.error("Add a source URL or account reference first.")
@@ -200,7 +203,10 @@ const ProductImportContent = () => {
       const [resolved] = response?.products || []
 
       if (!resolved?.ok) {
-        throw new Error(resolved?.message || "Could not read product data from link.")
+        throw new Error(
+          resolved?.message ||
+            "Could not read product data from link. Paste a full product URL and try again."
+        )
       }
 
       const nextCandidate: ExternalImportCandidate = {
@@ -244,7 +250,9 @@ const ProductImportContent = () => {
 
   const handleQueueSelected = () => {
     if (!selectedCandidates.length) {
-      toast.error("Select at least one product to continue.")
+      toast.error(
+        "Select at least one product to continue. Add a product link first if your list is empty."
+      )
       return
     }
 
