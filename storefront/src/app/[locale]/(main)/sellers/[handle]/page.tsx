@@ -27,10 +27,14 @@ export async function generateMetadata({
 
 export default async function SellerPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ handle: string; locale: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const { handle, locale } = await params
+  const { page: pageParam } = await searchParams
+  const page = Number(pageParam) || 1
 
   const seller = (await getSellerByHandle(handle)) as SellerProps
 
@@ -62,6 +66,7 @@ export default async function SellerPage({
         seller_handle={seller.handle}
         locale={locale}
         currency_code={currency_code}
+        page={page}
       />
     </main>
   )

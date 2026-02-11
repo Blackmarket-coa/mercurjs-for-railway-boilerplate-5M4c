@@ -14,12 +14,14 @@ export const SellerTabs = ({
   seller_id,
   locale,
   currency_code,
+  page = 1,
 }: {
   tab: string
   seller_handle: string
   seller_id: string
   locale: string
   currency_code: string
+  page?: number
 }) => {
   const tabsList = [
     { label: "products", link: `/sellers/${seller_handle}/` },
@@ -33,9 +35,9 @@ export const SellerTabs = ({
     <div className="mt-8">
       <TabsList list={tabsList} activeTab={tab} />
       <TabsContent value="products" activeTab={tab}>
-        <Suspense fallback={<ProductListingSkeleton />}>
+        <Suspense key={page} fallback={<ProductListingSkeleton />}>
           {!ALGOLIA_ID || !ALGOLIA_SEARCH_KEY ? (
-            <ProductListing showSidebar seller_id={seller_id} />
+            <ProductListing showSidebar seller_id={seller_id} page={page} />
           ) : (
             <AlgoliaProductsListing
               locale={locale}

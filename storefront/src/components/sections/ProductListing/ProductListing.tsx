@@ -14,14 +14,17 @@ export const ProductListing = async ({
   seller_id,
   showSidebar = false,
   locale = process.env.NEXT_PUBLIC_DEFAULT_REGION || "pl",
+  page = 1,
 }: {
   category_id?: string
   collection_id?: string
   seller_id?: string
   showSidebar?: boolean
   locale?: string
+  page?: number
 }) => {
   const { response } = await listProductsWithSort({
+    page,
     seller_id,
     category_id,
     collection_id,
@@ -32,9 +35,7 @@ export const ProductListing = async ({
     },
   })
 
-  const { products } = await response
-
-  const count = products.length
+  const { products, count } = response
 
   const pages = Math.ceil(count / PRODUCT_LIMIT) || 1
 

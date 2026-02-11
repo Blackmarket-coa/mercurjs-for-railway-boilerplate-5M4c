@@ -105,7 +105,7 @@ export const listProducts = async ({
         }
       })
 
-      const filteredCount = response.length
+      const filteredCount = count
       const nextPage = count > offset + limit ? pageParam + 1 : null
 
       return {

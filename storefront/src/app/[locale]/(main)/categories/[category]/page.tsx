@@ -94,13 +94,17 @@ const ALGOLIA_SEARCH_KEY = process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY
 
 async function Category({
   params,
+  searchParams,
 }: {
   params: Promise<{
     category: string
     locale: string
   }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const { category: handle, locale } = await params
+  const { page: pageParam } = await searchParams
+  const page = Number(pageParam) || 1
 
   const category = await getCategoryByHandle([handle])
 
@@ -178,9 +182,9 @@ async function Category({
 
       <h1 className="heading-xl uppercase">{category.name}</h1>
 
-      <Suspense fallback={<ProductListingSkeleton />}>
+      <Suspense key={page} fallback={<ProductListingSkeleton />}>
         {bot || !ALGOLIA_ID || !ALGOLIA_SEARCH_KEY ? (
-          <ProductListing category_id={category.id} showSidebar />
+          <ProductListing category_id={category.id} showSidebar page={page} />
         ) : (
           <AlgoliaProductsListing
             category_id={category.id}
