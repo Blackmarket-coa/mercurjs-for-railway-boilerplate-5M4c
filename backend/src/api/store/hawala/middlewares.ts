@@ -98,14 +98,14 @@ export default defineMiddlewares({
     
     // Rate limit deposit operations (5 per minute)
     {
-      matcher: "/store/hawala/*/deposit",
+      matcher: "/store/hawala/deposit",
       method: "POST",
       middlewares: [strictRateLimiter as any],
     },
     
     // Rate limit withdrawal operations (5 per minute)
     {
-      matcher: "/store/hawala/*/withdraw",
+      matcher: "/store/hawala/withdraw",
       method: "POST",
       middlewares: [strictRateLimiter as any],
     },
