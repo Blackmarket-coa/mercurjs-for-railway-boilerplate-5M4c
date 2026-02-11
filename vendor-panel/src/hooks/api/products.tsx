@@ -8,7 +8,12 @@ import {
   UseQueryOptions,
 } from "@tanstack/react-query"
 import { ProductAttributesResponse } from "../../types/products"
-import { fetchQuery, importProductsQuery, sdk } from "../../lib/client"
+import {
+  fetchQuery,
+  importProductsQuery,
+  resolveOnlineStoreReferencesQuery,
+  sdk,
+} from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
 import { inventoryItemsQueryKeys } from "./inventory.tsx"
@@ -581,6 +586,34 @@ export const useConfirmImportProducts = (
 ) => {
   return useMutation({
     mutationFn: (payload) => sdk.admin.product.confirmImport(payload),
+    onSuccess: (data, variables, context) => {
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
+}
+
+export type ResolvedOnlineStoreReference = {
+  ok: boolean
+  reference: string
+  resolved_reference?: string
+  title?: string
+  handle?: string
+  description?: string
+  image?: string
+  price_amount?: string
+  message?: string
+}
+
+export const useResolveOnlineStoreReferences = (
+  options?: UseMutationOptions<
+    { products: ResolvedOnlineStoreReference[] },
+    FetchError,
+    { references: string[] }
+  >
+) => {
+  return useMutation({
+    mutationFn: (payload) => resolveOnlineStoreReferencesQuery(payload.references),
     onSuccess: (data, variables, context) => {
       options?.onSuccess?.(data, variables, context)
     },

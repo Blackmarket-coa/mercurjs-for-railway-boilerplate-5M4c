@@ -114,6 +114,15 @@ export const importProductsQuery = async (file: File) => {
   })
 }
 
+export const resolveOnlineStoreReferencesQuery = async (references: string[]) => {
+  return await fetchQuery("/vendor/products/resolve-references", {
+    method: "POST",
+    body: {
+      references,
+    },
+  })
+}
+
 // FETCH QUERY WRAPPER
 export const fetchQuery = async (
   url: string,

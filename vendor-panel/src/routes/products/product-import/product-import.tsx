@@ -16,7 +16,11 @@ import { useSearchParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { FilePreview } from "../../../components/common/file-preview"
 import { RouteDrawer, useRouteModal } from "../../../components/modals"
-import { useConfirmImportProducts, useImportProducts } from "../../../hooks/api"
+import {
+  useConfirmImportProducts,
+  useImportProducts,
+  useResolveOnlineStoreReferences,
+} from "../../../hooks/api"
 import {
   useWooConnection,
   useConnectWooCommerce,
@@ -38,6 +42,10 @@ type ExternalImportCandidate = {
   source: "online_store"
   reference: string
   title: string
+  handle?: string
+  description?: string
+  image?: string
+  priceAmount?: string
 }
 
 const ONLINE_STORE_IMPORT_BASE_HEADERS = [
@@ -145,6 +153,10 @@ const ProductImportContent = () => {
   const { store } = useStore()
 
   const { mutateAsync: importProducts, isPending, data } = useImportProducts()
+  const {
+    mutateAsync: resolveOnlineStoreReferences,
+    isPending: isResolvingReferences,
+  } = useResolveOnlineStoreReferences()
   const { mutateAsync: confirmImportProducts, isPending: isConfirmingImport } =
     useConfirmImportProducts()
   const { handleSuccess } = useRouteModal()
@@ -172,7 +184,7 @@ const ProductImportContent = () => {
     )
   }
 
-  const handleAddExternalCandidate = () => {
+  const handleAddExternalCandidate = async () => {
     const trimmedReference = sourceReference.trim()
 
     if (!trimmedReference || sourceType === "csv") {
@@ -180,16 +192,37 @@ const ProductImportContent = () => {
       return
     }
 
-    const nextCandidate: ExternalImportCandidate = {
-      id: `${sourceType}-${Date.now()}`,
-      source: "online_store",
-      reference: trimmedReference,
-      title: `Product from ${trimmedReference}`,
-    }
+    try {
+      const response = await resolveOnlineStoreReferences({
+        references: [trimmedReference],
+      })
 
-    setExternalCandidates((prev) => [...prev, nextCandidate])
-    setSelectedCandidates((prev) => [...prev, nextCandidate.id])
-    setSourceReference("")
+      const [resolved] = response?.products || []
+
+      if (!resolved?.ok) {
+        throw new Error(resolved?.message || "Could not read product data from link.")
+      }
+
+      const nextCandidate: ExternalImportCandidate = {
+        id: `${sourceType}-${Date.now()}`,
+        source: "online_store",
+        reference:
+          resolved.resolved_reference || resolved.reference || trimmedReference,
+        title:
+          (resolved.title || "").trim() ||
+          `Product from ${resolved.resolved_reference || trimmedReference}`,
+        handle: resolved.handle,
+        description: resolved.description,
+        image: resolved.image,
+        priceAmount: resolved.price_amount,
+      }
+
+      setExternalCandidates((prev) => [...prev, nextCandidate])
+      setSelectedCandidates((prev) => [...prev, nextCandidate.id])
+      setSourceReference("")
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to resolve source link.")
+    }
   }
 
   const handleToggleCandidate = (id: string, checked: boolean) => {
@@ -269,7 +302,8 @@ const ProductImportContent = () => {
         .replace(/[^a-z0-9-]/g, "-")
         .replace(/-+/g, "-")
         .replace(/^-|-$/g, "")
-      const handle = `${hostName}-${normalizedSlug || "product"}`.slice(0, 120)
+      const handle =
+        candidate.handle || `${hostName}-${normalizedSlug || "product"}`.slice(0, 120)
 
       const titleFromSlug = normalizedSlug
         .split("-")
@@ -277,16 +311,22 @@ const ProductImportContent = () => {
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(" ")
 
-      const productTitle = titleFromSlug || candidate.title
+      const productTitle = candidate.title || titleFromSlug
+
+      const parsedPrice = Number(candidate.priceAmount)
+      const normalizedPrice =
+        Number.isFinite(parsedPrice) && parsedPrice > 0
+          ? String(Math.round(parsedPrice * 100))
+          : String(ONLINE_STORE_DEFAULT_PRICE_AMOUNT)
 
       const row = [
         "",
         handle,
         productTitle,
         "",
-        `Imported from ${reference}`,
+        candidate.description?.trim() || `Imported from ${reference}`,
         "draft",
-        "",
+        candidate.image || "",
         "",
         "",
         "",
@@ -318,9 +358,7 @@ const ProductImportContent = () => {
         "",
         "",
         "",
-        ...onlineStorePriceCurrencies.map(() =>
-          String(ONLINE_STORE_DEFAULT_PRICE_AMOUNT)
-        ),
+        ...onlineStorePriceCurrencies.map(() => normalizedPrice),
         ONLINE_STORE_DEFAULT_OPTION_NAME,
         ONLINE_STORE_DEFAULT_OPTION_VALUE,
         "",
@@ -485,6 +523,7 @@ const ProductImportContent = () => {
                 type="button"
                 variant="secondary"
                 onClick={handleAddExternalCandidate}
+                isLoading={isResolvingReferences}
               >
                 Add
               </Button>
@@ -532,6 +571,11 @@ const ProductImportContent = () => {
                             Online store ·{" "}
                             {candidate.reference}
                           </Text>
+                          {candidate.description ? (
+                            <Text size="xsmall" className="mt-1 text-ui-fg-subtle">
+                              {candidate.description}
+                            </Text>
+                          ) : null}
                         </div>
                       </label>
                     )
