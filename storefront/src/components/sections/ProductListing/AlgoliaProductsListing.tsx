@@ -14,7 +14,7 @@ import { useSearchParams } from "next/navigation"
 import { getFacedFilters } from "@/lib/helpers/get-faced-filters"
 import { PRODUCT_LIMIT } from "@/const"
 import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { listProducts } from "@/lib/data/products"
 
 export const AlgoliaProductsListing = ({
@@ -79,34 +79,61 @@ const ProductsListing = ({
   const [apiProducts, setApiProducts] = useState<
     HttpTypes.StoreProduct[] | null
   >(null)
+  const [isHydratingProducts, setIsHydratingProducts] = useState(true)
   const { items, results } = useHits()
+  const itemHandles = useMemo(
+    () => items.map((item) => item.handle).filter(Boolean),
+    [items]
+  )
 
   const searchParamas = useSearchParams()
 
   useEffect(() => {
+    let isMounted = true
+
     const setProducts = async () => {
+      if (!itemHandles.length) {
+        if (isMounted) {
+          setApiProducts([])
+          setIsHydratingProducts(false)
+        }
+
+        return
+      }
+
       try {
-        setApiProducts(null)
+        setIsHydratingProducts(true)
+
         const { response } = await listProducts({
           countryCode: locale,
           queryParams: {
             fields:
               "*variants.calculated_price,*seller.reviews,-thumbnail,-images,-type,-tags,-variants.options,-options,-collection,-collection_id",
-            handle: items.map((item) => item.handle),
-            limit: items.length,
+            handle: itemHandles,
+            limit: itemHandles.length,
           },
         })
 
-        setApiProducts(response.products)
+        if (isMounted) {
+          setApiProducts(response.products)
+          setIsHydratingProducts(false)
+        }
       } catch {
-        setApiProducts(null)
+        if (isMounted) {
+          setApiProducts([])
+          setIsHydratingProducts(false)
+        }
       }
     }
 
     setProducts()
-  }, [items, locale])
 
-  if (!results?.processingTimeMS || apiProducts === null)
+    return () => {
+      isMounted = false
+    }
+  }, [itemHandles, locale])
+
+  if (isHydratingProducts && apiProducts === null)
     return <ProductListingSkeleton />
 
   const products = items.filter((pr) =>
