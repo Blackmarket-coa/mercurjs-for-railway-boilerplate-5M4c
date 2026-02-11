@@ -96,11 +96,6 @@ const getFromStoreApi = async (
     queryParams: {
       limit,
       q: input.query,
-      order: sortBy,
-      ...(input.sellerId ? ({ seller_id: input.sellerId } as Record<string, any>) : {}),
-      ...(input.sellerHandle
-        ? ({ seller_handle: input.sellerHandle } as Record<string, any>)
-        : {}),
     } as HttpTypes.FindParams & HttpTypes.StoreProductParams,
   })
 
