@@ -12,14 +12,18 @@
   },
   "resolutions": {
     "glob": ">=10.5.0",
-    "qs": ">=6.14.1"
+    "qs": ">=6.14.1",
+    "axios": ">=1.13.5",
+    "@isaacs/brace-expansion": ">=5.0.1",
+    "preact": ">=10.27.3",
+    "next": "15.5.10"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.1",
     "@hookform/resolvers": "^3.10.0",
     "@medusajs/icons": "^2.13.1",
-    "@medusajs/js-sdk": "^2.12.5",
-    "@medusajs/types": "^2.12.5",
+    "@medusajs/js-sdk": "2.12.5",
+    "@medusajs/types": "2.12.5",
     "@medusajs/ui": "^4.0.28",
     "@stripe/react-stripe-js": "^3.7.0",
     "@stripe/stripe-js": "^7.1.0",
@@ -37,7 +41,7 @@
     "lodash": "^4.17.21",
     "lucide-react": "^0.562.0",
     "medusajs-launch-utils": "^0.0.18",
-    "next": "^15.1.6",
+    "next": "15.5.10",
     "next-intl": "^3.26.3",
     "react": "^19.0.0",
     "react-country-flag": "^3.1.0",

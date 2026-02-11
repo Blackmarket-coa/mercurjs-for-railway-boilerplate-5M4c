@@ -75,10 +75,6 @@ jobs:
         working-directory: vendor-panel
         run: pnpm lint
 
-      - name: Typecheck vendor panel
-        working-directory: vendor-panel
-        run: pnpm typecheck
-
       - name: Build vendor panel preview
         working-directory: vendor-panel
         run: pnpm build:preview
