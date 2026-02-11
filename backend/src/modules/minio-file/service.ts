@@ -18,6 +18,8 @@ type InjectedDependencies = {
 
 interface MinioServiceConfig {
   endPoint: string
+  port: number
+  useSSL: boolean
   accessKey: string
   secretKey: string
   bucket?: string
@@ -26,6 +28,8 @@ interface MinioServiceConfig {
 
 export interface MinioFileProviderOptions {
   endPoint: string
+  port?: number | string
+  useSSL?: boolean
   accessKey: string
   secretKey: string
   bucket?: string
@@ -45,6 +49,45 @@ class MinioFileProviderService extends AbstractFileProviderService {
   protected readonly bucket: string
   protected readonly useSSL: boolean
   protected readonly publicUrl: string | null
+
+  private parseConnectionOptions(options: MinioFileProviderOptions): {
+    endPoint: string
+    port: number
+    useSSL: boolean
+  } {
+    const rawEndpoint = options.endPoint.trim()
+
+    if (!rawEndpoint) {
+      throw new MedusaError(MedusaError.Types.INVALID_DATA, 'MinIO endpoint cannot be empty')
+    }
+
+    const hasProtocol = /^https?:\/\//i.test(rawEndpoint)
+    const normalizedEndpoint = hasProtocol ? rawEndpoint : `https://${rawEndpoint}`
+    const parsed = new URL(normalizedEndpoint)
+
+    const portFromUrl = parsed.port ? parseInt(parsed.port, 10) : undefined
+    const portFromOptions =
+      options.port === undefined || options.port === null || options.port === ''
+        ? undefined
+        : Number(options.port)
+
+    const inferredUseSSL = hasProtocol ? parsed.protocol === 'https:' : true
+
+    const useSSL = options.useSSL ?? inferredUseSSL
+
+    const fallbackPort = useSSL ? 443 : 9000
+    const port = Number.isFinite(portFromOptions)
+      ? portFromOptions!
+      : Number.isFinite(portFromUrl)
+        ? portFromUrl!
+        : fallbackPort
+
+    return {
+      endPoint: parsed.hostname,
+      port,
+      useSSL,
+    }
+  }
 
   private getErrorDetails(error: unknown): string {
     if (error instanceof Error) {
@@ -66,35 +109,12 @@ class MinioFileProviderService extends AbstractFileProviderService {
   constructor({ logger }: InjectedDependencies, options: MinioFileProviderOptions) {
     super()
     this.logger_ = logger
-    
-    // Parse endpoint to extract hostname and protocol
-    let endPoint = options.endPoint
-    let useSSL = true
-    let port = 443
-    
-    // Strip protocol if present (MinIO client v8+ requires hostname only)
-    if (endPoint.startsWith('https://')) {
-      endPoint = endPoint.replace('https://', '')
-      useSSL = true
-      port = 443
-    } else if (endPoint.startsWith('http://')) {
-      endPoint = endPoint.replace('http://', '')
-      useSSL = false
-      port = 80
-    }
-    
-    // Remove trailing slash if present
-    endPoint = endPoint.replace(/\/$/, '')
-    
-    // Extract port from endpoint if specified (e.g., "minio.example.com:9000")
-    const portMatch = endPoint.match(/:(\d+)$/)
-    if (portMatch) {
-      port = parseInt(portMatch[1], 10)
-      endPoint = endPoint.replace(/:(\d+)$/, '')
-    }
+    const { endPoint, port, useSSL } = this.parseConnectionOptions(options)
     
     this.config_ = {
       endPoint: endPoint,
+      port,
+      useSSL,
       accessKey: options.accessKey,
       secretKey: options.secretKey,
       bucket: options.bucket,
@@ -103,7 +123,7 @@ class MinioFileProviderService extends AbstractFileProviderService {
 
     // Use provided bucket or default
     this.bucket = this.config_.bucket || DEFAULT_BUCKET
-    this.useSSL = useSSL
+    this.useSSL = this.config_.useSSL
     
     // Parse public URL if provided (for custom CDN or public-facing URL)
     this.publicUrl = options.publicUrl ? options.publicUrl.replace(/\/$/, '') : null
@@ -112,9 +132,9 @@ class MinioFileProviderService extends AbstractFileProviderService {
 
     // Initialize Minio client with parsed settings
     this.client = new Client({
-      endPoint: endPoint,
-      port: port,
-      useSSL: useSSL,
+      endPoint: this.config_.endPoint,
+      port: this.config_.port,
+      useSSL: this.config_.useSSL,
       accessKey: this.config_.accessKey,
       secretKey: this.config_.secretKey
     })

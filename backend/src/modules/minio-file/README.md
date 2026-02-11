@@ -8,9 +8,12 @@ The module requires the following environment variables:
 
 ```env
 MINIO_ENDPOINT=your-minio-endpoint
+MINIO_PORT=443  # Optional
+MINIO_USE_SSL=true  # Optional
 MINIO_ACCESS_KEY=your-access-key
 MINIO_SECRET_KEY=your-secret-key
 MINIO_BUCKET=your-bucket-name  # Optional, defaults to 'medusa-media'
+MINIO_PUBLIC_URL=https://bucket-production-xxxx.up.railway.app  # Optional public URL
 ```
 
 ## Features
@@ -32,9 +35,12 @@ The module is automatically configured in medusa-config.js when the required env
   resolve: './src/modules/minio-file',
   options: {
     endPoint: MINIO_ENDPOINT,
+    port: MINIO_PORT, // Optional
+    useSSL: MINIO_USE_SSL, // Optional
     accessKey: MINIO_ACCESS_KEY,
     secretKey: MINIO_SECRET_KEY,
-    bucket: MINIO_BUCKET  // Optional, defaults to 'medusa-media'
+    bucket: MINIO_BUCKET,  // Optional, defaults to 'medusa-media'
+    publicUrl: MINIO_PUBLIC_URL // Optional
   }
 }
 ```
@@ -81,7 +87,7 @@ Files are automatically deleted from MinIO when using Medusa's file deletion end
 
 ## Implementation Details
 
-- Port 443 and SSL are hardcoded as this is standard for production MinIO instances
+- Connection details are auto-detected from endpoint; default is HTTPS/443 unless endpoint protocol or overrides (`MINIO_PORT`, `MINIO_USE_SSL`) specify otherwise
 - Files are given unique names using ULID to prevent collisions
 - Original filenames are preserved in metadata
 - Non-existent file deletions are logged but don't throw errors
