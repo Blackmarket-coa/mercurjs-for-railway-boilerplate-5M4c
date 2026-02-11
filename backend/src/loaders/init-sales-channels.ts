@@ -83,7 +83,13 @@ export default async function initSalesChannels(
           filters: { product_id: product.id },
         })
 
-        if (existingLinks && existingLinks.length > 0) {
+        const alreadyLinkedToDefault =
+          existingLinks?.some(
+            (linkEntry: { sales_channel_id?: string }) =>
+              linkEntry.sales_channel_id === defaultChannel.id
+          ) ?? false
+
+        if (alreadyLinkedToDefault) {
           continue
         }
 

@@ -28,18 +28,10 @@ export default async function productCreatedSalesChannelHandler({
     const link = container.resolve(ContainerRegistrationKeys.LINK)
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
-    // Check if the product already has sales channels
-    const { data: existingLinks } = await query.graph({
-      entity: "product_sales_channel",
-      fields: ["product_id", "sales_channel_id"],
-      filters: { product_id: productId },
-    })
-
-    if (existingLinks && existingLinks.length > 0) {
-      return
-    }
-
-    // Get the default sales channel from the store
+    // Check if product is already linked to the store's default channel.
+    // Products can have links to other channels and still be invisible in the
+    // storefront if they miss the default channel associated with the
+    // publishable API key.
     const [store] = await storeModuleService.listStores()
     const defaultSalesChannelId = store?.default_sales_channel_id
 
@@ -47,6 +39,22 @@ export default async function productCreatedSalesChannelHandler({
       console.warn(
         `[productCreatedSalesChannel] No default sales channel configured for the store`
       )
+      return
+    }
+
+    const { data: existingLinks } = await query.graph({
+      entity: "product_sales_channel",
+      fields: ["product_id", "sales_channel_id"],
+      filters: { product_id: productId },
+    })
+
+    const alreadyLinkedToDefault =
+      existingLinks?.some(
+        (linkEntry: { sales_channel_id?: string }) =>
+          linkEntry.sales_channel_id === defaultSalesChannelId
+      ) ?? false
+
+    if (alreadyLinkedToDefault) {
       return
     }
 
