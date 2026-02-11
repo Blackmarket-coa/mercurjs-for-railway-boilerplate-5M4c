@@ -3,7 +3,7 @@ import { ProductListingSkeleton } from "../ProductListingSkeleton/ProductListing
 import { AlgoliaProductsListing, ProductListing } from "@/components/sections"
 import { TabsContent, TabsList } from "@/components/molecules"
 import { SellerReviewTab } from "@/components/cells"
-import { getRegion } from "@/lib/data/regions"
+import { isUnifiedListingEnabled } from "@/lib/feature-flags"
 
 const ALGOLIA_ID = process.env.NEXT_PUBLIC_ALGOLIA_ID
 const ALGOLIA_SEARCH_KEY = process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY
@@ -36,8 +36,16 @@ export const SellerTabs = ({
       <TabsList list={tabsList} activeTab={tab} />
       <TabsContent value="products" activeTab={tab}>
         <Suspense key={page} fallback={<ProductListingSkeleton />}>
-          {!ALGOLIA_ID || !ALGOLIA_SEARCH_KEY ? (
-            <ProductListing showSidebar seller_id={seller_id} page={page} />
+          {isUnifiedListingEnabled() ? (
+            <ProductListing
+              showSidebar
+              seller_id={seller_id}
+              seller_handle={seller_handle}
+              locale={locale}
+              page={page}
+            />
+          ) : !ALGOLIA_ID || !ALGOLIA_SEARCH_KEY ? (
+            <ProductListing showSidebar seller_id={seller_id} locale={locale} page={page} />
           ) : (
             <AlgoliaProductsListing
               locale={locale}
