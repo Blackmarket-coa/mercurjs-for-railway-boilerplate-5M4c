@@ -71,12 +71,7 @@ class MinioFileProviderService extends AbstractFileProviderService {
         ? undefined
         : Number(options.port)
 
-    const hostSuggestsInternalTransport =
-      parsed.hostname === 'localhost' || parsed.hostname.endsWith('.railway.internal')
-
-    const inferredUseSSL = hasProtocol
-      ? parsed.protocol === 'https:'
-      : !hostSuggestsInternalTransport
+    const inferredUseSSL = hasProtocol ? parsed.protocol === 'https:' : true
 
     const useSSL = options.useSSL ?? inferredUseSSL
 

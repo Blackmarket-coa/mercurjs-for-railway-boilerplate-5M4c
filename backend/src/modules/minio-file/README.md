@@ -87,7 +87,7 @@ Files are automatically deleted from MinIO when using Medusa's file deletion end
 
 ## Implementation Details
 
-- Connection details are auto-detected from endpoint, with optional `MINIO_PORT` and `MINIO_USE_SSL` overrides
+- Connection details are auto-detected from endpoint; default is HTTPS/443 unless endpoint protocol or overrides (`MINIO_PORT`, `MINIO_USE_SSL`) specify otherwise
 - Files are given unique names using ULID to prevent collisions
 - Original filenames are preserved in metadata
 - Non-existent file deletions are logged but don't throw errors
