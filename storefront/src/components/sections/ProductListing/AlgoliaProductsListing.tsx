@@ -106,20 +106,16 @@ const ProductsListing = ({
     setProducts()
   }, [items, locale])
 
-  if (!results?.processingTimeMS) return <ProductListingSkeleton />
+  if (!results?.processingTimeMS || apiProducts === null)
+    return <ProductListingSkeleton />
 
-  const filteredProducts = items.filter((pr) =>
-    apiProducts?.some((p: any) => p.id === pr.objectID)
+  const products = items.filter((pr) =>
+    apiProducts.some(
+      (p: any) => p.id === pr.objectID && filterProductsByCurrencyCode(p)
+    )
   )
 
-  const products = filteredProducts
-    .filter((pr) =>
-      apiProducts?.some(
-        (p: any) => p.id === pr.objectID && filterProductsByCurrencyCode(p)
-      )
-    )
-
-  const count = results?.nbHits || 0
+  const count = products.length
   const pages = results?.nbPages || 1
 
   function filterProductsByCurrencyCode(product: HttpTypes.StoreProduct) {
@@ -182,18 +178,15 @@ const ProductsListing = ({
           ) : (
             <div className="w-full">
               <ul className="flex flex-wrap gap-4">
-                {products.map(
-                  (hit) =>
-                    apiProducts?.find((p: any) => p.id === hit.objectID) && (
-                      <ProductCard
-                        api_product={apiProducts?.find(
-                          (p: any) => p.id === hit.objectID
-                        )}
-                        key={hit.objectID}
-                        product={hit}
-                      />
-                    )
-                )}
+                {products.map((hit) => (
+                  <ProductCard
+                    api_product={apiProducts.find(
+                      (p: any) => p.id === hit.objectID
+                    )}
+                    key={hit.objectID}
+                    product={hit}
+                  />
+                ))}
               </ul>
             </div>
           )}

@@ -38,49 +38,55 @@ const ProductsListing = ({ locale }: { locale: string }) => {
   const { items } = useHits()
 
   useEffect(() => {
+    if (!items.length) return
+
     listProducts({
       countryCode: locale,
       queryParams: {
-        limit: 99999,
         fields:
           "*variants.calculated_price,*seller.reviews,-thumbnail,-images,-type,-tags,-variants.options,-options,-collection,-collection_id",
+        handle: items.map((item) => item.handle),
+        limit: items.length,
       },
     }).then(({ response }) => {
       setProd(response.products)
     })
-  }, [])
+  }, [items, locale])
+
+  if (!items.length) {
+    return (
+      <div className="text-center w-full my-10">
+        <h2 className="uppercase text-primary heading-lg">no results</h2>
+        <p className="mt-4 text-lg">
+          Sorry, we can&apos;t find any results for your criteria
+        </p>
+      </div>
+    )
+  }
+
+  if (prod === null) return null
+
+  const visibleItems = items.filter((hit) =>
+    prod.some((p) => {
+      const { cheapestPrice } = getProductPrice({ product: p })
+      return p.id === hit.objectID && Boolean(cheapestPrice)
+    })
+  )
+
+  if (!visibleItems.length) return null
 
   return (
-    <>
-      <div className="flex justify-between w-full items-center"></div>
-      <div className="w-full ">
-        {!items.length ? (
-          <div className="text-center w-full my-10">
-            <h2 className="uppercase text-primary heading-lg">no results</h2>
-            <p className="mt-4 text-lg">
-              Sorry, we can&apos;t find any results for your criteria
-            </p>
-          </div>
-        ) : (
-          <div className="w-full">
-            <Carousel
-              align="start"
-              items={items.map((hit) => (
-                <ProductCard
-                  key={hit.objectID}
-                  product={hit}
-                  api_product={prod?.find((p) => {
-                    const { cheapestPrice } = getProductPrice({
-                      product: p,
-                    })
-                    return p.id === hit.objectID && Boolean(cheapestPrice) && p
-                  })}
-                />
-              ))}
-            />
-          </div>
-        )}
-      </div>
-    </>
+    <div className="w-full">
+      <Carousel
+        align="start"
+        items={visibleItems.map((hit) => (
+          <ProductCard
+            key={hit.objectID}
+            product={hit}
+            api_product={prod.find((p) => p.id === hit.objectID)}
+          />
+        ))}
+      />
+    </div>
   )
 }
