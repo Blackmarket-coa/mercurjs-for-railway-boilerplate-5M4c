@@ -44,7 +44,7 @@ export const AlgoliaProductsListing = ({
     category_id
       ? ` AND categories.id:${category_id}${
           collection_id !== undefined
-            ? ` AND collections.id:${collection_id}`
+            ? ` AND collection.id:${collection_id}`
             : ""
         } ${facetFilters}`
       : ` ${facetFilters}`

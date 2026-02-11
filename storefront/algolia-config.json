@@ -30,7 +30,10 @@
       "variants.color",
       "variants.condition",
       "variants.prices.currency_code",
-      "variants.size"
+      "variants.size",
+      "filterOnly(collection.id)",
+      "filterOnly(collection_id)",
+      "filterOnly(variants.prices.amount)"
     ],
     "attributesToSnippet": null,
     "attributesToHighlight": null,
@@ -53,11 +56,19 @@
     "queryType": "prefixLast",
     "highlightPreTag": "<em>",
     "highlightPostTag": "</em>",
-    "alternativesAsExact": ["ignorePlurals", "singleWordSynonym"],
+    "alternativesAsExact": [
+      "ignorePlurals",
+      "singleWordSynonym"
+    ],
     "renderingContent": {
       "facetOrdering": {
         "facets": {
-          "order": ["seller.vendor_type", "variants.color", "variants.size", "variants.condition"]
+          "order": [
+            "seller.vendor_type",
+            "variants.color",
+            "variants.size",
+            "variants.condition"
+          ]
         },
         "values": {
           "variants.color": {
