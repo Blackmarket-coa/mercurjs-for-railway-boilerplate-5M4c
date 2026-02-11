@@ -23,7 +23,7 @@ export const AlgoliaProductsCarousel = ({
     seller_handle
       ? `NOT seller:null AND seller.handle:${seller_handle} AND `
       : "NOT seller:null AND "
-  }NOT seller.store_status:SUSPENDED AND supported_countries:${locale} AND variants.prices.currency_code:${currency_code}`
+  }NOT seller.store_status:SUSPENDED AND variants.prices.currency_code:${currency_code}`
 
   return (
     <InstantSearchNext searchClient={client} indexName="products">
