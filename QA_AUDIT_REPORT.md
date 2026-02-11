@@ -40,7 +40,9 @@ This audit covers the full MercurJS marketplace platform: a MedusaJS v2 backend 
 
 ### CRITICAL
 
-✅ No open CRITICAL issues remain from the previous audit batch.
+✅ Previously listed CRITICAL findings (C1–C3) were remediated in code.
+
+⚠️ Operational note: if managed DB TLS trust is misconfigured, production startup can still fail until CA trust is provided (`DB_SSL_CA`) or an explicit temporary override (`DB_SSL_REJECT_UNAUTHORIZED=false`) is set.
 
 ### HIGH
 

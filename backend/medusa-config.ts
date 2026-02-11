@@ -66,6 +66,10 @@ const getDatabaseDriverOptions = () => {
   const databaseUrl = process.env.DATABASE_URL
   if (!databaseUrl) return undefined
   const isProduction = process.env.NODE_ENV === 'production'
+  const sslRejectUnauthorizedEnv = process.env.DB_SSL_REJECT_UNAUTHORIZED
+  const shouldRejectUnauthorized = sslRejectUnauthorizedEnv == null
+    ? true
+    : sslRejectUnauthorizedEnv.toLowerCase() !== 'false'
 
   // Auto-detect Railway PostgreSQL and enable SSL
   const isRailway = databaseUrl.includes('railway.app') ||
@@ -75,14 +79,25 @@ const getDatabaseDriverOptions = () => {
 
   if (!isRailway) return undefined
 
-  // SECURITY: Always validate cert chains in production.
-  // For local/dev troubleshooting only, set DB_SSL_REJECT_UNAUTHORIZED=false.
-  const allowInsecureDevSsl = !isProduction && process.env.DB_SSL_REJECT_UNAUTHORIZED === 'false'
+  // SECURITY: Default to strict TLS verification everywhere.
+  // Operational escape hatch: explicit DB_SSL_REJECT_UNAUTHORIZED=false can be used
+  // temporarily in any environment while CA trust is corrected.
+  const ssl: { rejectUnauthorized: boolean; ca?: string } = {
+    rejectUnauthorized: shouldRejectUnauthorized,
+  }
+
+  // Optional custom CA bundle for managed DBs that don't chain to system trust.
+  if (process.env.DB_SSL_CA) {
+    ssl.ca = process.env.DB_SSL_CA.replace(/\\n/g, '\n')
+  }
+
+  // Extra guardrail: keep production strict unless explicitly overridden.
+  if (isProduction && sslRejectUnauthorizedEnv == null) {
+    ssl.rejectUnauthorized = true
+  }
 
   return {
-    connection: {
-      ssl: { rejectUnauthorized: !allowInsecureDevSsl },
-    },
+    connection: { ssl },
   }
 }
 
