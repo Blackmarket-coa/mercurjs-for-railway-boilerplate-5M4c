@@ -26,6 +26,7 @@ import {
   usePrintfulCatalogPreview,
   usePrintfulImport,
 } from "../../../hooks/api"
+import { useStore } from "../../../hooks/api/store"
 import { getProductImportCsvTemplate } from "./helpers/import-template"
 import { ImportSummary } from "./components/import-summary"
 import { UploadImport } from "./components/upload-import"
@@ -39,7 +40,7 @@ type ExternalImportCandidate = {
   title: string
 }
 
-const ONLINE_STORE_IMPORT_HEADERS = [
+const ONLINE_STORE_IMPORT_BASE_HEADERS = [
   "Product Id",
   "Product Handle",
   "Product Title",
@@ -78,13 +79,16 @@ const ONLINE_STORE_IMPORT_HEADERS = [
   "Variant Origin Country",
   "Variant MID Code",
   "Variant Material",
-  "Price EUR",
-  "Price USD",
   "Option 1 Name",
   "Option 1 Value",
   "Image 1 Url",
   "Image 2 Url",
 ]
+
+const ONLINE_STORE_FALLBACK_CURRENCIES = ["usd"]
+const ONLINE_STORE_DEFAULT_PRICE_AMOUNT = 100
+const ONLINE_STORE_DEFAULT_OPTION_NAME = "Title"
+const ONLINE_STORE_DEFAULT_OPTION_VALUE = "Default Title"
 
 const SOURCE_OPTIONS: { label: string; value: ProductImportSource }[] = [
   { label: "WooCommerce", value: "woocommerce" },
@@ -138,6 +142,7 @@ const ProductImportContent = () => {
   >([])
   const [selectedCandidates, setSelectedCandidates] = useState<string[]>([])
   const [queuedCandidateIds, setQueuedCandidateIds] = useState<string[]>([])
+  const { store } = useStore()
 
   const { mutateAsync: importProducts, isPending, data } = useImportProducts()
   const { mutateAsync: confirmImportProducts, isPending: isConfirmingImport } =
@@ -217,7 +222,31 @@ const ProductImportContent = () => {
     )
   }
 
+  const onlineStorePriceCurrencies = useMemo(() => {
+    const codes =
+      store?.supported_currencies
+        ?.map((currency) => currency.currency_code?.toUpperCase())
+        .filter((code): code is string => !!code) ?? []
+
+    return codes.length
+      ? [...new Set(codes)]
+      : ONLINE_STORE_FALLBACK_CURRENCIES.map((code) => code.toUpperCase())
+  }, [store?.supported_currencies])
+
+  const csvEscape = (value: string) => {
+    const normalized = value.replace(/\r?\n/g, " ").trim()
+    return normalized.includes(";") || normalized.includes('"')
+      ? `"${normalized.replace(/"/g, '""')}"`
+      : normalized
+  }
+
   const buildOnlineStoreImportFile = (candidates: ExternalImportCandidate[]) => {
+    const headers = [
+      ...ONLINE_STORE_IMPORT_BASE_HEADERS.slice(0, 38),
+      ...onlineStorePriceCurrencies.map((currencyCode) => `Price ${currencyCode}`),
+      ...ONLINE_STORE_IMPORT_BASE_HEADERS.slice(38),
+    ]
+
     const rows = candidates.map((candidate) => {
       const reference = candidate.reference
       const parsedUrl = (() => {
@@ -240,7 +269,7 @@ const ProductImportContent = () => {
         .replace(/[^a-z0-9-]/g, "-")
         .replace(/-+/g, "-")
         .replace(/^-|-$/g, "")
-      const handle = `${hostName}-${normalizedSlug || "product"}`
+      const handle = `${hostName}-${normalizedSlug || "product"}`.slice(0, 120)
 
       const titleFromSlug = normalizedSlug
         .split("-")
@@ -289,18 +318,19 @@ const ProductImportContent = () => {
         "",
         "",
         "",
-        "0",
-        "0",
-        "",
-        "",
+        ...onlineStorePriceCurrencies.map(() =>
+          String(ONLINE_STORE_DEFAULT_PRICE_AMOUNT)
+        ),
+        ONLINE_STORE_DEFAULT_OPTION_NAME,
+        ONLINE_STORE_DEFAULT_OPTION_VALUE,
         "",
         "",
       ]
 
-      return row.join(";")
+      return row.map((value) => csvEscape(value)).join(";")
     })
 
-    const content = [ONLINE_STORE_IMPORT_HEADERS.join(";"), ...rows].join("\n")
+    const content = [headers.join(";"), ...rows].join("\n")
 
     return new File([content], `online-store-import-${Date.now()}.csv`, {
       type: "text/csv;charset=utf-8",
