@@ -12,6 +12,7 @@ import type { Metadata } from "next"
 import Script from "next/script"
 import { listRegions } from "@/lib/data/regions"
 import { listProducts } from "@/lib/data/products"
+import { isUnifiedListingEnabled } from "@/lib/feature-flags"
 import { toHreflang } from "@/lib/helpers/hreflang"
 
 export const revalidate = 60
@@ -177,7 +178,9 @@ async function AllCategories({
       <section>
         <h2 className="heading-lg uppercase mb-4">All Products</h2>
         <Suspense key={page} fallback={<ProductListingSkeleton />}>
-          {bot || !ALGOLIA_ID || !ALGOLIA_SEARCH_KEY ? (
+          {isUnifiedListingEnabled() ? (
+            <ProductListing showSidebar locale={locale} page={page} />
+          ) : bot || !ALGOLIA_ID || !ALGOLIA_SEARCH_KEY ? (
             <ProductListing showSidebar locale={locale} page={page} />
           ) : (
             <AlgoliaProductsListing

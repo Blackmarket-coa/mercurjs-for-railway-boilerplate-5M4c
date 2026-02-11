@@ -6,12 +6,13 @@ import {
   ProductsPagination,
 } from "@/components/organisms"
 import { PRODUCT_LIMIT } from "@/const"
-import { listProductsWithSort } from "@/lib/data/products"
+import { listUnifiedProducts } from "@/lib/listing/unified-products"
 
 export const ProductListing = async ({
   category_id,
   collection_id,
   seller_id,
+  seller_handle,
   showSidebar = false,
   locale = process.env.NEXT_PUBLIC_DEFAULT_REGION || "pl",
   page = 1,
@@ -19,29 +20,27 @@ export const ProductListing = async ({
   category_id?: string
   collection_id?: string
   seller_id?: string
+  seller_handle?: string
   showSidebar?: boolean
   locale?: string
   page?: number
 }) => {
-  const { response } = await listProductsWithSort({
+  const result = await listUnifiedProducts({
+    locale,
     page,
-    seller_id,
-    category_id,
-    collection_id,
-    countryCode: locale,
+    limit: PRODUCT_LIMIT,
+    sellerId: seller_id,
+    sellerHandle: seller_handle,
+    categoryId: category_id,
+    collectionId: collection_id,
     sortBy: "created_at",
-    queryParams: {
-      limit: PRODUCT_LIMIT,
-    },
   })
 
-  const { products, count } = response
-
-  const pages = Math.ceil(count / PRODUCT_LIMIT) || 1
+  const { products, total, totalPages } = result
 
   return (
     <div className="py-4">
-      <ProductListingHeader total={count} />
+      <ProductListingHeader total={total} />
       <div className="hidden md:block">
         <ProductListingActiveFilters />
       </div>
@@ -51,7 +50,7 @@ export const ProductListing = async ({
           <div className="flex flex-wrap gap-4">
             <ProductsList products={products} />
           </div>
-          <ProductsPagination pages={pages} />
+          <ProductsPagination pages={totalPages} />
         </section>
       </div>
     </div>

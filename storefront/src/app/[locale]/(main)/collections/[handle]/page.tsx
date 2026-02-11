@@ -7,6 +7,7 @@ import { getRegion } from "@/lib/data/regions"
 import isBot from "@/lib/helpers/isBot"
 import { headers } from "next/headers"
 import { Suspense } from "react"
+import { isUnifiedListingEnabled } from "@/lib/feature-flags"
 
 const ALGOLIA_ID = process.env.NEXT_PUBLIC_ALGOLIA_ID
 const ALGOLIA_SEARCH_KEY = process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY
@@ -46,8 +47,10 @@ const SingleCollectionsPage = async ({
       <h1 className="heading-xl uppercase">{collection.title}</h1>
 
       <Suspense key={page} fallback={<ProductListingSkeleton />}>
-        {bot || !ALGOLIA_ID || !ALGOLIA_SEARCH_KEY ? (
-          <ProductListing collection_id={collection.id} showSidebar page={page} />
+        {isUnifiedListingEnabled() ? (
+          <ProductListing collection_id={collection.id} showSidebar locale={locale} page={page} />
+        ) : bot || !ALGOLIA_ID || !ALGOLIA_SEARCH_KEY ? (
+          <ProductListing collection_id={collection.id} showSidebar locale={locale} page={page} />
         ) : (
           <AlgoliaProductsListing
             collection_id={collection.id}
