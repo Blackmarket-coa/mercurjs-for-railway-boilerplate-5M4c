@@ -97,6 +97,7 @@ const ONLINE_STORE_FALLBACK_CURRENCIES = ["usd"]
 const ONLINE_STORE_DEFAULT_PRICE_AMOUNT = 100
 const ONLINE_STORE_DEFAULT_OPTION_NAME = "Title"
 const ONLINE_STORE_DEFAULT_OPTION_VALUE = "Default Title"
+const ONLINE_STORE_WRAPPING_QUOTES = /^[\s"'`“”‘’]+|[\s"'`“”‘’]+$/g
 
 const SOURCE_OPTIONS: { label: string; value: ProductImportSource }[] = [
   { label: "WooCommerce", value: "woocommerce" },
@@ -189,7 +190,7 @@ const ProductImportContent = () => {
       .trim()
       .replace(ONLINE_STORE_WRAPPING_QUOTES, "")
 
-    if (!trimmedReference || sourceType === "csv") {
+    if (!trimmedReference || sourceType !== "online_store") {
       toast.error("Add a source URL or account reference first.")
       return
     }
