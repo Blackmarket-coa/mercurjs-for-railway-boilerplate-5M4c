@@ -41,14 +41,8 @@ export const AlgoliaProductsListing = ({
       ? `seller.handle:${seller_handle} AND `
       : ""
   }NOT seller.store_status:SUSPENDED${
-    category_id
-      ? ` AND categories.id:${category_id}${
-          collection_id !== undefined
-            ? ` AND collection.id:${collection_id}`
-            : ""
-        } ${facetFilters}`
-      : ` ${facetFilters}`
-  }`
+    category_id ? ` AND categories.id:${category_id}` : ""
+  }${collection_id ? ` AND collection.id:${collection_id}` : ""} ${facetFilters}`
 
   return (
     <InstantSearchNext searchClient={client} indexName="products">

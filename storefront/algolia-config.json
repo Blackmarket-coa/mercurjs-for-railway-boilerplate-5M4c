@@ -27,13 +27,16 @@
       "filterOnly(supported_countries)",
       "searchable(title)",
       "seller.vendor_type",
+      "type.value",
+      "sales_channels.name",
       "variants.color",
       "variants.condition",
       "variants.prices.currency_code",
       "variants.size",
       "filterOnly(collection.id)",
       "filterOnly(collection_id)",
-      "filterOnly(variants.prices.amount)"
+      "filterOnly(variants.prices.amount)",
+      "filterOnly(sales_channels.id)"
     ],
     "attributesToSnippet": null,
     "attributesToHighlight": null,
