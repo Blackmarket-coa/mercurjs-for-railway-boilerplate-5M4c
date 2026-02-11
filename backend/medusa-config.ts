@@ -65,6 +65,7 @@ const adminCors = buildCors(
 const getDatabaseDriverOptions = () => {
   const databaseUrl = process.env.DATABASE_URL
   if (!databaseUrl) return undefined
+  const isProduction = process.env.NODE_ENV === 'production'
 
   // Auto-detect Railway PostgreSQL and enable SSL
   const isRailway = databaseUrl.includes('railway.app') ||
@@ -74,9 +75,13 @@ const getDatabaseDriverOptions = () => {
 
   if (!isRailway) return undefined
 
+  // SECURITY: Always validate cert chains in production.
+  // For local/dev troubleshooting only, set DB_SSL_REJECT_UNAUTHORIZED=false.
+  const allowInsecureDevSsl = !isProduction && process.env.DB_SSL_REJECT_UNAUTHORIZED === 'false'
+
   return {
     connection: {
-      ssl: { rejectUnauthorized: false },
+      ssl: { rejectUnauthorized: !allowInsecureDevSsl },
     },
   }
 }

@@ -20,22 +20,28 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       customer_id: customerId,
     })
 
-    // Get pool details for each investment
-    const investmentsWithPools = await Promise.all(
-      investments.map(async (inv) => {
-        const pool = await hawalaService.retrieveInvestmentPool(inv.pool_id)
-        return {
-          ...inv,
-          pool: pool ? {
-            id: pool.id,
-            name: pool.name,
-            producer_id: pool.producer_id,
-            roi_type: pool.roi_type,
-            status: pool.status,
-          } : null,
-        }
-      })
-    )
+    // Fetch pool details in bulk to avoid N+1 queries
+    const uniquePoolIds = Array.from(new Set(investments.map((inv) => inv.pool_id).filter(Boolean)))
+    const pools = uniquePoolIds.length
+      ? await hawalaService.listInvestmentPools({ id: uniquePoolIds as any })
+      : []
+    const poolById = new Map(pools.map((pool) => [pool.id, pool]))
+
+    const investmentsWithPools = investments.map((inv) => {
+      const pool = poolById.get(inv.pool_id)
+      return {
+        ...inv,
+        pool: pool
+          ? {
+              id: pool.id,
+              name: pool.name,
+              producer_id: pool.producer_id,
+              roi_type: pool.roi_type,
+              status: pool.status,
+            }
+          : null,
+      }
+    })
 
     // Calculate totals
     const totalInvested = investments.reduce((sum, i) => sum + Number(i.amount), 0)
@@ -50,7 +56,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       },
     })
   } catch (error) {
-    res.status(500).json({ error: (error as Error).message })
+    res.status(500).json({ error: "Failed to fetch investments" })
   }
 }
 
