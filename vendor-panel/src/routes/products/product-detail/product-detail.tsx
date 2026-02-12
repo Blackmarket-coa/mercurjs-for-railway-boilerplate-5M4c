@@ -11,6 +11,7 @@ import { ProductVariantSection } from "./components/product-variant-section"
 
 import { useDashboardExtension } from "../../../extensions"
 import { ProductAdditionalAttributesSection } from "./components/product-additional-attribute-section/ProductAdditionalAttributesSection"
+import { PRODUCT_DETAIL_FIELDS } from "./constants"
 
 export const ProductDetail = () => {
   const { id } = useParams()
