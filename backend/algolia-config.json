@@ -26,18 +26,10 @@
       "seller.store_status",
       "filterOnly(supported_countries)",
       "searchable(title)",
-      "seller.vendor_type",
-      "type.value",
-      "sales_channels.name",
       "variants.color",
       "variants.condition",
       "variants.prices.currency_code",
-      "variants.size",
-      "filterOnly(collection.id)",
-      "filterOnly(collection_id)",
-      "filterOnly(variants.prices.amount)",
-      "filterOnly(type.value)",
-      "filterOnly(sales_channels.id)"
+      "variants.size"
     ],
     "attributesToSnippet": null,
     "attributesToHighlight": null,
@@ -60,36 +52,13 @@
     "queryType": "prefixLast",
     "highlightPreTag": "<em>",
     "highlightPostTag": "</em>",
-    "alternativesAsExact": [
-      "ignorePlurals",
-      "singleWordSynonym"
-    ],
+    "alternativesAsExact": ["ignorePlurals", "singleWordSynonym"],
     "renderingContent": {
       "facetOrdering": {
         "facets": {
-          "order": [
-            "categories.name",
-            "type.value",
-            "sales_channels.name",
-            "seller.vendor_type",
-            "variants.color",
-            "variants.size",
-            "variants.condition"
-          ]
+          "order": ["variants.color", "variants.size", "variants.condition"]
         },
         "values": {
-          "categories.name": {
-            "sortRemainingBy": "alpha"
-          },
-          "type.value": {
-            "sortRemainingBy": "alpha"
-          },
-          "sales_channels.name": {
-            "sortRemainingBy": "alpha"
-          },
-          "seller.vendor_type": {
-            "sortRemainingBy": "count"
-          },
           "variants.color": {
             "sortRemainingBy": "count"
           },
