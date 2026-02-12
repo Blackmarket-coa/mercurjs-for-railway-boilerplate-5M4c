@@ -11,12 +11,12 @@ import { ProductVariantSection } from "./components/product-variant-section"
 
 import { useDashboardExtension } from "../../../extensions"
 import { ProductAdditionalAttributesSection } from "./components/product-additional-attribute-section/ProductAdditionalAttributesSection"
+import { PRODUCT_DETAIL_FIELDS } from "./constants"
 
 export const ProductDetail = () => {
   const { id } = useParams()
   const { product, isLoading, isError, error } = useProduct(id!, {
-    fields:
-      "*variants.inventory_items,*categories,attribute_values.*,attribute_values.attribute.*",
+    fields: PRODUCT_DETAIL_FIELDS,
   })
 
   const { getWidgets } = useDashboardExtension()

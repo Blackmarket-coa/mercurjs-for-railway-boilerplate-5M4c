@@ -145,9 +145,15 @@ export const fetchQuery = async (
 
   const params = new URLSearchParams()
   for (const [key, value] of Object.entries(query || {})) {
-    if (value !== undefined && value !== null) {
-      params.set(key, String(value))
+    if (value === undefined || value === null) {
+      continue
     }
+
+    if (typeof value === "string" && value.trim() === "") {
+      continue
+    }
+
+    params.set(key, String(value))
   }
   const queryString = params.toString()
 
