@@ -1,7 +1,75 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 
-const USER_AGENT =
+const BROWSER_USER_AGENT =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
+
+const BOT_USER_AGENT =
   "Mozilla/5.0 (compatible; FreeBlackMarketImportBot/1.0; +https://freeblackmarket.com)"
+
+const BLOCKED_BY_BOT_PROTECTION_STATUS = new Set([401, 403, 429])
+
+const getHostname = (value: string) => {
+  try {
+    return new URL(value).hostname.replace(/^www\./, "")
+  } catch {
+    return ""
+  }
+}
+
+const buildFetchProfiles = () => [
+  {
+    name: "browser",
+    headers: {
+      "User-Agent": BROWSER_USER_AGENT,
+      Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "Accept-Language": "en-US,en;q=0.9",
+      "Cache-Control": "no-cache",
+      Pragma: "no-cache",
+      "Upgrade-Insecure-Requests": "1",
+    },
+  },
+  {
+    name: "bot",
+    headers: {
+      "User-Agent": BOT_USER_AGENT,
+      Accept: "text/html,application/xhtml+xml",
+    },
+  },
+]
+
+const fetchHtmlWithRetryProfiles = async (reference: string) => {
+  const attempts: Array<{ profile: string; status: number }> = []
+
+  for (const profile of buildFetchProfiles()) {
+    const response = await fetch(reference, {
+      headers: profile.headers,
+      redirect: "follow",
+    })
+
+    if (response.ok) {
+      const html = await response.text()
+      return {
+        response,
+        html,
+      }
+    }
+
+    attempts.push({ profile: profile.name, status: response.status })
+
+    if (!BLOCKED_BY_BOT_PROTECTION_STATUS.has(response.status)) {
+      throw new Error(`Source returned ${response.status}`)
+    }
+  }
+
+  const attemptedStatuses = attempts.map((attempt) => `${attempt.profile}:${attempt.status}`).join(", ")
+  const host = getHostname(reference)
+
+  throw new Error(
+    `Source returned ${attempts[attempts.length - 1]?.status ?? "unknown"}. ${
+      host ? `${host} appears to block automated fetches` : "The source appears to block automated fetches"
+    } (attempts: ${attemptedStatuses})`
+  )
+}
 
 const sanitizeHandlePart = (value: string) =>
   value
@@ -123,19 +191,7 @@ const extractDescription = (html: string) => {
 
 const resolveReference = async (reference: string) => {
   const parsed = new URL(reference)
-  const response = await fetch(reference, {
-    headers: {
-      "User-Agent": USER_AGENT,
-      Accept: "text/html,application/xhtml+xml",
-    },
-    redirect: "follow",
-  })
-
-  if (!response.ok) {
-    throw new Error(`Source returned ${response.status}`)
-  }
-
-  const html = await response.text()
+  const { response, html } = await fetchHtmlWithRetryProfiles(reference)
 
   const canonical =
     getMetaContent(html, "og:url") ||
