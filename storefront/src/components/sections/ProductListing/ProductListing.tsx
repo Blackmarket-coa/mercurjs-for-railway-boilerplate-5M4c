@@ -44,7 +44,7 @@ export const ProductListing = async ({
   minPrice?: number
   maxPrice?: number
 }) => {
-  const [result, { categories }, availableProductTypes, availableSalesChannels] =
+  const [result, { categories: availableCategories }, availableProductTypes, availableSalesChannels] =
     await Promise.all([
       listUnifiedProducts({
         locale,
@@ -80,8 +80,8 @@ export const ProductListing = async ({
       </div>
       <div className="grid grid-cols-1 md:grid-cols-4 mt-6 gap-4">
         {showSidebar && (
-          <ProductSidebar
-            categories={categories.map((c) => ({ name: c.name }))}
+            <ProductSidebar
+            categories={availableCategories.map((c) => ({ name: c.name }))}
             productTypes={availableProductTypes}
             salesChannels={availableSalesChannels}
           />
