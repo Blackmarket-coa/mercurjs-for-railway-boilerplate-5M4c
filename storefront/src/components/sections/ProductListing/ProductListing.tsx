@@ -17,6 +17,15 @@ export const ProductListing = async ({
   showSidebar = false,
   locale = process.env.NEXT_PUBLIC_DEFAULT_REGION || "pl",
   page = 1,
+  categories,
+  productTypes,
+  salesChannels,
+  vendorTypes,
+  sizes,
+  colors,
+  conditions,
+  minPrice,
+  maxPrice,
 }: {
   category_id?: string
   collection_id?: string
@@ -25,8 +34,17 @@ export const ProductListing = async ({
   showSidebar?: boolean
   locale?: string
   page?: number
+  categories?: string[]
+  productTypes?: string[]
+  salesChannels?: string[]
+  vendorTypes?: string[]
+  sizes?: string[]
+  colors?: string[]
+  conditions?: string[]
+  minPrice?: number
+  maxPrice?: number
 }) => {
-  const [result, { categories }, productTypes, salesChannels] =
+  const [result, { categories }, availableProductTypes, availableSalesChannels] =
     await Promise.all([
       listUnifiedProducts({
         locale,
@@ -36,6 +54,15 @@ export const ProductListing = async ({
         sellerHandle: seller_handle,
         categoryId: category_id,
         collectionId: collection_id,
+        categories,
+        productTypes,
+        salesChannels,
+        vendorTypes,
+        sizes,
+        colors,
+        conditions,
+        minPrice,
+        maxPrice,
         sortBy: "created_at",
       }),
       listCategories(),
@@ -55,8 +82,8 @@ export const ProductListing = async ({
         {showSidebar && (
           <ProductSidebar
             categories={categories.map((c) => ({ name: c.name }))}
-            productTypes={productTypes}
-            salesChannels={salesChannels}
+            productTypes={availableProductTypes}
+            salesChannels={availableSalesChannels}
           />
         )}
         <section className={showSidebar ? "col-span-3" : "col-span-4"}>
