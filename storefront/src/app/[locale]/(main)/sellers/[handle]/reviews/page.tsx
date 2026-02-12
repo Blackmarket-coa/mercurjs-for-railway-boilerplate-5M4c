@@ -13,6 +13,10 @@ export default async function SellerReviewsPage({
   const { handle, locale } = await params
 
   const seller = (await getSellerByHandle(handle)) as SellerProps
+  if (!seller) {
+    return null
+  }
+
   const currency_code = (await getRegion(locale))?.currency_code || "usd"
 
   const user = await retrieveCustomer()
