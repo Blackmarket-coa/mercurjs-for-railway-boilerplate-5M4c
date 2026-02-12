@@ -97,6 +97,7 @@ const ONLINE_STORE_FALLBACK_CURRENCIES = ["usd"]
 const ONLINE_STORE_DEFAULT_PRICE_AMOUNT = 100
 const ONLINE_STORE_DEFAULT_OPTION_NAME = "Title"
 const ONLINE_STORE_DEFAULT_OPTION_VALUE = "Default Title"
+const ONLINE_STORE_DEFAULT_VARIANT_TITLE = "Default Title"
 const ONLINE_STORE_WRAPPING_QUOTES = /^[\s"'`“”‘’]+|[\s"'`“”‘’]+$/g
 
 const SOURCE_OPTIONS: { label: string; value: ProductImportSource }[] = [
@@ -352,7 +353,7 @@ const ProductImportContent = () => {
         "",
         "",
         "",
-        "Default",
+        ONLINE_STORE_DEFAULT_VARIANT_TITLE,
         "",
         "",
         "0",
@@ -366,9 +367,7 @@ const ProductImportContent = () => {
         "",
         "",
         "",
-        ...onlineStorePriceCurrencies.map(() =>
-          String(ONLINE_STORE_DEFAULT_PRICE_AMOUNT)
-        ),
+        ...onlineStorePriceCurrencies.map(() => normalizedPrice),
         ONLINE_STORE_DEFAULT_OPTION_NAME,
         ONLINE_STORE_DEFAULT_OPTION_VALUE,
         "",
