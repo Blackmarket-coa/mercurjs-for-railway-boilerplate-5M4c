@@ -246,14 +246,31 @@ class MinioFileProviderService extends AbstractFileProviderService {
       if (Buffer.isBuffer(file.content)) {
         content = file.content
       } else if (typeof file.content === 'string') {
-        // Medusa uploads are typically binary strings. Only decode as base64
-        // when the payload is an explicit data URL to avoid corrupting files.
+        // Medusa uploads can be sent as a binary string or as base64 depending
+        // on the caller/provider path. Decode base64 payloads first to avoid
+        // writing the encoded text bytes as object data (corrupted images).
         const dataUrlMatch = file.content.match(/^data:(.+);base64,(.+)$/)
 
         if (dataUrlMatch) {
           content = Buffer.from(dataUrlMatch[2], 'base64')
         } else {
-          content = Buffer.from(file.content, 'binary')
+          const normalized = file.content.trim()
+          const looksLikeBase64 =
+            normalized.length > 0 &&
+            normalized.length % 4 === 0 &&
+            /^[A-Za-z0-9+/]+={0,2}$/.test(normalized)
+
+          if (looksLikeBase64) {
+            const decoded = Buffer.from(normalized, 'base64')
+            const reEncoded = decoded.toString('base64').replace(/=+$/, '')
+            const original = normalized.replace(/=+$/, '')
+
+            content = reEncoded === original
+              ? decoded
+              : Buffer.from(file.content, 'binary')
+          } else {
+            content = Buffer.from(file.content, 'binary')
+          }
         }
       } else {
         // Handle ArrayBuffer, Uint8Array, or any other buffer-like type
