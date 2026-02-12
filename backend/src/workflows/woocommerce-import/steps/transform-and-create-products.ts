@@ -3,6 +3,7 @@ import {
   StepResponse,
 } from "@medusajs/framework/workflows-sdk"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import { SELLER_MODULE } from "@mercurjs/b2c-core/modules/seller"
 import { WooToMedusaTransformer } from "../../../modules/woocommerce-import/lib/woo-to-medusa-transformer"
 import type { WooProduct, WooVariation, ImportResult } from "../../../modules/woocommerce-import/types"
 
@@ -96,8 +97,8 @@ const transformAndCreateProductsStep = createStep(
         // Link product to seller using MercurJS seller_product relationship
         try {
           await remoteLink.create({
-            "seller": { seller_id: input.seller_id },
-            "product": { product_id: createdProduct.id },
+            [SELLER_MODULE]: { seller_id: input.seller_id },
+            [Modules.PRODUCT]: { product_id: createdProduct.id },
           })
         } catch (linkError: any) {
           // If the link pattern is different, try the alternative
