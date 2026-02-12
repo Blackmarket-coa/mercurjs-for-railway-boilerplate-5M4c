@@ -97,6 +97,40 @@ export const getCollectionByHandle = async (handle: string) => {
     .then(({ collections }) => collections?.[0] || null)
 }
 
+export const listProductTypes = async () => {
+  try {
+    return await sdk.client
+      .fetch<{ product_types: { id: string; value: string }[] }>(
+        "/store/product-types",
+        {
+          query: { limit: 100, fields: "id,value" },
+          cache: "force-cache",
+          next: { revalidate: 3600 },
+        }
+      )
+      .then(({ product_types }) => product_types)
+  } catch {
+    return []
+  }
+}
+
+export const listSalesChannels = async () => {
+  try {
+    return await sdk.client
+      .fetch<{ sales_channels: { id: string; name: string }[] }>(
+        "/store/sales-channels",
+        {
+          query: { limit: 100, fields: "id,name" },
+          cache: "force-cache",
+          next: { revalidate: 3600 },
+        }
+      )
+      .then(({ sales_channels }) => sales_channels)
+  } catch {
+    return []
+  }
+}
+
 export const listFeaturedCategories = async (limit = 10) => {
   try {
     const { categories } = await listCategories({ query: { limit } })

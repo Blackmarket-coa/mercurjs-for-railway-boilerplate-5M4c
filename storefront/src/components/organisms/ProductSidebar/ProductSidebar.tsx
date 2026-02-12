@@ -1,10 +1,14 @@
 "use client"
 import { Button } from "@/components/atoms"
 import {
+  CategoryFilter,
   ColorFilter,
   ConditionFilter,
   PriceFilter,
+  ProductTypeFilter,
+  SalesChannelFilter,
   SizeFilter,
+  VendorTypeFilter,
 } from "@/components/cells"
 import { CloseIcon } from "@/icons"
 import { cn } from "@/lib/utils"
@@ -13,7 +17,15 @@ import { ProductListingActiveFilters } from "../ProductListingActiveFilters/Prod
 
 import useFilters from "@/hooks/useFilters"
 
-export const ProductSidebar = () => {
+export const ProductSidebar = ({
+  categories = [],
+  productTypes = [],
+  salesChannels = [],
+}: {
+  categories?: { name: string }[]
+  productTypes?: { value: string }[]
+  salesChannels?: { name: string }[]
+}) => {
   const [filterModal, setFilterModal] = useState(false)
   const { clearAllFilters } = useFilters("")
   const isAlgoliaConfigured = Boolean(
@@ -49,6 +61,10 @@ export const ProductSidebar = () => {
         )}
 
         <div className="px-2 md:px-0 overflow-y-scroll md:overflow-y-auto h-[calc(100vh-200px)] md:h-full no-scrollbar">
+          {categories.length > 0 && <CategoryFilter categories={categories} />}
+          {productTypes.length > 0 && <ProductTypeFilter productTypes={productTypes} />}
+          {salesChannels.length > 0 && <SalesChannelFilter salesChannels={salesChannels} />}
+          <VendorTypeFilter />
           <PriceFilter />
           <SizeFilter />
           <ColorFilter />
@@ -66,7 +82,7 @@ export const ProductSidebar = () => {
             className="w-1/2 uppercase label-sm"
             onClick={() => setFilterModal(false)}
           >
-            View 222 listings
+            View listings
           </Button>
         </div>
       </div>
