@@ -6,6 +6,7 @@ import {
   ProductsPagination,
 } from "@/components/organisms"
 import { PRODUCT_LIMIT } from "@/const"
+import { listCategories, listProductTypes, listSalesChannels } from "@/lib/data/categories"
 import { listUnifiedProducts } from "@/lib/listing/unified-products"
 
 export const ProductListing = async ({
@@ -25,16 +26,22 @@ export const ProductListing = async ({
   locale?: string
   page?: number
 }) => {
-  const result = await listUnifiedProducts({
-    locale,
-    page,
-    limit: PRODUCT_LIMIT,
-    sellerId: seller_id,
-    sellerHandle: seller_handle,
-    categoryId: category_id,
-    collectionId: collection_id,
-    sortBy: "created_at",
-  })
+  const [result, { categories }, productTypes, salesChannels] =
+    await Promise.all([
+      listUnifiedProducts({
+        locale,
+        page,
+        limit: PRODUCT_LIMIT,
+        sellerId: seller_id,
+        sellerHandle: seller_handle,
+        categoryId: category_id,
+        collectionId: collection_id,
+        sortBy: "created_at",
+      }),
+      listCategories(),
+      listProductTypes(),
+      listSalesChannels(),
+    ])
 
   const { products, total, totalPages } = result
 
@@ -45,7 +52,13 @@ export const ProductListing = async ({
         <ProductListingActiveFilters />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-4 mt-6 gap-4">
-        {showSidebar && <ProductSidebar />}
+        {showSidebar && (
+          <ProductSidebar
+            categories={categories.map((c) => ({ name: c.name }))}
+            productTypes={productTypes}
+            salesChannels={salesChannels}
+          />
+        )}
         <section className={showSidebar ? "col-span-3" : "col-span-4"}>
           <div className="flex flex-wrap gap-4">
             <ProductsList products={products} />

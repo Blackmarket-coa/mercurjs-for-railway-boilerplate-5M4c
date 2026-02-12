@@ -7,6 +7,10 @@ import { PriceFilter } from "./PriceFilter/PriceFilter"
 import { SizeFilter } from "./SizeFilter/SizeFilter"
 import { ConditionFilter } from "./ConditionFilter/ConditionFilter"
 import { ColorFilter } from "./ColorFilter/ColorFilter"
+import { CategoryFilter } from "./CategoryFilter/CategoryFilter"
+import { ProductTypeFilter } from "./ProductTypeFilter/ProductTypeFilter"
+import { VendorTypeFilter } from "./VendorTypeFilter/VendorTypeFilter"
+import { SalesChannelFilter } from "./SalesChannelFilter/SalesChannelFilter"
 import { SellerRatingFilter } from "./SellerRatingFilter/SellerRatingFilter"
 import { ActiveFilterElement } from "./ActiveFilterElement/ActiveFilterElement"
 import { MobileNavbar } from "./MobileNavbar/MobileNavbar"
@@ -42,6 +46,10 @@ export {
   SizeFilter,
   ConditionFilter,
   ColorFilter,
+  CategoryFilter,
+  ProductTypeFilter,
+  VendorTypeFilter,
+  SalesChannelFilter,
   SellerRatingFilter,
   ActiveFilterElement,
   MobileNavbar,
