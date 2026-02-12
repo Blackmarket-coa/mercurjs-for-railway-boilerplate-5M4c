@@ -1,6 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import { createProductsWorkflow } from "@medusajs/medusa/core-flows"
+import { SELLER_MODULE } from "@mercurjs/b2c-core/modules/seller"
 
 async function resolveSellerId(req: MedusaRequest, actorId?: string): Promise<string | undefined> {
   if (!actorId) {
@@ -88,8 +89,8 @@ export async function POST(
     // Link product to seller
     try {
       await remoteLink.create({
-        "seller": { seller_id: resolvedSellerId },
-        "product": { product_id: createdProduct.id },
+        [SELLER_MODULE]: { seller_id: resolvedSellerId },
+        [Modules.PRODUCT]: { product_id: createdProduct.id },
       })
     } catch (linkError: any) {
       console.warn(
