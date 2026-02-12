@@ -13,7 +13,7 @@ const productDetailQuery = (id: string) => ({
     fetchQuery(`/vendor/products/${id}`, {
       method: "GET",
       query: {
-        fields: PRODUCT_DETAIL_FIELDS,
+        fields: "*variants.inventory_items,*categories",
       },
     }),
 })
