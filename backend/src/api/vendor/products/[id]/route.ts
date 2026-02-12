@@ -1,6 +1,28 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { updateProductsWorkflow } from "@medusajs/medusa/core-flows"
+
+async function resolveSellerId(req: MedusaRequest, actorId?: string): Promise<string | undefined> {
+  if (!actorId) {
+    return undefined
+  }
+
+  if (!actorId.startsWith("mem_")) {
+    return actorId
+  }
+
+  try {
+    const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION)
+    const memberResult = await pgConnection.raw(
+      `SELECT seller_id FROM member WHERE id = ? LIMIT 1`,
+      [actorId]
+    )
+
+    return memberResult.rows?.[0]?.seller_id || actorId
+  } catch {
+    return actorId
+  }
+}
 
 // Core product fields - avoiding relations that may not exist
 const productFields = [
@@ -36,7 +58,8 @@ export async function GET(
   res: MedusaResponse
 ) {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const sellerId = (req as any).auth_context?.actor_id
+  const actorId = (req as any)._seller_id || (req as any).auth_context?.actor_id
+  const sellerId = await resolveSellerId(req, actorId)
   const { id } = req.params
 
   if (!sellerId) {
@@ -89,7 +112,8 @@ export async function POST(
   res: MedusaResponse
 ) {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const sellerId = (req as any).auth_context?.actor_id
+  const actorId = (req as any)._seller_id || (req as any).auth_context?.actor_id
+  const sellerId = await resolveSellerId(req, actorId)
   const { id } = req.params
 
   if (!sellerId) {
@@ -152,7 +176,8 @@ export async function DELETE(
   req: MedusaRequest,
   res: MedusaResponse
 ) {
-  const sellerId = (req as any).auth_context?.actor_id
+  const actorId = (req as any)._seller_id || (req as any).auth_context?.actor_id
+  const sellerId = await resolveSellerId(req, actorId)
   const { id } = req.params
 
   if (!sellerId) {
