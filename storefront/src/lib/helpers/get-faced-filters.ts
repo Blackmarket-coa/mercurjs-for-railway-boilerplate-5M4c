@@ -1,4 +1,3 @@
-import { FacetFilters } from "algoliasearch/lite"
 import { ReadonlyURLSearchParams } from "next/navigation"
 
 const getOption = (label: string) => {
@@ -28,12 +27,11 @@ const getOption = (label: string) => {
 }
 
 export const getFacedFilters = (filters: ReadonlyURLSearchParams): string => {
-  let facet = ""
+  const facets: string[] = []
 
   let minPrice = null
   let maxPrice = null
 
-  let query = ""
   let rating = ""
 
   for (const [key, value] of filters.entries()) {
@@ -53,51 +51,51 @@ export const getFacedFilters = (filters: ReadonlyURLSearchParams): string => {
         continue
       }
 
-      let values = ""
-      const splittedSize = value.split(",")
-      if (splittedSize.length > 1) {
-        splittedSize.map(
-          (value, index) =>
-            (values += `${filterKey}:"${value}" ${
-              index + 1 < splittedSize.length ? "OR " : ""
-            }`)
-        )
-      } else {
-        values += `${filterKey}:"${splittedSize[0]}"`
+      const splitValues = value.split(",")
+      const facetValues = splitValues
+        .filter(Boolean)
+        .map((item) => `${filterKey}:"${item}"`)
+
+      if (!facetValues.length) {
+        continue
       }
-      facet += ` AND ${values}`
+
+      facets.push(
+        facetValues.length > 1
+          ? `(${facetValues.join(" OR ")})`
+          : facetValues[0]
+      )
     } else {
       if (key === "min_price") minPrice = value
       if (key === "max_price") maxPrice = value
 
-      if (key === "query") query = ` AND products.title:"${value}"`
-
       if (key === "rating") {
-        let values = ""
-        const splited = value.split(",")
-        if (splited.length > 1) {
-          splited.map(
-            (value, index) =>
-              (values += `${getOption(key)} >= ${value} ${
-                index + 1 < splited.length ? "OR " : ""
-              }`)
-          )
-        } else {
-          values += `${getOption(key)} >=${splited[0]}`
+        const splitValues = value.split(",").filter(Boolean)
+
+        if (!splitValues.length) {
+          rating = ""
+          continue
         }
-        rating += ` AND ${values}`
+
+        const values = splitValues
+          .map((item) => `${getOption(key)} >= ${item}`)
+          .join(" OR ")
+
+        rating = `(${values})`
       }
     }
   }
 
+  const facetFilter = facets.length ? `(${facets.join(" AND ")})` : ""
+
   const priceFilter =
     minPrice && maxPrice
-      ? ` AND variants.prices.amount:${minPrice} TO ${maxPrice}`
+      ? `variants.prices.amount:${minPrice} TO ${maxPrice}`
       : minPrice
-      ? ` AND variants.prices.amount >= ${minPrice}`
+      ? `variants.prices.amount >= ${minPrice}`
       : maxPrice
-      ? ` AND variants.prices.amount <= ${maxPrice}`
+      ? `variants.prices.amount <= ${maxPrice}`
       : ""
 
-  return facet + priceFilter + rating
+  return [facetFilter, priceFilter, rating].filter(Boolean).join(" AND ")
 }
