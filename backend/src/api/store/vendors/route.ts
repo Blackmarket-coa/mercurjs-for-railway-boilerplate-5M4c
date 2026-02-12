@@ -638,7 +638,10 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
             if (!seller) continue
 
             vendors.push({
-              id: meta.id,
+              // Use the seller id as the canonical vendor id for seller-backed vendor types.
+              // This keeps ids consistent with seller data used across storefront/vendor panel APIs.
+              id: meta.seller_id,
+              metadata_id: meta.id,
               seller_id: meta.seller_id,
               name: seller.name,
               handle: seller.handle,
