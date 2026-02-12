@@ -38,11 +38,13 @@ export const AlgoliaProductsListing = ({
 
   const filters = `${
     seller_handle
-      ? `seller.handle:${seller_handle} AND `
-      : ""
-  }NOT seller.store_status:SUSPENDED${
+      ? `NOT seller:null AND seller.handle:${seller_handle} AND `
+      : "NOT seller:null AND "
+  }NOT seller.store_status:SUSPENDED AND supported_countries:${locale}${
     category_id ? ` AND categories.id:${category_id}` : ""
-  }${collection_id ? ` AND collection.id:${collection_id}` : ""} ${facetFilters}`
+  }${collection_id ? ` AND collection.id:${collection_id}` : ""}${
+    facetFilters ? ` AND ${facetFilters}` : ""
+  }`
 
   return (
     <InstantSearchNext searchClient={client} indexName="products">
