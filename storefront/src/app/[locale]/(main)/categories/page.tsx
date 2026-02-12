@@ -79,8 +79,34 @@ async function AllCategories({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const { locale } = await params
-  const { page: pageParam } = await searchParams
+  const {
+    page: pageParam,
+    category,
+    type,
+    sales_channel,
+    vendor_type,
+    size,
+    color,
+    condition,
+    min_price,
+    max_price,
+  } = await searchParams
   const page = Number(pageParam) || 1
+
+  const toList = (value?: string | string[]) => {
+    const values = Array.isArray(value) ? value : [value || ""]
+    return values
+      .flatMap((item) => item.split(","))
+      .map((item) => item.trim())
+      .filter(Boolean)
+  }
+
+  const toNumber = (value?: string | string[]) => {
+    const raw = Array.isArray(value) ? value[0] : value
+    if (!raw) return undefined
+    const parsed = Number(raw)
+    return Number.isFinite(parsed) ? parsed : undefined
+  }
 
   const ua = (await headers()).get("user-agent") || ""
   const bot = isBot(ua)
@@ -179,9 +205,35 @@ async function AllCategories({
         <h2 className="heading-lg uppercase mb-4">All Products</h2>
         <Suspense key={page} fallback={<ProductListingSkeleton />}>
           {isUnifiedListingEnabled() ? (
-            <ProductListing showSidebar locale={locale} page={page} />
+            <ProductListing
+              showSidebar
+              locale={locale}
+              page={page}
+              categories={toList(category)}
+              productTypes={toList(type)}
+              salesChannels={toList(sales_channel)}
+              vendorTypes={toList(vendor_type)}
+              sizes={toList(size)}
+              colors={toList(color)}
+              conditions={toList(condition)}
+              minPrice={toNumber(min_price)}
+              maxPrice={toNumber(max_price)}
+            />
           ) : bot || !ALGOLIA_ID || !ALGOLIA_SEARCH_KEY ? (
-            <ProductListing showSidebar locale={locale} page={page} />
+            <ProductListing
+              showSidebar
+              locale={locale}
+              page={page}
+              categories={toList(category)}
+              productTypes={toList(type)}
+              salesChannels={toList(sales_channel)}
+              vendorTypes={toList(vendor_type)}
+              sizes={toList(size)}
+              colors={toList(color)}
+              conditions={toList(condition)}
+              minPrice={toNumber(min_price)}
+              maxPrice={toNumber(max_price)}
+            />
           ) : (
             <AlgoliaProductsListing
               locale={locale}
