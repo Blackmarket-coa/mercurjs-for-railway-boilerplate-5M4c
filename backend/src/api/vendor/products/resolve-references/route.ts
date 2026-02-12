@@ -8,6 +8,11 @@ const BOT_USER_AGENT =
 
 const BLOCKED_BY_BOT_PROTECTION_STATUS = new Set([401, 403, 429])
 
+type FetchProfile = {
+  name: string
+  headers: Record<string, string>
+}
+
 const getHostname = (value: string) => {
   try {
     return new URL(value).hostname.replace(/^www\./, "")
@@ -16,7 +21,7 @@ const getHostname = (value: string) => {
   }
 }
 
-const buildFetchProfiles = () => [
+const buildFetchProfiles = (): FetchProfile[] => [
   {
     name: "browser",
     headers: {
