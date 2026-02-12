@@ -11,6 +11,10 @@ export const getSellerByHandle = async (handle: string) => {
       cache: "no-cache",
     })
     .then(({ seller }) => {
+      if (!seller) {
+        return null
+      }
+
       const response = {
         ...seller,
         reviews:
@@ -21,5 +25,5 @@ export const getSellerByHandle = async (handle: string) => {
 
       return response as SellerProps
     })
-    .catch(() => [])
+    .catch(() => null)
 }
