@@ -2,12 +2,35 @@ import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { createProductsWorkflow } from "@medusajs/medusa/core-flows"
 
+async function resolveSellerId(req: MedusaRequest, actorId?: string): Promise<string | undefined> {
+  if (!actorId) {
+    return undefined
+  }
+
+  if (!actorId.startsWith("mem_")) {
+    return actorId
+  }
+
+  try {
+    const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION)
+    const memberResult = await pgConnection.raw(
+      `SELECT seller_id FROM member WHERE id = ? LIMIT 1`,
+      [actorId]
+    )
+
+    return memberResult.rows?.[0]?.seller_id || actorId
+  } catch {
+    return actorId
+  }
+}
+
 export async function GET(
   req: MedusaRequest,
   res: MedusaResponse
 ) {
   const query = req.scope.resolve("query")
-  const sellerId = (req as any).auth_context?.actor_id
+  const actorId = (req as any)._seller_id || (req as any).auth_context?.actor_id
+  const sellerId = await resolveSellerId(req, actorId)
 
   if (!sellerId) {
     return res.status(401).json({ message: "Unauthorized" })
@@ -40,26 +63,14 @@ export async function POST(
 ) {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const remoteLink = req.scope.resolve(ContainerRegistrationKeys.REMOTE_LINK)
-  const sellerId = (req as any)._seller_id || (req as any).auth_context?.actor_id
+  const actorId = (req as any)._seller_id || (req as any).auth_context?.actor_id
+  const sellerId = await resolveSellerId(req, actorId)
 
   if (!sellerId) {
     return res.status(401).json({ message: "Unauthorized" })
   }
 
-  // Resolve actual seller ID if we have a member ID
-  let resolvedSellerId = sellerId
-  if (sellerId.startsWith("mem_")) {
-    try {
-      const pgConnection = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION)
-      const memberResult = await pgConnection.raw(
-        `SELECT seller_id FROM member WHERE id = ? LIMIT 1`,
-        [sellerId]
-      )
-      resolvedSellerId = memberResult.rows?.[0]?.seller_id || sellerId
-    } catch {
-      // Continue with original ID
-    }
-  }
+  const resolvedSellerId = sellerId
 
   try {
     const { additional_data, ...productData } = req.body as any
