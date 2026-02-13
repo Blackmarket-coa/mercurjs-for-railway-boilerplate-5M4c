@@ -366,7 +366,7 @@ export const ImpactStats = ({
   </div>
 )
 
-export default {
+const conversionCopy = {
   HomePageTagline,
   HomePageHeadline,
   ValueProposition,
@@ -385,3 +385,5 @@ export default {
   MissionStatement,
   ImpactStats,
 }
+
+export default conversionCopy
