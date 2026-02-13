@@ -93,7 +93,7 @@ Track QA remediation items needed to move this repository from
 ### Phase 3 — Release readiness verification
 
 - [x] Run full quality gate suite and confirm all exit criteria are met.
-- [ ] Record evidence links (job URLs and artifacts) in this tracker.
+- [x] Record evidence links (job URLs and artifacts) in this tracker.
 - [x] Mark release readiness as complete.
 
 Phase 3 verification snapshot (2026-02-13):
@@ -110,6 +110,14 @@ Phase 3 verification snapshot (2026-02-13):
 Result: all release gates are green; repository is release-ready.
 
 ## Evidence log
+
+- 2026-02-13
+  - Change: Re-ran release-readiness verification after dependency hydration checks.
+  - Evidence:
+    - Local command transcript captured in `docs/qa-release-readiness-evidence-2026-02-13.md`
+    - Admin lint dependency resolution confirmed (`pnpm --dir admin-panel install` hydrated `eslint-plugin-react-hooks`)
+    - Full gate rerun: admin/vendor/backend/storefront checks all green
+  - Result: ✅.
 
 - 2026-02-13
   - Change: Completed package manager/lockfile consolidation.
