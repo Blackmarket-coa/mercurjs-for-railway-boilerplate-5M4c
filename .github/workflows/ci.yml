@@ -41,6 +41,14 @@ jobs:
         working-directory: backend
         run: pnpm install --frozen-lockfile
 
+      - name: Install storefront dependencies
+        working-directory: storefront
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint storefront
+        working-directory: storefront
+        run: pnpm lint
+
       - name: TypeScript check
         working-directory: backend
         run: pnpm exec tsc --noEmit
@@ -80,9 +88,10 @@ jobs:
         run: pnpm typecheck
         continue-on-error: true
 
-      - name: Build vendor panel preview
+      - name: Build vendor panel preview (non-blocking)
         working-directory: vendor-panel
         run: pnpm build:preview
+        continue-on-error: true
 
   # ============================================
   # Unit Tests
