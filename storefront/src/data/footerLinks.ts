@@ -4,6 +4,7 @@ const links = {
     { label: 'Our Producers', path: '/producers' },
     { label: 'Track Order', path: '/user/orders' },
     { label: 'Collective Buys', path: '/collective/demand-pools' },
+    { label: 'Community Resources', path: '/community-resources' },
     { label: 'Returns', path: '/user/returns' },
   ],
   about: [

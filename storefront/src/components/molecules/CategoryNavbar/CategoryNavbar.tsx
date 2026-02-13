@@ -20,6 +20,7 @@ export const CategoryNavbar = ({
   const isProducersActive = pathname?.includes("/producers")
   const isVendorsActive = pathname?.includes("/vendors")
   const isCollectiveActive = pathname?.includes("/collective/demand-pools")
+  const isCommunityResourcesActive = pathname?.includes("/community-resources")
   const isCollectionsActive = pathname?.includes("/collections")
   const isAboutActive = pathname?.includes("/how-it-works") || pathname?.includes("/sell") || pathname?.includes("/kitchens") || pathname?.includes("/invest")
   const [showAboutDropdown, setShowAboutDropdown] = useState(false)
@@ -85,6 +86,17 @@ export const CategoryNavbar = ({
         )}
       >
         Collective Buys
+      </LocalizedClientLink>
+
+      <LocalizedClientLink
+        href="/community-resources"
+        onClick={() => (onClose ? onClose(false) : null)}
+        className={cn(
+          "label-md uppercase px-4 my-3 md:my-0 flex items-center justify-between",
+          isCommunityResourcesActive && "md:border-b md:border-primary"
+        )}
+      >
+        Community Resources
       </LocalizedClientLink>
       <LocalizedClientLink
         href="/collections"
