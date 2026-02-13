@@ -2,7 +2,19 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "noImplicitAny": false,
-    "composite": true
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "composite": false
   },
-  "exclude": ["**/*.spec.ts", "**/*.spec.tsx"]
+  "include": [
+    "src/i18n/**/*.ts",
+    "src/i18n/**/*.json",
+    "src/types/**/*.ts",
+    "src/types/**/*.tsx",
+    "src/extensions/types.ts"
+  ],
+  "exclude": [
+    "**/*.spec.ts",
+    "**/*.spec.tsx"
+  ]
 }
