@@ -54,3 +54,17 @@ Top TypeScript categories:
 - Implemented a staged vendor typecheck baseline by narrowing `tsconfig.build.json` include scope to i18n/translations, shared types, and extension contract typings.
 - This keeps CI signal on high-value contracts while route-level customizations are remediated in follow-up slices.
 - Validation: `npm run typecheck --prefix vendor-panel` passes.
+
+
+## Storefront lint warning triage
+
+Source command:
+
+- `pnpm --dir storefront run lint`
+
+Outcome:
+
+- Remaining React hook dependency warnings were resolved in checkout/cart components.
+- Anonymous default export warning in conversion copy module was replaced with a named constant export.
+- The Google font preconnect lint warning was eliminated by removing redundant manual font preconnect tags while keeping `next/font`-managed loading.
+- `next lint` result: `✔ No ESLint warnings or errors` (workspace root lockfile notice remains informational).

@@ -71,7 +71,7 @@ Track QA remediation items needed to move this repository from
   threshold enforced.
   - Status: ✅ Completed (`npx tsc --noEmit` + `test:unit:ci` coverage gate).
 - Storefront gate: lint warnings triaged (fixed or intentionally waived).
-  - Status: ⬜ Not started.
+  - Status: ✅ Completed (storefront lint now clean).
 - Security gate: security audit report artifact available in CI for each PR.
   - Status: ✅ Completed (artifact upload step added to workflow).
 
@@ -137,4 +137,18 @@ Track QA remediation items needed to move this repository from
     - `npm run i18n:validate --prefix admin-panel en.json`
     - `npm run i18n:validate --prefix vendor-panel en.json`
     - `.github/workflows/ci.yml` updates for i18n contract and security audit artifacts
+  - Result: ✅.
+
+
+- 2026-02-13
+  - Change: Storefront lint warning triage completed; resolved remaining hook dependency and import/export warnings and cleaned root layout warning noise.
+  - Evidence:
+    - `pnpm --dir storefront run lint`
+    - `storefront/src/app/layout.tsx`
+    - `storefront/src/components/cells/CartDropdown/CartDropdown.tsx`
+    - `storefront/src/components/cells/PasswordValidator/PasswordValidator.tsx`
+    - `storefront/src/components/molecules/ConversionCopy/ConversionCopy.tsx`
+    - `storefront/src/components/organisms/ShippingAddress/ShippingAddress.tsx`
+    - `storefront/src/components/sections/CartAddressSection/CartAddressSection.tsx`
+    - `storefront/src/components/sections/CartShippingMethodsSection/CartShippingMethodsSection.tsx`
   - Result: ✅.
