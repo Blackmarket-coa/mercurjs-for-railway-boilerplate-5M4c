@@ -32,7 +32,7 @@ function VendorAcceptedEmailComponent({
   return (
     <Html>
       <Head />
-      <Preview>Your vendor account has been approved</Preview>
+      <Preview>Your Free Black Market vendor access is ready</Preview>
       <Tailwind>
         <Body className="bg-white my-auto mx-auto font-sans px-2">
           <Container className="border border-solid border-[#eaeaea] rounded my-[40px] mx-auto p-[24px] max-w-[520px]">
@@ -47,19 +47,19 @@ function VendorAcceptedEmailComponent({
                 Hi{member_name ? ` ${member_name}` : ""},
               </Text>
               <Text className="text-black text-[14px] leading-[24px]">
-                Great news — {seller_name} has been accepted. You now have access to the vendor toolkit so you can
-                start listing products and fulfilling orders.
+                Great news — your request for {seller_name} has been accepted. Free Black Market is now ready for you
+                to build your vendor profile and start onboarding.
               </Text>
             </Section>
 
             <Section className="my-[16px]">
               <Text className="text-black text-[14px] leading-[24px] font-semibold">
-                What you can do next:
+                Quick onboarding flow:
               </Text>
-              <Text className="text-black text-[14px] leading-[24px]">• Publish products and manage inventory</Text>
-              <Text className="text-black text-[14px] leading-[24px]">• Accept, pack, and fulfill orders</Text>
-              <Text className="text-black text-[14px] leading-[24px]">• Track payouts and performance insights</Text>
-              <Text className="text-black text-[14px] leading-[24px]">• Connect with customers through messages</Text>
+              <Text className="text-black text-[14px] leading-[24px]">1) Sign in and confirm your business details</Text>
+              <Text className="text-black text-[14px] leading-[24px]">2) Complete your vendor profile (brand, logo, contact, and policies)</Text>
+              <Text className="text-black text-[14px] leading-[24px]">3) Add your first products with pricing, images, and inventory</Text>
+              <Text className="text-black text-[14px] leading-[24px]">4) Review your storefront and publish when ready</Text>
             </Section>
 
             {callToActionUrl ? (
