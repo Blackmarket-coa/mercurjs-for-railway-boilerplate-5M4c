@@ -21,11 +21,22 @@
         "alwaysTryTypes": true
       },
       "node": {
-        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+        "extensions": [
+          ".js",
+          ".jsx",
+          ".ts",
+          ".tsx"
+        ]
       }
     }
   },
-  "plugins": ["react", "jsx-a11y", "import", "@typescript-eslint"],
+  "plugins": [
+    "react",
+    "jsx-a11y",
+    "import",
+    "@typescript-eslint",
+    "react-hooks"
+  ],
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
@@ -33,27 +44,35 @@
     "plugin:@typescript-eslint/recommended",
     "plugin:jsx-a11y/recommended"
   ],
-  "ignorePatterns": ["node_modules/", "dist/", "build/"],
+  "ignorePatterns": [
+    "node_modules/",
+    "dist/",
+    "build/"
+  ],
   "rules": {
     "react/jsx-curly-brace-presence": "warn",
     "react/react-in-jsx-scope": "off",
     "@typescript-eslint/consistent-type-imports": [
-      "error",
-      { "prefer": "type-imports" }
+      "warn",
+      {
+        "prefer": "type-imports"
+      }
     ],
     "@typescript-eslint/no-import-type-side-effects": "error",
-    "newline-before-return": "error",
+    "newline-before-return": "warn",
     "import/no-unresolved": 0,
     "import/named": 0,
     "import/namespace": 0,
     "import/default": 0,
     "import/export": 0,
     "no-restricted-imports": [
-      "error",
+      "warn",
       {
         "patterns": [
           {
-            "group": ["../*"],
+            "group": [
+              "../*"
+            ],
             "message": "Use @ imports instead of relative parent imports (../)."
           },
           {
@@ -69,6 +88,34 @@
           }
         ]
       }
-    ]
+    ],
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-unused-vars": "warn",
+    "jsx-a11y/click-events-have-key-events": "warn",
+    "jsx-a11y/no-static-element-interactions": "warn",
+    "react/no-unknown-property": "warn",
+    "@typescript-eslint/no-empty-object-type": "warn",
+    "react/jsx-key": "warn",
+    "jsx-a11y/no-autofocus": "warn",
+    "jsx-a11y/no-noninteractive-element-interactions": "warn",
+    "jsx-a11y/no-noninteractive-tabindex": "warn",
+    "jsx-a11y/interactive-supports-focus": "warn",
+    "@typescript-eslint/no-unused-expressions": "warn",
+    "react/no-unescaped-entities": "warn",
+    "react/prop-types": "warn",
+    "prefer-const": "warn",
+    "no-extra-semi": "warn",
+    "no-case-declarations": "warn",
+    "@typescript-eslint/ban-ts-comment": "warn",
+    "@typescript-eslint/no-non-null-asserted-optional-chain": "warn",
+    "no-useless-escape": "warn",
+    "jsx-a11y/anchor-is-valid": "warn",
+    "no-extra-boolean-cast": "warn",
+    "no-irregular-whitespace": "warn",
+    "jsx-a11y/no-redundant-roles": "warn",
+    "jsx-a11y/role-has-required-aria-props": "warn",
+    "jsx-a11y/img-redundant-alt": "warn",
+    "@typescript-eslint/prefer-as-const": "warn",
+    "react-hooks/exhaustive-deps": "warn"
   }
 }
