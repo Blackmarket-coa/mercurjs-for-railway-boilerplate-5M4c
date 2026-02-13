@@ -18,8 +18,9 @@ export const CustomCarousel = ({
   align?: "center" | "start" | "end"
 }) => {
   const [emblaRef, emblaApi] = useEmblaCarousel({
-    loop: true,
+    loop: items.length > 4,
     align,
+    containScroll: "trimSnaps",
   })
 
   const [selectedIndex, setSelectedIndex] = useState(0)
@@ -56,9 +57,7 @@ export const CustomCarousel = ({
         className="embla__viewport overflow-hidden rounded-xs w-full xl:flex xl:justify-center"
         ref={emblaRef}
       >
-        <div className="embla__container flex">
-          {items.map((slide) => slide)}
-        </div>
+        <div className="embla__container flex gap-4">{items}</div>
 
         <div className="flex justify-between items-center mt-4 sm:hidden">
           <div className="w-1/2">
