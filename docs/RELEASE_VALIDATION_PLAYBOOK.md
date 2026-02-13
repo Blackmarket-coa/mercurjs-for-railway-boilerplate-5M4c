@@ -52,6 +52,28 @@ A release is *eligible* only if all four are satisfied:
 3. **Health pass**: smoke checks return expected auth + payload behavior.
 4. **Regression pass**: no unresolved critical/high issues in release window.
 
+## 5) Cross-module E2E matrix (education/mutual-aid/IPFS)
+
+Minimum E2E checks to run before production rollout:
+
+- **Education + mutual-aid taxonomy surface**
+  - `GET /store/cms-taxonomy` returns active types/categories including education/community classifications.
+  - Storefront `/[locale]/vendor-types` and `/[locale]/vendors` render without hard failures.
+- **Collective deliberation surface**
+  - `GET /store/proposals?limit=25&offset=0` returns bounded pagination metadata.
+  - Invalid pagination (`limit>100`, negative `offset`) is rejected with `400`.
+- **IPFS/chat room-event UX surface**
+  - User messages screen displays connection status transitions (`idle` → `connecting` → `connected`) when Rocket.Chat is configured.
+  - Room/event diagnostics (`activeRoom`, `lastRoomEvent`) update when channel navigation occurs.
+
+## 6) Final rollout hardening checks (policy/localization)
+
+Add these checks to release sign-off:
+
+1. **Policy tuning:** validate pagination and list-filter limits on store/admin endpoints remain bounded (default + max guardrails).
+2. **Localization:** ensure translated pagination/table copy still renders across admin-panel and vendor-panel routes after release candidate build.
+3. **Runbook discipline:** capture command outputs from `./scripts/release_validation.sh` and attach to release artifacts.
+
 ## Suggested CI usage
 
 ```bash

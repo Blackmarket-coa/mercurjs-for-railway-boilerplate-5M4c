@@ -21,6 +21,9 @@ interface RocketChatContextType {
   loginToken: string | null
   username: string | null
   unreadCount: number
+  connectionState: "idle" | "connecting" | "connected" | "error"
+  activeRoom: string | null
+  lastRoomEvent: string | null
   // Helper functions for messaging
   getChannelUrl: (channelName: string) => string | null
   getDirectMessageUrl: (username: string) => string | null
@@ -38,6 +41,9 @@ const RocketChatContext = createContext<RocketChatContextType>({
   loginToken: null,
   username: null,
   unreadCount: 0,
+  connectionState: "idle",
+  activeRoom: null,
+  lastRoomEvent: null,
   getChannelUrl: () => null,
   getDirectMessageUrl: () => null,
   getOrderChannelUrl: () => null,
@@ -67,6 +73,11 @@ export const RocketChatProvider = ({ children, initialConfig }: RocketChatProvid
   const [loginToken, setLoginToken] = useState<string | null>(initialConfig?.login?.token ?? null)
   const [username, setUsername] = useState<string | null>(initialConfig?.login?.username ?? null)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [connectionState, setConnectionState] = useState<"idle" | "connecting" | "connected" | "error">(
+    initialConfig ? "connecting" : "idle"
+  )
+  const [activeRoom, setActiveRoom] = useState<string | null>(null)
+  const [lastRoomEvent, setLastRoomEvent] = useState<string | null>(null)
 
   // Function to fetch/refresh config
   const fetchConfig = useCallback(async () => {
@@ -75,6 +86,7 @@ export const RocketChatProvider = ({ children, initialConfig }: RocketChatProvid
       const config = await getRocketChatConfig()
 
       if (config && config.configured && config.url) {
+        setConnectionState("connecting")
         setIsConfigured(true)
         setRocketChatUrl(config.url)
         setIframeUrl(config.iframe_url || `${config.url}/home`)
@@ -89,6 +101,7 @@ export const RocketChatProvider = ({ children, initialConfig }: RocketChatProvid
         setIsConfigured(Boolean(fallbackUrl))
         setRocketChatUrl(fallbackUrl)
         setIframeUrl(fallbackUrl ? `${fallbackUrl}/home` : null)
+        setConnectionState(fallbackUrl ? "connecting" : "idle")
       }
     } catch (error) {
       console.error("[RocketChatProvider] Failed to fetch config:", error)
@@ -97,6 +110,7 @@ export const RocketChatProvider = ({ children, initialConfig }: RocketChatProvid
       setIsConfigured(Boolean(fallbackUrl))
       setRocketChatUrl(fallbackUrl)
       setIframeUrl(fallbackUrl ? `${fallbackUrl}/home` : null)
+      setConnectionState(fallbackUrl ? "connecting" : "error")
     } finally {
       setIsLoading(false)
     }
@@ -117,6 +131,21 @@ export const RocketChatProvider = ({ children, initialConfig }: RocketChatProvid
       try {
         // Verify the origin matches our Rocket.Chat URL
         if (rocketChatUrl && event.origin === new URL(rocketChatUrl).origin) {
+          const eventName = typeof event.data?.eventName === "string" ? event.data.eventName : null
+          if (eventName) {
+            setLastRoomEvent(eventName)
+            if (eventName === "startup" || eventName === "ready") {
+              setConnectionState("connecting")
+            }
+            if (eventName === "login") {
+              setConnectionState("connected")
+            }
+          }
+
+          if (typeof event.data?.roomName === "string") {
+            setActiveRoom(event.data.roomName)
+          }
+
           if (event.data?.type === "unread-count") {
             setUnreadCount(event.data.count || 0)
           }
@@ -165,6 +194,9 @@ export const RocketChatProvider = ({ children, initialConfig }: RocketChatProvid
         loginToken,
         username,
         unreadCount,
+        connectionState,
+        activeRoom,
+        lastRoomEvent,
         getChannelUrl,
         getDirectMessageUrl,
         getOrderChannelUrl,

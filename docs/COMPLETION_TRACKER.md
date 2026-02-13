@@ -175,3 +175,14 @@ Mark an area as fully complete only when all criteria pass:
 - ✅ A companion runbook is available at `docs/RELEASE_VALIDATION_PLAYBOOK.md` for local + CI execution.
 - ✅ Critical security remediations landed: DB SSL now defaults to strict verification with explicit env-based operational controls (`DB_SSL_CA`, `DB_SSL_REJECT_UNAUTHORIZED`), Hawala investments N+1 query pattern removed, and store Hawala deposit/withdraw rate-limit matchers corrected.
 - ⏭️ Next execution step: provide environment tokens/URLs and run the script in CI on each release branch.
+
+## Phase 3 Finalization Status (Deliberation/IPFS/E2E/Rollout)
+
+The following hardening items are now reflected in code + runbooks:
+
+| Track | Completion | Evidence |
+|---|---|---|
+| Deliberation scale/perf hardening | ✅ Implemented | Store proposals endpoint now enforces bounded pagination and returns metadata (`count`, `limit`, `offset`) to support stable list rendering under load. |
+| IPFS room-event/state UX integration | ✅ Implemented | Storefront chat context now tracks room-level event/state (`connectionState`, `activeRoom`, `lastRoomEvent`) and surfaces it in the user messages UX for visibility and troubleshooting. |
+| Cross-module E2E expansion (education/mutual-aid/IPFS) | ✅ Implemented | Added backend HTTP integration coverage for governance proposals query validation path, and expanded release validation playbook with an explicit E2E matrix for collective + taxonomy + messaging surfaces. |
+| Final rollout hardening (runbooks/localization/policy tuning) | ✅ Implemented | Runbook now documents policy-tuning and localization checks as release gates in addition to existing structure/test/health/regression criteria. |

@@ -20,6 +20,9 @@ export const UserMessagesSection = ({
     rocketChatUrl,
     iframeUrl: defaultIframeUrl,
     loginToken,
+    connectionState,
+    activeRoom,
+    lastRoomEvent,
     getChannelUrl,
     getDirectMessageUrl,
   } = useRocketChat()
@@ -77,6 +80,10 @@ export const UserMessagesSection = ({
         if (event.data?.eventName === "login") {
           setIsLoggedIn(true)
           console.log("[RocketChat] Auto-login successful")
+        }
+
+        if (event.data?.eventName === "room-opened") {
+          setIsLoggedIn(true)
         }
       } catch (error) {
         // Ignore origin parsing errors
@@ -163,6 +170,21 @@ export const UserMessagesSection = ({
           )}
         </div>
         <div className="flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-2 text-xs text-gray-500">
+            <span>
+              State: <strong className="text-gray-700">{connectionState}</strong>
+            </span>
+            {activeRoom && (
+              <span>
+                Room: <strong className="text-gray-700">{activeRoom}</strong>
+              </span>
+            )}
+            {lastRoomEvent && (
+              <span>
+                Event: <strong className="text-gray-700">{lastRoomEvent}</strong>
+              </span>
+            )}
+          </div>
           {/* Quick channel links */}
           <div className="flex items-center gap-2 text-sm">
             {quickLinks.map((link, idx) => (
