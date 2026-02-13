@@ -148,7 +148,7 @@ class SMTPNotificationProviderService extends AbstractNotificationProviderServic
       case Templates.PASSWORD_RESET:
         return "Reset Your Password"
       case Templates.VENDOR_ACCEPTED:
-        return "Your vendor account is approved"
+        return "Your Free Black Market vendor access is ready"
       case Templates.CUSTOMER_ACCEPTED:
         return "Your account has been approved"
       default:
