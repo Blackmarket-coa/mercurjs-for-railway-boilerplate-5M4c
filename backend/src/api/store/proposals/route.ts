@@ -1,11 +1,20 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { z } from "zod"
 
 const GOVERNANCE_MODULE = "governanceModuleService"
 
 interface GovernanceServiceType {
   createGardenProposals: (data: Record<string, unknown>) => Promise<{ id: string }>
 }
+
+const listProposalsQuerySchema = z.object({
+  garden_id: z.string().optional(),
+  status: z.string().optional(),
+  proposal_type: z.string().optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(25),
+  offset: z.coerce.number().int().min(0).default(0),
+})
 
 /**
  * GET /store/proposals
@@ -16,15 +25,23 @@ export async function GET(
   req: MedusaRequest,
   res: MedusaResponse
 ) {
+  const parsedQuery = listProposalsQuerySchema.safeParse(req.query)
+  if (!parsedQuery.success) {
+    return res.status(400).json({
+      error: "Invalid proposal query parameters",
+      details: parsedQuery.error.flatten(),
+    })
+  }
+
+  const { garden_id, status, proposal_type, limit, offset } = parsedQuery.data
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const { garden_id, status, proposal_type } = req.query
 
   const filters: Record<string, unknown> = {}
   if (garden_id) filters.garden_id = garden_id
   if (status) filters.status = status
   if (proposal_type) filters.proposal_type = proposal_type
 
-  const { data: proposals } = await query.graph({
+  const { data: proposals, metadata } = await query.graph({
     entity: "garden_proposal",
     fields: [
       "id",
@@ -44,9 +61,21 @@ export async function GET(
       "approval_threshold",
     ],
     filters,
+    pagination: {
+      take: limit,
+      skip: offset,
+      order: {
+        created_at: "DESC",
+      },
+    },
   })
 
-  res.json({ proposals })
+  res.json({
+    proposals,
+    count: metadata?.count || proposals.length,
+    limit,
+    offset,
+  })
 }
 
 /**
