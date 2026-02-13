@@ -204,6 +204,17 @@ export const TypeNavbar = ({
       >
         Collective Buys
       </LocalizedClientLink>
+
+      <LocalizedClientLink
+        href="/community-resources"
+        onClick={() => onClose?.(false)}
+        className={cn(
+          "label-md uppercase px-4 py-2 hover:bg-secondary transition-colors",
+          pathname?.includes("/community-resources") && "bg-secondary font-semibold"
+        )}
+      >
+        Community Resources
+      </LocalizedClientLink>
     </nav>
   )
 }
