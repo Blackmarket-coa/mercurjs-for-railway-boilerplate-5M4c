@@ -38,7 +38,7 @@ const communityResources: CommunityResource[] = [
     title: "Mutual Aid",
     description:
       "Connect with neighborhood care networks and community-led resource-sharing organizations.",
-    href: "/vendor-types",
+    href: "/vendors?vendor_type=mutual_aid",
     cta: "View mutual aid networks",
     emoji: "🫶",
   },
