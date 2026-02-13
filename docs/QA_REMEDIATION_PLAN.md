@@ -65,3 +65,8 @@ A fresh quality-gate sweep confirms release readiness:
 - Storefront lint passes (workspace root lockfile inference warning is informational).
 
 Release blocker status: **Cleared**.
+
+## Evidence artifact
+
+- Local release verification transcript: `docs/qa-release-readiness-evidence-2026-02-13.md`.
+- Includes dependency hydration + full quality gate rerun commands and outcomes.
