@@ -37,7 +37,8 @@
     "seed:if-needed": "node scripts/conditional-seed.js",
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
     "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
-    "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit --passWithNoTests"
+    "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit --coverage --coverageProvider=v8",
+    "test:unit:ci": "npm run test:unit && node ./scripts/ensure-coverage.js"
   },
   "dependencies": {
     "@bmc/restaurant-marketplace": "file:./restaurant-marketplace",

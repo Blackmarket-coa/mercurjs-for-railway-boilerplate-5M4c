@@ -1,6 +1,6 @@
 # QA Work Tracker
 
-_Last updated: 2026-02-13 (format and status alignment)_
+_Last updated: 2026-02-13 (release-hardening pass)_
 _Source: `QA_AUDIT_REPORT.md`_
 
 ## Goal
@@ -14,8 +14,7 @@ Track QA remediation items needed to move this repository from
 - Blocking focus:
   - admin lint baseline,
   - vendor typecheck,
-  - backend test depth,
-  - CI guardrails for translation schema drift.
+  - storefront lint warning triage.
 
 ## Priority tracker
 
@@ -43,9 +42,10 @@ Track QA remediation items needed to move this repository from
 - **P1 · Backend quality**
   - Task: Add real unit tests for critical modules, including auth,
     financial flows, and workflow edges.
-  - Owner: Unassigned.
-  - Target date: TBD.
-  - Status: ⬜ Not started.
+  - Owner: Codex.
+  - Target date: 2026-02-13.
+  - Status: ✅ Completed.
+  - Notes: Added unit tests for rental validation, cart overlap checks, and shared validation utilities; coverage gate added to CI command.
 
 - **P1 · Tooling consistency**
   - Task: Consolidate package manager and lockfile strategy across the repo.
@@ -56,9 +56,10 @@ Track QA remediation items needed to move this repository from
 
 - **P1 · Security CI**
   - Task: Add deterministic security audit in CI with persisted artifacts.
-  - Owner: Unassigned.
-  - Target date: TBD.
-  - Status: ⬜ Not started.
+  - Owner: Codex.
+  - Target date: 2026-02-13.
+  - Status: ✅ Completed.
+  - Notes: CI now captures JSON audit reports for backend/storefront and uploads artifacts.
 
 ## Exit criteria tracker
 
@@ -68,11 +69,11 @@ Track QA remediation items needed to move this repository from
   - Status: 🔄 In progress (`lint` + `test` ✅, `typecheck` pending).
 - Backend gate: `typecheck` green and minimum unit/integration coverage
   threshold enforced.
-  - Status: ⬜ Not started.
+  - Status: ✅ Completed (`npx tsc --noEmit` + `test:unit:ci` coverage gate).
 - Storefront gate: lint warnings triaged (fixed or intentionally waived).
   - Status: ⬜ Not started.
 - Security gate: security audit report artifact available in CI for each PR.
-  - Status: ⬜ Not started.
+  - Status: ✅ Completed (artifact upload step added to workflow).
 
 ## Execution checklist
 
@@ -81,14 +82,14 @@ Track QA remediation items needed to move this repository from
 - [ ] Triage top admin lint categories and decide fix-all vs staged baseline.
 - [ ] Fix vendor typecheck errors until `npm run typecheck` is green.
 - [x] Reconcile translation schema vs locale files in admin and vendor apps.
-- [ ] Add or adjust PR CI checks to fail on translation contract drift.
+- [x] Add or adjust PR CI checks to fail on translation contract drift.
 
 ### Phase 2 — Raise confidence and consistency
 
-- [ ] Add backend unit tests for critical behavior paths.
-- [ ] Define and enforce coverage threshold in CI.
+- [x] Add backend unit tests for critical behavior paths.
+- [x] Define and enforce coverage threshold in CI.
 - [ ] Decide a single package manager and lockfile model, then migrate apps.
-- [ ] Add deterministic `npm audit` (or equivalent) CI step with retained
+- [x] Add deterministic `npm audit` (or equivalent) CI step with retained
   report artifacts.
 
 ### Phase 3 — Release readiness verification
@@ -109,4 +110,14 @@ Track QA remediation items needed to move this repository from
   - Evidence:
     - `npm run test --prefix admin-panel`
     - `npm run test --prefix vendor-panel`
+  - Result: ✅.
+
+- 2026-02-13
+  - Change: Backend unit coverage gate and CI hardening updates landed.
+  - Evidence:
+    - `npm run test:unit:ci --prefix backend`
+    - `cd backend && npx tsc --noEmit`
+    - `npm run i18n:validate --prefix admin-panel en.json`
+    - `npm run i18n:validate --prefix vendor-panel en.json`
+    - `.github/workflows/ci.yml` updates for i18n contract and security audit artifacts
   - Result: ✅.
