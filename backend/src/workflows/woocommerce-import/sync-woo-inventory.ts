@@ -3,37 +3,44 @@ import {
   createWorkflow,
   StepResponse,
   WorkflowResponse,
-} from "@medusajs/framework/workflows-sdk"
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
-import { WooApiClient } from "../../modules/woocommerce-import/lib/woo-api-client"
-import { WOOCOMMERCE_IMPORT_MODULE } from "../../modules/woocommerce-import"
-import WooCommerceImportModuleService from "../../modules/woocommerce-import/service"
-import { decrypt } from "../../modules/woocommerce-import/lib/encryption"
-import type { SyncReport, WooCredentials } from "../../modules/woocommerce-import/types"
+} from "@medusajs/framework/workflows-sdk";
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
+import { WooApiClient } from "../../modules/woocommerce-import/lib/woo-api-client";
+import { WOOCOMMERCE_IMPORT_MODULE } from "../../modules/woocommerce-import";
+import WooCommerceImportModuleService from "../../modules/woocommerce-import/service";
+import { decrypt } from "../../modules/woocommerce-import/lib/encryption";
+import type {
+  SyncReport,
+  WooCredentials,
+} from "../../modules/woocommerce-import/types";
 
 type SyncWooInventoryInput = {
-  connection_id: string
-}
+  connection_id: string;
+  seller_id: string;
+};
 
 /**
  * Step: Perform the inventory sync for a single vendor connection.
  */
 const syncInventoryStep = createStep(
   "sync-woo-inventory-step",
-  async (input: SyncWooInventoryInput, { container }): Promise<StepResponse<SyncReport>> => {
+  async (
+    input: SyncWooInventoryInput,
+    { container },
+  ): Promise<StepResponse<SyncReport>> => {
     const wooService: WooCommerceImportModuleService = container.resolve(
-      WOOCOMMERCE_IMPORT_MODULE
-    )
-    const query = container.resolve(ContainerRegistrationKeys.QUERY)
-    const logger = container.resolve("logger")
+      WOOCOMMERCE_IMPORT_MODULE,
+    );
+    const query = container.resolve(ContainerRegistrationKeys.QUERY);
+    const logger = container.resolve("logger");
 
     // Get the connection
     const connection = await wooService.retrieveWooCommerceConnection(
-      input.connection_id
-    )
+      input.connection_id,
+    );
 
     if (!connection) {
-      throw new Error("WooCommerce connection not found")
+      throw new Error("WooCommerce connection not found");
     }
 
     // Decrypt credentials
@@ -41,151 +48,165 @@ const syncInventoryStep = createStep(
       url: decrypt(connection.store_url),
       consumer_key: decrypt(connection.consumer_key),
       consumer_secret: decrypt(connection.consumer_secret),
-    }
+    };
 
-    const client = new WooApiClient(credentials)
+    const client = new WooApiClient(credentials);
     const report: SyncReport = {
       synced_at: new Date().toISOString(),
       products_checked: 0,
       variants_updated: 0,
       out_of_stock: [],
       errors: [],
-    }
+    };
+
+    logger.info(
+      `[Woo Sync] Starting sync for seller=${input.seller_id} connection=${input.connection_id}`,
+    );
 
     // Find all products for this seller that came from WooCommerce
     // Query products via the product module where metadata has woo_product_id
-    let products: any[] = []
+    let products: any[] = [];
     try {
       const { data } = await query.graph({
-        entity: "product",
+        entity: "seller_product",
         fields: [
-          "id",
-          "title",
-          "metadata",
-          "variants.id",
-          "variants.sku",
-          "variants.metadata",
+          "seller_id",
+          "product.id",
+          "product.title",
+          "product.metadata",
+          "product.variants.id",
+          "product.variants.sku",
+          "product.variants.metadata",
         ],
-        filters: {},
-      })
+        filters: {
+          seller_id: input.seller_id,
+        },
+      });
 
-      // Filter to only products with woo_product_id in metadata
-      // and belonging to this seller (via metadata tracking)
-      products = (data || []).filter(
-        (p: any) => p.metadata?.woo_product_id
-      )
+      // Filter to only seller-owned products with woo_product_id metadata
+      products = (data || [])
+        .map((sp: any) => sp.product)
+        .filter((p: any) => p?.metadata?.woo_product_id);
     } catch (error: any) {
-      logger.error(`Failed to query products for sync: ${error.message}`)
+      logger.error(`Failed to query products for sync: ${error.message}`);
       report.errors.push({
         product: "Query",
         error: `Failed to list products: ${error.message}`,
-      })
-      return new StepResponse(report)
+      });
+      return new StepResponse(report);
     }
 
-    report.products_checked = products.length
+    report.products_checked = products.length;
 
-    const inventoryService = container.resolve(Modules.INVENTORY)
+    const inventoryService = container.resolve(Modules.INVENTORY);
 
     for (const product of products) {
       try {
-        const wooProductId = parseInt(product.metadata.woo_product_id, 10)
-        if (isNaN(wooProductId)) continue
+        const wooProductId = parseInt(product.metadata.woo_product_id, 10);
+        if (isNaN(wooProductId)) continue;
 
-        const wooProduct = await client.fetchProduct(wooProductId)
+        const wooProduct = await client.fetchProduct(wooProductId);
 
         if (wooProduct.stock_status === "outofstock") {
-          report.out_of_stock.push(product.title)
+          report.out_of_stock.push(product.title);
         }
 
         // For simple products, update the single variant
         if (wooProduct.type === "simple" && product.variants?.length > 0) {
-          const variant = product.variants[0]
+          const variant = product.variants[0];
           if (variant && wooProduct.manage_stock) {
             try {
               // Get inventory items linked to this variant
-              const { data: inventoryItems } = await query.graph({
+              const { data: inventoryItems } = (await query.graph({
                 entity: "inventory_item",
-                fields: ["id", "inventory_levels.id", "inventory_levels.stocked_quantity"],
+                fields: [
+                  "id",
+                  "inventory_levels.id",
+                  "inventory_levels.stocked_quantity",
+                ],
                 filters: {
                   sku: variant.sku,
                 },
-              }) as { data: any[] }
+              })) as { data: any[] };
 
               if (inventoryItems?.[0]?.inventory_levels?.[0]) {
-                const level = inventoryItems[0].inventory_levels[0]
-                const newQty = wooProduct.stock_quantity ?? 0
-                const currentQty = level.stocked_quantity ?? 0
-                const adjustment = newQty - currentQty
+                const level = inventoryItems[0].inventory_levels[0];
+                const newQty = wooProduct.stock_quantity ?? 0;
+                const currentQty = level.stocked_quantity ?? 0;
+                const adjustment = newQty - currentQty;
 
                 if (adjustment !== 0) {
                   await inventoryService.adjustInventory(
                     inventoryItems[0].id,
                     level.id,
-                    adjustment
-                  )
-                  report.variants_updated++
+                    adjustment,
+                  );
+                  report.variants_updated++;
                 }
               }
             } catch (invError: any) {
               logger.warn(
-                `Failed to update inventory for variant ${variant.sku}: ${invError.message}`
-              )
+                `Failed to update inventory for variant ${variant.sku}: ${invError.message}`,
+              );
             }
           }
         }
 
         // For variable products, update each variant
         if (wooProduct.type === "variable" && product.variants?.length > 0) {
-          let wooVariations: any[] = []
+          let wooVariations: any[] = [];
           try {
-            wooVariations = await client.fetchProductVariations(wooProductId)
+            wooVariations = await client.fetchProductVariations(wooProductId);
           } catch {
             report.errors.push({
               product: product.title,
               error: "Failed to fetch WooCommerce variations",
-            })
-            continue
+            });
+            continue;
           }
 
           for (const variant of product.variants) {
-            const wooVariantId = variant.metadata?.woo_variant_id
-            if (!wooVariantId) continue
+            const wooVariantId = variant.metadata?.woo_variant_id;
+            if (!wooVariantId) continue;
 
             const wooVariation = wooVariations.find(
-              (v: any) => String(v.id) === String(wooVariantId)
-            )
-            if (!wooVariation) continue
+              (v: any) => String(v.id) === String(wooVariantId),
+            );
+            if (!wooVariation) continue;
 
             if (wooVariation.manage_stock ?? wooProduct.manage_stock) {
               try {
-                const { data: inventoryItems } = await query.graph({
+                const { data: inventoryItems } = (await query.graph({
                   entity: "inventory_item",
-                  fields: ["id", "inventory_levels.id", "inventory_levels.stocked_quantity"],
+                  fields: [
+                    "id",
+                    "inventory_levels.id",
+                    "inventory_levels.stocked_quantity",
+                  ],
                   filters: {
                     sku: variant.sku,
                   },
-                }) as { data: any[] }
+                })) as { data: any[] };
 
                 if (inventoryItems?.[0]?.inventory_levels?.[0]) {
-                  const level = inventoryItems[0].inventory_levels[0]
-                  const newQty = wooVariation.stock_quantity ?? 0
-                  const currentQty = level.stocked_quantity ?? 0
-                  const adjustment = newQty - currentQty
+                  const level = inventoryItems[0].inventory_levels[0];
+                  const newQty = wooVariation.stock_quantity ?? 0;
+                  const currentQty = level.stocked_quantity ?? 0;
+                  const adjustment = newQty - currentQty;
 
                   if (adjustment !== 0) {
                     await inventoryService.adjustInventory(
                       inventoryItems[0].id,
                       level.id,
-                      adjustment
-                    )
-                    report.variants_updated++
+                      adjustment,
+                    );
+                    report.variants_updated++;
                   }
                 }
               } catch (invError: any) {
                 logger.warn(
-                  `Failed to update inventory for variant ${variant.sku}: ${invError.message}`
-                )
+                  `Failed to update inventory for variant ${variant.sku}: ${invError.message}`,
+                );
               }
             }
           }
@@ -194,11 +215,11 @@ const syncInventoryStep = createStep(
         const errorMsg =
           error.response?.status === 404
             ? "WooCommerce product not found (deleted?)"
-            : error.message
+            : error.message;
         report.errors.push({
           product: product.title,
           error: errorMsg,
-        })
+        });
       }
     }
 
@@ -207,18 +228,29 @@ const syncInventoryStep = createStep(
       id: input.connection_id,
       last_synced_at: new Date(),
       last_sync_report: report as any,
-    })
+    });
 
-    return new StepResponse(report)
-  }
-)
+    logger.info(
+      `[Woo Sync] Completed sync ${JSON.stringify({
+        seller_id: input.seller_id,
+        connection_id: input.connection_id,
+        products_checked: report.products_checked,
+        variants_updated: report.variants_updated,
+        out_of_stock: report.out_of_stock.length,
+        errors: report.errors.length,
+      })}`,
+    );
+
+    return new StepResponse(report);
+  },
+);
 
 export const syncWooInventoryWorkflow = createWorkflow(
   "sync-woo-inventory",
   (input: SyncWooInventoryInput) => {
-    const report = syncInventoryStep(input)
-    return new WorkflowResponse({ report })
-  }
-)
+    const report = syncInventoryStep(input);
+    return new WorkflowResponse({ report });
+  },
+);
 
-export default syncWooInventoryWorkflow
+export default syncWooInventoryWorkflow;

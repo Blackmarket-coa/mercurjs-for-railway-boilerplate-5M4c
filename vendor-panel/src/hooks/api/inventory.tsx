@@ -9,7 +9,7 @@ import {
   useQueries,
 } from "@tanstack/react-query"
 
-import { fetchQuery, sdk } from "../../lib/client"
+import { fetchQuery } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
 import { variantsQueryKeys } from "./products"
@@ -100,7 +100,10 @@ export const useCreateInventoryItem = (
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminCreateInventoryItem) =>
-      sdk.admin.inventoryItem.create(payload),
+      fetchQuery("/vendor/inventory-items", {
+        method: "POST",
+        body: payload,
+      }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.lists(),
@@ -147,7 +150,10 @@ export const useDeleteInventoryItem = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.inventoryItem.delete(id),
+    mutationFn: () =>
+      fetchQuery(`/vendor/inventory-items/${id}`, {
+        method: "DELETE",
+      }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.lists(),

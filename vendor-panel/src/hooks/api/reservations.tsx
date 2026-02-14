@@ -59,13 +59,20 @@ export const useReservationItems = (
   >,
   filters?: { inventory_item_id: string[] }
 ) => {
+  const scopedQuery = {
+    ...(query || {}),
+    ...(filters?.inventory_item_id
+      ? { inventory_item_id: filters.inventory_item_id }
+      : {}),
+  }
+
   const { data, ...rest } = useQuery({
     queryFn: () =>
       fetchQuery("/vendor/reservations", {
         method: "GET",
-        query: query as { [key: string]: string | number },
+        query: scopedQuery as { [key: string]: string | number },
       }),
-    queryKey: reservationItemsQueryKeys.list(query),
+    queryKey: reservationItemsQueryKeys.list(scopedQuery),
     ...options,
   })
 
@@ -73,7 +80,7 @@ export const useReservationItems = (
     return { ...data, ...rest }
   }
   const reservations =
-    data?.reservations.filter((r) =>
+    data?.reservations?.filter((r) =>
       filters.inventory_item_id.includes(r.inventory_item_id)
     ) || []
 
