@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react"
 import { Badge, Button, Container, Heading, Switch, Text, toast } from "@medusajs/ui"
 
-import { useMe, useUpdateMe } from "../../../hooks/api/users"
+import { useMe, useUpdateMyEnabledExtensions } from "../../../hooks/api/users"
 import {
   useVendorType,
   ALL_EXTENSION_OPTIONS,
@@ -17,7 +17,7 @@ export const ExtensionsSettings = () => {
     enabledExtensions,
     typeLabel,
   } = useVendorType()
-  const { mutateAsync: updateMe, isPending: isSaving } = useUpdateMe()
+  const { mutateAsync: updateExtensions, isPending: isSaving } = useUpdateMyEnabledExtensions()
 
   // Local toggle state: initialized from current features
   const [localToggles, setLocalToggles] = useState<Record<string, boolean> | null>(null)
@@ -61,8 +61,8 @@ export const ExtensionsSettings = () => {
       .map((opt) => opt.key)
 
     try {
-      await updateMe(
-        { enabled_extensions: enabledKeys } as any,
+      await updateExtensions(
+        { enabled_extensions: enabledKeys },
         {
           onSuccess: () => {
             toast.success("Dashboard extensions updated successfully")
@@ -80,8 +80,8 @@ export const ExtensionsSettings = () => {
 
   const handleResetToDefaults = async () => {
     try {
-      await updateMe(
-        { enabled_extensions: null } as any,
+      await updateExtensions(
+        { enabled_extensions: null },
         {
           onSuccess: () => {
             toast.success("Extensions reset to defaults for your vendor type")

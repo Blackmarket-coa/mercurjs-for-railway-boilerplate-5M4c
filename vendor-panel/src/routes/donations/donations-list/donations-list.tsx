@@ -61,7 +61,7 @@ export function DonationsList() {
           </div>
           <Button
             variant="primary"
-            onClick={() => navigate("/donations/record")}
+            onClick={() => navigate("/donations")}
           >
             <Plus className="mr-2" />
             Record Donation

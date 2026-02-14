@@ -18,6 +18,166 @@ This plan covers the missing capabilities identified in repository review and pr
 
 ---
 
+## Priority Override: Vendor Activation Fast-Track (TTFLL)
+
+If the immediate business priority is **"get vendors signed up and get at least 1 product/service live as fast as possible,"** then the north-star metric for execution is:
+
+- **Time to First Live Listing (TTFLL)**
+
+This track should run before or in parallel with larger platform modules.
+
+### Repository check snapshot (current)
+
+- Managed onboarding appears in Phase 3, but there is no explicit **TTFLL-first 4-step launch wizard** spec in this plan.
+- Existing docs reference vendor onboarding and payouts, but there is no explicit requirement here to **defer payout setup until first sale**.
+- No explicit **48-hour activation follow-up automation** requirements are captured in this plan.
+- No explicit **one-click import (CSV as v1)** requirement is captured in this plan.
+
+### Activation Sprint A (1–2 weeks): launch-first onboarding
+
+**Status: ACTIVE (immediate execution)**
+
+#### Sprint A implementation board
+
+- [ ] A1. Reduce signup to required fields only (`email`, `password/magic-link`, `store_name`).
+- [ ] A2. Auto-redirect new vendors into `First Listing` wizard after signup completion.
+- [ ] A3. Implement Step 1 selling-type selector (`physical`, `digital`, `service`, `event/class`).
+- [ ] A4. Implement Step 2 minimal product form (title, price, description, one image).
+- [ ] A5. Implement Step 3 delivery setup by selling type (simple defaults only).
+- [ ] A6. Implement Step 4 publish screen with celebration, storefront URL, copy-link, share CTAs.
+- [ ] A7. Add `Advanced` accordion for optional fields (SKU, variants, SEO, advanced inventory).
+- [ ] A8. Add persistent reassurance copy: "You can edit this anytime."
+- [ ] A9. Add wizard autosave + resume support.
+- [ ] A10. Add step analytics events and funnel dashboard for drop-off tracking.
+
+#### Sprint A release gates (ship blockers)
+
+- [ ] G1. Median TTFLL <= 5 minutes in staging test cohort.
+- [ ] G2. >= 40% test cohort conversion from signup to first live listing in-session.
+- [ ] G3. Step-level telemetry visible in analytics for all four wizard steps.
+
+1. **60-second signup (minimal fields only)**
+   - Required: email, password/magic link, store name.
+   - Defer tax/compliance/payout profile completion to post-listing milestones.
+
+2. **Auto-redirect into a 4-step listing wizard**
+   - Step 1: selling type selector (physical, digital, service, event/class).
+   - Step 2: minimal product creation (title, price, description, one image).
+   - Step 3: delivery setup simplified by listing type.
+   - Step 4: publish + celebration state with storefront link and share actions.
+
+3. **Friction controls (required for MVP)**
+   - Hide advanced product fields (SKU, variants, SEO, complex inventory) under an expandable "Advanced" section.
+   - Persistent reassurance copy: "You can edit this anytime."
+   - Progress saved automatically between wizard steps.
+
+4. **Immediate value reveal**
+   - Post-publish screen includes copy-link CTA, share buttons, and simple earnings potential explainer.
+
+**Activation Sprint A exit criteria**
+- Median TTFLL <= 5 minutes for first-time vendors.
+- >= 40% of new signups publish at least one listing within first session.
+- Step-level funnel instrumentation available for all 4 wizard steps.
+
+### Activation Sprint B (2–4 weeks): scale listing velocity
+
+5. **One-click import path (v1 CSV)**
+   - Add "Already selling elsewhere? Import your products" entry point.
+   - CSV mapping flow with downloadable template and error report.
+   - Backlog connectors: Shopify/Etsy/TikTok Shop exports.
+
+6. **Pre-filled listing templates**
+   - Farm produce, handmade goods, digital download, coaching service templates.
+   - Template selector sits before Step 2 and auto-fills relevant fields.
+
+7. **Launch Assist Mode**
+   - Optional intake flow (website link, photos, description) to support concierge or semi-automated listing drafting.
+
+8. **Auto-good storefront baseline**
+   - Default banner, non-empty layout blocks, and starter theme applied automatically at first publish.
+
+9. **Payout barrier removal**
+   - Listing/publishing allowed without payout onboarding.
+   - Enforce payout setup only when vendor reaches first sale/first payout threshold.
+
+**Activation Sprint B exit criteria**
+- >= 25% reduction in signup drop-off before first publish.
+- >= 30% of new vendors publish 3+ listings in first 14 days.
+
+### Activation Sprint C (2 weeks): retention automation and incentives
+
+10. **48-hour follow-up automation**
+   - Branch A: signed up but no listing -> help/tutorial/support CTA.
+   - Branch B: one listing live -> nudge to add two more listings.
+
+11. **Dashboard micro-coaching**
+   - "Your next step to make money" cards tied to activation state.
+
+12. **Early-vendor incentives framework**
+   - Badge, reduced fee window, newsletter highlight, social spotlight toggles.
+
+13. **Movement-first onboarding narrative**
+   - Onboarding copy explicitly combines earnings value + community-powered commerce mission.
+
+**Activation Sprint C exit criteria**
+- Re-engagement rate improves for vendors inactive after signup.
+- Email-to-action conversion measurable for both 48-hour branches.
+
+### TTFLL measurement pack (must ship with Sprint A)
+
+- Signup -> first listing publish conversion.
+- Average and median TTFLL.
+- Drop-off at each wizard step.
+- % vendors publishing more than 3 listings.
+
+---
+
+## Open-Source Project Enablement Track (Repo Health)
+
+### Repository check snapshot (current)
+
+- `CONTRIBUTING.md` not present at repository root.
+- `CODE_OF_CONDUCT.md` not present at repository root.
+- `.github/ISSUE_TEMPLATE/` not present.
+- `.github/PULL_REQUEST_TEMPLATE.md` not present.
+- `ROADMAP.md` not present.
+- `.github/FUNDING.yml` / sponsorship metadata not present.
+- CI workflow exists at `.github/workflows/ci.yml` (quality automation is partially present).
+
+### Build-plan additions (if not yet implemented)
+
+1. Add contributor docs bundle:
+   - `CONTRIBUTING.md`
+   - `CODE_OF_CONDUCT.md`
+   - README updates for architecture/deploy/help pathways.
+
+2. Add contribution workflow templates:
+   - `.github/ISSUE_TEMPLATE/bug_report.yml`
+   - `.github/ISSUE_TEMPLATE/feature_request.yml`
+   - `.github/PULL_REQUEST_TEMPLATE.md`
+
+3. Extend quality automation:
+   - Keep CI lint/test gates on PRs.
+   - Add dependency/security scanning and optional coverage reporting.
+
+4. Publish roadmap + governance docs:
+   - `ROADMAP.md` with short/mid/long horizon milestones.
+   - `docs/GOVERNANCE.md` with roles and decision process.
+
+5. Add contributor-growth mechanics:
+   - Label taxonomy (`good first issue`, `help wanted`, `priority`).
+   - Maintainer triage SOP for first-time contributors.
+
+6. Add sustainability and trust signals:
+   - `.github/FUNDING.yml` and/or `SPONSORS.md`.
+   - README badges (build/license/issues/coverage as available).
+
+7. Improve repository information architecture:
+   - Consolidate docs navigation under `docs/README.md` index.
+   - Add high-level architecture diagram and per-surface quickstart links (backend/admin/vendor/storefront).
+
+---
+
 ## Phase 0 (2 weeks): Foundations & Architecture
 
 ### 0.1 Domain model alignment
@@ -311,6 +471,9 @@ This plan covers the missing capabilities identified in repository review and pr
 
 ## Suggested Release Sequencing
 
+## Activation Now (Week 0–2)
+- Sprint A (launch-first onboarding)
+
 ## Release A (Weeks 1–6)
 - POS MVP
 - Weight pricing MVP
@@ -353,4 +516,3 @@ This plan covers the missing capabilities identified in repository review and pr
 - Onboarding time-to-first-sale
 - Training completion rates and merchant retention
 - Promo campaign adoption and incremental GMV
-

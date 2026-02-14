@@ -23,6 +23,21 @@ import { GetTicketProductSeatsSchema } from "./store/ticket-products/[id]/seats/
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 /**
+ * Allow vendor profile updates to include extension settings fields.
+ *
+ * We intentionally use `.passthrough()` so existing seller update fields
+ * keep working while accepting custom keys like `enabled_extensions`.
+ */
+const PostVendorSellersMeBodySchema = z.object({
+  enabled_extensions: z.array(z.string()).nullable().optional(),
+  metadata: z.record(z.any()).optional(),
+}).passthrough()
+
+const PostVendorSellerExtensionsBodySchema = z.object({
+  enabled_extensions: z.array(z.string()).nullable(),
+})
+
+/**
  * Middleware: Normalize and Validate Email
  *
  * Ensures email signups and logins are case-insensitive by normalizing
@@ -588,6 +603,24 @@ export default defineMiddlewares({
     {
       matcher: "/vendor/sellers/me",
       middlewares: [authenticate("seller", "bearer")],
+    },
+    {
+      matcher: "/vendor/sellers/me",
+      method: "POST",
+      middlewares: [
+        validateAndTransformBody(PostVendorSellersMeBodySchema),
+      ],
+    },
+    {
+      matcher: "/vendor/sellers/me/extensions",
+      middlewares: [authenticate("seller", "bearer")],
+    },
+    {
+      matcher: "/vendor/sellers/me/extensions",
+      method: "POST",
+      middlewares: [
+        validateAndTransformBody(PostVendorSellerExtensionsBodySchema),
+      ],
     },
     {
       matcher: "/vendor/me",
