@@ -31,6 +31,7 @@ export const InventoryListTable = () => {
     isError,
     error,
   } = useInventoryItems({
+    ...searchParams,
     limit: PAGE_SIZE,
     offset: searchParams?.offset,
     fields: "id,title,sku,*location_levels",

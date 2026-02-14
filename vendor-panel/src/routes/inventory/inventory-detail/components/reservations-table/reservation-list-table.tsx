@@ -23,13 +23,10 @@ export const ReservationItemTable = ({
   })
 
   const { reservations, count, isPending, isError, error } =
-    useReservationItems(
-      {
-        ...searchParams,
-      },
-      undefined,
-      { inventory_item_id: [inventoryItem.id] }
-    )
+    useReservationItems({
+      ...searchParams,
+      inventory_item_id: [inventoryItem.id],
+    })
 
   const { stock_locations } = useStockLocations({
     id: (reservations || []).map((r) => r.location_id),
