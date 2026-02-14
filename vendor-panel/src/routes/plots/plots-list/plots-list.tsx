@@ -36,7 +36,7 @@ export function PlotsList() {
           </div>
           <Button
             variant="primary"
-            onClick={() => navigate("/plots/create")}
+            onClick={() => navigate("/plots")}
           >
             <Plus className="mr-2" />
             Add Plot
