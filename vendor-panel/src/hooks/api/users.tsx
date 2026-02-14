@@ -251,28 +251,70 @@ export const useUpdateMe = (
   >
 ) => {
   return useMutation({
-    mutationFn: (body) => {
-      const normalizedBody: Record<string, unknown> = { ...(body as Record<string, unknown>) }
-
-      // Production /vendor/sellers/me rejects `metadata` as an unrecognized field.
-      // Keep backward compatibility for callers that put extension preferences there.
-      const metadata = normalizedBody.metadata
-      if (metadata && typeof metadata === "object" && !Array.isArray(metadata)) {
-        const metadataRecord = metadata as Record<string, unknown>
-        if (
-          normalizedBody.enabled_extensions === undefined &&
-          (Array.isArray(metadataRecord.enabled_extensions) || metadataRecord.enabled_extensions === null)
-        ) {
-          normalizedBody.enabled_extensions = metadataRecord.enabled_extensions
-        }
+    mutationFn: async (body) => {
+      const normalizedBody: Record<string, unknown> = {
+        ...(body as Record<string, unknown>),
       }
 
-      delete normalizedBody.metadata
+      try {
+        return await fetchQuery("/vendor/sellers/me", {
+          method: "POST",
+          body: normalizedBody,
+        })
+      } catch (error) {
+        const metadata = normalizedBody.metadata
+        const metadataRecord =
+          metadata && typeof metadata === "object" && !Array.isArray(metadata)
+            ? (metadata as Record<string, unknown>)
+            : undefined
 
-      return fetchQuery("/vendor/sellers/me", {
-        method: "POST",
-        body: normalizedBody,
-      })
+        const enabledExtensionsValue =
+          normalizedBody.enabled_extensions ?? metadataRecord?.enabled_extensions
+
+        const hasEnabledExtensionsField =
+          Array.isArray(enabledExtensionsValue) || enabledExtensionsValue === null
+
+        if (!hasEnabledExtensionsField) {
+          throw error
+        }
+
+        const errorMessage =
+          error && typeof error === "object" && "message" in error
+            ? String((error as { message?: string }).message ?? "")
+            : ""
+
+        const lowerErrorMessage = errorMessage.toLowerCase()
+        const mentionsMetadata = lowerErrorMessage.includes("metadata")
+        const mentionsEnabledExtensions = lowerErrorMessage.includes("enabled_extensions")
+
+        if (!mentionsMetadata && !mentionsEnabledExtensions) {
+          throw error
+        }
+
+        const hasTopLevelEnabledExtensions =
+          normalizedBody.enabled_extensions !== undefined
+
+        const fallbackToTopLevel =
+          !hasTopLevelEnabledExtensions || mentionsMetadata
+
+        const fallbackBody: Record<string, unknown> = { ...normalizedBody }
+
+        if (fallbackToTopLevel) {
+          fallbackBody.enabled_extensions = enabledExtensionsValue
+          delete fallbackBody.metadata
+        } else {
+          fallbackBody.metadata = {
+            ...(metadataRecord ?? {}),
+            enabled_extensions: enabledExtensionsValue,
+          }
+          delete fallbackBody.enabled_extensions
+        }
+
+        return fetchQuery("/vendor/sellers/me", {
+          method: "POST",
+          body: fallbackBody,
+        })
+      }
     },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
