@@ -266,15 +266,17 @@ export function VendorTypeProvider({ children }: { children: ReactNode }) {
     return "default"
   }, [seller?.vendor_type])
 
-  // Get the raw enabled_extensions from the seller
+  // Get the raw enabled_extensions from the seller.
+  // An empty array means "custom selection with everything disabled" and
+  // must not fall back to vendor-type defaults.
   const enabledExtensions = useMemo(() => {
     const directExtensions = seller?.enabled_extensions
-    if (Array.isArray(directExtensions) && directExtensions.length > 0) {
+    if (Array.isArray(directExtensions)) {
       return directExtensions as string[]
     }
 
     const metadataExtensions = seller?.metadata?.enabled_extensions
-    if (Array.isArray(metadataExtensions) && metadataExtensions.length > 0) {
+    if (Array.isArray(metadataExtensions)) {
       return metadataExtensions as string[]
     }
 

@@ -252,7 +252,20 @@ export const useUpdateMe = (
 ) => {
   return useMutation({
     mutationFn: async (body) => {
-      const normalizedBody: Record<string, unknown> = { ...(body as Record<string, unknown>) }
+      const normalizedBody: Record<string, unknown> = {
+        ...(body as Record<string, unknown>),
+      }
+
+      try {
+        return await fetchQuery("/vendor/sellers/me", {
+          method: "POST",
+          body: normalizedBody,
+        })
+      } catch (error) {
+        const metadata = normalizedBody.metadata
+        if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) {
+          throw error
+        }
 
         const metadataRecord = metadata as Record<string, unknown>
         const hasEnabledExtensionsField =
@@ -264,35 +277,23 @@ export const useUpdateMe = (
           throw error
         }
 
-      const metadataFallback = normalizedBody.metadata
-      delete normalizedBody.metadata
-
-      try {
-        return await fetchQuery("/vendor/sellers/me", {
-          method: "POST",
-          body: normalizedBody,
-        })
-      } catch (error) {
-        const message =
+        const errorMessage =
           error && typeof error === "object" && "message" in error
-            ? String((error as { message?: unknown }).message ?? "")
+            ? String((error as { message?: string }).message ?? "")
             : ""
 
-        const shouldFallbackToMetadata =
-          message.includes("Unrecognized fields") &&
-          message.includes("enabled_extensions") &&
-          metadataFallback &&
-          typeof metadataFallback === "object" &&
-          !Array.isArray(metadataFallback)
-
-        if (!shouldFallbackToMetadata) {
+        // Some backends only accept extension preferences as a top-level field.
+        if (!errorMessage.includes("metadata")) {
           throw error
         }
 
-        const fallbackBody = {
+        const fallbackBody: Record<string, unknown> = {
           ...normalizedBody,
-          metadata: metadataFallback,
+          enabled_extensions:
+            normalizedBody.enabled_extensions ?? metadataRecord.enabled_extensions,
         }
+
+        delete fallbackBody.metadata
 
         return fetchQuery("/vendor/sellers/me", {
           method: "POST",
