@@ -331,6 +331,36 @@ export const useUpdateMe = (
   })
 }
 
+export const useUpdateMyEnabledExtensions = (
+  options?: UseMutationOptions<
+    HttpTypes.AdminUserResponse,
+    FetchError,
+    { enabled_extensions: string[] | null },
+    QueryKey
+  >
+) => {
+  return useMutation({
+    mutationFn: (body) => {
+      return fetchQuery("/vendor/sellers/me/extensions", {
+        method: "POST",
+        body,
+      })
+    },
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: usersQueryKeys.lists(),
+      })
+
+      queryClient.invalidateQueries({
+        queryKey: usersQueryKeys.me(),
+      })
+
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
+}
+
 export const useOnboarding = () => {
   const queryClient = useQueryClient()
   const { data, ...rest } = useQuery({
