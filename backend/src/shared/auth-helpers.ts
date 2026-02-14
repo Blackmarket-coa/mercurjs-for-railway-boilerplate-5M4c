@@ -47,11 +47,14 @@ export function extractSellerId(
   req: AuthenticatedRequest,
   res: MedusaResponse
 ): AuthResult<string> {
-  const sellerId =
-    req.auth_context?.actor_id ??
-    (typeof req.auth_context?.app_metadata?.seller_id === "string"
+  const actorId = req.auth_context?.actor_id
+  const metadataSellerId =
+    typeof req.auth_context?.app_metadata?.seller_id === "string"
       ? req.auth_context?.app_metadata?.seller_id
-      : undefined)
+      : undefined
+  const sellerId =
+    (actorId && isSellerIdentifier(actorId) ? actorId : undefined) ??
+    (metadataSellerId && isSellerIdentifier(metadataSellerId) ? metadataSellerId : undefined)
 
   if (!sellerId) {
     res.status(401).json({ 
@@ -62,6 +65,10 @@ export function extractSellerId(
   }
 
   return { success: true, id: sellerId }
+}
+
+function isSellerIdentifier(value: string): boolean {
+  return value.startsWith("sel_") || value.startsWith("mem_")
 }
 
 /**
@@ -272,14 +279,16 @@ export function decodeAuthTokenWithError(token: string): TokenDecodeResult {
       (payload.actorType as string | undefined) ||
       null
     const sellerId =
-      (payload.actor_id as string | undefined) ||
       (payload.seller_id as string | undefined) ||
-      (payload.app_metadata as { seller_id?: string } | undefined)?.seller_id ||
-      null
+      (payload.app_metadata as { seller_id?: string } | undefined)?.seller_id
+    const actorIdAsSeller =
+      actorType === "seller" && isSellerIdentifier(actorId || "") ? actorId : null
+    const resolvedSellerId =
+      (sellerId && isSellerIdentifier(sellerId) ? sellerId : null) || actorIdAsSeller
 
     return {
       success: true,
-      token: { authIdentityId, actorId, actorType, sellerId },
+      token: { authIdentityId, actorId, actorType, sellerId: resolvedSellerId },
     }
   } catch (err: unknown) {
     if (err instanceof jwt.TokenExpiredError) {
