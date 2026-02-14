@@ -251,11 +251,29 @@ export const useUpdateMe = (
   >
 ) => {
   return useMutation({
-    mutationFn: (body) =>
-      fetchQuery("/vendor/sellers/me", {
+    mutationFn: (body) => {
+      const normalizedBody: Record<string, unknown> = { ...(body as Record<string, unknown>) }
+
+      // Production /vendor/sellers/me rejects `metadata` as an unrecognized field.
+      // Keep backward compatibility for callers that put extension preferences there.
+      const metadata = normalizedBody.metadata
+      if (metadata && typeof metadata === "object" && !Array.isArray(metadata)) {
+        const metadataRecord = metadata as Record<string, unknown>
+        if (
+          normalizedBody.enabled_extensions === undefined &&
+          (Array.isArray(metadataRecord.enabled_extensions) || metadataRecord.enabled_extensions === null)
+        ) {
+          normalizedBody.enabled_extensions = metadataRecord.enabled_extensions
+        }
+      }
+
+      delete normalizedBody.metadata
+
+      return fetchQuery("/vendor/sellers/me", {
         method: "POST",
-        body,
-      }),
+        body: normalizedBody,
+      })
+    },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: usersQueryKeys.lists(),
