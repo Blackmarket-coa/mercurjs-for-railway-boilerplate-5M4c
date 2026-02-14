@@ -43,7 +43,7 @@ export function VolunteersList() {
           </div>
           <Button
             variant="primary"
-            onClick={() => navigate("/volunteers/invite")}
+            onClick={() => navigate("/volunteers")}
           >
             <Plus className="mr-2" />
             Invite {terminology.singular}

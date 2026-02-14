@@ -378,7 +378,7 @@ const FarmDashboardPage = () => {
           <Button
             variant="secondary"
             className="flex flex-col items-center justify-center gap-2 h-24 hover:border-blue-300 hover:bg-blue-50 transition-colors"
-            onClick={() => navigate("/farm/availability/create")}
+            onClick={() => navigate("/farm/harvests")}
           >
             <Calendar className="w-6 h-6 text-blue-600" />
             <span>Create Availability</span>
