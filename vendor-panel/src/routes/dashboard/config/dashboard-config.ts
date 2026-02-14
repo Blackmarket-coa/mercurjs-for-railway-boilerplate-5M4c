@@ -77,9 +77,9 @@ export function getPrimaryCTARoute(type: VendorType): string {
   const routes: Record<VendorType, string> = {
     producer: "/products/create",
     garden: "/products/create",
-    kitchen: "/schedule",
+    kitchen: "/inventory/create",
     maker: "/products/create",
-    restaurant: "/menu/items/create",
+    restaurant: "/menu/items",
     mutual_aid: "/inventory/create",
     default: "/products/create",
   }
@@ -137,7 +137,7 @@ export function getOnboardingSteps(type: VendorType, features: VendorFeatures) {
       key: "menu",
       title: "Create your menu",
       description: "Add menu items and categories",
-      to: "/menu/items/create",
+      to: "/menu/items",
       icon: "Newspaper",
     })
   }

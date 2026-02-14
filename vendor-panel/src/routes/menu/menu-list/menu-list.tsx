@@ -36,7 +36,7 @@ export function MenuList() {
           </div>
           <Button
             variant="primary"
-            onClick={() => navigate("/menu/items/create")}
+            onClick={() => navigate("/menu/items")}
           >
             <Plus className="mr-2" />
             Add Menu Item
