@@ -30,7 +30,9 @@ export const InventoryItemVariantsSection = ({
           const link = variant.product
             ? `/products/${variant.product.id}/variants/${variant.id}`
             : null
-          const optionValues = variant.options?.map((o) => o.value) ?? []
+          const optionValues =
+            variant.options?.map((o) => o?.value).filter(Boolean).join(" ⋅ ") ||
+            "-"
 
           const Inner = (
             <div className="shadow-elevation-card-rest bg-ui-bg-component rounded-md px-4 py-2 transition-colors">
@@ -43,7 +45,7 @@ export const InventoryItemVariantsSection = ({
                     {variant.title}
                   </span>
                   <span className="text-ui-fg-subtle">
-                    {optionValues.join(" ⋅ ") || "-"}
+                    {optionValues}
                   </span>
                 </div>
                 <div className="size-7 flex items-center justify-center">
