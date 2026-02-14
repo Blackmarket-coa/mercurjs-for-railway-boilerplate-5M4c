@@ -33,6 +33,10 @@ const PostVendorSellersMeBodySchema = z.object({
   metadata: z.record(z.any()).optional(),
 }).passthrough()
 
+const PostVendorSellerExtensionsBodySchema = z.object({
+  enabled_extensions: z.array(z.string()).nullable(),
+})
+
 /**
  * Middleware: Normalize and Validate Email
  *
@@ -605,6 +609,17 @@ export default defineMiddlewares({
       method: "POST",
       middlewares: [
         validateAndTransformBody(PostVendorSellersMeBodySchema),
+      ],
+    },
+    {
+      matcher: "/vendor/sellers/me/extensions",
+      middlewares: [authenticate("seller", "bearer")],
+    },
+    {
+      matcher: "/vendor/sellers/me/extensions",
+      method: "POST",
+      middlewares: [
+        validateAndTransformBody(PostVendorSellerExtensionsBodySchema),
       ],
     },
     {
