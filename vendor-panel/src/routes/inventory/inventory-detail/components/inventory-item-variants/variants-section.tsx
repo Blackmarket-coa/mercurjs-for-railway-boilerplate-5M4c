@@ -30,11 +30,7 @@ export const InventoryItemVariantsSection = ({
           const link = variant.product
             ? `/products/${variant.product.id}/variants/${variant.id}`
             : null
-          const optionValues = Array.isArray(variant.options)
-            ? variant.options
-                .map((o) => o?.value)
-                .filter((value): value is string => Boolean(value))
-            : []
+          const optionValues = variant.options?.map((o) => o.value) ?? []
 
           const Inner = (
             <div className="shadow-elevation-card-rest bg-ui-bg-component rounded-md px-4 py-2 transition-colors">

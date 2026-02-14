@@ -61,8 +61,18 @@ export const ExtensionsSettings = () => {
       .map((opt) => opt.key)
 
     try {
+      const currentMetadata =
+        seller?.metadata && typeof seller.metadata === "object"
+          ? seller.metadata
+          : {}
+
       await updateMe(
-        { enabled_extensions: enabledKeys } as any,
+        {
+          metadata: {
+            ...currentMetadata,
+            enabled_extensions: enabledKeys,
+          },
+        } as any,
         {
           onSuccess: () => {
             toast.success("Dashboard extensions updated successfully")
@@ -80,8 +90,18 @@ export const ExtensionsSettings = () => {
 
   const handleResetToDefaults = async () => {
     try {
+      const currentMetadata =
+        seller?.metadata && typeof seller.metadata === "object"
+          ? seller.metadata
+          : {}
+
       await updateMe(
-        { enabled_extensions: null } as any,
+        {
+          metadata: {
+            ...currentMetadata,
+            enabled_extensions: null,
+          },
+        } as any,
         {
           onSuccess: () => {
             toast.success("Extensions reset to defaults for your vendor type")
