@@ -2,7 +2,7 @@ import {
   getInventoryDriftItems,
   getLotAnomalies,
   getStaleWooConnections,
-} from "../inventory-reconciliation-utils";
+} from "../../utils/inventory-reconciliation-utils";
 
 describe("inventory reconciliation utils", () => {
   it("detects inventory drift when reserved exceeds stocked", () => {
