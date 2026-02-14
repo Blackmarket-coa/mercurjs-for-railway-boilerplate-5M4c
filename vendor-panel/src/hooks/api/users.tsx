@@ -251,28 +251,55 @@ export const useUpdateMe = (
   >
 ) => {
   return useMutation({
-    mutationFn: (body) => {
-      const normalizedBody: Record<string, unknown> = { ...(body as Record<string, unknown>) }
-
-      // Production /vendor/sellers/me rejects `metadata` as an unrecognized field.
-      // Keep backward compatibility for callers that put extension preferences there.
-      const metadata = normalizedBody.metadata
-      if (metadata && typeof metadata === "object" && !Array.isArray(metadata)) {
-        const metadataRecord = metadata as Record<string, unknown>
-        if (
-          normalizedBody.enabled_extensions === undefined &&
-          (Array.isArray(metadataRecord.enabled_extensions) || metadataRecord.enabled_extensions === null)
-        ) {
-          normalizedBody.enabled_extensions = metadataRecord.enabled_extensions
-        }
+    mutationFn: async (body) => {
+      const normalizedBody: Record<string, unknown> = {
+        ...(body as Record<string, unknown>),
       }
 
-      delete normalizedBody.metadata
+      try {
+        return await fetchQuery("/vendor/sellers/me", {
+          method: "POST",
+          body: normalizedBody,
+        })
+      } catch (error) {
+        const metadata = normalizedBody.metadata
+        if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) {
+          throw error
+        }
 
-      return fetchQuery("/vendor/sellers/me", {
-        method: "POST",
-        body: normalizedBody,
-      })
+        const metadataRecord = metadata as Record<string, unknown>
+        const hasEnabledExtensionsField =
+          normalizedBody.enabled_extensions !== undefined ||
+          Array.isArray(metadataRecord.enabled_extensions) ||
+          metadataRecord.enabled_extensions === null
+
+        if (!hasEnabledExtensionsField) {
+          throw error
+        }
+
+        const errorMessage =
+          error && typeof error === "object" && "message" in error
+            ? String((error as { message?: string }).message ?? "")
+            : ""
+
+        // Some backends only accept extension preferences as a top-level field.
+        if (!errorMessage.includes("metadata")) {
+          throw error
+        }
+
+        const fallbackBody: Record<string, unknown> = {
+          ...normalizedBody,
+          enabled_extensions:
+            normalizedBody.enabled_extensions ?? metadataRecord.enabled_extensions,
+        }
+
+        delete fallbackBody.metadata
+
+        return fetchQuery("/vendor/sellers/me", {
+          method: "POST",
+          body: fallbackBody,
+        })
+      }
     },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
