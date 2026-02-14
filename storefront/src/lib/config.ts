@@ -69,6 +69,23 @@ export async function medusaFetch<T>(
       },
     })
   } catch (error: any) {
+    const status =
+      error?.status ||
+      error?.statusCode ||
+      error?.response?.status ||
+      error?.cause?.status
+
+    const method = (restOptions?.method || "GET").toUpperCase()
+    const isExpectedCustomerAuthMiss =
+      status === 401 && method === "GET" && path === "/store/customers/me"
+
+    if (isExpectedCustomerAuthMiss) {
+      logger.info(
+        `[medusaFetch] ${method} ${path} returned 401 (unauthenticated session).`
+      )
+      throw error
+    }
+
     logger.error(
       `[medusaFetch] Error fetching ${path}:`,
       error?.message || error
