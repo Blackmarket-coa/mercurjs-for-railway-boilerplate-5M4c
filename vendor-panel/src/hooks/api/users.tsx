@@ -263,15 +263,16 @@ export const useUpdateMe = (
         })
       } catch (error) {
         const metadata = normalizedBody.metadata
-        if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) {
-          throw error
-        }
+        const metadataRecord =
+          metadata && typeof metadata === "object" && !Array.isArray(metadata)
+            ? (metadata as Record<string, unknown>)
+            : undefined
 
-        const metadataRecord = metadata as Record<string, unknown>
+        const enabledExtensionsValue =
+          normalizedBody.enabled_extensions ?? metadataRecord?.enabled_extensions
+
         const hasEnabledExtensionsField =
-          normalizedBody.enabled_extensions !== undefined ||
-          Array.isArray(metadataRecord.enabled_extensions) ||
-          metadataRecord.enabled_extensions === null
+          Array.isArray(enabledExtensionsValue) || enabledExtensionsValue === null
 
         if (!hasEnabledExtensionsField) {
           throw error
@@ -282,18 +283,32 @@ export const useUpdateMe = (
             ? String((error as { message?: string }).message ?? "")
             : ""
 
-        // Some backends only accept extension preferences as a top-level field.
-        if (!errorMessage.includes("metadata")) {
+        const lowerErrorMessage = errorMessage.toLowerCase()
+        const mentionsMetadata = lowerErrorMessage.includes("metadata")
+        const mentionsEnabledExtensions = lowerErrorMessage.includes("enabled_extensions")
+
+        if (!mentionsMetadata && !mentionsEnabledExtensions) {
           throw error
         }
 
-        const fallbackBody: Record<string, unknown> = {
-          ...normalizedBody,
-          enabled_extensions:
-            normalizedBody.enabled_extensions ?? metadataRecord.enabled_extensions,
-        }
+        const hasTopLevelEnabledExtensions =
+          normalizedBody.enabled_extensions !== undefined
 
-        delete fallbackBody.metadata
+        const fallbackToTopLevel =
+          !hasTopLevelEnabledExtensions || mentionsMetadata
+
+        const fallbackBody: Record<string, unknown> = { ...normalizedBody }
+
+        if (fallbackToTopLevel) {
+          fallbackBody.enabled_extensions = enabledExtensionsValue
+          delete fallbackBody.metadata
+        } else {
+          fallbackBody.metadata = {
+            ...(metadataRecord ?? {}),
+            enabled_extensions: enabledExtensionsValue,
+          }
+          delete fallbackBody.enabled_extensions
+        }
 
         return fetchQuery("/vendor/sellers/me", {
           method: "POST",
