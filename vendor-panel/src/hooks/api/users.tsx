@@ -254,18 +254,15 @@ export const useUpdateMe = (
     mutationFn: async (body) => {
       const normalizedBody: Record<string, unknown> = { ...(body as Record<string, unknown>) }
 
-      // Production /vendor/sellers/me rejects `metadata` as an unrecognized field.
-      // Keep backward compatibility for callers that put extension preferences there.
-      const metadata = normalizedBody.metadata
-      if (metadata && typeof metadata === "object" && !Array.isArray(metadata)) {
         const metadataRecord = metadata as Record<string, unknown>
-        if (
-          normalizedBody.enabled_extensions === undefined &&
-          (Array.isArray(metadataRecord.enabled_extensions) || metadataRecord.enabled_extensions === null)
-        ) {
-          normalizedBody.enabled_extensions = metadataRecord.enabled_extensions
+        const hasEnabledExtensionsField =
+          normalizedBody.enabled_extensions !== undefined ||
+          Array.isArray(metadataRecord.enabled_extensions) ||
+          metadataRecord.enabled_extensions === null
+
+        if (!hasEnabledExtensionsField) {
+          throw error
         }
-      }
 
       const metadataFallback = normalizedBody.metadata
       delete normalizedBody.metadata
