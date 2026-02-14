@@ -268,12 +268,18 @@ export function VendorTypeProvider({ children }: { children: ReactNode }) {
 
   // Get the raw enabled_extensions from the seller
   const enabledExtensions = useMemo(() => {
-    const ext = seller?.enabled_extensions
-    if (Array.isArray(ext) && ext.length > 0) {
-      return ext as string[]
+    const directExtensions = seller?.enabled_extensions
+    if (Array.isArray(directExtensions) && directExtensions.length > 0) {
+      return directExtensions as string[]
     }
+
+    const metadataExtensions = seller?.metadata?.enabled_extensions
+    if (Array.isArray(metadataExtensions) && metadataExtensions.length > 0) {
+      return metadataExtensions as string[]
+    }
+
     return null
-  }, [seller?.enabled_extensions])
+  }, [seller?.enabled_extensions, seller?.metadata?.enabled_extensions])
 
   // Default features for this vendor type (before custom overrides)
   const defaultFeatures = useMemo(() => getFeaturesByType(vendorType), [vendorType])
