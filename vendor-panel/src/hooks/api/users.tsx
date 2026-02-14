@@ -251,7 +251,7 @@ export const useUpdateMe = (
   >
 ) => {
   return useMutation({
-    mutationFn: (body) => {
+    mutationFn: async (body) => {
       const normalizedBody: Record<string, unknown> = { ...(body as Record<string, unknown>) }
 
       // Production /vendor/sellers/me rejects `metadata` as an unrecognized field.
@@ -267,12 +267,41 @@ export const useUpdateMe = (
         }
       }
 
+      const metadataFallback = normalizedBody.metadata
       delete normalizedBody.metadata
 
-      return fetchQuery("/vendor/sellers/me", {
-        method: "POST",
-        body: normalizedBody,
-      })
+      try {
+        return await fetchQuery("/vendor/sellers/me", {
+          method: "POST",
+          body: normalizedBody,
+        })
+      } catch (error) {
+        const message =
+          error && typeof error === "object" && "message" in error
+            ? String((error as { message?: unknown }).message ?? "")
+            : ""
+
+        const shouldFallbackToMetadata =
+          message.includes("Unrecognized fields") &&
+          message.includes("enabled_extensions") &&
+          metadataFallback &&
+          typeof metadataFallback === "object" &&
+          !Array.isArray(metadataFallback)
+
+        if (!shouldFallbackToMetadata) {
+          throw error
+        }
+
+        const fallbackBody = {
+          ...normalizedBody,
+          metadata: metadataFallback,
+        }
+
+        return fetchQuery("/vendor/sellers/me", {
+          method: "POST",
+          body: fallbackBody,
+        })
+      }
     },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
