@@ -77,7 +77,7 @@ export function getPrimaryCTARoute(type: VendorType): string {
   const routes: Record<VendorType, string> = {
     producer: "/products/create",
     garden: "/products/create",
-    kitchen: "/inventory/create",
+    kitchen: "/volunteers/schedule",
     maker: "/products/create",
     restaurant: "/menu/items",
     mutual_aid: "/inventory/create",
