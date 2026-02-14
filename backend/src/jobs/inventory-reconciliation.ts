@@ -6,7 +6,7 @@ import {
   getInventoryDriftItems,
   getLotAnomalies,
   getStaleWooConnections,
-} from "./inventory-reconciliation-utils";
+} from "../utils/inventory-reconciliation-utils";
 
 /**
  * Scheduled job: inventory data quality reconciliation.
