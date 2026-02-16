@@ -1,27 +1,24 @@
 #!/bin/bash
 # =============================================================================
-# FreeBlackMarket.com - Railway PostgreSQL Cleanup & Reset
+# FreeBlackMarket.com - Railway PostgreSQL Targeted Cleanup
 # =============================================================================
 #
-# Drops all tables, types, sequences, and functions from the Railway Postgres
-# database, then runs Medusa migrations to recreate everything from the
-# current codebase. This ensures the database schema matches the repo exactly.
+# Removes orphaned tables from removed plugins/modules, then runs Medusa
+# migrations to create tables for new modules. Preserves all active data.
 #
 # USAGE:
-#   # Using DATABASE_URL environment variable:
+#   # Using DATABASE_URL:
 #   DATABASE_URL="postgres://postgres:pass@host:port/railway" ./scripts/cleanup-railway-postgres.sh
 #
-#   # Using individual connection parameters:
-#   PGHOST=host PGPORT=port PGUSER=postgres PGPASSWORD=pass PGDATABASE=railway ./scripts/cleanup-railway-postgres.sh
+#   # Using individual PG vars:
+#   PGHOST=host PGPORT=port PGUSER=postgres PGPASSWORD=pass PGDATABASE=railway \
+#     ./scripts/cleanup-railway-postgres.sh
 #
-#   # Skip migrations (just cleanup):
-#   ./scripts/cleanup-railway-postgres.sh --no-migrate
-#
-#   # Also run seed after migrations:
-#   ./scripts/cleanup-railway-postgres.sh --seed
+#   # Also run migrations after cleanup:
+#   ./scripts/cleanup-railway-postgres.sh --migrate
 #
 #   # Skip confirmation prompt:
-#   ./scripts/cleanup-railway-postgres.sh --yes
+#   ./scripts/cleanup-railway-postgres.sh --yes --migrate
 #
 # =============================================================================
 
@@ -45,21 +42,18 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 log_step()  { echo -e "${CYAN}[STEP]${NC}  $1"; }
 
 # Parse arguments
-RUN_MIGRATE=true
-RUN_SEED=false
+RUN_MIGRATE=false
 SKIP_CONFIRM=false
 
 while [[ $# -gt 0 ]]; do
   case $1 in
-    --no-migrate)  RUN_MIGRATE=false; shift ;;
-    --seed)        RUN_SEED=true; shift ;;
+    --migrate)     RUN_MIGRATE=true; shift ;;
     --yes|-y)      SKIP_CONFIRM=true; shift ;;
     --help|-h)
-      echo "Usage: $0 [--no-migrate] [--seed] [--yes]"
+      echo "Usage: $0 [--migrate] [--yes]"
       echo ""
       echo "Options:"
-      echo "  --no-migrate   Skip running migrations after cleanup"
-      echo "  --seed         Run seed script after migrations"
+      echo "  --migrate      Run medusa db:migrate after cleanup"
       echo "  --yes, -y      Skip confirmation prompt"
       echo ""
       echo "Environment:"
@@ -80,7 +74,6 @@ done
 
 # Resolve connection parameters
 if [[ -n "${DATABASE_URL:-}" ]]; then
-  # Parse DATABASE_URL into PG* variables for psql
   url="${DATABASE_URL#postgres://}"
   url="${url#postgresql://}"
 
@@ -98,37 +91,43 @@ if [[ -n "${DATABASE_URL:-}" ]]; then
   export PGDATABASE="${dbname%%\?*}"
 fi
 
-# Validate we have connection info
+# Validate
 if [[ -z "${PGHOST:-}" || -z "${PGDATABASE:-}" ]]; then
   log_error "No database connection configured."
   log_error "Set DATABASE_URL or PGHOST/PGPORT/PGUSER/PGPASSWORD/PGDATABASE."
   exit 1
 fi
 
-# Validate SQL file exists
 if [[ ! -f "$SQL_FILE" ]]; then
   log_error "Cleanup SQL file not found: $SQL_FILE"
   exit 1
 fi
 
 echo ""
-echo -e "${RED}========================================${NC}"
-echo -e "${RED}  DATABASE CLEANUP - DESTRUCTIVE ACTION ${NC}"
-echo -e "${RED}========================================${NC}"
+echo -e "${YELLOW}========================================${NC}"
+echo -e "${YELLOW}  TARGETED DATABASE CLEANUP             ${NC}"
+echo -e "${YELLOW}========================================${NC}"
 echo ""
 echo -e "  Host:     ${CYAN}${PGHOST}:${PGPORT}${NC}"
 echo -e "  Database: ${CYAN}${PGDATABASE}${NC}"
 echo -e "  User:     ${CYAN}${PGUSER:-postgres}${NC}"
 echo -e "  Migrate:  ${CYAN}${RUN_MIGRATE}${NC}"
-echo -e "  Seed:     ${CYAN}${RUN_SEED}${NC}"
 echo ""
-echo -e "${YELLOW}This will DROP ALL tables, types, sequences, and functions.${NC}"
-echo -e "${YELLOW}All data will be permanently deleted.${NC}"
+echo -e "  This will drop ${RED}18 orphaned tables${NC} from removed plugins:"
+echo -e "    - @mercurjs/requests (replaced by custom Request module)"
+echo -e "    - Old Mercur attribute system (replaced by cms-blueprint)"
+echo -e "    - Old Mercur secondary_category (unused)"
+echo -e "    - Old Mercur tax_code link (unused)"
+echo -e "    - Old Mercur wishlist (replaced by shopper_wishlist)"
+echo -e "    - Old Mercur vendor_type table (replaced by vendor_type_enum)"
+echo -e "    - Old Mercur configuration_rule (unused)"
+echo ""
+echo -e "  ${GREEN}All active data will be preserved.${NC}"
 echo ""
 
 if [[ "$SKIP_CONFIRM" != true ]]; then
-  read -rp "Type 'CLEANUP' to confirm: " confirm
-  if [[ "$confirm" != "CLEANUP" ]]; then
+  read -rp "Proceed? (y/N): " confirm
+  if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
     log_info "Aborted."
     exit 0
   fi
@@ -137,17 +136,18 @@ fi
 echo ""
 
 # Step 1: Run cleanup SQL
-log_step "Phase 1/3: Dropping all database objects..."
+log_step "Dropping orphaned tables..."
 if psql -f "$SQL_FILE" 2>&1; then
-  log_info "Database cleanup complete."
+  log_info "Orphaned tables removed."
 else
   log_error "Cleanup SQL failed. Check connection and try again."
   exit 1
 fi
 
-# Step 2: Run migrations
+# Step 2: Run migrations (optional)
 if [[ "$RUN_MIGRATE" == true ]]; then
-  log_step "Phase 2/3: Running Medusa migrations..."
+  echo ""
+  log_step "Running Medusa migrations to create new module tables..."
   cd "$BACKEND_DIR"
 
   if pnpm exec medusa db:migrate --execute-safe-links 2>&1; then
@@ -156,22 +156,6 @@ if [[ "$RUN_MIGRATE" == true ]]; then
     log_error "Migrations failed. Check the output above for errors."
     exit 1
   fi
-else
-  log_step "Phase 2/3: Skipping migrations (--no-migrate)"
-fi
-
-# Step 3: Seed (optional)
-if [[ "$RUN_SEED" == true ]]; then
-  log_step "Phase 3/3: Running seed script..."
-  cd "$BACKEND_DIR"
-
-  if pnpm seed 2>&1; then
-    log_info "Seeding complete."
-  else
-    log_warn "Seeding failed. You can run it manually: cd backend && pnpm seed"
-  fi
-else
-  log_step "Phase 3/3: Skipping seed (use --seed to enable)"
 fi
 
 echo ""
@@ -179,13 +163,10 @@ echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}  CLEANUP COMPLETE                      ${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo ""
-if [[ "$RUN_MIGRATE" == true ]]; then
-  echo -e "  Database schema now matches the repo."
-  if [[ "$RUN_SEED" != true ]]; then
-    echo -e "  To seed demo data: ${CYAN}cd backend && pnpm seed${NC}"
-  fi
-else
-  echo -e "  Database is empty. To recreate schema:"
+echo -e "  Removed 18 orphaned tables. Active data preserved."
+if [[ "$RUN_MIGRATE" != true ]]; then
+  echo ""
+  echo -e "  To create new module tables, run:"
   echo -e "    ${CYAN}cd backend && pnpm exec medusa db:migrate --execute-safe-links${NC}"
 fi
 echo ""

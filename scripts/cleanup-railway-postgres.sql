@@ -1,199 +1,165 @@
 -- =============================================================================
--- FreeBlackMarket.com - Railway PostgreSQL Cleanup Script
+-- FreeBlackMarket.com - Railway PostgreSQL Targeted Cleanup
 -- =============================================================================
 --
--- PURPOSE: Drop all user-created tables, types, and sequences so that
---          `medusa db:migrate` can recreate everything from the current
---          codebase migrations. This ensures the database schema matches
---          the repository exactly.
+-- PURPOSE: Remove orphaned tables from removed plugins/modules while
+--          preserving all active data. After running this, run
+--          `medusa db:migrate` to create tables for new modules.
 --
--- USAGE:
---   # Direct psql execution:
---   PGPASSWORD=<password> psql -h <host> -U postgres -p <port> -d railway -f scripts/cleanup-railway-postgres.sql
+-- USAGE (PowerShell):
+--   $env:PGPASSWORD="<password>"
+--   psql -h <host> -U postgres -p <port> -d railway -f scripts/cleanup-railway-postgres.sql
 --
---   # Or use the companion shell script:
---   ./scripts/cleanup-railway-postgres.sh
+-- USAGE (Bash):
+--   PGPASSWORD=<password> psql -h <host> -U postgres -p <port> -d railway \
+--     -f scripts/cleanup-railway-postgres.sql
 --
--- WARNING: This script DROPS ALL DATA. Back up first!
---   ./scripts/backup-db.sh --compress
+-- This script is SAFE for production — it only drops tables that have no
+-- corresponding code in the current repository.
 --
 -- =============================================================================
 
 BEGIN;
 
 -- ============================================================================
--- PHASE 1: Drop all tables in public schema
+-- PHASE 1: Drop tables from removed @mercurjs/requests plugin
 -- ============================================================================
--- This uses a dynamic query to drop every table, handling dependencies
--- automatically with CASCADE.
+-- The @mercurjs/requests plugin was removed from medusa-config.ts and replaced
+-- with a custom Request module at ./src/modules/request. These tables are
+-- orphaned and not referenced anywhere in the codebase.
 
-DO $$
-DECLARE
-    _tbl text;
-    _count int := 0;
-BEGIN
-    RAISE NOTICE '=== PHASE 1: Dropping all tables ===';
+\echo '=== PHASE 1: Dropping removed @mercurjs/requests tables ==='
 
-    FOR _tbl IN
-        SELECT tablename
-        FROM pg_tables
-        WHERE schemaname = 'public'
-        ORDER BY tablename
-    LOOP
-        EXECUTE format('DROP TABLE IF EXISTS %I CASCADE', _tbl);
-        _count := _count + 1;
-        RAISE NOTICE 'Dropped table: %', _tbl;
-    END LOOP;
+DROP TABLE IF EXISTS order_return_request_line_item CASCADE;
+DROP TABLE IF EXISTS order_return_request CASCADE;
 
-    RAISE NOTICE 'Dropped % tables total.', _count;
-END $$;
+-- Link tables that referenced the removed request tables
+DROP TABLE IF EXISTS order_return_order_return_request_order_order CASCADE;
+DROP TABLE IF EXISTS seller_seller_order_return_order_return_request CASCADE;
+
+\echo 'Done: removed @mercurjs/requests tables dropped.'
 
 -- ============================================================================
--- PHASE 2: Drop all custom enum types in public schema
+-- PHASE 2: Drop old Mercur attribute tables (replaced by cms-blueprint)
 -- ============================================================================
--- Drops every user-defined ENUM type. Medusa migrations will recreate them.
+-- The old @mercurjs/b2c-core attribute system is unused. The custom
+-- cms-blueprint module (cms_attribute, cms_category, etc.) replaces it.
+-- No code in src/ references these tables.
 
-DO $$
-DECLARE
-    _type text;
-    _count int := 0;
-BEGIN
-    RAISE NOTICE '=== PHASE 2: Dropping all custom enum types ===';
+\echo ''
+\echo '=== PHASE 2: Dropping old Mercur attribute tables ==='
 
-    FOR _type IN
-        SELECT t.typname
-        FROM pg_type t
-        JOIN pg_namespace n ON t.typnamespace = n.oid
-        WHERE n.nspname = 'public'
-          AND t.typtype = 'e'
-        ORDER BY t.typname
-    LOOP
-        EXECUTE format('DROP TYPE IF EXISTS %I CASCADE', _type);
-        _count := _count + 1;
-        RAISE NOTICE 'Dropped type: %', _type;
-    END LOOP;
+DROP TABLE IF EXISTS product_product_attribute_attribute_value CASCADE;
+DROP TABLE IF EXISTS product_product_category_attribute_attribute CASCADE;
+DROP TABLE IF EXISTS attribute_value CASCADE;
+DROP TABLE IF EXISTS attribute_possible_value CASCADE;
+DROP TABLE IF EXISTS attribute CASCADE;
 
-    RAISE NOTICE 'Dropped % enum types total.', _count;
-END $$;
+\echo 'Done: old attribute tables dropped.'
 
 -- ============================================================================
--- PHASE 3: Drop all custom composite types in public schema
+-- PHASE 3: Drop old Mercur secondary_category tables (unused)
 -- ============================================================================
+-- No code in src/ references secondary_category. Product categories are
+-- handled by Medusa core product_category + cms-blueprint.
 
-DO $$
-DECLARE
-    _type text;
-    _count int := 0;
-BEGIN
-    RAISE NOTICE '=== PHASE 3: Dropping composite types ===';
+\echo ''
+\echo '=== PHASE 3: Dropping old secondary_category tables ==='
 
-    FOR _type IN
-        SELECT t.typname
-        FROM pg_type t
-        JOIN pg_namespace n ON t.typnamespace = n.oid
-        WHERE n.nspname = 'public'
-          AND t.typtype = 'c'
-          AND NOT EXISTS (
-              SELECT 1 FROM pg_class c
-              WHERE c.relname = t.typname AND c.relkind IN ('r', 'v', 'm')
-          )
-        ORDER BY t.typname
-    LOOP
-        EXECUTE format('DROP TYPE IF EXISTS %I CASCADE', _type);
-        _count := _count + 1;
-        RAISE NOTICE 'Dropped composite type: %', _type;
-    END LOOP;
+DROP TABLE IF EXISTS product_product_secondary_category_secondary_category CASCADE;
+DROP TABLE IF EXISTS secondary_category CASCADE;
 
-    RAISE NOTICE 'Dropped % composite types total.', _count;
-END $$;
+\echo 'Done: old secondary_category tables dropped.'
 
 -- ============================================================================
--- PHASE 4: Drop all sequences in public schema
+-- PHASE 4: Drop old Mercur tax_code link table (unused)
 -- ============================================================================
+-- No code in src/ references the product-category-to-tax-code link.
+-- Tax handling uses Medusa core tax_rate / tax_region.
 
-DO $$
-DECLARE
-    _seq text;
-    _count int := 0;
-BEGIN
-    RAISE NOTICE '=== PHASE 4: Dropping all sequences ===';
+\echo ''
+\echo '=== PHASE 4: Dropping old tax_code link table ==='
 
-    FOR _seq IN
-        SELECT sequencename
-        FROM pg_sequences
-        WHERE schemaname = 'public'
-        ORDER BY sequencename
-    LOOP
-        EXECUTE format('DROP SEQUENCE IF EXISTS %I CASCADE', _seq);
-        _count := _count + 1;
-        RAISE NOTICE 'Dropped sequence: %', _seq;
-    END LOOP;
+DROP TABLE IF EXISTS product_product_category_taxcode_tax_code CASCADE;
+DROP TABLE IF EXISTS tax_code CASCADE;
 
-    RAISE NOTICE 'Dropped % sequences total.', _count;
-END $$;
+\echo 'Done: old tax_code tables dropped.'
 
 -- ============================================================================
--- PHASE 5: Drop all functions in public schema
+-- PHASE 5: Drop old Mercur wishlist tables (replaced by shopper_wishlist)
 -- ============================================================================
+-- The custom wishlist module creates shopper_wishlist + shopper_wishlist_item.
+-- The old Mercur "wishlist" table is orphaned.
 
-DO $$
-DECLARE
-    _func record;
-    _count int := 0;
-BEGIN
-    RAISE NOTICE '=== PHASE 5: Dropping all user functions ===';
+\echo ''
+\echo '=== PHASE 5: Dropping old Mercur wishlist tables ==='
 
-    FOR _func IN
-        SELECT p.proname, pg_get_function_identity_arguments(p.oid) AS args
-        FROM pg_proc p
-        JOIN pg_namespace n ON p.pronamespace = n.oid
-        WHERE n.nspname = 'public'
-          AND p.prokind IN ('f', 'p')  -- functions and procedures
-        ORDER BY p.proname
-    LOOP
-        EXECUTE format('DROP FUNCTION IF EXISTS %I(%s) CASCADE', _func.proname, _func.args);
-        _count := _count + 1;
-        RAISE NOTICE 'Dropped function: %(%)', _func.proname, _func.args;
-    END LOOP;
+DROP TABLE IF EXISTS customer_customer_wishlist_wishlist CASCADE;
+DROP TABLE IF EXISTS wishlist_wishlist_product_product CASCADE;
+DROP TABLE IF EXISTS wishlist CASCADE;
 
-    RAISE NOTICE 'Dropped % functions total.', _count;
-END $$;
+\echo 'Done: old wishlist tables dropped.'
 
 -- ============================================================================
--- PHASE 6: Drop all views in public schema
+-- PHASE 6: Drop old Mercur vendor_type table (replaced by vendor_type_enum)
 -- ============================================================================
+-- The seller-extension module uses vendor_type_enum (PostgreSQL enum) on the
+-- seller_metadata table. The standalone vendor_type TABLE is from old Mercur
+-- and is not referenced in the codebase.
 
-DO $$
-DECLARE
-    _view text;
-    _count int := 0;
-BEGIN
-    RAISE NOTICE '=== PHASE 6: Dropping all views ===';
+\echo ''
+\echo '=== PHASE 6: Dropping old vendor_type table ==='
 
-    FOR _view IN
-        SELECT viewname
-        FROM pg_views
-        WHERE schemaname = 'public'
-        ORDER BY viewname
-    LOOP
-        EXECUTE format('DROP VIEW IF EXISTS %I CASCADE', _view);
-        _count := _count + 1;
-        RAISE NOTICE 'Dropped view: %', _view;
-    END LOOP;
+DROP TABLE IF EXISTS vendor_type CASCADE;
 
-    RAISE NOTICE 'Dropped % views total.', _count;
-END $$;
+\echo 'Done: old vendor_type table dropped.'
+
+-- ============================================================================
+-- PHASE 7: Drop old Mercur configuration_rule table (unused)
+-- ============================================================================
+-- No code in src/ references configuration_rule. Commission handling uses
+-- the commission_rule / commission_rate tables from @mercurjs/commission.
+
+\echo ''
+\echo '=== PHASE 7: Dropping old configuration_rule table ==='
+
+DROP TABLE IF EXISTS configuration_rule CASCADE;
+
+\echo 'Done: old configuration_rule table dropped.'
 
 COMMIT;
 
 -- ============================================================================
--- DONE
+-- SUMMARY
 -- ============================================================================
--- The database is now empty. Run migrations to recreate the schema:
 --
---   cd backend && pnpm exec medusa db:migrate --execute-safe-links
+-- Dropped orphaned tables from:
+--   1. Removed @mercurjs/requests plugin (4 tables)
+--   2. Old Mercur attribute system, replaced by cms-blueprint (5 tables)
+--   3. Old Mercur secondary_category, unused (2 tables)
+--   4. Old Mercur tax_code link, unused (2 tables)
+--   5. Old Mercur wishlist, replaced by shopper_wishlist (3 tables)
+--   6. Old Mercur vendor_type table, replaced by vendor_type_enum (1 table)
+--   7. Old Mercur configuration_rule, unused (1 table)
 --
--- Then optionally seed:
+-- Total: 18 orphaned tables removed.
+-- All active data (orders, products, sellers, etc.) is preserved.
 --
---   cd backend && pnpm seed
+-- NEXT STEPS:
+--   Run migrations to create tables for new modules:
+--
+--   cd backend
+--   pnpm exec medusa db:migrate --execute-safe-links
+--
+--   This will create ~30 new tables for these modules:
+--     - governance (garden_proposal, garden_vote, garden_role, ...)
+--     - harvest (garden_harvest, garden_harvest_claim, ...)
+--     - harvest-batches (harvest_batch, seasonal_product, ...)
+--     - impact-metrics (buyer_impact, producer_impact, ...)
+--     - payout-breakdown (payout_config, seller_payout_settings, ...)
+--     - season (garden_season, garden_growing_plan, ...)
+--     - vendor-rules (vendor_rules, fulfillment_window, ...)
+--     - vendor-verification (vendor_verification, vendor_badge, ...)
+--     - volunteer (garden_work_party, volunteer_log, ...)
+--
 -- ============================================================================
