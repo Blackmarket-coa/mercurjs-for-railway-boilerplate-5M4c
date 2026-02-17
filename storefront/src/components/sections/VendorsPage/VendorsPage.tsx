@@ -9,12 +9,12 @@ import { LocationIcon, SearchIcon, ForwardIcon, LeafIcon } from "@/icons"
 
 const VENDOR_TYPE_OPTIONS = [
   { value: "", label: "All Vendors" },
-  { value: "producer", label: "Producers" },
-  { value: "garden", label: "Community Gardens" },
-  { value: "kitchen", label: "Community Kitchens" },
-  { value: "maker", label: "Makers & Artisans" },
-  { value: "restaurant", label: "Restaurants" },
-  { value: "mutual_aid", label: "Mutual Aid" },
+  { value: "producer", label: "Growers & Producers" },
+  { value: "garden", label: "Community Growing Spaces" },
+  { value: "kitchen", label: "Shared Kitchens" },
+  { value: "maker", label: "Makers & Brands" },
+  { value: "restaurant", label: "Food Businesses" },
+  { value: "mutual_aid", label: "Community Organizations" },
 ]
 
 const RADIUS_OPTIONS = [
@@ -185,8 +185,8 @@ export function VendorsPage({ locale }: VendorsPageProps) {
           Shop by Vendor
         </h1>
         <p className="text-gray-600 max-w-3xl">
-          Browse all vendors on our marketplace. Discover producers, community gardens,
-          kitchens, makers, restaurants, and mutual aid organizations. Filter by type
+          Browse all vendors on our marketplace. Discover growers, community spaces,
+          shared kitchens, makers, food businesses, and community organizations. Filter by type
           or find vendors near you by entering your zip code.
         </p>
       </div>

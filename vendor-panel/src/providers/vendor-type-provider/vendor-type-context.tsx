@@ -237,12 +237,12 @@ function buildFeaturesFromExtensions(enabledExtensions: string[]): VendorFeature
  */
 function getTypeLabels(type: VendorType): { label: string; plural: string } {
   const labels: Record<VendorType, { label: string; plural: string }> = {
-    producer: { label: "Producer", plural: "Producers" },
-    garden: { label: "Community Garden", plural: "Community Gardens" },
-    kitchen: { label: "Community Kitchen", plural: "Community Kitchens" },
-    maker: { label: "Maker", plural: "Makers" },
-    restaurant: { label: "Restaurant", plural: "Restaurants" },
-    mutual_aid: { label: "Mutual Aid Network", plural: "Mutual Aid Networks" },
+    producer: { label: "Grower & Producer", plural: "Growers & Producers" },
+    garden: { label: "Community Growing Space", plural: "Community Growing Spaces" },
+    kitchen: { label: "Shared Kitchen", plural: "Shared Kitchens" },
+    maker: { label: "Maker & Brand", plural: "Makers & Brands" },
+    restaurant: { label: "Food Business", plural: "Food Businesses" },
+    mutual_aid: { label: "Community Organization", plural: "Community Organizations" },
     default: { label: "Vendor", plural: "Vendors" },
   }
   return labels[type]
