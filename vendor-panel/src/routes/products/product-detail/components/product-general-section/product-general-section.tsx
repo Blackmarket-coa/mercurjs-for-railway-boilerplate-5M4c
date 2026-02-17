@@ -1,4 +1,4 @@
-import { PencilSquare, Trash } from "@medusajs/icons"
+import { ArrowUpRightOnBox, PencilSquare, Trash } from "@medusajs/icons"
 import { ExtendedAdminProduct } from "../../../../../types/products"
 import { Container, Heading, StatusBadge, usePrompt } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
@@ -73,6 +73,15 @@ export const ProductGeneralSection = ({
             groups={[
               {
                 actions: [
+                  ...(product.status === "draft"
+                    ? [
+                        {
+                          label: t("actions.publish"),
+                          to: "/workflows",
+                          icon: <ArrowUpRightOnBox />,
+                        },
+                      ]
+                    : []),
                   {
                     label: t("actions.edit"),
                     to: "edit",
