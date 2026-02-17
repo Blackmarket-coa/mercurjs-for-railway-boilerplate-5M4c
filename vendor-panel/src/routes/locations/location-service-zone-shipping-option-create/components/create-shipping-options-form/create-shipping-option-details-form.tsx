@@ -20,6 +20,7 @@ type CreateShippingOptionDetailsFormProps = {
   form: UseFormReturn<CreateShippingOptionSchema>
   isReturn?: boolean
   zone: VendorExtendedAdminServiceZone
+  locationId: string
   type: FulfillmentSetType
 }
 
@@ -27,7 +28,8 @@ export const CreateShippingOptionDetailsForm = ({
   form,
   isReturn = false,
   zone,
-  type
+  locationId,
+  type,
 }: CreateShippingOptionDetailsFormProps) => {
   const { t } = useTranslation()
 
@@ -62,6 +64,9 @@ export const CreateShippingOptionDetailsForm = ({
     queryFn: () =>
       fetchQuery(`/vendor/fulfillment-providers`, {
         method: "GET",
+        query: {
+          stock_location_id: locationId,
+        },
       }),
     queryKey: ["fulfillment_providers_create_shipping_option"],
     getOptions: (data) =>
