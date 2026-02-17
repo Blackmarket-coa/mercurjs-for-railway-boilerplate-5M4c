@@ -24,8 +24,8 @@ export const ItemLocationListTable = ({
   )
   const columns = useLocationListTableColumns()
 
-  const filteredLocationLevels = location_levels?.filter(
-    (level) => level.stock_locations.length > 0
+  const filteredLocationLevels = (location_levels ?? []).filter(
+    (level) => (level.stock_locations?.length ?? 0) > 0
   )
 
   const { table } = useDataTable({
@@ -42,7 +42,7 @@ export const ItemLocationListTable = ({
       table={table}
       columns={columns}
       pageSize={PAGE_SIZE}
-      count={filteredLocationLevels?.length}
+      count={filteredLocationLevels.length}
       isLoading={isLoading}
       pagination
       queryObject={raw}

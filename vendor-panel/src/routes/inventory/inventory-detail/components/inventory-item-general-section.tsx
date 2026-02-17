@@ -16,14 +16,14 @@ export const InventoryItemGeneralSection = ({
 
   const stockedQuantity =
     inventoryItem.location_levels?.reduce(
-      (acc, level) => acc + level.stocked_quantity,
+      (acc, level) => acc + (level.stocked_quantity ?? 0),
       0
-    ) || 0
+    ) ?? 0
   const reservedQuantity =
     inventoryItem.location_levels?.reduce(
-      (acc, level) => acc + level.reserved_quantity,
+      (acc, level) => acc + (level.reserved_quantity ?? 0),
       0
-    ) || 0
+    ) ?? 0
   const availableQuantity = stockedQuantity - reservedQuantity
 
   return (
