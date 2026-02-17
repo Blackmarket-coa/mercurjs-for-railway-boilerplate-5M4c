@@ -11,7 +11,6 @@ export const useReservationsTableQuery = ({
     [
       "id",
       "location_id",
-      "inventory_item_id",
       "quantity",
       "line_item_id",
       "description",
@@ -21,6 +20,7 @@ export const useReservationsTableQuery = ({
   )
 
   const { quantity, ...params } = raw
+
 
   const searchParams = {
     limit: pageSize,
