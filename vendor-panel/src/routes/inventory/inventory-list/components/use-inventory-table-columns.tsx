@@ -20,6 +20,10 @@ interface ExtendedInventoryItem extends InventoryTypes.InventoryItemDTO {
   }[]
 }
 
+const getLocationLevels = (levels?: ExtendedInventoryItem["location_levels"]) => {
+  return Array.isArray(levels) ? levels : []
+}
+
 const columnHelper = createColumnHelper<ExtendedInventoryItem>()
 
 export const useInventoryTableColumns = () => {
@@ -88,12 +92,13 @@ export const useInventoryTableColumns = () => {
         },
       }),
       columnHelper.accessor("location_levels", {
+        id: "reserved_quantity",
         header: t("inventory.reserved"),
         cell: ({ getValue }) => {
-          const locations = getValue() as any[]
+          const locations = getLocationLevels(getValue())
 
           const totalReserved = locations.reduce(
-            (sum: number, level: any) => sum + level.reserved_quantity,
+            (sum: number, level) => sum + (level.reserved_quantity ?? 0),
             0
           )
 
@@ -109,11 +114,13 @@ export const useInventoryTableColumns = () => {
         },
       }),
       columnHelper.accessor("location_levels", {
+        id: "stocked_quantity",
         header: t("fields.inStock"),
         cell: ({ getValue }) => {
-          const locations = getValue() as any[]
+          const locations = getLocationLevels(getValue())
+
           const totalAvailable = locations.reduce(
-            (sum: number, level: any) => sum + level.available_quantity,
+            (sum: number, level) => sum + (level.available_quantity ?? 0),
             0
           )
 
