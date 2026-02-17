@@ -494,6 +494,35 @@ export const useUpdateProduct = (
   })
 }
 
+
+export const useUpdateProductStatus = (
+  id: string,
+  options?: UseMutationOptions<
+    HttpTypes.AdminProductResponse,
+    FetchError,
+    { status: "draft" | "proposed" | "published" }
+  >
+) => {
+  return useMutation({
+    mutationFn: async (payload) =>
+      fetchQuery(`/vendor/products/${id}/status`, {
+        method: "POST",
+        body: payload,
+      }),
+    onSuccess: async (data, variables, context) => {
+      await queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.lists(),
+      })
+      await queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(id),
+      })
+
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
+}
+
 export const useDeleteProduct = (
   id: string,
   options?: UseMutationOptions<

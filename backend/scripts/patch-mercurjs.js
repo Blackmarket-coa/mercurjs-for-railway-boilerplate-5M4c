@@ -259,6 +259,41 @@ function patchFetchSellerByAuthActorId(filePath) {
   return true;
 }
 
+function patchCheckOwnershipForMissingSellerInventoryItem(filePath) {
+  const content = fs.readFileSync(filePath, 'utf-8');
+
+  if (content.includes('// PATCHED: tolerate missing seller_inventory_item links')) {
+    log(`  Already patched: ${filePath}`);
+    return false;
+  }
+
+  const patched = content.replace(
+    /if \(!resource\) \{\s*res\.status\(404\)\.json\(\{\s*message: `\$\{entryPoint\} with \$\{filterField\}: \$\{id\} not found`,\s*type: utils_1\.MedusaError\.Types\.NOT_FOUND\s*\}\);\s*return;\s*\}/,
+    `if (!resource) {
+            // PATCHED: tolerate missing seller_inventory_item links
+            // Some legacy draft products can reference inventory items before the
+            // seller_inventory_item relation is created. Do not block vendor actions.
+            if (entryPoint === 'seller_inventory_item' && filterField === 'inventory_item_id') {
+                return next();
+            }
+            res.status(404).json({
+                message: \`${'${entryPoint}'} with ${'${filterField}'}: ${'${id}'} not found\`,
+                type: utils_1.MedusaError.Types.NOT_FOUND
+            });
+            return;
+        }`
+  );
+
+  if (patched === content) {
+    log(`  Could not match pattern in: ${filePath}`);
+    return false;
+  }
+
+  fs.writeFileSync(filePath, patched);
+  log(`  Patched: ${filePath}`);
+  return true;
+}
+
 function main() {
   log('Applying MercurJS patches for store_status null-safety...');
 
@@ -295,6 +330,14 @@ function main() {
       if (patchFetchSellerByAuthActorId(sellerUtilPath)) patchCount++;
     } else {
       log(`  Not found: seller.js (b2c-core utils)`);
+    }
+
+    // Patch check-ownership.js
+    const checkOwnershipPath = path.join(dir, '.medusa', 'server', 'src', 'shared', 'infra', 'http', 'middlewares', 'check-ownership.js');
+    if (fs.existsSync(checkOwnershipPath)) {
+      if (patchCheckOwnershipForMissingSellerInventoryItem(checkOwnershipPath)) patchCount++;
+    } else {
+      log(`  Not found: check-ownership.js`);
     }
   }
 
