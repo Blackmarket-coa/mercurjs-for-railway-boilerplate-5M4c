@@ -3,6 +3,50 @@ import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import { createProductsWorkflow } from "@medusajs/medusa/core-flows"
 import { SELLER_MODULE } from "@mercurjs/b2c-core/modules/seller"
 
+async function linkSellerInventoryItems(
+  req: MedusaRequest,
+  sellerId: string,
+  productId: string
+) {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const remoteLink = req.scope.resolve(ContainerRegistrationKeys.REMOTE_LINK)
+
+  const { data: variants } = await query.graph({
+    entity: "product_variant",
+    fields: ["inventory_items.inventory_item_id"],
+    filters: { product_id: productId },
+  })
+
+  const inventoryItemIds = [
+    ...new Set(
+      (variants || [])
+        .flatMap((variant: any) => variant.inventory_items || [])
+        .map((item: any) => item.inventory_item_id)
+        .filter(Boolean)
+    ),
+  ]
+
+  await Promise.all(
+    inventoryItemIds.map(async (inventory_item_id) => {
+      try {
+        await remoteLink.create({
+          [SELLER_MODULE]: { seller_id: sellerId },
+          [Modules.INVENTORY]: { inventory_item_id },
+        })
+      } catch (error: any) {
+        const message = error?.message || ""
+        const isAlreadyLinked =
+          message.includes("already exists") || message.includes("duplicate")
+
+        if (!isAlreadyLinked) {
+          throw error
+        }
+      }
+    })
+  )
+}
+
+
 export async function POST(
   req: MedusaRequest,
   res: MedusaResponse
@@ -47,6 +91,8 @@ export async function POST(
         [SELLER_MODULE]: { seller_id: resolvedSellerId },
         [Modules.PRODUCT]: { product_id: createdProduct.id },
       })
+
+      await linkSellerInventoryItems(req, resolvedSellerId, createdProduct.id)
     } catch (linkError: any) {
       console.warn(
         `Could not create seller-product link for ${createdProduct.id}: ${linkError.message}`
