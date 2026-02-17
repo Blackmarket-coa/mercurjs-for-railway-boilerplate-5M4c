@@ -74,12 +74,12 @@ export const AlgoliaProductSidebar = () => {
 }
 
 const vendorTypeLabels: Record<string, string> = {
-  producer: "Producers",
-  garden: "Community Gardens",
-  kitchen: "Community Kitchens",
-  maker: "Makers & Artisans",
-  restaurant: "Restaurants",
-  mutual_aid: "Mutual Aid",
+  producer: "Growers & Producers",
+  garden: "Community Growing Spaces",
+  kitchen: "Shared Kitchens",
+  maker: "Makers & Brands",
+  restaurant: "Food Businesses",
+  mutual_aid: "Community Organizations",
 }
 
 function CategoryFilter({ defaultOpen = true }: { defaultOpen?: boolean }) {

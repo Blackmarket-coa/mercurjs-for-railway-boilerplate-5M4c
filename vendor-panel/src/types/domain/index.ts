@@ -20,12 +20,12 @@ export enum VendorType {
 }
 
 export const VendorTypeLabels: Record<VendorType, string> = {
-  [VendorType.PRODUCER]: "Farm / Producer",
-  [VendorType.GARDEN]: "Community Garden",
-  [VendorType.KITCHEN]: "Kitchen / Shared-Use",
-  [VendorType.MAKER]: "Maker / Artisan",
-  [VendorType.RESTAURANT]: "Restaurant",
-  [VendorType.MUTUAL_AID]: "Mutual Aid Network",
+  [VendorType.PRODUCER]: "Growers & Producers",
+  [VendorType.GARDEN]: "Community Growing Spaces",
+  [VendorType.KITCHEN]: "Shared Kitchens",
+  [VendorType.MAKER]: "Makers & Brands",
+  [VendorType.RESTAURANT]: "Food Businesses",
+  [VendorType.MUTUAL_AID]: "Community Organizations",
 }
 
 /**

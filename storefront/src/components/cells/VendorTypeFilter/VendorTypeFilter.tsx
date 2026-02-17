@@ -4,12 +4,12 @@ import { Accordion, FilterCheckboxOption } from "@/components/molecules"
 import useFilters from "@/hooks/useFilters"
 
 const vendorTypes = [
-  { value: "producer", label: "Producers" },
-  { value: "garden", label: "Community Gardens" },
-  { value: "kitchen", label: "Community Kitchens" },
-  { value: "maker", label: "Makers & Artisans" },
-  { value: "restaurant", label: "Restaurants" },
-  { value: "mutual_aid", label: "Mutual Aid" },
+  { value: "producer", label: "Growers & Producers" },
+  { value: "garden", label: "Community Growing Spaces" },
+  { value: "kitchen", label: "Shared Kitchens" },
+  { value: "maker", label: "Makers & Brands" },
+  { value: "restaurant", label: "Food Businesses" },
+  { value: "mutual_aid", label: "Community Organizations" },
 ]
 
 export const VendorTypeFilter = () => {

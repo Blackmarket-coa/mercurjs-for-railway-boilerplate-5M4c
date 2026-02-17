@@ -444,7 +444,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
             handle: p.handle,
             description: p.description,
             vendor_type: "producer",
-            vendor_type_label: "Producer",
+            vendor_type_label: "Grower & Producer",
             photo: p.photo || p.cover_image,
             location: {
               region: p.region,
@@ -501,7 +501,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
             handle: k.slug,
             description: k.description,
             vendor_type: "kitchen",
-            vendor_type_label: "Community Kitchen",
+            vendor_type_label: "Shared Kitchen",
             photo: k.cover_image_url,
             location: {
               city: k.city,
@@ -559,7 +559,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
             handle: g.slug,
             description: g.description,
             vendor_type: "garden",
-            vendor_type_label: "Community Garden",
+            vendor_type_label: "Community Growing Space",
             photo: g.cover_image_url || (galleryUrls?.[0] ?? undefined),
             location: {
               city: g.city,
@@ -620,9 +620,9 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         })
 
         const vendorTypeLabels: Record<string, string> = {
-          maker: "Maker & Artisan",
-          restaurant: "Restaurant",
-          mutual_aid: "Mutual Aid",
+          maker: "Maker & Brand",
+          restaurant: "Food Business",
+          mutual_aid: "Community Organization",
         }
 
         for (const meta of sellerMetadata || []) {
