@@ -33,15 +33,16 @@ async function linkSellerInventoryItems(
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const remoteLink = req.scope.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
-  const { data: variantInventory } = await query.graph({
-    entity: "product_variant_inventory_item",
-    fields: ["inventory_item_id"],
-    filters: { variant: { product_id: productId } },
+  const { data: variants } = await query.graph({
+    entity: "product_variant",
+    fields: ["inventory_items.inventory_item_id"],
+    filters: { product_id: productId },
   })
 
   const inventoryItemIds = [
     ...new Set(
-      (variantInventory || [])
+      (variants || [])
+        .flatMap((variant: any) => variant.inventory_items || [])
         .map((item: any) => item.inventory_item_id)
         .filter(Boolean)
     ),
