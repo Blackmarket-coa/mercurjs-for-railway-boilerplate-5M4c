@@ -237,14 +237,25 @@ export const useUpdateProductVariant = (
 export const useUpdateProductVariantsBatch = (
   productId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminBatchProductVariantResponse,
+    HttpTypes.AdminProductResponse,
     FetchError,
     HttpTypes.AdminBatchProductVariantRequest
   >
 ) => {
   return useMutation({
-    mutationFn: (payload: HttpTypes.AdminBatchProductVariantRequest) =>
-      sdk.admin.product.batchVariants(productId, payload),
+    mutationFn: (payload: HttpTypes.AdminBatchProductVariantRequest) => {
+      const variants = (payload.update ?? []).map((variant) => ({
+        id: variant.id,
+        prices: variant.prices,
+      }))
+
+      return fetchQuery(`/vendor/products/${productId}`, {
+        method: "POST",
+        body: {
+          variants,
+        },
+      })
+    },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: variantsQueryKeys.lists(),
