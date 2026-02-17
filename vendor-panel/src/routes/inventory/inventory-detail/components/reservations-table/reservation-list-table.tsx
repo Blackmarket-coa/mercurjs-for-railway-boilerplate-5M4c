@@ -25,6 +25,7 @@ export const ReservationItemTable = ({
   const { reservations, count, isPending, isError, error } =
     useReservationItems({
       ...searchParams,
+    }, undefined, {
       inventory_item_id: [inventoryItem.id],
     })
 
