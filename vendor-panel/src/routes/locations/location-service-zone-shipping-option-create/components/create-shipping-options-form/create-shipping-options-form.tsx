@@ -54,7 +54,7 @@ export function CreateShippingOptionsForm({
       price_type: ShippingOptionPriceType.FlatRate,
       enabled_in_store: true,
       shipping_profile_id: "",
-      provider_id: "manual_manual",
+      provider_id: "",
       fulfillment_option_id: "",
       region_prices: {},
       currency_prices: {},
@@ -287,6 +287,7 @@ export function CreateShippingOptionsForm({
               <CreateShippingOptionDetailsForm
                 form={form}
                 zone={zone}
+                locationId={locationId}
                 isReturn={isReturn}
                 type={type}
               />
