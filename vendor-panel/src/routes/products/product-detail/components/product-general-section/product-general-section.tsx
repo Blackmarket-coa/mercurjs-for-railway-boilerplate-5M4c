@@ -1,13 +1,13 @@
 import { ArrowUpRightOnBox, PencilSquare, Trash } from "@medusajs/icons"
 import { ExtendedAdminProduct } from "../../../../../types/products"
-import { Container, Heading, StatusBadge, usePrompt } from "@medusajs/ui"
+import { Container, Heading, StatusBadge, toast, usePrompt } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { SectionRow } from "../../../../../components/common/section"
 import { useDashboardExtension } from "../../../../../extensions"
-import { useDeleteProduct } from "../../../../../hooks/api/products"
+import { useDeleteProduct, useUpdateProductStatus } from "../../../../../hooks/api/products"
 
 const productStatusColor = (status: string) => {
   switch (status) {
@@ -39,6 +39,26 @@ export const ProductGeneralSection = ({
   const displays = getDisplays("product", "general")
 
   const { mutateAsync } = useDeleteProduct(product.id)
+  const { mutateAsync: updateProductStatus, isPending: isPublishing } =
+    useUpdateProductStatus(product.id)
+
+  const handlePublish = async () => {
+    await updateProductStatus(
+      { status: "published" },
+      {
+        onSuccess: ({ product }) => {
+          toast.success(
+            t("products.edit.successToast", {
+              title: product.title,
+            })
+          )
+        },
+        onError: (e) => {
+          toast.error(e.message)
+        },
+      }
+    )
+  }
 
   const handleDelete = async () => {
     const res = await prompt({
@@ -77,7 +97,8 @@ export const ProductGeneralSection = ({
                     ? [
                         {
                           label: t("actions.publish"),
-                          to: "/workflows",
+                          onClick: handlePublish,
+                          disabled: isPublishing,
                           icon: <ArrowUpRightOnBox />,
                         },
                       ]
