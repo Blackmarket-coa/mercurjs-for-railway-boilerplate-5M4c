@@ -59,36 +59,48 @@ export const useReservationItems = (
   >,
   filters?: { inventory_item_id: string[] }
 ) => {
-  const scopedQuery = {
+  const queryWithPotentialInventoryItemFilter = {
     ...(query || {}),
-    ...(filters?.inventory_item_id
-      ? { inventory_item_id: filters.inventory_item_id }
-      : {}),
-  }
+  } as Record<string, unknown>
+
+  const inventoryItemFilter =
+    filters?.inventory_item_id ||
+    (Array.isArray(queryWithPotentialInventoryItemFilter.inventory_item_id)
+      ? (queryWithPotentialInventoryItemFilter.inventory_item_id as string[])
+      : undefined)
+
+  delete queryWithPotentialInventoryItemFilter.inventory_item_id
+
+  const requestQuery =
+    queryWithPotentialInventoryItemFilter as Record<string, string | number>
 
   const { data, ...rest } = useQuery({
     queryFn: () =>
       fetchQuery("/vendor/reservations", {
         method: "GET",
-        query: scopedQuery as { [key: string]: string | number },
+        query: requestQuery,
       }),
-    queryKey: reservationItemsQueryKeys.list(scopedQuery),
+    queryKey: reservationItemsQueryKeys.list({
+      ...requestQuery,
+      ...(inventoryItemFilter?.length
+        ? { inventory_item_id_filter: inventoryItemFilter.join(",") }
+        : {}),
+    }),
     ...options,
   })
 
-  if (!filters) {
+  if (!inventoryItemFilter) {
     return { ...data, ...rest }
   }
+
   const reservations =
     data?.reservations?.filter((r) =>
-      filters.inventory_item_id.includes(r.inventory_item_id)
+      inventoryItemFilter.includes(r.inventory_item_id)
     ) || []
-
-  const count = reservations.length || 0
 
   return {
     reservations,
-    count,
+    count: reservations.length,
     ...rest,
   }
 }
