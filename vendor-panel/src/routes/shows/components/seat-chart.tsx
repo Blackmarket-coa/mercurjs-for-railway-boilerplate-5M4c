@@ -1,6 +1,6 @@
 import React from "react"
 import { Heading } from "@medusajs/ui"
-import { RowType, VenueRow } from "../types"
+import { RowType, VenueRow } from "../../venues/types"
 
 interface ChartVenueRow extends Pick<VenueRow, "row_number" | "row_type" | "seat_count"> {}
 

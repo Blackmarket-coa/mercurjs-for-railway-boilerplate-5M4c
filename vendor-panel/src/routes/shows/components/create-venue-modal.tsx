@@ -9,7 +9,7 @@ import {
   Button,
   toast,
 } from "@medusajs/ui"
-import { CreateVenueRequest, RowType, VenueRow } from "../types"
+import { CreateVenueRequest, RowType, VenueRow } from "../../venues/types"
 import { SeatChart } from "./seat-chart"
 
 interface NewVenueRow extends Pick<VenueRow, "row_number" | "row_type" | "seat_count"> {}

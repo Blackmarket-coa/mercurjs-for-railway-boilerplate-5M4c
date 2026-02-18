@@ -164,6 +164,12 @@ export const fetchQuery = async (
       ? { Authorization: `Bearer ${token}` }
       : {}
 
+  const requestBody: BodyInit | undefined = body
+    ? isForm
+      ? (body as BodyInit)
+      : JSON.stringify(body)
+    : undefined
+
   const response = await fetch(requestUrl, {
     method,
     credentials: isPublic ? "omit" : "include",
@@ -173,7 +179,7 @@ export const fetchQuery = async (
       ...(!isForm && { "Content-Type": "application/json" }),
       ...headers,
     },
-    body: body && !isForm ? JSON.stringify(body) : body,
+    body: requestBody,
   })
 
   if (!response.ok) {

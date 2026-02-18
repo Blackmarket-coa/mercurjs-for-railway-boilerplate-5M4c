@@ -10,7 +10,7 @@ import {
   Badge,
 } from "@medusajs/ui"
 import { XMark } from "@medusajs/icons"
-import { Venue } from "../types"
+import { Venue } from "../../venues/types"
 
 interface ProductDetailsStepProps {
   name: string
