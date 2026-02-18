@@ -12,8 +12,6 @@ export const HomeProductSection = async ({
   products?: Product[]
   home?: boolean
 }) => {
-  const isFeaturedSection = heading.toLowerCase() === "featured products"
-
   return (
     <section
       className={
@@ -27,7 +25,7 @@ export const HomeProductSection = async ({
           <h2 className="heading-lg font-bold tracking-tight uppercase">{heading}</h2>
           {home && (
             <p className="text-sm text-zinc-600 md:text-base">
-              Curated picks from Black Market creators.
+              Browse the 10 most recently published marketplace products.
             </p>
           )}
         </div>
