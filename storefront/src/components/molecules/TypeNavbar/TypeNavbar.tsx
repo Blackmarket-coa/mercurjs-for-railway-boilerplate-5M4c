@@ -82,6 +82,30 @@ export const TypeNavbar = ({
         All Products
       </LocalizedClientLink>
 
+      <LocalizedClientLink
+        href="/what-you-sell#physical-goods"
+        onClick={() => onClose?.(false)}
+        className="label-md uppercase px-4 py-2 hover:bg-secondary transition-colors"
+      >
+        Goods
+      </LocalizedClientLink>
+
+      <LocalizedClientLink
+        href="/what-you-sell#services"
+        onClick={() => onClose?.(false)}
+        className="label-md uppercase px-4 py-2 hover:bg-secondary transition-colors"
+      >
+        Services
+      </LocalizedClientLink>
+
+      <LocalizedClientLink
+        href="/what-you-sell#community-programs"
+        onClick={() => onClose?.(false)}
+        className="label-md uppercase px-4 py-2 hover:bg-secondary transition-colors"
+      >
+        Community Programs
+      </LocalizedClientLink>
+
       {/* Type Dropdowns */}
       {types?.filter(t => t.is_active).sort((a, b) => a.display_order - b.display_order).map((type) => (
         <div
@@ -214,6 +238,17 @@ export const TypeNavbar = ({
         )}
       >
         Community Resources
+      </LocalizedClientLink>
+
+      <LocalizedClientLink
+        href="/why-we-exist"
+        onClick={() => onClose?.(false)}
+        className={cn(
+          "label-md uppercase px-4 py-2 hover:bg-secondary transition-colors",
+          pathname?.includes("/why-we-exist") && "bg-secondary font-semibold"
+        )}
+      >
+        Why We Exist
       </LocalizedClientLink>
     </nav>
   )
