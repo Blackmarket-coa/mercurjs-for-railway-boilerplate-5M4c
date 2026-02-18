@@ -11,6 +11,10 @@ const vendorContextPath = join(
 )
 const vendorSrcPath = join(repoRoot, "vendor-panel/src")
 const backendModulesPath = join(repoRoot, "backend/src/modules")
+const runtimeCoveragePaths = [
+  join(repoRoot, "vendor-panel/src/hooks/navigation/use-vendor-navigation.tsx"),
+  join(repoRoot, "vendor-panel/src/routes/dashboard/config/dashboard-config.ts"),
+]
 
 function listFilesRecursive(dir) {
   const files = []
@@ -23,6 +27,13 @@ function listFilesRecursive(dir) {
     }
   }
   return files
+}
+
+function stripNonCodeTokens(source) {
+  return source
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/(^|[^:])\/\/.*$/gm, "$1")
+    .replace(/(["'`])(?:\\.|(?!\1)[\s\S])*?\1/g, "")
 }
 
 function parseExtensionKeys() {
@@ -49,17 +60,34 @@ function countReferencesOutsideContext(keys) {
     return ext === ".ts" || ext === ".tsx"
   })
 
-  const fileContents = sourceFiles.map((file) => readFileSync(file, "utf8"))
+  const fileContents = sourceFiles.map((file) => stripNonCodeTokens(readFileSync(file, "utf8")))
 
   const unused = []
   for (const key of keys) {
-    const hasReference = fileContents.some((content) => content.includes(key))
+    const keyReferenceRegex = new RegExp(`\\b${key}\\b`)
+    const hasReference = fileContents.some((content) => keyReferenceRegex.test(content))
     if (!hasReference) {
       unused.push(key)
     }
   }
 
   return unused
+}
+
+function countRuntimeCoverageGaps(keys) {
+  const missingFiles = runtimeCoveragePaths.filter((filePath) => !existsSync(filePath))
+  if (missingFiles.length) {
+    throw new Error(
+      `Missing runtime coverage file(s): ${missingFiles.map((file) => file.replace(`${repoRoot}/`, "")).join(", ")}`
+    )
+  }
+
+  const runtimeFiles = runtimeCoveragePaths.map((filePath) => stripNonCodeTokens(readFileSync(filePath, "utf8")))
+
+  return keys.filter((key) => {
+    const memberExpressionRegex = new RegExp(`\\b(?:f|features)\\s*\\.\\s*${key}\\b`)
+    return !runtimeFiles.some((content) => memberExpressionRegex.test(content))
+  })
 }
 
 function checkBackendModuleScaffold() {
@@ -100,6 +128,7 @@ function main() {
 
   const keys = parseExtensionKeys()
   const unusedExtensionKeys = countReferencesOutsideContext(keys)
+  const runtimeCoverageGaps = countRuntimeCoverageGaps(keys)
   const missingModules = checkBackendModuleScaffold()
 
   console.log("Vendor modules/extensions completeness guard")
@@ -116,6 +145,20 @@ function main() {
     }
   } else {
     console.log("\n✅ All declared extension keys are referenced outside vendor-type-context.tsx")
+  }
+
+  if (runtimeCoverageGaps.length) {
+    hasError = true
+    console.error("\n❌ Extension keys missing runtime navigation/dashboard usage:")
+    for (const key of runtimeCoverageGaps) {
+      console.error(`  - ${key}`)
+    }
+    console.error("  Expected coverage files:")
+    for (const filePath of runtimeCoveragePaths) {
+      console.error(`  - ${filePath.replace(`${repoRoot}/`, "")}`)
+    }
+  } else {
+    console.log("✅ All declared extension keys are referenced in runtime navigation/dashboard coverage files")
   }
 
   if (missingModules.length) {
