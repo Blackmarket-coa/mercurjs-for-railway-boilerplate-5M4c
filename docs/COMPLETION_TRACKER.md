@@ -1,6 +1,6 @@
 # Repository Completion Tracker
 
-_Last updated: 2026-02-11_
+_Last updated: 2026-02-18_
 
 This tracker summarizes implementation coverage found in the repository for the requested areas: **modules**, **extensions/integrations**, **custom features**, **Hawala system**, and **storefront features**.
 
@@ -174,7 +174,16 @@ Mark an area as fully complete only when all criteria pass:
 - ✅ A runnable validation script is available at `scripts/release_validation.sh` to execute backend/storefront validation, Hawala-first smoke checks, and integration contract/failure-path checks.
 - ✅ A companion runbook is available at `docs/RELEASE_VALIDATION_PLAYBOOK.md` for local + CI execution.
 - ✅ Critical security remediations landed: DB SSL now defaults to strict verification with explicit env-based operational controls (`DB_SSL_CA`, `DB_SSL_REJECT_UNAUTHORIZED`), Hawala investments N+1 query pattern removed, and store Hawala deposit/withdraw rate-limit matchers corrected.
-- ⏭️ Next execution step: provide environment tokens/URLs and run the script in CI on each release branch.
+- ✅ Release branch CI gate wired: `.github/workflows/ci.yml` now runs a blocking `Release Validation Gate` job on `release/*` branch pushes with required secrets and artifact upload (`release-validation.log`).
+
+## Phase 4 Operational Roadmap (post-release hardening + freshness)
+
+| Track | Next Step | Cadence/Owner Suggestion |
+|---|---|---|
+| Admin strict lint hardening | Burn down `lint:strict` violations in bounded batches while default lint gate remains green. | Weekly hardening sprint (frontend owner) |
+| Vendor route typecheck hardening | Resolve full-route typing mismatches and keep baseline `typecheck` green. | Weekly hardening sprint (vendor owner) |
+| Readiness freshness | Re-run release quality gates and append evidence before each release cut (or at least weekly). | Per release + weekly QA check |
+| Tracker currency | Update `Last updated` + evidence log on each verification pass. | Same day as verification run |
 
 ## Phase 3 Finalization Status (Deliberation/IPFS/E2E/Rollout)
 

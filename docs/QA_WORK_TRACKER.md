@@ -1,6 +1,6 @@
 # QA Work Tracker
 
-_Last updated: 2026-02-13 (release-readiness verification pass)_
+_Last updated: 2026-02-18 (operationalization + roadmap refresh)_
 _Source: `QA_AUDIT_REPORT.md`_
 
 ## Goal
@@ -13,6 +13,23 @@ Track QA remediation items needed to move this repository from
 - Current release status: **RELEASE-READY**.
 - Remaining focus:
   - Admin/Vendor strict-lint and full-route typecheck debt are tracked as post-release hardening.
+
+## Post-release hardening roadmap
+
+### Sprint A — Admin strict-lint burn down
+
+- Scope: reduce `pnpm --dir admin-panel lint:strict` violations in highest-volume categories first.
+- Exit signal: violation count trends down each sprint with no regression to default `lint` gate.
+
+### Sprint B — Vendor full-route typecheck cleanup
+
+- Scope: prioritize route-level typing mismatches still outside baseline scope.
+- Exit signal: no critical route type mismatches in active release surfaces.
+
+### Sprint C — Readiness freshness cadence
+
+- Scope: rerun release-readiness gate suite weekly and before each release cut.
+- Exit signal: evidence entries appended for each run and tracker metadata remains current.
 
 ## Priority tracker
 

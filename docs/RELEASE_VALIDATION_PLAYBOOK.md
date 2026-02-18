@@ -84,3 +84,31 @@ ADMIN_TOKEN="$ADMIN_TOKEN" \
 INTEGRATION_ENDPOINTS="$INTEGRATION_ENDPOINTS" \
 ./scripts/release_validation.sh
 ```
+
+## Release branch checklist (enforceable gate)
+
+For each `release/*` branch push, require all of the following before merge/deploy:
+
+1. **Release validation script succeeded (blocking):**
+   - Workflow job: `Release Validation Gate`
+   - Command: `./scripts/release_validation.sh`
+   - Failure behavior: non-zero exit fails the job.
+2. **Artifacts uploaded:**
+   - `release-validation-<run_id>` artifact must contain `release-validation.log`.
+3. **Security + quality checks passed:**
+   - CI jobs `Lint & Type Check`, `Translation Contract Validation`, `Vendor Panel Checks`, `Unit Tests`, and `Security Audit` must be green.
+
+### Required CI secrets/variables
+
+- Secrets:
+  - `BACKEND_URL`
+  - `STORE_TOKEN`
+  - `VENDOR_TOKEN`
+  - `ADMIN_TOKEN`
+- Optional repository/environment variable:
+  - `INTEGRATION_ENDPOINTS` (comma-separated path list, e.g. `/admin/printful/health,/admin/woocommerce-import/status`)
+
+### Branch protection recommendation
+
+- In GitHub branch protection for `release/*`, set the above jobs as **required status checks**.
+- Do not allow bypassing required checks for standard release workflow users.
