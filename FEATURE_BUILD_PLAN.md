@@ -136,13 +136,15 @@ This track should run before or in parallel with larger platform modules.
 
 ### Repository check snapshot (current)
 
-- `CONTRIBUTING.md` not present at repository root.
-- `CODE_OF_CONDUCT.md` not present at repository root.
-- `.github/ISSUE_TEMPLATE/` not present.
-- `.github/PULL_REQUEST_TEMPLATE.md` not present.
-- `ROADMAP.md` not present.
-- `.github/FUNDING.yml` / sponsorship metadata not present.
-- CI workflow exists at `.github/workflows/ci.yml` (quality automation is partially present).
+- ✅ `CONTRIBUTING.md` present at repository root.
+- ✅ `CODE_OF_CONDUCT.md` present at repository root.
+- ✅ `.github/ISSUE_TEMPLATE/` present (`bug_report.yml`, `feature_request.yml`).
+- ✅ `.github/PULL_REQUEST_TEMPLATE.md` present.
+- ✅ `ROADMAP.md` present.
+- ✅ `.github/FUNDING.yml` sponsorship metadata present.
+- ✅ CI workflow exists at `.github/workflows/ci.yml` with lint/test/security automation.
+- ✅ Coverage artifact reporting enabled in CI (`backend-coverage` upload).
+- ✅ Label taxonomy metadata is codified in `.github/labels.yml` and enforced by `.github/workflows/label-sync.yml`.
 
 ### Build-plan additions (if not yet implemented)
 

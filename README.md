@@ -4,9 +4,9 @@ A comprehensive, production-ready multi-vendor marketplace platform built on Med
 
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/your-template)
 
-[![CI](https://img.shields.io/github/actions/workflow/status/OWNER/REPO/ci.yml?branch=main&label=ci)](./.github/workflows/ci.yml)
-[![Issues](https://img.shields.io/github/issues/OWNER/REPO)](../../issues)
-[![License](https://img.shields.io/badge/license-Repository%20Defined-blue)](#)
+[![CI](https://img.shields.io/github/actions/workflow/status/Blackmarket-coa/free-black-market/ci.yml?branch=main&label=ci)](https://github.com/Blackmarket-coa/free-black-market/actions/workflows/ci.yml)
+[![Issues](https://img.shields.io/github/issues/Blackmarket-coa/free-black-market)](https://github.com/Blackmarket-coa/free-black-market/issues)
+[![License](https://img.shields.io/github/license/Blackmarket-coa/free-black-market)](https://github.com/Blackmarket-coa/free-black-market/blob/main/LICENSE)
 
 ## Overview
 
@@ -481,9 +481,9 @@ The easiest way to deploy is using the Railway button:
 
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/your-template)
 
-[![CI](https://img.shields.io/github/actions/workflow/status/OWNER/REPO/ci.yml?branch=main&label=ci)](./.github/workflows/ci.yml)
-[![Issues](https://img.shields.io/github/issues/OWNER/REPO)](../../issues)
-[![License](https://img.shields.io/badge/license-Repository%20Defined-blue)](#)
+[![CI](https://img.shields.io/github/actions/workflow/status/Blackmarket-coa/free-black-market/ci.yml?branch=main&label=ci)](https://github.com/Blackmarket-coa/free-black-market/actions/workflows/ci.yml)
+[![Issues](https://img.shields.io/github/issues/Blackmarket-coa/free-black-market)](https://github.com/Blackmarket-coa/free-black-market/issues)
+[![License](https://img.shields.io/github/license/Blackmarket-coa/free-black-market)](https://github.com/Blackmarket-coa/free-black-market/blob/main/LICENSE)
 
 This automatically provisions:
 - PostgreSQL database
