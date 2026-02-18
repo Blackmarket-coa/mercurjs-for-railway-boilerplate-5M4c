@@ -79,6 +79,20 @@ export function Footer() {
         </div>
       </div>
 
+
+      <div className="mt-4 rounded-sm border p-4 text-sm text-secondary">
+        <p className="font-semibold mb-1">Open Source. Community Governed.</p>
+        <p className="mb-2">Improved onboarding system with transparent public roadmap and code.</p>
+        <a
+          href="https://github.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:text-action"
+        >
+          View GitHub transparency
+        </a>
+      </div>
+
       {/* Solarpunk-styled footer bottom with gradient accent */}
       <div className="py-6 border rounded-sm relative overflow-hidden">
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-solarpunk" />

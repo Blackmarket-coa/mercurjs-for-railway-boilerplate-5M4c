@@ -62,6 +62,20 @@ export const ProductCard = ({
     (api_product as any)?.metadata?.producer_handle ||
     null
 
+  const trustBadge =
+    (api_product as any)?.metadata?.seller_badge ||
+    ((api_product as any)?.metadata?.verified_seller ? "Verified seller" : null)
+
+  const ratingValue =
+    (api_product as any)?.metadata?.rating ||
+    (api_product as any)?.metadata?.seller_rating ||
+    null
+
+  const reviewCount =
+    (api_product as any)?.metadata?.review_count ||
+    (api_product as any)?.metadata?.seller_review_count ||
+    null
+
   // Producer-forward variant
   if (variant === "producer-forward") {
     return (
@@ -103,12 +117,12 @@ export const ProductCard = ({
         <div className="space-y-3 p-4 md:p-5">
           <div className="flex items-start justify-between gap-3">
             <div className="space-y-1">
-              {sellerName && (
+              {(sellerName || "Community Vendor") && (
                 <LocalizedClientLink
                   href={sellerHandle ? `/sellers/${sellerHandle}` : "/producers"}
                   className="inline-flex text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500 transition-colors hover:text-zinc-800"
                 >
-                  {sellerName}
+                  {sellerName || "Community Vendor"}
                 </LocalizedClientLink>
               )}
               <LocalizedClientLink
@@ -133,6 +147,20 @@ export const ProductCard = ({
           </div>
 
           <div className="space-y-3 border-t border-zinc-100 pt-3">
+            {(trustBadge || ratingValue) && (
+              <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-600">
+                {trustBadge && (
+                  <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 font-medium text-emerald-700">
+                    {trustBadge}
+                  </span>
+                )}
+                {ratingValue && (
+                  <span>
+                    ⭐ {ratingValue}{reviewCount ? ` (${reviewCount})` : ""}
+                  </span>
+                )}
+              </div>
+            )}
             <div className="flex items-end justify-between gap-3">
               <div className="flex items-center gap-2">
                 <p className="text-lg font-semibold text-zinc-900">
@@ -222,10 +250,16 @@ export const ProductCard = ({
         <div className="flex justify-between p-4">
           <div className="w-full">
             {/* Show seller name if available */}
-            {sellerName && (
-              <p className="text-xs font-medium text-green-700 mb-1">{sellerName}</p>
+            {(sellerName || "Community Vendor") && (
+              <p className="text-xs font-medium text-green-700 mb-1">{sellerName || "Community Vendor"}</p>
             )}
             <h3 className="heading-sm truncate">{product.title}</h3>
+            {(trustBadge || ratingValue) && (
+              <p className="text-xs text-gray-600 mt-1">
+                {trustBadge ? `${trustBadge} · ` : ""}
+                {ratingValue ? `⭐ ${ratingValue}${reviewCount ? ` (${reviewCount})` : ""}` : ""}
+              </p>
+            )}
             <div className="flex items-center gap-2 mt-2">
               <p className="font-medium">{cheapestPrice?.calculated_price}</p>
               {cheapestPrice?.calculated_price !==

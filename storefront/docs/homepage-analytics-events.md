@@ -28,3 +28,19 @@ Common payload fields:
 ## Device segmentation
 
 Device segmentation is attached to every event using a viewport breakpoint check (`<= 768px` => mobile). This enables desktop/mobile baseline comparisons for pre/post release analysis.
+
+
+## Baseline capture protocol (7 days)
+
+For pre/post release comparison, capture a 7-day baseline window before and after deployment using the events above.
+
+Minimum dashboard slices:
+- by `deviceType` (`desktop`, `mobile`)
+- by event name
+- by landing path and progression target
+
+Recommended baseline KPIs tied to this sprint:
+- Search usage rate (`homepage_search_submitted` / homepage sessions)
+- Quick-filter usage rate (`homepage_quick_filter_used` / homepage sessions)
+- Primary CTA CTR (`homepage_primary_cta_clicked` / homepage sessions)
+- First-session progression (`homepage_first_session_progression` / homepage sessions)

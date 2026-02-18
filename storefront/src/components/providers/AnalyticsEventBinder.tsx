@@ -3,9 +3,25 @@
 import { useEffect, useRef } from "react"
 import { emitWebsiteEvent, type WebsiteEventName } from "@/lib/analytics/events"
 
+const WEBSITE_EVENTS = new Set<WebsiteEventName>([
+  "homepage_vendor_type_selected",
+  "feature_matrix_viewed",
+  "dashboard_showcase_opened",
+  "pricing_breakdown_expanded",
+  "why_we_exist_cta_clicked",
+  "github_transparency_link_clicked",
+  "homepage_search_submitted",
+  "homepage_quick_filter_used",
+  "homepage_primary_cta_clicked",
+  "homepage_secondary_cta_clicked",
+  "homepage_first_session_progression",
+])
+
 const asWebsiteEventName = (value: string | undefined): WebsiteEventName | null => {
   if (!value) return null
-  return value as WebsiteEventName
+  return WEBSITE_EVENTS.has(value as WebsiteEventName)
+    ? (value as WebsiteEventName)
+    : null
 }
 
 export const AnalyticsEventBinder = () => {

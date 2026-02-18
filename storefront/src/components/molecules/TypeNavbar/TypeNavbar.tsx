@@ -225,6 +225,28 @@ export const TypeNavbar = ({
       </LocalizedClientLink>
 
       <LocalizedClientLink
+        href="/feature-matrix"
+        onClick={() => onClose?.(false)}
+        className={cn(
+          "label-md uppercase px-4 py-2 hover:bg-secondary transition-colors",
+          pathname?.includes("/feature-matrix") && "bg-secondary font-semibold"
+        )}
+      >
+        Feature Matrix
+      </LocalizedClientLink>
+
+      <LocalizedClientLink
+        href="/beyond-selling"
+        onClick={() => onClose?.(false)}
+        className={cn(
+          "label-md uppercase px-4 py-2 hover:bg-secondary transition-colors",
+          pathname?.includes("/beyond-selling") && "bg-secondary font-semibold"
+        )}
+      >
+        Beyond Selling
+      </LocalizedClientLink>
+
+      <LocalizedClientLink
         href="/why-we-exist"
         onClick={() => onClose?.(false)}
         className={cn(

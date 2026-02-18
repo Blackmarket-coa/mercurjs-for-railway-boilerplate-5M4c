@@ -215,6 +215,26 @@ export default async function Home({
           <p className="text-sm font-semibold uppercase tracking-wide text-green-700 mb-2">Start here</p>
           <h2 className="text-2xl md:text-3xl font-semibold mb-2">Choose what you need in one click</h2>
           <p className="text-gray-600 mb-6">The homepage highlights marketplace discovery first, while vendor setup resources are grouped into a single guided path.</p>
+          <div className="mb-6 flex flex-wrap gap-3">
+            <Link
+              href="/collections"
+              className="rounded-lg bg-green-700 px-4 py-2 text-white text-sm font-semibold hover:bg-green-800"
+              data-event="homepage_primary_cta_clicked"
+              data-event-label="start_shopping"
+              data-progress-target="product_discovery"
+            >
+              Start shopping (primary)
+            </Link>
+            <Link
+              href="/sell"
+              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50"
+              data-event="homepage_secondary_cta_clicked"
+              data-event-label="become_vendor"
+              data-progress-target="signup_start"
+            >
+              Become a vendor (secondary)
+            </Link>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
             {marketplacePathways.map((pathway) => (
               <Link
