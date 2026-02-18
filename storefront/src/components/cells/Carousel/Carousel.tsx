@@ -12,10 +12,12 @@ export const CustomCarousel = ({
   variant = "light",
   items,
   align = "start",
+  itemClassName,
 }: {
   variant?: "light" | "dark"
   items: React.ReactNode[]
   align?: "center" | "start" | "end"
+  itemClassName?: string
 }) => {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: items.length > 4,
@@ -57,7 +59,16 @@ export const CustomCarousel = ({
         className="embla__viewport overflow-hidden rounded-xs w-full xl:flex xl:justify-center"
         ref={emblaRef}
       >
-        <div className="embla__container flex gap-4">{items}</div>
+        <div className="embla__container flex gap-4">
+          {items.map((item, index) => (
+            <div
+              key={index}
+              className={`embla__slide !flex-[0_0_84%] sm:!flex-[0_0_52%] lg:!flex-[0_0_33%] xl:!flex-[0_0_25%] ${itemClassName || ""}`}
+            >
+              {item}
+            </div>
+          ))}
+        </div>
 
         <div className="flex justify-between items-center mt-4 sm:hidden">
           <div className="w-1/2">
