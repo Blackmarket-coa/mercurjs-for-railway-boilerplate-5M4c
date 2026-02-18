@@ -56,13 +56,18 @@ function getTypeLabel(item: NavItemConfig, vendorType: VendorType): string {
   return item.label
 }
 
-/**
- * Custom hook that returns navigation routes filtered by vendor type
- */
-export function useVendorNavigation() {
-  const { t } = useTranslation()
-  const { vendorType, features } = useVendorType()
-  const { unreadCount } = useRocketChat()
+function getVendorNavigationConfig({
+  t,
+  vendorType,
+  features,
+  unreadCount,
+}: {
+  t: (key: string) => string
+  vendorType: VendorType
+  features: VendorFeatures
+  unreadCount: number
+}) {
+
 
   /**
    * Core navigation routes with conditional visibility
@@ -410,13 +415,46 @@ export function useVendorNavigation() {
     }))
   }
 
-  // Return filtered and labeled routes
   return {
     coreRoutes: getRoutesWithLabels(filterRoutes(coreRoutes)),
     extensionRoutes: getRoutesWithLabels(filterRoutes(extensionRoutes)),
+  }
+}
+
+/**
+ * Custom hook that returns navigation routes filtered by vendor type
+ */
+export function useVendorNavigation() {
+  const { t } = useTranslation()
+  const { vendorType, features } = useVendorType()
+  const { unreadCount } = useRocketChat()
+
+  const { coreRoutes, extensionRoutes } = getVendorNavigationConfig({
+    t,
+    vendorType,
+    features,
+    unreadCount,
+  })
+
+  return {
+    coreRoutes,
+    extensionRoutes,
     vendorType,
     features,
   }
+}
+
+/**
+ * Test helper for validating navigation visibility without hook wiring.
+ */
+export function getVendorNavigationForTest(params: {
+  vendorType: VendorType
+  features: VendorFeatures
+  unreadCount?: number
+  t?: (key: string) => string
+}) {
+  const { vendorType, features, unreadCount = 0, t = (key) => key } = params
+  return getVendorNavigationConfig({ t, vendorType, features, unreadCount })
 }
 
 /**

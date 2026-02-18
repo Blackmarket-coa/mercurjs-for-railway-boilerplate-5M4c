@@ -29,6 +29,13 @@ function listFilesRecursive(dir) {
   return files
 }
 
+function stripNonCodeTokens(source) {
+  return source
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/(^|[^:])\/\/.*$/gm, "$1")
+    .replace(/(["'`])(?:\\.|(?!\1)[\s\S])*?\1/g, "")
+}
+
 function parseExtensionKeys() {
   const source = readFileSync(vendorContextPath, "utf8")
   const sectionMatch = source.match(/ALL_EXTENSION_OPTIONS:[\s\S]*?=\s*\[(?<body>[\s\S]*?)\]\n/)
@@ -53,11 +60,12 @@ function countReferencesOutsideContext(keys) {
     return ext === ".ts" || ext === ".tsx"
   })
 
-  const fileContents = sourceFiles.map((file) => readFileSync(file, "utf8"))
+  const fileContents = sourceFiles.map((file) => stripNonCodeTokens(readFileSync(file, "utf8")))
 
   const unused = []
   for (const key of keys) {
-    const hasReference = fileContents.some((content) => content.includes(key))
+    const keyReferenceRegex = new RegExp(`\\b${key}\\b`)
+    const hasReference = fileContents.some((content) => keyReferenceRegex.test(content))
     if (!hasReference) {
       unused.push(key)
     }
@@ -74,12 +82,12 @@ function countRuntimeCoverageGaps(keys) {
     )
   }
 
-  const runtimeFiles = runtimeCoveragePaths.map((filePath) => ({
-    path: filePath,
-    content: readFileSync(filePath, "utf8"),
-  }))
+  const runtimeFiles = runtimeCoveragePaths.map((filePath) => stripNonCodeTokens(readFileSync(filePath, "utf8")))
 
-  return keys.filter((key) => !runtimeFiles.some((file) => file.content.includes(key)))
+  return keys.filter((key) => {
+    const memberExpressionRegex = new RegExp(`\\b(?:f|features)\\s*\\.\\s*${key}\\b`)
+    return !runtimeFiles.some((content) => memberExpressionRegex.test(content))
+  })
 }
 
 function checkBackendModuleScaffold() {

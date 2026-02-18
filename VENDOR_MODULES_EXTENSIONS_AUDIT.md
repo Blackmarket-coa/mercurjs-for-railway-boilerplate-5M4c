@@ -9,7 +9,10 @@
 
 ## Executive Summary
 
-The backend vendor module surface is structurally complete at the module-entry level (`index.ts` + `service.ts` present for every module directory reviewed). However, the vendor dashboard extension system is only **partially complete**: several declared extension keys are never consumed by navigation, dashboard onboarding, or route-visibility logic.
+The backend vendor module surface is structurally complete at the module-entry level (`index.ts` + `service.ts` present for every module directory reviewed).
+
+**Historical note:** At audit time, the vendor dashboard extension system was only partially complete.
+**Current status (follow-up):** the previously flagged extension keys are now wired into navigation/dashboard behavior and covered by guard checks.
 
 ### Overall Status
 
@@ -17,7 +20,7 @@ The backend vendor module surface is structurally complete at the module-entry l
 |---|---|---|
 | Backend modules scaffold completeness | ✅ Complete | 40/40 modules include both `index.ts` and `service.ts`. |
 | Vendor extension key declarations | ✅ Complete | 14 extension keys are declared in `VendorFeatures`. |
-| Vendor extension runtime usage completeness | ⚠️ Partial | 3 extension keys have no downstream usage (`hasSeasons`, `hasSupport`, `hasHarvests`). |
+| Vendor extension runtime usage completeness | ✅ Complete (updated) | Follow-up implementation wires `hasSeasons`, `hasSupport`, and `hasHarvests` into navigation/onboarding behavior and guard checks. |
 
 ---
 
@@ -65,7 +68,7 @@ All module directories in `backend/src/modules` currently satisfy minimum implem
 
 **Conclusion:** No missing module entrypoints were found in backend module directories.
 
-## B) Vendor extension completeness gaps
+## B) Vendor extension completeness status
 
 ### Fully/partially wired extension keys
 
@@ -82,26 +85,29 @@ The following keys are actively used in navigation and/or dashboard flow logic:
 - `hasFarm`
 - `hasShows`
 
-### Declared but unused extension keys (incomplete)
+### Follow-up status update (implemented)
 
-The following declared keys currently have **no usage outside their declaration/default maps**, which indicates incomplete implementation:
+A follow-up implementation has wired previously flagged keys into runtime behavior and tests:
 1. `hasSeasons`
 2. `hasSupport`
 3. `hasHarvests`
 
-These keys are visible to users in extension settings metadata but do not currently gate navigation entries, route availability, or onboarding/dashboard actions.
+These keys now gate navigation and/or dashboard onboarding behavior, and are enforced by the completeness guard.
 
 ---
 
 ## Risk Assessment
 
-- **Product/UX risk (Medium):** Users can toggle extension options that have no effect, causing confusion and reducing trust in feature customization.
-- **Maintenance risk (Low/Medium):** Declared-but-unused flags create dead configuration paths and obscure intended product behavior.
+- **Product/UX risk (Low after follow-up):** The previously dead toggles are now wired, reducing user confusion from no-op settings.
+- **Maintenance risk (Low):** Guard checks and tests now reduce the chance of reintroducing declared-but-unused flags.
 - **Backend risk (Low):** Module entrypoint completeness is healthy; no immediate structural backend risk identified in this audit scope.
 
 ---
 
 ## Recommendations
+
+
+> **Status note (2026-02-18 follow-up):** Priority 1 and Priority 2 recommendations are now implemented in-repo. Priority 3 remains ongoing process guidance for future extension keys.
 
 ### Priority 1 (Complete extension wiring)
 
