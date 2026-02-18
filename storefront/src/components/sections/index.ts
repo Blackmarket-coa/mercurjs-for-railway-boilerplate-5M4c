@@ -1,5 +1,6 @@
 import { Hero } from "./Hero/Hero"
 import { HomeProductSection } from "./HomeProductSection/HomeProductSection"
+import { HomeProductSectionSkeleton } from "./HomeProductSection/HomeProductSectionSkeleton"
 import { HomeCategories } from "./HomeCategories/HomeCategories"
 import { BannerSection } from "./BannerSection/BannerSection"
 import { ShopByStyleSection } from "./ShopByStyle/ShopByStyleSection"
@@ -24,6 +25,7 @@ import { HomeDiscoveryModule } from "./HomeDiscoveryModule/HomeDiscoveryModule"
 export {
   Hero,
   HomeProductSection,
+  HomeProductSectionSkeleton,
   HomeCategories,
   BannerSection,
   ShopByStyleSection,

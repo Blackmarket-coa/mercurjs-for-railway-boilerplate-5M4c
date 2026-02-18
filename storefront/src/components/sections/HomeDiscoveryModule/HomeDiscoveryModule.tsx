@@ -65,7 +65,7 @@ export const HomeDiscoveryModule = () => {
             <Link
               key={filter.value}
               href={`/collections?${new URLSearchParams({ filter: filter.value }).toString()}`}
-              className="rounded-full border border-slate-300 px-3 py-1.5 text-sm hover:border-green-500 hover:bg-green-50"
+              className="rounded-full border border-slate-300 px-3 py-2 text-sm leading-none hover:border-green-500 hover:bg-green-50 min-h-11 inline-flex items-center" aria-label={`Filter by ${filter.label}`}
               onClick={() => onFilterClick(filter.value)}
             >
               {filter.label}
@@ -76,7 +76,7 @@ export const HomeDiscoveryModule = () => {
         <div className="flex flex-wrap gap-3 text-sm">
           <Link
             href="/collections?sort=trending"
-            className="rounded-lg bg-slate-900 text-white px-4 py-2"
+            className="rounded-lg bg-slate-900 text-white px-4 py-3 min-h-11 inline-flex items-center"
             onClick={() => emitWebsiteEvent("homepage_primary_cta_clicked", { cta: "shop_trending" })}
             data-progress-target="trending"
           >
@@ -84,7 +84,7 @@ export const HomeDiscoveryModule = () => {
           </Link>
           <Link
             href="/collections?sort=best-sellers"
-            className="rounded-lg border border-slate-300 px-4 py-2"
+            className="rounded-lg border border-slate-300 px-4 py-3 min-h-11 inline-flex items-center"
             onClick={() => emitWebsiteEvent("homepage_secondary_cta_clicked", { cta: "browse_best_sellers" })}
             data-progress-target="best_sellers"
           >

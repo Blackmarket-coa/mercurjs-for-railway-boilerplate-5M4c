@@ -43,6 +43,8 @@ export const ProductCard = ({
     product: api_product! as HttpTypes.StoreProduct,
   })
 
+  const priceLabel = cheapestPrice?.calculated_price || "Price shown at checkout"
+
   const productName = String(product.title || "Product")
   const normalizedThumbnail = safelyDecodeImageUrl(
     normalizeImageUrl(api_product?.thumbnail || product.thumbnail || "")
@@ -89,6 +91,7 @@ export const ProductCard = ({
           aria-label={`View ${productName}`}
           title={`View ${productName}`}
           className="block"
+          data-progress-target="product_detail"
         >
           <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100">
             {normalizedThumbnail ? (
@@ -129,6 +132,7 @@ export const ProductCard = ({
                 href={`/products/${product.handle}`}
                 aria-label={`Go to ${productName} page`}
                 title={`Go to ${productName} page`}
+                data-progress-target="product_detail"
               >
                 <h3 className="line-clamp-2 text-base font-semibold text-zinc-900 transition-colors group-hover:text-zinc-700 md:text-lg">
                   {product.title}
@@ -141,6 +145,7 @@ export const ProductCard = ({
               aria-label={`See more about ${productName}`}
               title={`See more about ${productName}`}
               className="rounded-full border border-zinc-200 bg-white p-2 text-zinc-700 transition-all hover:border-zinc-300 hover:text-zinc-950"
+              data-progress-target="product_detail"
             >
               <ArrowUpRight size={16} />
             </LocalizedClientLink>
@@ -164,7 +169,7 @@ export const ProductCard = ({
             <div className="flex items-end justify-between gap-3">
               <div className="flex items-center gap-2">
                 <p className="text-lg font-semibold text-zinc-900">
-                  {cheapestPrice?.calculated_price}
+                  {priceLabel}
                 </p>
                 {cheapestPrice?.calculated_price !== cheapestPrice?.original_price && (
                   <p className="text-sm text-zinc-400 line-through">
@@ -185,6 +190,7 @@ export const ProductCard = ({
               aria-label={`See details for ${productName}`}
               title={`See details for ${productName}`}
               className="inline-flex items-center justify-center rounded-full bg-zinc-900 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-zinc-700"
+              data-progress-target="product_detail"
             >
               View details
             </LocalizedClientLink>
@@ -206,6 +212,7 @@ export const ProductCard = ({
           href={`/products/${product.handle}`}
           aria-label={`View ${productName}`}
           title={`View ${productName}`}
+          data-progress-target="product_detail"
         >
           <div className="overflow-hidden rounded-sm w-full h-full flex justify-center align-center ">
             {normalizedThumbnail ? (
@@ -236,6 +243,7 @@ export const ProductCard = ({
           href={`/products/${product.handle}`}
           aria-label={`See more about ${productName}`}
           title={`See more about ${productName}`}
+          data-progress-target="product_detail"
         >
           <Button className="absolute rounded-sm bg-action text-action-on-primary h-auto lg:h-[48px] lg:group-hover:block hidden w-full uppercase bottom-1 z-10">
             See More
@@ -246,6 +254,7 @@ export const ProductCard = ({
         href={`/products/${product.handle}`}
         aria-label={`Go to ${productName} page`}
         title={`Go to ${productName} page`}
+        data-progress-target="product_detail"
       >
         <div className="flex justify-between p-4">
           <div className="w-full">
@@ -261,7 +270,7 @@ export const ProductCard = ({
               </p>
             )}
             <div className="flex items-center gap-2 mt-2">
-              <p className="font-medium">{cheapestPrice?.calculated_price}</p>
+              <p className="font-medium">{priceLabel}</p>
               {cheapestPrice?.calculated_price !==
                 cheapestPrice?.original_price && (
                 <p className="text-sm text-gray-500 line-through">

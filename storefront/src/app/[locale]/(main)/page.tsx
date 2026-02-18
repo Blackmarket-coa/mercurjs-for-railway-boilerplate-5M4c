@@ -4,6 +4,7 @@ import {
   Hero,
   HomeCategories,
   HomeProductSection,
+  HomeProductSectionSkeleton,
   ShopByStyleSection,
   JustJoinedVendors,
   HomeDiscoveryModule,
@@ -14,6 +15,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { headers } from "next/headers"
 import Script from "next/script"
+import { Suspense } from "react"
 import { listRegions } from "@/lib/data/regions"
 import { toHreflang } from "@/lib/helpers/hreflang"
 
@@ -254,7 +256,9 @@ export default async function Home({
       </section>
 
       <div className="px-4 lg:px-8 w-full">
-        <HomeProductSection heading="newly added products" locale={locale} home />
+        <Suspense fallback={<HomeProductSectionSkeleton />}>
+          <HomeProductSection heading="newly added products" locale={locale} home />
+        </Suspense>
       </div>
 
       <div className="px-4 lg:px-8 w-full">
