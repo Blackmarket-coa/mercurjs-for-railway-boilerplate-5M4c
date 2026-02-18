@@ -79,8 +79,6 @@ export const ProductCard = ({
           <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100">
             {normalizedThumbnail ? (
               <Image
-                priority
-                fetchPriority="high"
                 src={normalizedThumbnail}
                 alt={`${productName} image`}
                 width={720}
@@ -90,8 +88,6 @@ export const ProductCard = ({
               />
             ) : (
               <Image
-                priority
-                fetchPriority="high"
                 src="/images/placeholder.svg"
                 alt={`${productName} image placeholder`}
                 width={720}
@@ -136,23 +132,34 @@ export const ProductCard = ({
             </LocalizedClientLink>
           </div>
 
-          <div className="flex items-end justify-between gap-3 border-t border-zinc-100 pt-3">
-            <div className="flex items-center gap-2">
-              <p className="text-lg font-semibold text-zinc-900">
-                {cheapestPrice?.calculated_price}
-              </p>
-              {cheapestPrice?.calculated_price !== cheapestPrice?.original_price && (
-                <p className="text-sm text-zinc-400 line-through">
-                  {cheapestPrice?.original_price}
+          <div className="space-y-3 border-t border-zinc-100 pt-3">
+            <div className="flex items-end justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <p className="text-lg font-semibold text-zinc-900">
+                  {cheapestPrice?.calculated_price}
                 </p>
+                {cheapestPrice?.calculated_price !== cheapestPrice?.original_price && (
+                  <p className="text-sm text-zinc-400 line-through">
+                    {cheapestPrice?.original_price}
+                  </p>
+                )}
+              </div>
+
+              {impactTag && (
+                <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
+                  {impactTag}
+                </span>
               )}
             </div>
 
-            {impactTag && (
-              <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
-                {impactTag}
-              </span>
-            )}
+            <LocalizedClientLink
+              href={`/products/${product.handle}`}
+              aria-label={`See details for ${productName}`}
+              title={`See details for ${productName}`}
+              className="inline-flex items-center justify-center rounded-full bg-zinc-900 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-zinc-700"
+            >
+              View details
+            </LocalizedClientLink>
           </div>
         </div>
       </article>
