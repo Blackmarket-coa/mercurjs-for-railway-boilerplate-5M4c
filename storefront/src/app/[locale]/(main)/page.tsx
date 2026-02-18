@@ -149,6 +149,29 @@ export default async function Home({
     process.env.NEXT_PUBLIC_SITE_NAME ||
     "Black Market Coalition"
 
+  const marketplacePathways = [
+    {
+      title: "Shop products",
+      description: "Browse curated goods from independent vendors.",
+      href: "/collections",
+    },
+    {
+      title: "Meet vendors",
+      description: "See new and established sellers in one place.",
+      href: "/vendors",
+    },
+    {
+      title: "Community programs",
+      description: "Find local initiatives, events, and mutual-aid offerings.",
+      href: "/what-you-sell#community-programs",
+    },
+    {
+      title: "Sell on the coalition",
+      description: "Get the vendor onboarding checklist and launch your storefront.",
+      href: "/sell",
+    },
+  ]
+
   return (
     <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start text-primary">
       <link
@@ -188,18 +211,50 @@ export default async function Home({
       <Hero
         variant="mission"
         image="/images/hero/Image.jpg"
-        heading="Community commerce infrastructure for goods, services, subscriptions, events, and local programs."
-        paragraph="One platform for producers, creators, organizers, and service providers. Sell goods, offer services, run subscriptions, manage CSA shares, host events, rent community assets, and track local impact while keeping 97% of every sale."
+        heading="Shop local vendors. Launch your storefront. Grow community programs."
+        paragraph="A community-commerce marketplace for products, services, subscriptions, events, and local initiatives. Buyers can discover trusted vendors quickly, and sellers get a clear path to launch and manage operations while keeping 97% of every sale."
         buttons={[
-          { label: "Explore Goods, Services & Programs", path: "/what-you-sell" },
+          { label: "Explore the Marketplace", path: "/collections" },
           { label: "Join as a Vendor", path: "/sell" },
         ]}
       />
 
       <section className="px-4 lg:px-8 w-full">
+        <div className="rounded-2xl border p-6 md:p-8 bg-white">
+          <p className="text-sm font-semibold uppercase tracking-wide text-green-700 mb-2">Start here</p>
+          <h2 className="text-2xl md:text-3xl font-semibold mb-2">Choose what you need in one click</h2>
+          <p className="text-gray-600 mb-6">The homepage highlights marketplace discovery first, while vendor setup resources are grouped into a single guided path.</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            {marketplacePathways.map((pathway) => (
+              <Link
+                key={pathway.title}
+                href={pathway.href}
+                className="rounded-xl border p-4 hover:border-green-400 hover:bg-green-50 transition-colors"
+              >
+                <p className="font-semibold mb-1">{pathway.title}</p>
+                <p className="text-sm text-gray-600">{pathway.description}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div className="px-4 lg:px-8 w-full">
+        <HomeProductSection heading="featured products" locale={locale} home />
+      </div>
+
+      <div className="px-4 lg:px-8 w-full">
+        <JustJoinedVendors />
+      </div>
+
+      <div className="px-4 lg:px-8 w-full">
+        <HomeCategories heading="COMMUNITY PROGRAMS & SALES CHANNELS" />
+      </div>
+
+      <section className="px-4 lg:px-8 w-full">
         <div className="rounded-2xl border border-green-200 bg-green-50 p-6 md:p-8">
-          <p className="text-sm font-semibold uppercase tracking-wide text-green-700 mb-2">Built for Community Commerce</p>
-          <h2 className="text-3xl font-semibold text-green-900 mb-4">This is infrastructure for local economic networks, not just storefront software.</h2>
+          <p className="text-sm font-semibold uppercase tracking-wide text-green-700 mb-2">For vendors</p>
+          <h2 className="text-3xl font-semibold text-green-900 mb-4">Everything you can run through one storefront stack.</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
             <div><span className="font-semibold">Products:</span> physical goods, local food, and digital downloads.</div>
             <div><span className="font-semibold">Services:</span> bookings, custom requests, and provider messaging.</div>
@@ -207,16 +262,17 @@ export default async function Home({
             <div><span className="font-semibold">Events & Programs:</span> tickets, rentals, and mission-driven initiatives.</div>
           </div>
           <div className="mt-5 flex flex-wrap gap-3">
-            <Link href="/feature-matrix" className="rounded-lg bg-green-700 px-4 py-2 text-white text-sm font-medium hover:bg-green-800">View feature matrix</Link>
-            <Link href="/beyond-selling" className="rounded-lg border border-green-300 px-4 py-2 text-green-800 text-sm font-medium hover:bg-green-100">Beyond selling</Link>
+            <Link href="/what-you-sell" className="rounded-lg bg-green-700 px-4 py-2 text-white text-sm font-medium hover:bg-green-800">See selling models</Link>
+            <Link href="/feature-matrix" className="rounded-lg border border-green-300 px-4 py-2 text-green-800 text-sm font-medium hover:bg-green-100">Compare capabilities</Link>
+            <Link href="/sell" className="rounded-lg border border-green-300 px-4 py-2 text-green-800 text-sm font-medium hover:bg-green-100">Open vendor onboarding</Link>
           </div>
         </div>
       </section>
 
       <section className="px-4 lg:px-8 w-full">
         <div className="rounded-2xl border p-6 md:p-8">
-          <h2 className="text-2xl md:text-3xl font-semibold mb-2">What Are You Selling?</h2>
-          <p className="text-gray-600 mb-6">Choose your model and get a tailored setup path with how it works, best-fit examples, and fee details.</p>
+          <h2 className="text-2xl md:text-3xl font-semibold mb-2">Choose your storefront model</h2>
+          <p className="text-gray-600 mb-6">Each option goes to one consolidated page with setup guidance, examples, and operational notes.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {vendorTypeCards.map((card) => (
               <Link
@@ -235,8 +291,8 @@ export default async function Home({
 
       <section className="px-4 lg:px-8 w-full">
         <div className="rounded-2xl border p-6 md:p-8 bg-neutral-50">
-          <h2 className="text-2xl md:text-3xl font-semibold mb-2">We take 3%. You keep 97%. No hidden platform tricks.</h2>
-          <p className="text-gray-700 mb-4">Transparent Stripe Connect payouts, vendor-controlled fulfillment, and predictable unit economics.</p>
+          <h2 className="text-2xl md:text-3xl font-semibold mb-2">Vendor economics: simple, clear, predictable</h2>
+          <p className="text-gray-700 mb-4">Transparent Stripe Connect payouts, vendor-controlled fulfillment, and a flat coalition fee.</p>
           <div className="grid sm:grid-cols-3 gap-3 mb-4">
             <div className="rounded-lg bg-white p-4 border"><p className="text-sm text-gray-500">Sale</p><p className="text-xl font-semibold">$100.00</p></div>
             <div className="rounded-lg bg-white p-4 border"><p className="text-sm text-gray-500">Coalition fee (3%)</p><p className="text-xl font-semibold">$3.00</p></div>
@@ -246,14 +302,14 @@ export default async function Home({
             <summary className="cursor-pointer font-medium text-gray-900">How this compares to typical channels</summary>
             <p className="text-sm text-gray-700 mt-2">Many channels stack listing, subscription, and fulfillment charges. Our model stays simple: one transparent 3% coalition fee.</p>
           </details>
-          <Link href="/sell" className="text-green-700 font-medium underline">See this pricing in vendor onboarding</Link>
+          <Link href="/sell" className="text-green-700 font-medium underline">See this in the vendor onboarding guide</Link>
         </div>
       </section>
 
       <section className="px-4 lg:px-8 w-full" data-event="dashboard_showcase_opened">
         <div className="rounded-2xl border p-6 md:p-8">
-          <h2 className="text-2xl md:text-3xl font-semibold mb-2">Inside the Vendor Dashboard</h2>
-          <p className="text-gray-600 mb-6">Operational proof for order management, payouts, messaging, and impact tracking.</p>
+          <h2 className="text-2xl md:text-3xl font-semibold mb-2">Inside the vendor dashboard</h2>
+          <p className="text-gray-600 mb-6">Core operations are grouped in one place so vendors can run storefronts and community programs without extra tools.</p>
           <div className="grid gap-5 md:grid-cols-2">
             {dashboardShots.map((shot) => (
               <figure key={shot.title} className="rounded-xl border overflow-hidden bg-white">
@@ -281,18 +337,6 @@ export default async function Home({
 
       <div className="px-4 lg:px-8 w-full py-12">
         <ValueProposition />
-      </div>
-
-      <div className="px-4 lg:px-8 w-full">
-        <HomeProductSection heading="trending listings" locale={locale} home />
-      </div>
-
-      <div className="px-4 lg:px-8 w-full">
-        <JustJoinedVendors />
-      </div>
-
-      <div className="px-4 lg:px-8 w-full">
-        <HomeCategories heading="SHOP BY SALES CHANNEL" />
       </div>
 
       <BannerSection />
