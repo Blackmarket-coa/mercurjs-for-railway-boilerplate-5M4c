@@ -46,7 +46,7 @@ const ChartBarIcon = ({ className = "" }: { className?: string }) => (
   </svg>
 )
 
-const VENDOR_PANEL_URL = process.env.NEXT_PUBLIC_VENDOR_PANEL_URL || "https://vendor.freeblackmarket.com"
+const VENDOR_PANEL_URL = process.env.NEXT_PUBLIC_VENDOR_PANEL_URL || process.env.NEXT_PUBLIC_VENDOR_URL || "https://vendor.mercurjs.com"
 
 /**
  * Join Free Black Market - Community Provider Signup Landing Page
