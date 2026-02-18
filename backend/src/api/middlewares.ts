@@ -18,6 +18,13 @@ import { ensureSellerContext } from "./vendor/_middlewares"
 import { CreateVenueSchema } from "./admin/venues/route"
 import { CreateTicketProductSchema } from "./admin/ticket-products/route"
 import { GetTicketProductSeatsSchema } from "./store/ticket-products/[id]/seats/route"
+import { requireFeatureFlagMiddleware } from "../shared/runtime-module-gates"
+import {
+  inventoryLedgerEventSchema,
+  invoiceSchema,
+  pickPackBatchSchema,
+  weightPriceRuleSchema,
+} from "../shared/phase0-contracts"
 
 // Basic email validation regex
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -225,6 +232,11 @@ const PostCartItemsRentalsBody = z.object({
   quantity: z.number(),
   metadata: z.record(z.string(), z.unknown()).optional(),
 })
+
+const PostInventorySyncEventBody = inventoryLedgerEventSchema
+const PostWeightPricingRuleBody = weightPriceRuleSchema
+const PostPickPackBatchBody = pickPackBatchSchema
+const PostInvoiceBody = invoiceSchema
 
 /**
  * Build CORS origins string from environment variables
@@ -634,6 +646,63 @@ export default defineMiddlewares({
     {
       matcher: "/vendor/delivery-zones/*",
       middlewares: [authenticate("seller", "bearer")],
+    },
+    // Phase 1 rollout: runtime module gates
+    {
+      matcher: "/vendor/pos/*",
+      middlewares: [requireFeatureFlagMiddleware("POS_V1")],
+    },
+    {
+      matcher: "/vendor/products/*/weight-pricing",
+      middlewares: [
+        requireFeatureFlagMiddleware("WEIGHT_PRICING_V1"),
+      ],
+      method: "POST",
+    },
+    {
+      matcher: "/store/delivery-batches*",
+      middlewares: [requireFeatureFlagMiddleware("PICK_PACK_V1")],
+    },
+    {
+      matcher: "/vendor/hawala/payments*",
+      middlewares: [requireFeatureFlagMiddleware("INVOICING_V1")],
+    },
+    {
+      matcher: "/vendor/woocommerce/*",
+      middlewares: [requireFeatureFlagMiddleware("CHANNEL_SYNC_V1")],
+    },
+    // Phase 0 contracts: executable JSON boundaries on route payloads
+    {
+      matcher: "/vendor/inventory-sync/events",
+      method: "POST",
+      middlewares: [
+        requireFeatureFlagMiddleware("CHANNEL_SYNC_V1"),
+        validateAndTransformBody(PostInventorySyncEventBody),
+      ],
+    },
+    {
+      matcher: "/vendor/products/:id/weight-pricing",
+      method: "POST",
+      middlewares: [
+        requireFeatureFlagMiddleware("WEIGHT_PRICING_V1"),
+        validateAndTransformBody(PostWeightPricingRuleBody),
+      ],
+    },
+    {
+      matcher: "/vendor/pick-pack/batches",
+      method: "POST",
+      middlewares: [
+        requireFeatureFlagMiddleware("PICK_PACK_V1"),
+        validateAndTransformBody(PostPickPackBatchBody),
+      ],
+    },
+    {
+      matcher: "/vendor/invoices",
+      method: "POST",
+      middlewares: [
+        requireFeatureFlagMiddleware("INVOICING_V1"),
+        validateAndTransformBody(PostInvoiceBody),
+      ],
     },
     // Driver routes - driver authentication
     {

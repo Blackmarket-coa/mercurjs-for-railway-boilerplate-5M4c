@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { phase1ModuleFlags } from "@/lib/feature-flags"
 
 export const metadata: Metadata = {
   title: "Feature Matrix | Free Black Market",
@@ -18,6 +19,14 @@ const matrix = [
   ["Impact tracking", "In rollout", "Community Programs"],
 ]
 
+
+const phase1Rollout = [
+  ["POS runtime module gate", phase1ModuleFlags.pos],
+  ["Weight pricing runtime module gate", phase1ModuleFlags.weightPricing],
+  ["Pick/pack runtime module gate", phase1ModuleFlags.pickPack],
+  ["Invoicing runtime module gate", phase1ModuleFlags.invoicing],
+  ["Channel sync runtime module gate", phase1ModuleFlags.channelSync],
+] as const
 export default function FeatureMatrixPage() {
   return (
     <div className="bg-white min-h-screen">
@@ -53,6 +62,21 @@ export default function FeatureMatrixPage() {
             </tbody>
           </table>
         </div>
+
+        <div className="mt-6 rounded-xl border border-slate-200 p-4">
+          <h2 className="text-sm font-semibold text-slate-900">Phase 1 module rollout guardrails</h2>
+          <ul className="mt-3 space-y-2 text-sm text-slate-700">
+            {phase1Rollout.map(([label, enabled]) => (
+              <li key={label} className="flex items-center justify-between gap-2">
+                <span>{label}</span>
+                <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${enabled ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
+                  {enabled ? "Enabled" : "Disabled"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
 
         <div className="mt-6 flex gap-3 flex-wrap">
           <Link href="/sell" className="px-4 py-2 rounded-lg bg-green-700 text-white text-sm font-medium">Go to vendor onboarding</Link>

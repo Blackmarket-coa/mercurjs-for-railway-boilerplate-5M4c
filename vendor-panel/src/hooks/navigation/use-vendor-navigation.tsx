@@ -23,6 +23,7 @@ import { useTranslation } from "react-i18next"
 import { useVendorType, VendorType, VendorFeatures } from "../../providers/vendor-type-provider"
 import { useRocketChat } from "../../providers/rocketchat-provider"
 import { StripeIcon } from "../../assets/icons/Stripe"
+import { phase1ModuleFlags } from "../../lib/phase0-feature-flags"
 
 /**
  * Navigation Item Interface
@@ -313,6 +314,36 @@ export function useVendorNavigation() {
    * Extension routes (integrations)
    */
   const extensionRoutes: NavItemConfig[] = [
+    {
+      icon: <Component />,
+      label: "POS",
+      to: "/pos",
+      showFor: () => phase1ModuleFlags.pos,
+    },
+    {
+      icon: <Tag />,
+      label: "Weight Pricing",
+      to: "/products?view=weight-pricing",
+      showFor: () => phase1ModuleFlags.weightPricing,
+    },
+    {
+      icon: <ListCheckbox />,
+      label: "Pick / Pack",
+      to: "/deliveries?view=pick-pack",
+      showFor: () => phase1ModuleFlags.pickPack,
+    },
+    {
+      icon: <ReceiptPercent />,
+      label: "Invoicing",
+      to: "/finances?view=invoicing",
+      showFor: () => phase1ModuleFlags.invoicing,
+    },
+    {
+      icon: <ShoppingCart />,
+      label: "Channel Sync",
+      to: "/settings/extensions?view=channel-sync",
+      showFor: () => phase1ModuleFlags.channelSync,
+    },
     {
       icon: <StripeIcon />,
       label: "Stripe Connect",

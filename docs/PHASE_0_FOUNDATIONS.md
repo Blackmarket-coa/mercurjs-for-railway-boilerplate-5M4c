@@ -56,6 +56,7 @@ Baseline telemetry requirements:
 - Structured logs include: `trace_id`, `span_id`, `event_name`, `module`, `entity_id`, `idempotency_key`.
 - Distributed traces enabled where `OTEL_ENABLED=true`.
 - Queue metrics: lag, retries, DLQ growth, oldest message age.
+- Phase 1 dashboard + alert definitions: `docs/observability/PHASE1_SLO_DASHBOARDS.md`.
 
 Initial SLO targets:
 
@@ -75,3 +76,5 @@ From the Phase 0 plan:
 ## Next Execution Step
 
 Wire these backend contracts/flags into module implementations for POS, weight-pricing, pick/pack, invoicing, and channel sync in Phase 1 workstreams.
+
+Phase 1 execution has now started with runtime module gates, queue contract-based job handlers, and route-boundary schema validation.
