@@ -155,3 +155,11 @@ Result: all release gates are green; repository is release-ready.
     - `pnpm --dir backend test:unit:ci`
     - `pnpm --dir storefront lint`
   - Result: ✅.
+
+- 2026-02-18
+  - Change: Readiness tracker metadata refreshed.
+  - Evidence:
+    - scripts/refresh_readiness_trackers.sh
+    - Note: automation hook added
+  - Result: ✅.
+

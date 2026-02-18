@@ -3,6 +3,26 @@ set -uo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 FAILURES=0
+REFRESH_TRACKERS=0
+REFRESH_NOTE="release_validation.sh pass"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --refresh-trackers)
+      REFRESH_TRACKERS=1
+      shift
+      ;;
+    --refresh-note)
+      REFRESH_NOTE="${2:-$REFRESH_NOTE}"
+      shift 2
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      echo "Usage: $0 [--refresh-trackers] [--refresh-note <note>]" >&2
+      exit 2
+      ;;
+  esac
+done
 
 log() { printf "\n[%s] %s\n" "$1" "$2"; }
 warn() { log "WARN" "$1"; }
@@ -151,8 +171,14 @@ Release gate reminder (must all pass for complete status):
 EOT
 
 if [[ "$FAILURES" -eq 0 ]]; then
-  pass "Phase 2 release validation finished with zero failures"
-  exit 0
+  if [[ "$REFRESH_TRACKERS" -eq 1 ]]; then
+    run_cmd "refresh readiness trackers" "$ROOT_DIR/scripts/refresh_readiness_trackers.sh" "$REFRESH_NOTE"
+  fi
+
+  if [[ "$FAILURES" -eq 0 ]]; then
+    pass "Phase 2 release validation finished with zero failures"
+    exit 0
+  fi
 fi
 
 warn "Phase 2 release validation finished with $FAILURES failure(s)"

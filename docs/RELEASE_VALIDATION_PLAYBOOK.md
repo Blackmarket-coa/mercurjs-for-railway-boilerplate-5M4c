@@ -74,6 +74,19 @@ Add these checks to release sign-off:
 2. **Localization:** ensure translated pagination/table copy still renders across admin-panel and vendor-panel routes after release candidate build.
 3. **Runbook discipline:** capture command outputs from `./scripts/release_validation.sh` and attach to release artifacts.
 
+## 7) Refresh tracker metadata after successful verification
+
+When a validation run passes and you want to keep tracker timestamps/evidence current in one step:
+
+```bash
+./scripts/release_validation.sh --refresh-trackers --refresh-note "weekly readiness run"
+```
+
+This updates:
+- `docs/COMPLETION_TRACKER.md` last-updated date
+- `docs/QA_WORK_TRACKER.md` last-updated date
+- QA evidence log with the provided note
+
 ## Suggested CI usage
 
 ```bash
