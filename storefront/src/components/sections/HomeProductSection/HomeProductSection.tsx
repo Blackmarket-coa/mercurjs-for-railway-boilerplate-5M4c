@@ -12,6 +12,8 @@ export const HomeProductSection = async ({
   products?: Product[]
   home?: boolean
 }) => {
+  const isFeaturedSection = heading.toLowerCase() === "featured products"
+
   return (
     <section
       className={
