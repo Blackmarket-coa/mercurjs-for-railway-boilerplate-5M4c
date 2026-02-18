@@ -85,7 +85,10 @@ export const TypeNavbar = ({
       <LocalizedClientLink
         href="/what-you-sell"
         onClick={() => onClose?.(false)}
-        className="label-md uppercase px-4 py-2 hover:bg-secondary transition-colors"
+        className={cn(
+          "label-md uppercase px-4 py-2 hover:bg-secondary transition-colors",
+          pathname?.includes("/what-you-sell") && "bg-secondary font-semibold"
+        )}
       >
         Goods, Services & Community Programs
       </LocalizedClientLink>

@@ -5,6 +5,7 @@ const links = {
     { label: 'Track Order', path: '/user/orders' },
     { label: 'Collective Buys', path: '/collective/demand-pools' },
     { label: 'Community Resources', path: '/community-resources' },
+    { label: 'Feature Matrix', path: '/feature-matrix' },
     { label: 'Returns', path: '/user/returns' },
   ],
   about: [

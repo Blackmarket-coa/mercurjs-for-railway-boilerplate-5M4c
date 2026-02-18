@@ -165,6 +165,13 @@ export const MobileNavbar = ({
                 <span className="text-lg">📊</span> Feature Matrix
               </LocalizedClientLink>
               <LocalizedClientLink
+                href="/beyond-selling"
+                onClick={closeMenuHandler}
+                className="font-medium text-primary hover:text-green-700 flex items-center gap-2"
+              >
+                <span className="text-lg">🏗️</span> Beyond Selling
+              </LocalizedClientLink>
+              <LocalizedClientLink
                 href="/why-we-exist"
                 onClick={closeMenuHandler}
                 className="font-medium text-primary hover:text-green-700 flex items-center gap-2"
