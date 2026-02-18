@@ -367,3 +367,74 @@ This section incorporates a practical UX + conversion audit of the publicly visi
 - CTR lift on primary CTAs after hierarchy refresh.
 - Bounce-rate reduction on mobile homepage traffic.
 - First-session progression rate (homepage → product detail or signup start).
+
+## Immediate Implementation Sprint (Next Step)
+
+Execute these items first (Week 1) so the team can ship measurable conversion improvements quickly.
+
+### Sprint Goal
+Ship a homepage conversion foundation release with instrumentation, improved discovery, clearer CTA hierarchy, and trust-ready listing presentation.
+
+### Workstream A — Instrumentation First
+**Tasks**
+1. Add event hooks for homepage search submission and quick-filter usage.
+2. Add event hooks for primary and secondary hero CTA clicks.
+3. Add event hook for first-session progression (homepage → product detail or signup start).
+
+**Acceptance Criteria**
+- Events are emitted with stable names and documented payloads.
+- Dashboard or log query can segment by device type (desktop/mobile).
+- Baseline metrics are captured for at least 7 days pre/post release comparison.
+
+### Workstream B — Above-the-Fold Discovery Module
+**Tasks**
+1. Add a prominent search bar near the hero area.
+2. Add quick filters (category, price, local pickup, vendor type).
+3. Add “Trending” and “Best Sellers” shortcuts for first-time buyers.
+
+**Acceptance Criteria**
+- Discovery module is visible without scrolling on common desktop viewport sizes.
+- Mobile layout preserves readability and touch-friendly controls.
+- Search and filter interactions are tracked by instrumentation events.
+
+### Workstream C — CTA Hierarchy Refresh
+**Tasks**
+1. Set a single primary CTA and one clearly secondary CTA in hero and first content block.
+2. Increase contrast/spacing to visually distinguish conversion-priority action.
+3. Validate CTA label clarity for buyers vs sellers.
+
+**Acceptance Criteria**
+- CTA visual priority is consistent across homepage sections.
+- First-time visitors can identify buyer path and seller path within 5 seconds.
+- CTR baseline and post-change CTR are directly comparable via analytics.
+
+### Workstream D — Listing Trust Readiness
+**Tasks**
+1. Replace placeholder/test-style featured listings with real curated items.
+2. Ensure complete metadata on cards (image, title, price, seller name).
+3. Add trust indicators where available (seller badge, rating/review count).
+
+**Acceptance Criteria**
+- No placeholder/test products appear in featured marketplace rows.
+- All featured cards meet minimum quality standards (image + title + price).
+- Trust markers degrade gracefully if data is unavailable.
+
+### Launch Gate Checklist (Must Pass)
+- Mobile checks: touch target size, text legibility, filter usability.
+- Accessibility checks: color contrast, keyboard navigation, heading order.
+- Performance checks: loading state present for listings; no blocking empty states.
+
+---
+
+## Remaining Work After This Next Step
+
+After the immediate sprint ships, the following items remain from the broader plan:
+
+1. Full feature matrix publication and nav integration.
+2. Vendor dashboard public showcase with annotated real screenshots.
+3. “Beyond Selling” page and “Why We Exist” page content + linking.
+4. Expanded onboarding flow (4-step visual + optional advanced tools panel).
+5. Open-source trust and reliability messaging rollout in footer/about/signup surfaces.
+6. Cross-page taxonomy normalization (Goods / Services / Community Programs).
+7. Ongoing KPI review and iteration cycle across conversion metrics.
+
