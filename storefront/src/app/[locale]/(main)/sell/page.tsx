@@ -233,6 +233,25 @@ export default function SellPage() {
               </div>
             </div>
 
+            <div className="bg-white/10 border border-white/20 rounded-xl p-5 mb-8 max-w-3xl">
+              <p className="text-sm font-semibold text-green-200 mb-4 uppercase tracking-wide">Launch flow</p>
+              <ol className="grid sm:grid-cols-2 gap-3 text-sm">
+                <li className="rounded-lg bg-white/10 p-3"><span className="font-semibold text-white">1. Create account</span><br />Start in minutes with email + store name.</li>
+                <li className="rounded-lg bg-white/10 p-3"><span className="font-semibold text-white">2. Connect payouts</span><br />Use Stripe Connect for secure direct deposits.</li>
+                <li className="rounded-lg bg-white/10 p-3"><span className="font-semibold text-white">3. Choose what you sell</span><br />Goods, services, subscriptions, tickets, rentals, or programs.</li>
+                <li className="rounded-lg bg-white/10 p-3"><span className="font-semibold text-white">4. Launch storefront</span><br />Publish and manage operations from one dashboard.</li>
+              </ol>
+              <details className="mt-4 rounded-lg bg-white/10 p-3">
+                <summary className="cursor-pointer font-medium text-white">Advanced tools available anytime</summary>
+                <p className="text-sm text-green-100 mt-2">Add subscriptions, event ticketing, CSA shares, and impact tracking whenever you are ready. These tools are optional and never block launch.</p>
+              </details>
+            </div>
+
+            <div className="flex flex-wrap gap-3 mb-8">
+              <Link href="/feature-matrix" className="rounded-lg bg-white text-green-900 px-4 py-2 text-sm font-semibold">View feature matrix</Link>
+              <Link href="https://github.com" target="_blank" rel="noopener noreferrer" className="rounded-lg border border-white/40 text-white px-4 py-2 text-sm font-semibold">Open source transparency</Link>
+            </div>
+            
             {/* Progressive Signup */}
             {!accountCreated ? (
               <form onSubmit={handleSubmit} className="max-w-2xl space-y-5">
