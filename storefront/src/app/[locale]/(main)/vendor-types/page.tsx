@@ -25,7 +25,7 @@ const UserGroupIcon = ({ className = "" }: { className?: string }) => (
   </svg>
 )
 
-const VENDOR_PANEL_URL = process.env.NEXT_PUBLIC_VENDOR_PANEL_URL || "https://vendor.freeblackmarket.com"
+const VENDOR_PANEL_URL = process.env.NEXT_PUBLIC_VENDOR_PANEL_URL || process.env.NEXT_PUBLIC_VENDOR_URL || "https://vendor.mercurjs.com"
 
 export default function VendorTypesPage() {
   const vendorTypes = [
