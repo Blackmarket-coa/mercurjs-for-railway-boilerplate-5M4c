@@ -260,3 +260,181 @@ Use this as the top-line narrative across homepage, vendor landing pages, onboar
 - Pricing model is transparent and trust-building.
 - Community infrastructure and mission pages are published.
 - Conversion instrumentation is in place for post-launch iteration.
+
+---
+
+## UI/UX Conversion Audit Addendum (freeblackmarket.com)
+
+This section incorporates a practical UX + conversion audit of the publicly visible marketplace experience and maps findings into the plan backlog.
+
+### 1) First Impression & Clarity of Purpose
+
+**What is working**
+- The value proposition is visible early and communicates community ownership and marketplace intent.
+- Primary CTAs like “Explore the Marketplace” and “See How It Works” provide an immediate next step.
+
+**Improvement opportunity**
+- Refine hero copy to be more action-oriented and benefit-led (e.g., shopper outcomes, uniqueness, trust, speed).
+
+**Plan impact**
+- Strengthens Scope Item 1 (Reposition Platform Messaging) with conversion-focused copy testing.
+
+### 2) Navigation & Product Discovery
+
+**Observation**
+- Navigation links are present, but discovery can be improved by making search + filters more prominent above the fold.
+
+**Improvement opportunity**
+- Add a prominent search module and quick filters (category, price, local pickup, vendor type) near the top of browse surfaces.
+
+**Plan impact**
+- Add to Phase 1 IA Foundation and Phase 2 Capability Proof as a homepage + catalog priority.
+
+### 3) CTA Hierarchy & Visual Priority
+
+**What is working**
+- Marketplace and seller CTAs exist and are understandable.
+
+**Improvement opportunity**
+- Increase CTA contrast, spacing, and hierarchy to separate primary from secondary actions.
+- Add first-time buyer CTAs (e.g., “Shop Trending,” “Browse Best Sellers”).
+
+**Plan impact**
+- Extends Scope Items 2 and 7 with explicit CTA hierarchy and first-visit action paths.
+
+### 4) Listings Quality & Trust Signals
+
+**Observation**
+- Placeholder/test-like listings reduce perceived trust.
+- Trust indicators (ratings, reviews, seller credibility markers) are not yet prominent.
+
+**Improvement opportunity**
+- Prioritize real featured listings with polished imagery, complete titles, and clear pricing.
+- Add seller badges, ratings/reviews, and trust microcopy where data exists.
+
+**Plan impact**
+- Expands Scope Items 3, 5, and 8 to include marketplace trust modules on homepage/product discovery pages.
+
+### 5) Performance & Loading Feedback
+
+**Observation**
+- No obvious visual blocker from static audit, but performance and loading feedback remain conversion-critical.
+
+**Improvement opportunity**
+- Add skeleton/loading states for key listing modules and track Largest Contentful Paint (LCP) + interaction latency on marketplace entry routes.
+
+**Plan impact**
+- Add technical UX acceptance criteria to Phase 2 rollout quality gates.
+
+### 6) Mobile Responsiveness & Accessibility
+
+**Observation**
+- Mobile flow and accessibility details require explicit validation passes.
+
+**Improvement opportunity**
+- Validate card readability, touch target sizes, sticky filter/sort behavior, and CTA prominence on mobile breakpoints.
+- Run accessibility checks for color contrast, keyboard navigation, and semantic heading structure.
+
+**Plan impact**
+- Add cross-device QA checklist to Definition of Done and launch gating.
+
+### 7) First-Time User Onboarding Flow
+
+**Observation**
+- New users have CTAs but limited guided context about what to do next.
+
+**Improvement opportunity**
+- Add a first-visit guided flow (modal, banner, or progressive prompt):
+  1. How to browse
+  2. How to buy
+  3. How to sell
+
+**Plan impact**
+- Extends Scope Item 7 (4-step onboarding) with a first-visit buyer/seller orientation layer.
+
+## Priority Backlog Additions (High Impact)
+
+1. **Prominent search + filters above the fold** on homepage and catalog entry.
+2. **CTA hierarchy update** (contrast, primary/secondary distinction, first-time buyer shortcuts).
+3. **Trust layer for listings** (real featured products, ratings/reviews/badges where available).
+4. **Mobile + accessibility quality gate** before major homepage conversion experiments.
+5. **First-visit guided orientation** for browsing, buying, and selling actions.
+
+## Suggested Success Metrics for This Addendum
+
+- Search usage rate from homepage.
+- Filter interaction rate and downstream product detail clicks.
+- CTR lift on primary CTAs after hierarchy refresh.
+- Bounce-rate reduction on mobile homepage traffic.
+- First-session progression rate (homepage → product detail or signup start).
+
+## Immediate Implementation Sprint (Next Step)
+
+Execute these items first (Week 1) so the team can ship measurable conversion improvements quickly.
+
+### Sprint Goal
+Ship a homepage conversion foundation release with instrumentation, improved discovery, clearer CTA hierarchy, and trust-ready listing presentation.
+
+### Workstream A — Instrumentation First
+**Tasks**
+1. Add event hooks for homepage search submission and quick-filter usage.
+2. Add event hooks for primary and secondary hero CTA clicks.
+3. Add event hook for first-session progression (homepage → product detail or signup start).
+
+**Acceptance Criteria**
+- Events are emitted with stable names and documented payloads.
+- Dashboard or log query can segment by device type (desktop/mobile).
+- Baseline metrics are captured for at least 7 days pre/post release comparison.
+
+### Workstream B — Above-the-Fold Discovery Module
+**Tasks**
+1. Add a prominent search bar near the hero area.
+2. Add quick filters (category, price, local pickup, vendor type).
+3. Add “Trending” and “Best Sellers” shortcuts for first-time buyers.
+
+**Acceptance Criteria**
+- Discovery module is visible without scrolling on common desktop viewport sizes.
+- Mobile layout preserves readability and touch-friendly controls.
+- Search and filter interactions are tracked by instrumentation events.
+
+### Workstream C — CTA Hierarchy Refresh
+**Tasks**
+1. Set a single primary CTA and one clearly secondary CTA in hero and first content block.
+2. Increase contrast/spacing to visually distinguish conversion-priority action.
+3. Validate CTA label clarity for buyers vs sellers.
+
+**Acceptance Criteria**
+- CTA visual priority is consistent across homepage sections.
+- First-time visitors can identify buyer path and seller path within 5 seconds.
+- CTR baseline and post-change CTR are directly comparable via analytics.
+
+### Workstream D — Listing Trust Readiness
+**Tasks**
+1. Replace placeholder/test-style featured listings with real curated items.
+2. Ensure complete metadata on cards (image, title, price, seller name).
+3. Add trust indicators where available (seller badge, rating/review count).
+
+**Acceptance Criteria**
+- No placeholder/test products appear in featured marketplace rows.
+- All featured cards meet minimum quality standards (image + title + price).
+- Trust markers degrade gracefully if data is unavailable.
+
+### Launch Gate Checklist (Must Pass)
+- Mobile checks: touch target size, text legibility, filter usability.
+- Accessibility checks: color contrast, keyboard navigation, heading order.
+- Performance checks: loading state present for listings; no blocking empty states.
+
+---
+
+## Remaining Work After This Next Step
+
+After the immediate sprint ships, the following items remain from the broader plan:
+
+1. Full feature matrix publication and nav integration.
+2. Vendor dashboard public showcase with annotated real screenshots.
+3. “Beyond Selling” page and “Why We Exist” page content + linking.
+4. Expanded onboarding flow (4-step visual + optional advanced tools panel).
+5. Open-source trust and reliability messaging rollout in footer/about/signup surfaces.
+6. Cross-page taxonomy normalization (Goods / Services / Community Programs).
+7. Ongoing KPI review and iteration cycle across conversion metrics.
+
