@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => {
   const isProd = mode === "production"
 
   const BASE = env.VITE_MEDUSA_BASE || "/"
-  const BACKEND_URL = env.VITE_MEDUSA_BACKEND_URL || "";
+  const BACKEND_URL = env.VITE_MEDUSA_BACKEND_URL || env.VITE_BACKEND_URL || env.MEDUSA_BACKEND_URL || "";
   const STOREFRONT_URL = env.VITE_MEDUSA_STOREFRONT_URL || "";
   const PUBLISHABLE_API_KEY = env.VITE_PUBLISHABLE_API_KEY || "";
   const TALK_JS_APP_ID = env.VITE_TALK_JS_APP_ID || ""

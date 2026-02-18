@@ -1,9 +1,10 @@
 import Medusa from "@medusajs/js-sdk"
 
-// Backend URL - use env var or fallback to Railway production URL
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 
+const BACKEND_URL =
+  import.meta.env.VITE_BACKEND_URL ||
   import.meta.env.VITE_MEDUSA_BACKEND_URL ||
-  "https://backend-production-d558.up.railway.app"
+  (typeof __BACKEND_URL__ !== "undefined" ? __BACKEND_URL__ : undefined) ||
+  "/"
 
 export const sdk = new Medusa({
   baseUrl: BACKEND_URL,
