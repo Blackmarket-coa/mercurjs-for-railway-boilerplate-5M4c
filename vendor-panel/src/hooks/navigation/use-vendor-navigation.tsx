@@ -32,11 +32,18 @@ export interface NavItemConfig {
   icon: ReactNode
   label: string
   to: string
-  items?: { label: string; to: string }[]
+  items?: NavChildItemConfig[]
   // Feature flags for conditional display
   showFor?: (features: VendorFeatures, type: VendorType) => boolean
   // Override labels per vendor type
   labelByType?: Partial<Record<VendorType, string>>
+}
+
+
+export interface NavChildItemConfig {
+  label: string
+  to: string
+  showFor?: (features: VendorFeatures, type: VendorType) => boolean
 }
 
 /**
@@ -172,7 +179,7 @@ export function useVendorNavigation() {
       icon: <CalendarMini />,
       label: "Order Cycles",
       to: "/order-cycles",
-      showFor: (f) => f.hasSubscriptions,
+      showFor: (f) => f.hasSubscriptions || f.hasSeasons,
       labelByType: {
         garden: "Harvest Cycles",
         producer: "Season Cycles",
@@ -262,7 +269,13 @@ export function useVendorNavigation() {
       icon: <ChatBubbleLeftRight />,
       label: `Messages ${unreadCount > 0 ? `(${unreadCount})` : ""}`,
       to: "/messages",
-      // Always visible
+      showFor: (f) => f.hasSupport || f.hasRequests || f.hasProducts || f.hasMenu,
+      labelByType: {
+        producer: "Support Messages",
+        garden: "Support Messages",
+        maker: "Support Messages",
+        kitchen: "Support Messages",
+      },
     },
     // Requests
     {
@@ -305,6 +318,7 @@ export function useVendorNavigation() {
         {
           label: "Harvests",
           to: "/farm/harvests",
+          showFor: (f) => f.hasHarvests,
         },
       ],
     },
@@ -373,12 +387,17 @@ export function useVendorNavigation() {
    * Filter routes based on vendor type and features
    */
   function filterRoutes(routes: NavItemConfig[]): NavItemConfig[] {
-    return routes.filter((route) => {
-      // If no showFor function, always show
-      if (!route.showFor) return true
-      // Otherwise, check if should show
-      return route.showFor(features, vendorType)
-    })
+    return routes
+      .filter((route) => {
+        // If no showFor function, always show
+        if (!route.showFor) return true
+        // Otherwise, check if should show
+        return route.showFor(features, vendorType)
+      })
+      .map((route) => ({
+        ...route,
+        items: route.items?.filter((item) => !item.showFor || item.showFor(features, vendorType)),
+      }))
   }
 
   /**

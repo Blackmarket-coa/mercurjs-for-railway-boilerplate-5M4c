@@ -162,6 +162,36 @@ export function getOnboardingSteps(type: VendorType, features: VendorFeatures) {
     })
   }
 
+  if (features.hasSeasons) {
+    baseSteps.push({
+      key: "seasons",
+      title: "Plan your seasonal cycles",
+      description: "Set up your season and cycle cadence for upcoming offerings.",
+      to: "/order-cycles",
+      icon: "Calendar",
+    })
+  }
+
+  if (features.hasHarvests) {
+    baseSteps.push({
+      key: "harvests",
+      title: "Log your first harvest",
+      description: "Track harvest records to improve planning and availability.",
+      to: "/farm/harvests/create",
+      icon: "Calendar",
+    })
+  }
+
+  if (features.hasSupport) {
+    baseSteps.push({
+      key: "support",
+      title: "Set up support messaging",
+      description: "Enable support workflows and reply to customer questions quickly.",
+      to: "/messages",
+      icon: "QuestionMarkCircle",
+    })
+  }
+
   return baseSteps
 }
 

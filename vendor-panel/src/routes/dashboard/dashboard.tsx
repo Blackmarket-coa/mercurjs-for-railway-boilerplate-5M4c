@@ -108,6 +108,9 @@ export const Dashboard = () => {
         menu={onboarding?.menu}
         plots={onboarding?.plots}
         volunteers={onboarding?.volunteers}
+        seasons={onboarding?.seasons}
+        harvests={onboarding?.harvests}
+        support={onboarding?.support}
       />
     )
 
