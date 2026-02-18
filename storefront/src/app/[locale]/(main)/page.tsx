@@ -242,11 +242,15 @@ export default async function Home({
             <div className="rounded-lg bg-white p-4 border"><p className="text-sm text-gray-500">Coalition fee (3%)</p><p className="text-xl font-semibold">$3.00</p></div>
             <div className="rounded-lg bg-white p-4 border"><p className="text-sm text-gray-500">You keep</p><p className="text-xl font-semibold text-green-700">$97.00</p></div>
           </div>
+          <details className="mb-4 rounded-lg border bg-white p-4" data-event="pricing_breakdown_expanded">
+            <summary className="cursor-pointer font-medium text-gray-900">How this compares to typical channels</summary>
+            <p className="text-sm text-gray-700 mt-2">Many channels stack listing, subscription, and fulfillment charges. Our model stays simple: one transparent 3% coalition fee.</p>
+          </details>
           <Link href="/sell" className="text-green-700 font-medium underline">See this pricing in vendor onboarding</Link>
         </div>
       </section>
 
-      <section className="px-4 lg:px-8 w-full">
+      <section className="px-4 lg:px-8 w-full" data-event="dashboard_showcase_opened">
         <div className="rounded-2xl border p-6 md:p-8">
           <h2 className="text-2xl md:text-3xl font-semibold mb-2">Inside the Vendor Dashboard</h2>
           <p className="text-gray-600 mb-6">Operational proof for order management, payouts, messaging, and impact tracking.</p>
