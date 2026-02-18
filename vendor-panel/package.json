@@ -28,7 +28,8 @@
     "i18n:schema": "node ./scripts/i18n/generate-schema.js",
     "lint": "eslint .  --ext ts,tsx --max-warnings 0",
     "format": "prettier --write .",
-    "typecheck": "tsc --noEmit -p tsconfig.build.json"
+    "typecheck": "tsc --noEmit -p tsconfig.build.json",
+    "typecheck:routes": "tsc --noEmit -p tsconfig.routes.json"
   },
   "main": "dist/app.js",
   "module": "dist/app.mjs",

@@ -43,7 +43,7 @@ export const CreateTicketProductModal = ({
   })
 
   // Fetch regions
-  const { data: regionsData } = useQuery({
+  const { data: regionsData } = useQuery<{ regions: Array<{ id: string; name: string; currency_code: string }> }>({
     queryKey: ["regions"],
     queryFn: () => sdk.client.fetch("/store/regions")
   })

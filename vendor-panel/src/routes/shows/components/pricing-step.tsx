@@ -6,7 +6,7 @@ import {
   Container,
   Badge,
 } from "@medusajs/ui"
-import { RowType, Venue } from "../types"
+import { RowType, Venue } from "../../venues/types"
 
 export interface CurrencyRegionCombination {
   currency: string
