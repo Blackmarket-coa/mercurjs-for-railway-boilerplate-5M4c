@@ -3,6 +3,7 @@ import { WOOCOMMERCE_IMPORT_MODULE } from "../modules/woocommerce-import";
 import WooCommerceImportModuleService from "../modules/woocommerce-import/service";
 import { syncWooInventoryWorkflow } from "../workflows/woocommerce-import/sync-woo-inventory";
 import { buildQueueEnvelope, runQueueConsumer } from "../shared/queue-runtime";
+import { requeueWithBackoff } from "../shared/queue-requeue-adapter";
 
 /**
  * Scheduled job: Sync WooCommerce inventory for all connected vendors.
@@ -25,6 +26,14 @@ export default async function syncWooCommerceInventoryJob(
       )} retry=${JSON.stringify(message.metadata.retry)}`,
     );
   };
+
+
+  const requeue = async (
+    message: ReturnType<typeof buildQueueEnvelope>,
+    delaySeconds: number,
+  ) => {
+    await requeueWithBackoff(message, delaySeconds, logger)
+  }
 
   try {
     // Get all connections with inventory sync enabled
@@ -61,6 +70,7 @@ export default async function syncWooCommerceInventoryJob(
       const consumeResult = await runQueueConsumer({
         topicKey: "inventory_sync",
         payload: event,
+        idempotencyKey: event.idempotency_key,
         handler: async () => {
           const { result } = await syncWooInventoryWorkflow(container).run({
             input: {
@@ -85,6 +95,7 @@ export default async function syncWooCommerceInventoryJob(
           }
         },
         publishToDlq,
+        requeue,
       });
 
       if (consumeResult.status !== "processed") {

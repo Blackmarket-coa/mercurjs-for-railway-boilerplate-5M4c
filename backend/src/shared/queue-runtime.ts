@@ -1,5 +1,6 @@
 import { QUEUE_TOPICS } from "./queue-topics"
 import { validatePhase0Contract } from "./phase0-contracts"
+import { checkAndStoreIdempotency } from "./idempotency-store"
 
 export type QueueTopicKey = keyof typeof QUEUE_TOPICS
 
@@ -25,6 +26,7 @@ export type QueueEnvelope<T> = {
 }
 
 const queueTopicToContract = {
+  payments_settlement: "order_sync_event",
   inventory_sync: "inventory_ledger_event",
   invoice_issuance: "invoice",
 } as const
@@ -32,13 +34,15 @@ const queueTopicToContract = {
 export function buildQueueEnvelope<T>(
   topicKey: QueueTopicKey,
   payload: T,
-  attempt = 0
+  attempt = 0,
+  idempotencyKey?: string
 ): QueueEnvelope<T> {
   const topic = QUEUE_TOPICS[topicKey]
 
   return {
     topic: topic.topic,
     payload,
+    idempotency_key: idempotencyKey,
     metadata: {
       retry: {
         attempt,
@@ -61,15 +65,42 @@ export function validateTopicPayload(topicKey: QueueTopicKey, payload: unknown) 
 export async function runQueueConsumer<T>(params: {
   topicKey: QueueTopicKey
   payload: T
+  idempotencyKey?: string
   attempt?: number
   handler: (payload: T) => Promise<void>
   publishToDlq: (message: QueueEnvelope<T>) => Promise<void>
+  requeue: (message: QueueEnvelope<T>, delaySeconds: number) => Promise<void>
 }) {
-  const { topicKey, payload, handler, publishToDlq } = params
+  const {
+    topicKey,
+    payload,
+    handler,
+    publishToDlq,
+    requeue,
+    idempotencyKey,
+  } = params
   const attempt = params.attempt ?? 0
   const contract = QUEUE_TOPICS[topicKey]
 
   validateTopicPayload(topicKey, payload)
+
+  const idemCheck = await checkAndStoreIdempotency({
+    scope: topicKey,
+    idempotencyKey,
+    payload,
+  })
+
+  if (idemCheck.duplicate && !idemCheck.conflict) {
+    return { status: "duplicate" as const, retries: attempt }
+  }
+
+  if (idemCheck.duplicate && idemCheck.conflict) {
+    return {
+      status: "idempotency_conflict" as const,
+      retries: attempt,
+      error: idemCheck.message,
+    }
+  }
 
   try {
     await handler(payload)
@@ -80,7 +111,7 @@ export async function runQueueConsumer<T>(params: {
 
     if (nextAttempt > contract.policy.retries) {
       await publishToDlq({
-        ...buildQueueEnvelope(topicKey, payload, nextAttempt),
+        ...buildQueueEnvelope(topicKey, payload, nextAttempt, idempotencyKey),
         metadata: {
           retry: {
             attempt: nextAttempt,
@@ -96,6 +127,9 @@ export async function runQueueConsumer<T>(params: {
 
       return { status: "dlq" as const, retries: nextAttempt, error: message }
     }
+
+    const retryEnvelope = buildQueueEnvelope(topicKey, payload, nextAttempt, idempotencyKey)
+    await requeue(retryEnvelope, contract.policy.backoffSeconds)
 
     return {
       status: "retry" as const,

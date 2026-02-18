@@ -3,6 +3,7 @@ import { HAWALA_LEDGER_MODULE } from "../modules/hawala-ledger"
 import HawalaLedgerModuleService from "../modules/hawala-ledger/service"
 import { createStellarSettlementService } from "../modules/hawala-ledger/stellar-settlement"
 import { runQueueConsumer } from "../shared/queue-runtime"
+import { requeueWithBackoff } from "../shared/queue-requeue-adapter"
 
 /**
  * Scheduled job that creates settlement batches and anchors to Stellar
@@ -16,6 +17,10 @@ export default async function hawalaSettlementJob(container: MedusaContainer) {
   const publishToDlq = async (message: any) => {
     console.error("[Hawala Settlement][DLQ]", JSON.stringify(message))
   }
+  const requeue = async (message: any, delaySeconds: number) => {
+    await requeueWithBackoff(message, delaySeconds)
+  }
+
 
   try {
     // Get unsettled entries from the last 24 hours
@@ -67,6 +72,7 @@ export default async function hawalaSettlementJob(container: MedusaContainer) {
     const result = await runQueueConsumer({
       topicKey: "invoice_issuance",
       payload: invoiceEvent,
+      idempotencyKey: invoiceEvent.invoice_id,
       handler: async () => {
         // Submit to Stellar
         const stellarService = createStellarSettlementService()
@@ -112,6 +118,7 @@ export default async function hawalaSettlementJob(container: MedusaContainer) {
         console.log(`  - Volume: $${totalVolume.toFixed(2)}`)
       },
       publishToDlq,
+      requeue,
     })
 
     if (result.status !== "processed") {
