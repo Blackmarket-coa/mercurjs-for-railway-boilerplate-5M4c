@@ -37,7 +37,7 @@ export default function FeatureMatrixPage() {
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12" data-event="feature_matrix_viewed">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12" data-event="feature_matrix_viewed" data-event-on-view="true">
         <div className="overflow-x-auto rounded-xl border">
           <table className="w-full text-sm">
             <thead className="bg-slate-50">

@@ -19,6 +19,7 @@ import { ProductFeed, ProductFeedItem, ProductFeedServer } from "./ProductFeed"
 import { VendorsPage } from "./VendorsPage/VendorsPage"
 import { JustJoinedVendors } from "./JustJoinedVendors/JustJoinedVendors"
 import { CollectionsPage } from "./CollectionsPage/CollectionsPage"
+import { HomeDiscoveryModule } from "./HomeDiscoveryModule/HomeDiscoveryModule"
 
 export {
   Hero,
@@ -45,4 +46,5 @@ export {
   VendorsPage,
   JustJoinedVendors,
   CollectionsPage,
+  HomeDiscoveryModule,
 }

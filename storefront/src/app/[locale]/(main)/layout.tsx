@@ -3,6 +3,7 @@ import { BackToTop } from "@/components/atoms"
 import { retrieveCustomer } from "@/lib/data/customer"
 import { checkRegion } from "@/lib/helpers/check-region"
 import { RocketChatProvider } from "@/providers/RocketChatProvider"
+import { AnalyticsEventBinder } from "@/components/providers/AnalyticsEventBinder"
 import { redirect } from "next/navigation"
 
 export default async function RootLayout({
@@ -42,6 +43,7 @@ export default async function RootLayout({
     return (
       <>
         <Header />
+        <AnalyticsEventBinder />
         {children}
         <Footer />
         <BackToTop />
@@ -54,6 +56,7 @@ export default async function RootLayout({
     <>
       <RocketChatProvider>
         <Header />
+        <AnalyticsEventBinder />
         {children}
         <Footer />
         <BackToTop />

@@ -6,6 +6,7 @@ import {
   HomeProductSection,
   ShopByStyleSection,
   JustJoinedVendors,
+  HomeDiscoveryModule,
 } from "@/components/sections"
 import { ValueProposition, BecomeProducerCTA } from "@/components/molecules"
 
@@ -190,10 +191,24 @@ export default async function Home({
         heading="Shop local vendors. Launch your storefront. Grow community programs."
         paragraph="A community-commerce marketplace for products, services, subscriptions, events, and local initiatives. Buyers can discover trusted vendors quickly, and sellers get a clear path to launch and manage operations while keeping 97% of every sale."
         buttons={[
-          { label: "Explore the Marketplace", path: "/collections" },
-          { label: "Join as a Vendor", path: "/sell" },
+          {
+            label: "Explore the Marketplace",
+            path: "/collections",
+            eventName: "homepage_primary_cta_clicked",
+            eventLabel: "explore_marketplace",
+            progressTarget: "product_discovery",
+          },
+          {
+            label: "Join as a Vendor",
+            path: "/sell",
+            eventName: "homepage_secondary_cta_clicked",
+            eventLabel: "join_vendor",
+            progressTarget: "signup_start",
+          },
         ]}
       />
+
+      <HomeDiscoveryModule />
 
       <section className="px-4 lg:px-8 w-full">
         <div className="rounded-2xl border p-6 md:p-8 bg-white">
@@ -206,6 +221,9 @@ export default async function Home({
                 key={pathway.title}
                 href={pathway.href}
                 className="rounded-xl border p-4 hover:border-green-400 hover:bg-green-50 transition-colors"
+                data-event="homepage_secondary_cta_clicked"
+                data-event-label={pathway.title}
+                data-progress-target={pathway.href.includes("sell") ? "signup_start" : "product_discovery"}
               >
                 <p className="font-semibold mb-1">{pathway.title}</p>
                 <p className="text-sm text-gray-600">{pathway.description}</p>
@@ -240,7 +258,7 @@ export default async function Home({
           <div className="mt-5 flex flex-wrap gap-3">
             <Link href="/what-you-sell" className="rounded-lg bg-green-700 px-4 py-2 text-white text-sm font-medium hover:bg-green-800">See selling models</Link>
             <Link href="/feature-matrix" className="rounded-lg border border-green-300 px-4 py-2 text-green-800 text-sm font-medium hover:bg-green-100">Compare capabilities</Link>
-            <Link href="/sell" className="rounded-lg border border-green-300 px-4 py-2 text-green-800 text-sm font-medium hover:bg-green-100">Open vendor onboarding</Link>
+            <Link href="/sell" className="rounded-lg border border-green-300 px-4 py-2 text-green-800 text-sm font-medium hover:bg-green-100" data-event="homepage_primary_cta_clicked" data-event-label="open_vendor_onboarding" data-progress-target="signup_start">Open vendor onboarding</Link>
           </div>
         </div>
       </section>
@@ -256,6 +274,7 @@ export default async function Home({
                 href={card.href}
                 className="rounded-xl border px-4 py-3 hover:border-green-400 hover:bg-green-50 transition-colors"
                 data-event="homepage_vendor_type_selected"
+                data-event-label={card.label}
               >
                 <p className="text-lg">{card.emoji}</p>
                 <p className="font-medium">{card.label}</p>

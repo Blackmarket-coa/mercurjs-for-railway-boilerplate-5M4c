@@ -364,7 +364,7 @@ export default function SellPage() {
         </div>
       </section>
 
-      <section className="py-20" data-event="dashboard_showcase_opened">
+      <section className="py-20" data-event="dashboard_showcase_opened" data-event-on-view="true">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="rounded-2xl border p-6 md:p-8">
             <h2 className="text-2xl md:text-3xl font-semibold mb-2">Inside the vendor dashboard</h2>

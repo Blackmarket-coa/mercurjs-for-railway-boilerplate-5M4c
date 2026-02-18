@@ -8,7 +8,13 @@ type HeroProps = {
   image: string
   heading: string
   paragraph: string
-  buttons: { label: string; path: string }[]
+  buttons: {
+    label: string
+    path: string
+    eventName?: string
+    eventLabel?: string
+    progressTarget?: string
+  }[]
   /** Mission-first variant: minimal, text-forward above-the-fold */
   variant?: "default" | "mission"
 }
@@ -28,7 +34,7 @@ export const Hero = ({ image, heading, paragraph, buttons, variant = "default" }
             {paragraph}
           </p>
           <div className="mt-10 flex flex-wrap gap-4">
-            {buttons.map(({ label, path }, idx) => (
+            {buttons.map(({ label, path, eventName, eventLabel, progressTarget }, idx) => (
               <Link
                 key={path}
                 href={path}
@@ -37,6 +43,9 @@ export const Hero = ({ image, heading, paragraph, buttons, variant = "default" }
                     ? "button-filled shadow-solarpunk-md hover:shadow-solarpunk-lg"
                     : "button-tonal text-action-on-secondary"
                 }`}
+                data-event={eventName}
+                data-event-label={eventLabel ?? label}
+                data-progress-target={progressTarget}
               >
                 {label}
                 <ArrowRightIcon
@@ -77,13 +86,16 @@ export const Hero = ({ image, heading, paragraph, buttons, variant = "default" }
         </div>
         {buttons.length && (
           <div className="h-[72px] lg:h-[144px] flex font-bold uppercase">
-            {buttons.map(({ label, path }) => (
+            {buttons.map(({ label, path, eventName, eventLabel, progressTarget }) => (
               <Link
                 key={path}
                 href={path}
                 className="group flex border border-forest rounded-md h-full w-1/2 bg-gradient-solarpunk hover:bg-action hover:text-tertiary transition-all duration-300 p-6 justify-between items-end text-action-on-primary shadow-solarpunk-sm"
                 aria-label={label}
                 title={label}
+                data-event={eventName}
+                data-event-label={eventLabel ?? label}
+                data-progress-target={progressTarget}
               >
                 <span>
                   <span className="group-hover:inline-flex hidden">#</span>
