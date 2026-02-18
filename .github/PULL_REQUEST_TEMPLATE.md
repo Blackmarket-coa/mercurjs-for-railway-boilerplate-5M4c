@@ -12,6 +12,7 @@ Closes #
 - [ ] Tests updated/added where appropriate
 - [ ] Local checks executed
 - [ ] Migration or rollout steps documented (if applicable)
+- [ ] For new vendor extension keys: completed `docs/VENDOR_EXTENSION_DEFINITION_OF_DONE.md` checklist
 
 Commands run:
 
