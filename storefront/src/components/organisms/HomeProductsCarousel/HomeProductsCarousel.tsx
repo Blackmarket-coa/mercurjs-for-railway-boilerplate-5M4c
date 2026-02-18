@@ -21,41 +21,40 @@ export const HomeProductsCarousel = async ({
     queryParams: {
       limit: home ? 4 : undefined,
       order: "created_at",
-      handle: home
-        ? undefined
-        : sellerProducts.map((product) => product.handle),
+      handle: home ? undefined : sellerProducts.map((product) => product.handle),
     },
     forceCache: !home,
   })
 
   if (!products.length && !sellerProducts.length) return null
 
+  const productsToRender = sellerProducts.length ? sellerProducts : products
+
   return (
-    <div className="flex justify-center w-full">
+    <div className="w-full">
       <Carousel
         align="start"
-        items={(sellerProducts.length ? sellerProducts : products).map(
-          (product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              api_product={
-                home
-                  ? (product as HttpTypes.StoreProduct)
-                  : products.find((p) => {
-                      const { cheapestPrice } = getProductPrice({
-                        product: p,
-                      })
-                      return (
-                        cheapestPrice &&
-                        p.id === product.id &&
-                        Boolean(cheapestPrice)
-                      )
+        items={productsToRender.map((product) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            variant={home ? "producer-forward" : "default"}
+            api_product={
+              home
+                ? (product as HttpTypes.StoreProduct)
+                : products.find((candidate) => {
+                    const { cheapestPrice } = getProductPrice({
+                      product: candidate,
                     })
-              }
-            />
-          )
-        )}
+                    return (
+                      cheapestPrice &&
+                      candidate.id === product.id &&
+                      Boolean(cheapestPrice)
+                    )
+                  })
+            }
+          />
+        ))}
       />
     </div>
   )

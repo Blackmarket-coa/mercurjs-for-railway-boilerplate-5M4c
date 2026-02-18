@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => {
   const isProd = mode === "production";
 
   const BASE = env.VITE_MEDUSA_BASE || "/";
-  const BACKEND_URL = env.VITE_MEDUSA_BACKEND_URL || "";
+  const BACKEND_URL = env.VITE_MEDUSA_BACKEND_URL || env.VITE_BACKEND_URL || env.MEDUSA_BACKEND_URL || "";
   const STOREFRONT_URL =
     env.VITE_MEDUSA_STOREFRONT_URL || "";
   const B2B_PANEL = env.VITE_MEDUSA_B2B_PANEL || "false";
