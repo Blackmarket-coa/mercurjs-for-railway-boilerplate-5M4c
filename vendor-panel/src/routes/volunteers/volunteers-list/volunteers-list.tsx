@@ -1,6 +1,5 @@
-import { useState } from "react"
-import { Outlet, useNavigate } from "react-router-dom"
-import { Container, Heading, Button, Text, Badge, Tabs } from "@medusajs/ui"
+import { Outlet, useLocation, useNavigate } from "react-router-dom"
+import { Container, Heading, Button, Text, Tabs, toast } from "@medusajs/ui"
 import { Plus, Heart, CalendarMini, Users } from "@medusajs/icons"
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { useDashboardExtension } from "../../../extensions"
@@ -14,14 +13,19 @@ import { useVendorType } from "../../../providers/vendor-type-provider"
  */
 export function VolunteersList() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { vendorType } = useVendorType()
   const { getWidgets } = useDashboardExtension()
-  const [activeTab, setActiveTab] = useState("list")
+
+  const activeTab = location.pathname.endsWith("/schedule")
+    ? "schedule"
+    : "list"
 
   // Adjust terminology based on vendor type
-  const terminology = vendorType === "mutual_aid"
-    ? { title: "Community Helpers", singular: "helper" }
-    : { title: "Volunteers", singular: "volunteer" }
+  const terminology =
+    vendorType === "mutual_aid"
+      ? { title: "Community Helpers", singular: "helper" }
+      : { title: "Volunteers", singular: "volunteer" }
 
   return (
     <SingleColumnPage
@@ -41,17 +45,21 @@ export function VolunteersList() {
               Manage your {terminology.title.toLowerCase()} and their schedules
             </Text>
           </div>
-          <Button
-            variant="primary"
-            onClick={() => navigate("/volunteers")}
-          >
+          <Button variant="primary" onClick={() => navigate("/volunteers")}>
             <Plus className="mr-2" />
             Invite {terminology.singular}
           </Button>
         </div>
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => {
+            navigate(
+              value === "schedule" ? "/volunteers/schedule" : "/volunteers/list"
+            )
+          }}
+        >
           <Tabs.List>
             <Tabs.Trigger value="list">
               <Users className="w-4 h-4 mr-2" />
@@ -64,11 +72,21 @@ export function VolunteersList() {
           </Tabs.List>
 
           <Tabs.Content value="list" className="mt-6">
-            <VolunteersListPlaceholder terminology={terminology} />
+            <VolunteersListPlaceholder
+              terminology={terminology}
+              onInviteClick={() => navigate("/volunteers")}
+            />
           </Tabs.Content>
 
           <Tabs.Content value="schedule" className="mt-6">
-            <VolunteerSchedulePlaceholder terminology={terminology} />
+            <VolunteerSchedulePlaceholder
+              terminology={terminology}
+              onCreateShiftClick={() =>
+                toast.info(
+                  "Shift creation is coming soon. You can start by inviting volunteers."
+                )
+              }
+            />
           </Tabs.Content>
         </Tabs>
       </Container>
@@ -77,7 +95,13 @@ export function VolunteersList() {
   )
 }
 
-function VolunteersListPlaceholder({ terminology }: { terminology: { title: string; singular: string } }) {
+function VolunteersListPlaceholder({
+  terminology,
+  onInviteClick,
+}: {
+  terminology: { title: string; singular: string }
+  onInviteClick: () => void
+}) {
   return (
     <div className="bg-warm-50 rounded-xl p-12 text-center">
       <div className="max-w-md mx-auto">
@@ -88,10 +112,11 @@ function VolunteersListPlaceholder({ terminology }: { terminology: { title: stri
           No {terminology.title} Yet
         </Heading>
         <Text className="text-warm-600 mb-6">
-          Start building your community by inviting {terminology.title.toLowerCase()}.
-          They can sign up for shifts, track their hours, and help with your operations.
+          Start building your community by inviting{" "}
+          {terminology.title.toLowerCase()}. They can sign up for shifts, track
+          their hours, and help with your operations.
         </Text>
-        <Button variant="primary">
+        <Button variant="primary" onClick={onInviteClick}>
           <Plus className="mr-2" />
           Invite Your First {terminology.singular}
         </Button>
@@ -100,7 +125,13 @@ function VolunteersListPlaceholder({ terminology }: { terminology: { title: stri
   )
 }
 
-function VolunteerSchedulePlaceholder({ terminology }: { terminology: { title: string; singular: string } }) {
+function VolunteerSchedulePlaceholder({
+  terminology,
+  onCreateShiftClick,
+}: {
+  terminology: { title: string; singular: string }
+  onCreateShiftClick: () => void
+}) {
   return (
     <div className="bg-warm-50 rounded-xl p-12 text-center">
       <div className="max-w-md mx-auto">
@@ -111,10 +142,10 @@ function VolunteerSchedulePlaceholder({ terminology }: { terminology: { title: s
           Schedule Not Set Up
         </Heading>
         <Text className="text-warm-600 mb-6">
-          Create shifts and schedules for your {terminology.title.toLowerCase()}.
-          They'll be able to sign up for available time slots.
+          Create shifts and schedules for your {terminology.title.toLowerCase()}
+          . They'll be able to sign up for available time slots.
         </Text>
-        <Button variant="primary">
+        <Button variant="primary" onClick={onCreateShiftClick}>
           <Plus className="mr-2" />
           Create First Shift
         </Button>
