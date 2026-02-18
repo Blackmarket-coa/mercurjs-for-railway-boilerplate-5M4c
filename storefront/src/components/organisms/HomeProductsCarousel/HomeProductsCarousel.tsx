@@ -19,7 +19,7 @@ export const HomeProductsCarousel = async ({
   } = await listProducts({
     countryCode: locale,
     queryParams: {
-      limit: home ? 4 : undefined,
+      limit: home ? 10 : undefined,
       order: "created_at",
       handle: home ? undefined : sellerProducts.map((product) => product.handle),
     },

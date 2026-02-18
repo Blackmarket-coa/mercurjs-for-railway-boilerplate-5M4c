@@ -240,7 +240,7 @@ export default async function Home({
       </section>
 
       <div className="px-4 lg:px-8 w-full">
-        <HomeProductSection heading="featured products" locale={locale} home />
+        <HomeProductSection heading="newly added products" locale={locale} home />
       </div>
 
       <div className="px-4 lg:px-8 w-full">
