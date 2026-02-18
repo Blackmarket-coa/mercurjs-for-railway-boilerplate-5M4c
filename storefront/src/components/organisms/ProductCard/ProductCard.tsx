@@ -43,6 +43,8 @@ export const ProductCard = ({
     product: api_product! as HttpTypes.StoreProduct,
   })
 
+  const priceLabel = cheapestPrice?.calculated_price || "Price shown at checkout"
+
   const productName = String(product.title || "Product")
   const normalizedThumbnail = safelyDecodeImageUrl(
     normalizeImageUrl(api_product?.thumbnail || product.thumbnail || "")
@@ -62,6 +64,20 @@ export const ProductCard = ({
     (api_product as any)?.metadata?.producer_handle ||
     null
 
+  const trustBadge =
+    (api_product as any)?.metadata?.seller_badge ||
+    ((api_product as any)?.metadata?.verified_seller ? "Verified seller" : null)
+
+  const ratingValue =
+    (api_product as any)?.metadata?.rating ||
+    (api_product as any)?.metadata?.seller_rating ||
+    null
+
+  const reviewCount =
+    (api_product as any)?.metadata?.review_count ||
+    (api_product as any)?.metadata?.seller_review_count ||
+    null
+
   // Producer-forward variant
   if (variant === "producer-forward") {
     return (
@@ -75,6 +91,7 @@ export const ProductCard = ({
           aria-label={`View ${productName}`}
           title={`View ${productName}`}
           className="block"
+          data-progress-target="product_detail"
         >
           <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100">
             {normalizedThumbnail ? (
@@ -103,18 +120,19 @@ export const ProductCard = ({
         <div className="space-y-3 p-4 md:p-5">
           <div className="flex items-start justify-between gap-3">
             <div className="space-y-1">
-              {sellerName && (
+              {(sellerName || "Community Vendor") && (
                 <LocalizedClientLink
                   href={sellerHandle ? `/sellers/${sellerHandle}` : "/producers"}
                   className="inline-flex text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500 transition-colors hover:text-zinc-800"
                 >
-                  {sellerName}
+                  {sellerName || "Community Vendor"}
                 </LocalizedClientLink>
               )}
               <LocalizedClientLink
                 href={`/products/${product.handle}`}
                 aria-label={`Go to ${productName} page`}
                 title={`Go to ${productName} page`}
+                data-progress-target="product_detail"
               >
                 <h3 className="line-clamp-2 text-base font-semibold text-zinc-900 transition-colors group-hover:text-zinc-700 md:text-lg">
                   {product.title}
@@ -127,16 +145,31 @@ export const ProductCard = ({
               aria-label={`See more about ${productName}`}
               title={`See more about ${productName}`}
               className="rounded-full border border-zinc-200 bg-white p-2 text-zinc-700 transition-all hover:border-zinc-300 hover:text-zinc-950"
+              data-progress-target="product_detail"
             >
               <ArrowUpRight size={16} />
             </LocalizedClientLink>
           </div>
 
           <div className="space-y-3 border-t border-zinc-100 pt-3">
+            {(trustBadge || ratingValue) && (
+              <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-600">
+                {trustBadge && (
+                  <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 font-medium text-emerald-700">
+                    {trustBadge}
+                  </span>
+                )}
+                {ratingValue && (
+                  <span>
+                    ⭐ {ratingValue}{reviewCount ? ` (${reviewCount})` : ""}
+                  </span>
+                )}
+              </div>
+            )}
             <div className="flex items-end justify-between gap-3">
               <div className="flex items-center gap-2">
                 <p className="text-lg font-semibold text-zinc-900">
-                  {cheapestPrice?.calculated_price}
+                  {priceLabel}
                 </p>
                 {cheapestPrice?.calculated_price !== cheapestPrice?.original_price && (
                   <p className="text-sm text-zinc-400 line-through">
@@ -157,6 +190,7 @@ export const ProductCard = ({
               aria-label={`See details for ${productName}`}
               title={`See details for ${productName}`}
               className="inline-flex items-center justify-center rounded-full bg-zinc-900 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-zinc-700"
+              data-progress-target="product_detail"
             >
               View details
             </LocalizedClientLink>
@@ -178,6 +212,7 @@ export const ProductCard = ({
           href={`/products/${product.handle}`}
           aria-label={`View ${productName}`}
           title={`View ${productName}`}
+          data-progress-target="product_detail"
         >
           <div className="overflow-hidden rounded-sm w-full h-full flex justify-center align-center ">
             {normalizedThumbnail ? (
@@ -208,6 +243,7 @@ export const ProductCard = ({
           href={`/products/${product.handle}`}
           aria-label={`See more about ${productName}`}
           title={`See more about ${productName}`}
+          data-progress-target="product_detail"
         >
           <Button className="absolute rounded-sm bg-action text-action-on-primary h-auto lg:h-[48px] lg:group-hover:block hidden w-full uppercase bottom-1 z-10">
             See More
@@ -218,16 +254,23 @@ export const ProductCard = ({
         href={`/products/${product.handle}`}
         aria-label={`Go to ${productName} page`}
         title={`Go to ${productName} page`}
+        data-progress-target="product_detail"
       >
         <div className="flex justify-between p-4">
           <div className="w-full">
             {/* Show seller name if available */}
-            {sellerName && (
-              <p className="text-xs font-medium text-green-700 mb-1">{sellerName}</p>
+            {(sellerName || "Community Vendor") && (
+              <p className="text-xs font-medium text-green-700 mb-1">{sellerName || "Community Vendor"}</p>
             )}
             <h3 className="heading-sm truncate">{product.title}</h3>
+            {(trustBadge || ratingValue) && (
+              <p className="text-xs text-gray-600 mt-1">
+                {trustBadge ? `${trustBadge} · ` : ""}
+                {ratingValue ? `⭐ ${ratingValue}${reviewCount ? ` (${reviewCount})` : ""}` : ""}
+              </p>
+            )}
             <div className="flex items-center gap-2 mt-2">
-              <p className="font-medium">{cheapestPrice?.calculated_price}</p>
+              <p className="font-medium">{priceLabel}</p>
               {cheapestPrice?.calculated_price !==
                 cheapestPrice?.original_price && (
                 <p className="text-sm text-gray-500 line-through">

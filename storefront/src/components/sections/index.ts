@@ -1,5 +1,6 @@
 import { Hero } from "./Hero/Hero"
 import { HomeProductSection } from "./HomeProductSection/HomeProductSection"
+import { HomeProductSectionSkeleton } from "./HomeProductSection/HomeProductSectionSkeleton"
 import { HomeCategories } from "./HomeCategories/HomeCategories"
 import { BannerSection } from "./BannerSection/BannerSection"
 import { ShopByStyleSection } from "./ShopByStyle/ShopByStyleSection"
@@ -19,10 +20,12 @@ import { ProductFeed, ProductFeedItem, ProductFeedServer } from "./ProductFeed"
 import { VendorsPage } from "./VendorsPage/VendorsPage"
 import { JustJoinedVendors } from "./JustJoinedVendors/JustJoinedVendors"
 import { CollectionsPage } from "./CollectionsPage/CollectionsPage"
+import { HomeDiscoveryModule } from "./HomeDiscoveryModule/HomeDiscoveryModule"
 
 export {
   Hero,
   HomeProductSection,
+  HomeProductSectionSkeleton,
   HomeCategories,
   BannerSection,
   ShopByStyleSection,
@@ -45,4 +48,5 @@ export {
   VendorsPage,
   JustJoinedVendors,
   CollectionsPage,
+  HomeDiscoveryModule,
 }
