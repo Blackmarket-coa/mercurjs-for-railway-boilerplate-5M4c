@@ -11,5 +11,8 @@
 	},
 	"devDependencies": {
 		"@types/node": "^25.0.10"
+	},
+	"scripts": {
+		"check:vendor-completeness": "node scripts/check-vendor-completeness.mjs"
 	}
 }
