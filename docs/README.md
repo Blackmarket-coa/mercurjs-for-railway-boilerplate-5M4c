@@ -5,6 +5,10 @@ This index organizes project docs by purpose.
 ## Planning & Strategy
 
 - `FEATURE_BUILD_PLAN.md` (repo root)
+- `docs/PHASE_0_FOUNDATIONS.md`
+- `docs/adr/ADR-0001-event-driven-sync.md`
+- `docs/adr/ADR-0002-idempotency-and-consistency-windows.md`
+- `docs/contracts/phase0/domain-contracts.schema.json`
 - `docs/PRODUCT_LISTING_UNIFICATION_PLAN.md`
 - `docs/WEBSITE_POSITIONING_ALIGNMENT_PLAN.md`
 

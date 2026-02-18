@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://free-black-market/contracts/phase0/domain-contracts.schema.json",
+  "title": "Phase 0 Canonical Domain Contracts",
+  "type": "object",
+  "$defs": {
+    "SalesChannel": {
+      "type": "string",
+      "enum": ["storefront", "pos", "social", "marketplace_feed"]
+    },
+    "InventoryLedgerEvent": {
+      "type": "object",
+      "required": ["event_id", "occurred_at", "product_id", "variant_id", "delta", "reason", "channel"],
+      "properties": {
+        "event_id": { "type": "string", "minLength": 1 },
+        "occurred_at": { "type": "string", "format": "date-time" },
+        "product_id": { "type": "string" },
+        "variant_id": { "type": "string" },
+        "delta": { "type": "integer" },
+        "reason": { "type": "string" },
+        "channel": { "$ref": "#/$defs/SalesChannel" },
+        "idempotency_key": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "OrderSyncEvent": {
+      "type": "object",
+      "required": ["event_id", "order_id", "occurred_at", "status", "channel"],
+      "properties": {
+        "event_id": { "type": "string", "minLength": 1 },
+        "order_id": { "type": "string" },
+        "occurred_at": { "type": "string", "format": "date-time" },
+        "status": { "type": "string" },
+        "channel": { "$ref": "#/$defs/SalesChannel" },
+        "idempotency_key": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "WeightPriceRule": {
+      "type": "object",
+      "required": ["rule_id", "product_id", "unit", "price_per_unit", "currency_code"],
+      "properties": {
+        "rule_id": { "type": "string" },
+        "product_id": { "type": "string" },
+        "unit": { "type": "string", "enum": ["kg", "lb", "g", "oz"] },
+        "price_per_unit": { "type": "integer", "minimum": 0 },
+        "currency_code": { "type": "string", "minLength": 3, "maxLength": 3 }
+      },
+      "additionalProperties": false
+    },
+    "PickPackBatch": {
+      "type": "object",
+      "required": ["batch_id", "status", "assigned_to", "order_ids"],
+      "properties": {
+        "batch_id": { "type": "string" },
+        "status": { "type": "string", "enum": ["queued", "picking", "packing", "ready", "completed", "failed"] },
+        "assigned_to": { "type": "string" },
+        "order_ids": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+      },
+      "additionalProperties": false
+    },
+    "Invoice": {
+      "type": "object",
+      "required": ["invoice_id", "order_id", "status", "total", "currency_code", "issued_at"],
+      "properties": {
+        "invoice_id": { "type": "string" },
+        "order_id": { "type": "string" },
+        "status": { "type": "string", "enum": ["draft", "issued", "paid", "void"] },
+        "total": { "type": "integer", "minimum": 0 },
+        "currency_code": { "type": "string", "minLength": 3, "maxLength": 3 },
+        "issued_at": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    },
+    "MerchantCase": {
+      "type": "object",
+      "required": ["case_id", "merchant_id", "category", "status", "opened_at"],
+      "properties": {
+        "case_id": { "type": "string" },
+        "merchant_id": { "type": "string" },
+        "category": { "type": "string" },
+        "status": { "type": "string", "enum": ["open", "in_review", "waiting_on_merchant", "resolved", "closed"] },
+        "opened_at": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    },
+    "RiskAlert": {
+      "type": "object",
+      "required": ["alert_id", "merchant_id", "severity", "state", "created_at"],
+      "properties": {
+        "alert_id": { "type": "string" },
+        "merchant_id": { "type": "string" },
+        "severity": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+        "state": { "type": "string", "enum": ["open", "triaged", "mitigated", "closed"] },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    },
+    "OnboardingProgram": {
+      "type": "object",
+      "required": ["program_id", "name", "state"],
+      "properties": {
+        "program_id": { "type": "string" },
+        "name": { "type": "string" },
+        "state": { "type": "string", "enum": ["draft", "active", "paused", "retired"] }
+      },
+      "additionalProperties": false
+    },
+    "TrainingAsset": {
+      "type": "object",
+      "required": ["asset_id", "program_id", "asset_type", "title", "url"],
+      "properties": {
+        "asset_id": { "type": "string" },
+        "program_id": { "type": "string" },
+        "asset_type": { "type": "string", "enum": ["guide", "video", "webinar", "checklist"] },
+        "title": { "type": "string" },
+        "url": { "type": "string", "format": "uri" }
+      },
+      "additionalProperties": false
+    },
+    "PromoCampaign": {
+      "type": "object",
+      "required": ["campaign_id", "merchant_id", "name", "state", "starts_at"],
+      "properties": {
+        "campaign_id": { "type": "string" },
+        "merchant_id": { "type": "string" },
+        "name": { "type": "string" },
+        "state": { "type": "string", "enum": ["draft", "scheduled", "running", "ended", "cancelled"] },
+        "starts_at": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    }
+  }
+}
