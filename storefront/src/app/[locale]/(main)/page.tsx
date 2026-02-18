@@ -10,7 +10,6 @@ import {
 import { ValueProposition, BecomeProducerCTA } from "@/components/molecules"
 
 import type { Metadata } from "next"
-import Image from "next/image"
 import Link from "next/link"
 import { headers } from "next/headers"
 import Script from "next/script"
@@ -25,29 +24,6 @@ const vendorTypeCards = [
   { label: "Event Tickets", href: "/what-you-sell#event-tickets", emoji: "🎟️" },
   { label: "Rentals", href: "/what-you-sell#rentals", emoji: "🧰" },
   { label: "Community Programs", href: "/what-you-sell#community-programs", emoji: "🤝" },
-]
-
-const dashboardShots = [
-  {
-    title: "Order management",
-    image: "/algolia-import.png",
-    caption: "Process incoming orders, update statuses, and coordinate fulfillment from one view.",
-  },
-  {
-    title: "Payout tracking",
-    image: "/talkjs-placeholder.jpg",
-    caption: "Track payouts with clear Stripe Connect visibility and transparent fee math.",
-  },
-  {
-    title: "Vendor messaging",
-    image: "/components.jpg",
-    caption: "Keep customer communication and fulfillment context in one operational workflow.",
-  },
-  {
-    title: "Impact metrics",
-    image: "/crafted.jpg",
-    caption: "Measure community outcomes over time and show the impact your operation creates.",
-  },
 ]
 
 export async function generateMetadata({
@@ -303,24 +279,6 @@ export default async function Home({
             <p className="text-sm text-gray-700 mt-2">Many channels stack listing, subscription, and fulfillment charges. Our model stays simple: one transparent 3% coalition fee.</p>
           </details>
           <Link href="/sell" className="text-green-700 font-medium underline">See this in the vendor onboarding guide</Link>
-        </div>
-      </section>
-
-      <section className="px-4 lg:px-8 w-full" data-event="dashboard_showcase_opened">
-        <div className="rounded-2xl border p-6 md:p-8">
-          <h2 className="text-2xl md:text-3xl font-semibold mb-2">Inside the vendor dashboard</h2>
-          <p className="text-gray-600 mb-6">Core operations are grouped in one place so vendors can run storefronts and community programs without extra tools.</p>
-          <div className="grid gap-5 md:grid-cols-2">
-            {dashboardShots.map((shot) => (
-              <figure key={shot.title} className="rounded-xl border overflow-hidden bg-white">
-                <Image src={shot.image} alt={shot.title} width={640} height={320} className="h-52 w-full object-cover" />
-                <figcaption className="p-4">
-                  <p className="font-medium">{shot.title}</p>
-                  <p className="text-sm text-gray-600">{shot.caption}</p>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
         </div>
       </section>
 

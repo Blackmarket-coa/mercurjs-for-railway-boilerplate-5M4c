@@ -54,7 +54,7 @@ export const CustomCarousel = ({
   return (
     <div className="embla relative w-full flex justify-center">
       <div
-        className="embla__viewport overflow-hidden rounded-xs w-full xl:flex xl:justify-center"
+        className="embla__viewport overflow-x-auto overflow-y-hidden rounded-xs w-full xl:flex xl:justify-center"
         ref={emblaRef}
       >
         <div className="embla__container flex gap-4">{items}</div>

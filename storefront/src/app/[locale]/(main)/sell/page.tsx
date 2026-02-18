@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
 
 // Inline SVG icons
@@ -47,6 +48,30 @@ const ChartBarIcon = ({ className = "" }: { className?: string }) => (
 )
 
 const VENDOR_PANEL_URL = process.env.NEXT_PUBLIC_VENDOR_PANEL_URL || process.env.NEXT_PUBLIC_VENDOR_URL || "https://vendor.mercurjs.com"
+
+
+const dashboardShots = [
+  {
+    title: "Order management",
+    image: "/algolia-import.png",
+    caption: "Process incoming orders, update statuses, and coordinate fulfillment from one view.",
+  },
+  {
+    title: "Payout tracking",
+    image: "/talkjs-placeholder.jpg",
+    caption: "Track payouts with clear Stripe Connect visibility and transparent fee math.",
+  },
+  {
+    title: "Vendor messaging",
+    image: "/components.jpg",
+    caption: "Keep customer communication and fulfillment context in one operational workflow.",
+  },
+  {
+    title: "Impact metrics",
+    image: "/crafted.jpg",
+    caption: "Measure community outcomes over time and show the impact your operation creates.",
+  },
+]
 
 /**
  * Join Free Black Market - Community Provider Signup Landing Page
@@ -338,6 +363,27 @@ export default function SellPage() {
           </div>
         </div>
       </section>
+
+      <section className="py-20" data-event="dashboard_showcase_opened">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="rounded-2xl border p-6 md:p-8">
+            <h2 className="text-2xl md:text-3xl font-semibold mb-2">Inside the vendor dashboard</h2>
+            <p className="text-gray-600 mb-6">Core operations are grouped in one place so vendors can run storefronts and community programs without extra tools.</p>
+            <div className="grid gap-5 md:grid-cols-2">
+              {dashboardShots.map((shot) => (
+                <figure key={shot.title} className="rounded-xl border overflow-hidden bg-white">
+                  <Image src={shot.image} alt={shot.title} width={640} height={320} className="h-52 w-full object-cover" />
+                  <figcaption className="p-4">
+                    <p className="font-medium">{shot.title}</p>
+                    <p className="text-sm text-gray-600">{shot.caption}</p>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
 
       {/* Benefits Section */}
       <section className="py-20 bg-gray-50">
