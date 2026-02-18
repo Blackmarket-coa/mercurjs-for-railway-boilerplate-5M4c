@@ -8,6 +8,7 @@ import clsx from "clsx"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { getProductPrice } from "@/lib/helpers/get-product-price"
 import { normalizeImageUrl } from "@/lib/helpers/normalize-image-url"
+import { ArrowUpRight } from "lucide-react"
 
 type ProductCardVariant = "default" | "producer-forward"
 
@@ -46,15 +47,17 @@ export const ProductCard = ({
   const normalizedThumbnail = safelyDecodeImageUrl(
     normalizeImageUrl(api_product?.thumbnail || product.thumbnail || "")
   )
-  
+
   // Get seller/producer info from product metadata or collection
-  const sellerName = (product as any).seller?.name || 
-    (product as any).vendor?.name || 
+  const sellerName =
+    (product as any).seller?.name ||
+    (product as any).vendor?.name ||
     (api_product as any)?.metadata?.producer_name ||
     (api_product as any)?.metadata?.seller_name ||
     null
-  
-  const sellerHandle = (product as any).seller?.handle ||
+
+  const sellerHandle =
+    (product as any).seller?.handle ||
     (product as any).vendor?.handle ||
     (api_product as any)?.metadata?.producer_handle ||
     null
@@ -62,27 +65,28 @@ export const ProductCard = ({
   // Producer-forward variant
   if (variant === "producer-forward") {
     return (
-      <div
+      <article
         className={clsx(
-          "relative group border border-gray-100 rounded-lg flex flex-col justify-between bg-white hover:shadow-lg hover:border-green-200 transition-all duration-200 w-full lg:w-[calc(25%-1rem)] min-w-[250px]"
+          "group relative min-w-[260px] w-full overflow-hidden rounded-2xl border border-zinc-200/70 bg-white/95 shadow-[0_8px_30px_rgba(0,0,0,0.05)] transition-all duration-300 hover:-translate-y-1 hover:border-zinc-300 hover:shadow-[0_16px_44px_rgba(0,0,0,0.1)] lg:w-[calc(25%-1rem)]"
         )}
       >
-        <div className="relative w-full bg-gray-50 aspect-square overflow-hidden rounded-t-lg">
-          <LocalizedClientLink
-            href={`/products/${product.handle}`}
-            aria-label={`View ${productName}`}
-            title={`View ${productName}`}
-          >
+        <LocalizedClientLink
+          href={`/products/${product.handle}`}
+          aria-label={`View ${productName}`}
+          title={`View ${productName}`}
+          className="block"
+        >
+          <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100">
             {normalizedThumbnail ? (
               <Image
                 priority
                 fetchPriority="high"
                 src={normalizedThumbnail}
                 alt={`${productName} image`}
-                width={100}
-                height={100}
-                sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-                className="object-cover aspect-square w-full object-center h-full group-hover:scale-105 transition-transform duration-300"
+                width={720}
+                height={540}
+                sizes="(min-width: 1280px) 24vw, (min-width: 1024px) 30vw, (min-width: 640px) 48vw, 100vw"
+                className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
               />
             ) : (
               <Image
@@ -90,55 +94,68 @@ export const ProductCard = ({
                 fetchPriority="high"
                 src="/images/placeholder.svg"
                 alt={`${productName} image placeholder`}
-                width={100}
-                height={100}
-                sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-                className="object-cover w-full h-full"
+                width={720}
+                height={540}
+                sizes="(min-width: 1280px) 24vw, (min-width: 1024px) 30vw, (min-width: 640px) 48vw, 100vw"
+                className="h-full w-full object-cover"
               />
             )}
-          </LocalizedClientLink>
-        </div>
-        
-        <div className="p-4 flex flex-col gap-1.5">
-          {/* Producer name - primary emphasis */}
-          {sellerName && (
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-black/0 to-transparent opacity-70 transition-opacity duration-300 group-hover:opacity-90" />
+          </div>
+        </LocalizedClientLink>
+
+        <div className="space-y-3 p-4 md:p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-1">
+              {sellerName && (
+                <LocalizedClientLink
+                  href={sellerHandle ? `/sellers/${sellerHandle}` : "/producers"}
+                  className="inline-flex text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500 transition-colors hover:text-zinc-800"
+                >
+                  {sellerName}
+                </LocalizedClientLink>
+              )}
+              <LocalizedClientLink
+                href={`/products/${product.handle}`}
+                aria-label={`Go to ${productName} page`}
+                title={`Go to ${productName} page`}
+              >
+                <h3 className="line-clamp-2 text-base font-semibold text-zinc-900 transition-colors group-hover:text-zinc-700 md:text-lg">
+                  {product.title}
+                </h3>
+              </LocalizedClientLink>
+            </div>
+
             <LocalizedClientLink
-              href={sellerHandle ? `/sellers/${sellerHandle}` : `/producers`}
-              className="text-sm font-medium text-green-800 hover:text-green-900 transition-colors"
+              href={`/products/${product.handle}`}
+              aria-label={`See more about ${productName}`}
+              title={`See more about ${productName}`}
+              className="rounded-full border border-zinc-200 bg-white p-2 text-zinc-700 transition-all hover:border-zinc-300 hover:text-zinc-950"
             >
-              {sellerName}
+              <ArrowUpRight size={16} />
             </LocalizedClientLink>
-          )}
-          
-          {/* Product name */}
-          <LocalizedClientLink
-            href={`/products/${product.handle}`}
-            aria-label={`Go to ${productName} page`}
-            title={`Go to ${productName} page`}
-          >
-            <h3 className="text-base text-gray-900 line-clamp-2 group-hover:text-green-700 transition-colors">
-              {product.title}
-            </h3>
-          </LocalizedClientLink>
-          
-          {/* Price */}
-          <div className="flex items-center gap-2 mt-1">
-            <p className="font-semibold text-gray-900">{cheapestPrice?.calculated_price}</p>
-            {cheapestPrice?.calculated_price !== cheapestPrice?.original_price && (
-              <p className="text-sm text-gray-400 line-through">
-                {cheapestPrice?.original_price}
+          </div>
+
+          <div className="flex items-end justify-between gap-3 border-t border-zinc-100 pt-3">
+            <div className="flex items-center gap-2">
+              <p className="text-lg font-semibold text-zinc-900">
+                {cheapestPrice?.calculated_price}
               </p>
+              {cheapestPrice?.calculated_price !== cheapestPrice?.original_price && (
+                <p className="text-sm text-zinc-400 line-through">
+                  {cheapestPrice?.original_price}
+                </p>
+              )}
+            </div>
+
+            {impactTag && (
+              <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
+                {impactTag}
+              </span>
             )}
           </div>
-          
-          {/* Impact tag */}
-          {impactTag && (
-            <span className="inline-flex items-center mt-2 text-xs font-medium text-amber-700 bg-amber-50 px-2 py-1 rounded-full w-fit">
-              {impactTag}
-            </span>
-          )}
         </div>
-      </div>
+      </article>
     )
   }
 

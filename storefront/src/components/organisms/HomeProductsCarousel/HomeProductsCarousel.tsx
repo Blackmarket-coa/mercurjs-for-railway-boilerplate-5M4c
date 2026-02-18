@@ -30,15 +30,17 @@ export const HomeProductsCarousel = async ({
 
   if (!products.length && !sellerProducts.length) return null
 
+  const productsToRender = sellerProducts.length ? sellerProducts : products
+
   return (
     <div className="flex justify-center w-full">
       <Carousel
         align="start"
-        items={(sellerProducts.length ? sellerProducts : products).map(
-          (product) => (
+        items={productsToRender.map((product) => (
             <ProductCard
               key={product.id}
               product={product}
+              variant={home ? "producer-forward" : "default"}
               api_product={
                 home
                   ? (product as HttpTypes.StoreProduct)
@@ -54,8 +56,7 @@ export const HomeProductsCarousel = async ({
                     })
               }
             />
-          )
-        )}
+          ))}
       />
     </div>
   )
