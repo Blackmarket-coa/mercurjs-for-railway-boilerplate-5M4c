@@ -27,6 +27,7 @@ Thanks for helping improve MercurJS Marketplace.
 - Prefer small, reviewable pull requests.
 - Update docs when behavior or architecture changes.
 - Add or update tests for logic changes.
+- For new vendor extension keys, complete `docs/VENDOR_EXTENSION_DEFINITION_OF_DONE.md`.
 
 ## Quality Checks
 
