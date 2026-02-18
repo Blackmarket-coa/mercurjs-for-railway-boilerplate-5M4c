@@ -83,27 +83,11 @@ export const TypeNavbar = ({
       </LocalizedClientLink>
 
       <LocalizedClientLink
-        href="/what-you-sell#physical-goods"
+        href="/what-you-sell"
         onClick={() => onClose?.(false)}
         className="label-md uppercase px-4 py-2 hover:bg-secondary transition-colors"
       >
-        Goods
-      </LocalizedClientLink>
-
-      <LocalizedClientLink
-        href="/what-you-sell#services"
-        onClick={() => onClose?.(false)}
-        className="label-md uppercase px-4 py-2 hover:bg-secondary transition-colors"
-      >
-        Services
-      </LocalizedClientLink>
-
-      <LocalizedClientLink
-        href="/what-you-sell#community-programs"
-        onClick={() => onClose?.(false)}
-        className="label-md uppercase px-4 py-2 hover:bg-secondary transition-colors"
-      >
-        Community Programs
+        Goods, Services & Community Programs
       </LocalizedClientLink>
 
       {/* Type Dropdowns */}
