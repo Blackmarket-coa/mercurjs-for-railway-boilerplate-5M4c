@@ -1,0 +1,42 @@
+- name: bug
+  color: d73a4a
+  description: Something is not working
+- name: enhancement
+  color: a2eeef
+  description: New feature or request
+- name: documentation
+  color: 0075ca
+  description: Improvements or additions to documentation
+- name: good first issue
+  color: 7057ff
+  description: Good for newcomers
+- name: help wanted
+  color: 008672
+  description: Extra attention is needed
+- name: priority:high
+  color: b60205
+  description: High-priority work
+- name: priority:medium
+  color: fbca04
+  description: Medium-priority work
+- name: priority:low
+  color: 0e8a16
+  description: Low-priority work
+- name: backend
+  color: 1d76db
+  description: Backend scope
+- name: storefront
+  color: 5319e7
+  description: Storefront scope
+- name: admin-panel
+  color: c5def5
+  description: Admin panel scope
+- name: vendor-panel
+  color: f9d0c4
+  description: Vendor panel scope
+- name: infra
+  color: 006b75
+  description: Infrastructure and deployment scope
+- name: docs
+  color: 0052cc
+  description: Documentation-only changes

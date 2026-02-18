@@ -4,6 +4,10 @@ A comprehensive, production-ready multi-vendor marketplace platform built on Med
 
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/your-template)
 
+[![CI](https://img.shields.io/github/actions/workflow/status/Blackmarket-coa/free-black-market/ci.yml?branch=main&label=ci)](https://github.com/Blackmarket-coa/free-black-market/actions/workflows/ci.yml)
+[![Issues](https://img.shields.io/github/issues/Blackmarket-coa/free-black-market)](https://github.com/Blackmarket-coa/free-black-market/issues)
+[![License](https://img.shields.io/github/license/Blackmarket-coa/free-black-market)](https://github.com/Blackmarket-coa/free-black-market/blob/main/LICENSE)
+
 ## Overview
 
 MercurJS Marketplace is an enterprise-grade marketplace platform that combines modern e-commerce capabilities with innovative features for food systems, agricultural commerce, and community-driven economies. Built on MedusaJS v2 with 58+ custom modules, this platform supports everything from traditional B2C marketplaces to sophisticated food hubs, CSA operations, and community resource management.
@@ -477,6 +481,10 @@ The easiest way to deploy is using the Railway button:
 
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/your-template)
 
+[![CI](https://img.shields.io/github/actions/workflow/status/Blackmarket-coa/free-black-market/ci.yml?branch=main&label=ci)](https://github.com/Blackmarket-coa/free-black-market/actions/workflows/ci.yml)
+[![Issues](https://img.shields.io/github/issues/Blackmarket-coa/free-black-market)](https://github.com/Blackmarket-coa/free-black-market/issues)
+[![License](https://img.shields.io/github/license/Blackmarket-coa/free-black-market)](https://github.com/Blackmarket-coa/free-black-market/blob/main/LICENSE)
+
 This automatically provisions:
 - PostgreSQL database
 - Redis instance
@@ -816,3 +824,39 @@ Based on:
 Get started by deploying to Railway or setting up locally following the Quick Start guide above.
 
 For questions or support, join our [Discord community](https://discord.gg/mercurjs) or check the [documentation](https://docs.mercurjs.com).
+
+## Architecture (High-Level)
+
+```mermaid
+flowchart LR
+  SF[Storefront]
+  AP[Admin Panel]
+  VP[Vendor Panel]
+  BE[Backend / Medusa Modules]
+  DB[(PostgreSQL)]
+  RD[(Redis)]
+  EXT[External Integrations\nStripe, Stellar, Odoo, Email, Storage]
+
+  SF --> BE
+  AP --> BE
+  VP --> BE
+  BE --> DB
+  BE --> RD
+  BE <--> EXT
+```
+
+## Quickstart Links
+
+- Backend: [`backend/`](backend/)
+- Admin Panel: [`admin-panel/`](admin-panel/)
+- Vendor Panel: [`vendor-panel/`](vendor-panel/)
+- Storefront: [`storefront/`](storefront/)
+- Documentation index: [`docs/README.md`](docs/README.md)
+- Contribution guide: [`CONTRIBUTING.md`](CONTRIBUTING.md)
+- Governance: [`docs/GOVERNANCE.md`](docs/GOVERNANCE.md)
+
+## Help Pathways
+
+- Open bugs using the Bug Report template in `.github/ISSUE_TEMPLATE/bug_report.yml`.
+- Propose features using `.github/ISSUE_TEMPLATE/feature_request.yml`.
+- Follow contribution expectations in [`CONTRIBUTING.md`](CONTRIBUTING.md).
