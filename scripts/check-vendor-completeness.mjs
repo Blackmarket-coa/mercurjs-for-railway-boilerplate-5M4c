@@ -11,6 +11,10 @@ const vendorContextPath = join(
 )
 const vendorSrcPath = join(repoRoot, "vendor-panel/src")
 const backendModulesPath = join(repoRoot, "backend/src/modules")
+const runtimeCoveragePaths = [
+  join(repoRoot, "vendor-panel/src/hooks/navigation/use-vendor-navigation.tsx"),
+  join(repoRoot, "vendor-panel/src/routes/dashboard/config/dashboard-config.ts"),
+]
 
 function listFilesRecursive(dir) {
   const files = []
@@ -62,6 +66,22 @@ function countReferencesOutsideContext(keys) {
   return unused
 }
 
+function countRuntimeCoverageGaps(keys) {
+  const missingFiles = runtimeCoveragePaths.filter((filePath) => !existsSync(filePath))
+  if (missingFiles.length) {
+    throw new Error(
+      `Missing runtime coverage file(s): ${missingFiles.map((file) => file.replace(`${repoRoot}/`, "")).join(", ")}`
+    )
+  }
+
+  const runtimeFiles = runtimeCoveragePaths.map((filePath) => ({
+    path: filePath,
+    content: readFileSync(filePath, "utf8"),
+  }))
+
+  return keys.filter((key) => !runtimeFiles.some((file) => file.content.includes(key)))
+}
+
 function checkBackendModuleScaffold() {
   const missing = []
 
@@ -100,6 +120,7 @@ function main() {
 
   const keys = parseExtensionKeys()
   const unusedExtensionKeys = countReferencesOutsideContext(keys)
+  const runtimeCoverageGaps = countRuntimeCoverageGaps(keys)
   const missingModules = checkBackendModuleScaffold()
 
   console.log("Vendor modules/extensions completeness guard")
@@ -116,6 +137,20 @@ function main() {
     }
   } else {
     console.log("\n✅ All declared extension keys are referenced outside vendor-type-context.tsx")
+  }
+
+  if (runtimeCoverageGaps.length) {
+    hasError = true
+    console.error("\n❌ Extension keys missing runtime navigation/dashboard usage:")
+    for (const key of runtimeCoverageGaps) {
+      console.error(`  - ${key}`)
+    }
+    console.error("  Expected coverage files:")
+    for (const filePath of runtimeCoveragePaths) {
+      console.error(`  - ${filePath.replace(`${repoRoot}/`, "")}`)
+    }
+  } else {
+    console.log("✅ All declared extension keys are referenced in runtime navigation/dashboard coverage files")
   }
 
   if (missingModules.length) {
