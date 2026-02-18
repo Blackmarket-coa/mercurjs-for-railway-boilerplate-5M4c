@@ -14,6 +14,7 @@
  * - Kubernetes: Use for livenessProbe
  */
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { getRuntimeModuleGateSnapshot } from "../../shared/runtime-module-gates"
 
 // Track startup time
 const startTime = Date.now()
@@ -34,6 +35,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       rssMB: Math.round(memUsage.rss / 1024 / 1024),
     },
     environment: process.env.RAILWAY_ENVIRONMENT || process.env.NODE_ENV || "development",
+    runtime_module_gates: getRuntimeModuleGateSnapshot(),
   })
 }
 

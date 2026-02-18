@@ -13,3 +13,6 @@ export const sdk = new Medusa({
     type: "session",
   },
 })
+
+
+export { phase1ModuleFlags } from "./phase0-feature-flags"
