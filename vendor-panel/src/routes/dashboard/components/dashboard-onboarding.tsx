@@ -20,6 +20,7 @@ import {
   Heart,
   SquaresPlus,
   Newspaper,
+  CalendarMini,
 } from "@medusajs/icons"
 import { Link } from "react-router-dom"
 import { useVendorType } from "../../../providers/vendor-type-provider"
@@ -38,6 +39,9 @@ type DashboardProps = {
   menu?: boolean
   plots?: boolean
   volunteers?: boolean
+  seasons?: boolean
+  harvests?: boolean
+  support?: boolean
 }
 
 // Icon map for onboarding steps
@@ -48,6 +52,8 @@ const ICON_MAP: Record<string, any> = {
   Heart: Heart,
   SquaresPlus: SquaresPlus,
   Newspaper: Newspaper,
+  Calendar: CalendarMini,
+  QuestionMarkCircle: QuestionMarkCircle,
   ShoppingCart: ShoppingCart,
 }
 
@@ -81,6 +87,9 @@ export const DashboardOnboarding = ({
   menu,
   plots,
   volunteers,
+  seasons,
+  harvests,
+  support,
 }: DashboardProps) => {
   const { mutateAsync } = useUpdateOnboarding()
   const [showTips, setShowTips] = useState(true)
@@ -103,6 +112,9 @@ export const DashboardOnboarding = ({
     menu: Boolean(menu),
     plots: Boolean(plots),
     volunteers: Boolean(volunteers),
+    seasons: Boolean(seasons),
+    harvests: Boolean(harvests),
+    support: Boolean(support),
   }
 
   // Calculate progress based on actual steps
