@@ -4,7 +4,8 @@ import { AccountLoadingState } from "@/components/molecules"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { UserNavigation } from "@/components/molecules/UserNavigation/UserNavigation"
 import { retrieveCustomerContext } from "@/lib/data/customer"
-import { redirect } from "next/navigation"
+import { retrieveOrder } from "@/lib/data/orders"
+import { notFound, redirect } from "next/navigation"
 
 
 export const metadata: Metadata = {
@@ -24,6 +25,12 @@ export default async function RequestSuccessPage({
   if (!customer) {
     if (!isAuthenticated) return redirect("/user")
     return <AccountLoadingState title="Return Requested" />
+  }
+
+  const order = await retrieveOrder(id)
+
+  if (!order) {
+    notFound()
   }
 
   return (

@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { notFound } from "next/navigation"
 import { SellerTabs } from "@/components/organisms"
 import { SellerPageHeader } from "@/components/sections"
 import { retrieveCustomer } from "@/lib/data/customer"
@@ -21,7 +22,7 @@ export default async function SellerReviewsPage({
 
   const seller = (await getSellerByHandle(handle)) as SellerProps
   if (!seller) {
-    return null
+    notFound()
   }
 
   const currency_code = (await getRegion(locale))?.currency_code || "usd"
