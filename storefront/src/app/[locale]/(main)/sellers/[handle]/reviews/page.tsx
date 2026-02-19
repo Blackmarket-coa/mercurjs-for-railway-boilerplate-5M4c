@@ -1,9 +1,16 @@
+import type { Metadata } from "next"
 import { SellerTabs } from "@/components/organisms"
 import { SellerPageHeader } from "@/components/sections"
 import { retrieveCustomer } from "@/lib/data/customer"
 import { getRegion } from "@/lib/data/regions"
 import { getSellerByHandle } from "@/lib/data/seller"
 import { SellerProps } from "@/types/seller"
+
+
+export const metadata: Metadata = {
+  title: "Seller Reviews",
+  description: "Read buyer feedback and ratings for this seller.",
+}
 
 export default async function SellerReviewsPage({
   params,

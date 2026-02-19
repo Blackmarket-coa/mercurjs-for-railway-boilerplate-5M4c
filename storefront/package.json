@@ -8,7 +8,9 @@
     "dev": "pnpm run wait && pnpm run launcher dev",
     "build": "pnpm run wait && pnpm run launcher build",
     "start": "pnpm run launcher start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "qa:routes": "node qa/validate-static-routes.mjs",
+    "release:check": "pnpm lint && pnpm qa:routes"
   },
   "resolutions": {
     "glob": ">=10.5.0",

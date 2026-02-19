@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { retrieveCustomerContext } from "@/lib/data/customer"
 import { redirect } from "next/navigation"
 import { isEmpty } from "lodash"
@@ -8,6 +9,12 @@ import { WishlistItem } from "@/components/cells"
 import { getUserWishlists } from "@/lib/data/wishlist"
 import { HttpTypes } from "@medusajs/types"
 import { AccountLoadingState, UserNavigation } from "@/components/molecules"
+
+
+export const metadata: Metadata = {
+  title: "Your Wishlist",
+  description: "Save products you want to revisit and purchase later.",
+}
 
 export default async function Wishlist() {
   const { customer, isAuthenticated } = await retrieveCustomerContext()

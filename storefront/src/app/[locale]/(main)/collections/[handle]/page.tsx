@@ -1,4 +1,4 @@
-import NotFound from "@/app/not-found"
+import type { Metadata } from "next"
 import { Breadcrumbs } from "@/components/atoms"
 import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
 import { AlgoliaProductsListing, ProductListing } from "@/components/sections"
@@ -6,11 +6,33 @@ import { getCollectionByHandle } from "@/lib/data/categories"
 import { getRegion } from "@/lib/data/regions"
 import isBot from "@/lib/helpers/isBot"
 import { headers } from "next/headers"
+import { notFound } from "next/navigation"
 import { Suspense } from "react"
 import { isUnifiedListingEnabled } from "@/lib/feature-flags"
 
 const ALGOLIA_ID = process.env.NEXT_PUBLIC_ALGOLIA_ID
 const ALGOLIA_SEARCH_KEY = process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ handle: string }>
+}): Promise<Metadata> {
+  const { handle } = await params
+  const collection = await getCollectionByHandle(handle)
+
+  if (!collection) {
+    return {
+      title: "Collection Not Found",
+      description: "This collection could not be found.",
+    }
+  }
+
+  return {
+    title: `${collection.title} | Collections`,
+    description: collection.metadata?.description as string | undefined,
+  }
+}
 
 const SingleCollectionsPage = async ({
   params,
@@ -27,7 +49,9 @@ const SingleCollectionsPage = async ({
   const bot = isBot(ua)
   const collection = await getCollectionByHandle(handle)
 
-  if (!collection) return <NotFound />
+  if (!collection) {
+    return notFound()
+  }
 
   const currency_code = (await getRegion(locale))?.currency_code || "usd"
 

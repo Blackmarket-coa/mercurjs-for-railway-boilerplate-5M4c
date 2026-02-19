@@ -1,9 +1,16 @@
+import type { Metadata } from "next"
 import { Button } from "@/components/atoms/Button/Button"
 import { AccountLoadingState } from "@/components/molecules"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { UserNavigation } from "@/components/molecules/UserNavigation/UserNavigation"
 import { retrieveCustomerContext } from "@/lib/data/customer"
 import { redirect } from "next/navigation"
+
+
+export const metadata: Metadata = {
+  title: "Return Request Submitted",
+  description: "Your return request was submitted successfully.",
+}
 
 export default async function RequestSuccessPage({
   params,

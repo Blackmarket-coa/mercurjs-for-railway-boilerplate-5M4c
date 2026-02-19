@@ -1,5 +1,12 @@
+import type { Metadata } from "next"
 import { AccountLoadingState, LoginForm, UserNavigation } from "@/components/molecules"
 import { retrieveCustomerContext } from "@/lib/data/customer"
+
+
+export const metadata: Metadata = {
+  title: "Your Account",
+  description: "Manage your account dashboard and profile details.",
+}
 
 export default async function UserPage() {
   const { customer, isAuthenticated } = await retrieveCustomerContext()

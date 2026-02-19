@@ -1,8 +1,15 @@
+import type { Metadata } from "next"
 import { AccountLoadingState, UserNavigation } from "@/components/molecules"
 import { retrieveCustomerContext } from "@/lib/data/customer"
 import { redirect } from "next/navigation"
 import { Addresses } from "@/components/organisms"
 import { listRegions } from "@/lib/data/regions"
+
+
+export const metadata: Metadata = {
+  title: "Your Addresses",
+  description: "Manage your saved shipping and billing addresses.",
+}
 
 export default async function Page() {
   const { customer, isAuthenticated } = await retrieveCustomerContext()

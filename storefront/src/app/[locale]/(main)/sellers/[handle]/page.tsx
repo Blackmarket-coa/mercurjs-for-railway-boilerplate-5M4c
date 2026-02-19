@@ -6,6 +6,7 @@ import { getRegion } from "@/lib/data/regions"
 import { getSellerByHandle } from "@/lib/data/seller"
 import { SellerProps } from "@/types/seller"
 import type { Metadata } from "next"
+import { notFound } from "next/navigation"
 
 export async function generateMetadata({
   params,
@@ -45,7 +46,7 @@ export default async function SellerPage({
   const tab = "products"
 
   if (!seller) {
-    return null
+    return notFound()
   }
 
   const breadcrumbsItems = [

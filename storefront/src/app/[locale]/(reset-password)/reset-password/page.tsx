@@ -1,5 +1,12 @@
+import type { Metadata } from "next"
 import { Card } from "@/components/atoms"
 import { ResetPasswordForm } from "@/components/molecules/ResetPasswordForm"
+
+
+export const metadata: Metadata = {
+  title: "Reset Password",
+  description: "Set a new password to regain access to your account.",
+}
 
 export default async function ResetPasswordPage({
   searchParams,

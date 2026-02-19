@@ -1,7 +1,14 @@
+import type { Metadata } from "next"
 import { AccountLoadingState, LoginForm, UserNavigation } from "@/components/molecules"
 import { ReviewsToWrite } from "@/components/organisms"
 import { retrieveCustomerContext } from "@/lib/data/customer"
 import { listOrders } from "@/lib/data/orders"
+
+
+export const metadata: Metadata = {
+  title: "Your Reviews",
+  description: "Manage reviews for your marketplace purchases.",
+}
 
 export default async function Page() {
   const { customer, isAuthenticated } = await retrieveCustomerContext()

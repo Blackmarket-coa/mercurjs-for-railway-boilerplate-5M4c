@@ -1,9 +1,16 @@
+import type { Metadata } from "next"
 import { AccountLoadingState, LoginForm, ParcelAccordion } from "@/components/molecules"
 import { UserNavigation } from "@/components/molecules"
 import { retrieveCustomerContext } from "@/lib/data/customer"
 import { OrdersPagination } from "@/components/sections"
 import { isEmpty } from "lodash"
 import { listOrders } from "@/lib/data/orders"
+
+
+export const metadata: Metadata = {
+  title: "Your Orders",
+  description: "View your order history and track current purchases.",
+}
 
 const LIMIT = 10
 
