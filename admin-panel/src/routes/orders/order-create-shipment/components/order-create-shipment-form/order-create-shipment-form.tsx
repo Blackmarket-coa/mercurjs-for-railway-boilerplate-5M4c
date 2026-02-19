@@ -1,46 +1,46 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useTranslation } from "react-i18next"
-import * as zod from "zod"
+import { AdminFulfillment, AdminOrder } from "@medusajs/types";
+import { Button, Heading, Input, Switch, toast } from "@medusajs/ui";
 
-import { AdminFulfillment, AdminOrder } from "@medusajs/types"
-import { Button, Heading, Input, Switch, toast } from "@medusajs/ui"
-import { useFieldArray, useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useFieldArray, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import * as zod from "zod";
 
-import { Form } from "../../../../../components/common/form"
+import { Form } from "../../../../../components/common/form";
 import {
   RouteFocusModal,
   useRouteModal,
-} from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useCreateOrderShipment } from "../../../../../hooks/api"
-import { CreateShipmentSchema } from "./constants"
+} from "../../../../../components/modals";
+import { KeyboundForm } from "../../../../../components/utilities/keybound-form";
+import { useCreateOrderShipment } from "../../../../../hooks/api";
+import { CreateShipmentSchema } from "./constants";
 
 type OrderCreateFulfillmentFormProps = {
-  order: AdminOrder
-  fulfillment: AdminFulfillment
-}
+  order: AdminOrder;
+  fulfillment: AdminFulfillment;
+};
 
 export function OrderCreateShipmentForm({
   order,
   fulfillment,
 }: OrderCreateFulfillmentFormProps) {
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
 
   const { mutateAsync: createShipment, isPending: isMutating } =
-    useCreateOrderShipment(order.id, fulfillment?.id)
+    useCreateOrderShipment(order.id, fulfillment?.id);
 
   const form = useForm<zod.infer<typeof CreateShipmentSchema>>({
     defaultValues: {
       send_notification: !order.no_notification,
     },
     resolver: zodResolver(CreateShipmentSchema),
-  })
+  });
 
   const { fields: labels, append } = useFieldArray({
     name: "labels",
     control: form.control,
-  })
+  });
 
   const handleSubmit = form.handleSubmit(async (data) => {
     const addedLabels = data.labels
@@ -49,7 +49,7 @@ export function OrderCreateShipmentForm({
         tracking_number: l.tracking_number,
         tracking_url: "#",
         label_url: "#",
-      }))
+      }));
 
     await createShipment(
       {
@@ -62,15 +62,15 @@ export function OrderCreateShipmentForm({
       },
       {
         onSuccess: () => {
-          toast.success(t("orders.shipment.toastCreated"))
-          handleSuccess(`/orders/${order.id}`)
+          toast.success(t("orders.shipment.toastCreated"));
+          handleSuccess(`/orders/${order.id}`);
         },
         onError: (e) => {
-          toast.error(e.message)
+          toast.error(e.message);
         },
-      }
-    )
-  })
+      },
+    );
+  });
 
   return (
     <RouteFocusModal.Form form={form}>
@@ -107,14 +107,20 @@ export function OrderCreateShipmentForm({
                             </Form.Control>
                             <Form.ErrorMessage />
                           </Form.Item>
-                        )
+                        );
                       }}
                     />
                   ))}
 
                   <Button
                     type="button"
-                    onClick={() => append({ tracking_number: "" })}
+                    onClick={() =>
+                      append({
+                        tracking_number: "",
+                        tracking_url: "#",
+                        label_url: "#",
+                      })
+                    }
                     className="self-end"
                     variant="secondary"
                   >
@@ -122,7 +128,7 @@ export function OrderCreateShipmentForm({
                   </Button>
                 </div>
 
-                <div className="mt-8 pt-8 ">
+                <div className="mt-8 pt-8">
                   <Form.Field
                     control={form.control}
                     name="send_notification"
@@ -150,7 +156,7 @@ export function OrderCreateShipmentForm({
                           </Form.Hint>
                           <Form.ErrorMessage />
                         </Form.Item>
-                      )
+                      );
                     }}
                   />
                 </div>
@@ -170,5 +176,5 @@ export function OrderCreateShipmentForm({
         </RouteFocusModal.Footer>
       </KeyboundForm>
     </RouteFocusModal.Form>
-  )
+  );
 }
