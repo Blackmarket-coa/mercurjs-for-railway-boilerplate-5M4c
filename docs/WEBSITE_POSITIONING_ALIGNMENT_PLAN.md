@@ -439,4 +439,13 @@ After implementation follow-up review, several originally listed items are now c
 
 ### Still In Progress / Remaining
 1. Vendor dashboard public showcase with annotated **real** screenshots (section exists; replace placeholder/non-representative images with production UI captures).
-2. Ongoing KPI review and iteration cycle across conversion metrics.
+2. KPI review cadence rollout to dashboards and weekly operating routine (process documented in `docs/WEBSITE_POSITIONING_KPI_REVIEW_CADENCE.md`; team adoption + dashboard wiring in progress).
+
+### Implemented Next Step (This Update)
+- Added a concrete KPI operations playbook with:
+  - weekly review rhythm,
+  - ownership model,
+  - experiment guardrails,
+  - baseline dashboard requirements,
+  - and immediate two-iteration test plan.
+- New document: `docs/WEBSITE_POSITIONING_KPI_REVIEW_CADENCE.md`
