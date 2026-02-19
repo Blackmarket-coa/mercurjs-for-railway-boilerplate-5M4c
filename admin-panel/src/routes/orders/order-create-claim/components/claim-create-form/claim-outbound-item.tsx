@@ -32,6 +32,14 @@ function ClaimOutboundItem({
 }: ClaimOutboundItemProps) {
   const { t } = useTranslation()
 
+  const isInventoryManaged = !!previewItem.variant?.manage_inventory
+  const allowsBackorder = !!previewItem.variant?.allow_backorder
+  const availableInventoryQuantity = previewItem.variant?.inventory_quantity
+  const hasInventoryLimit =
+    isInventoryManaged &&
+    !allowsBackorder &&
+    typeof availableInventoryQuantity === "number"
+
   return (
     <div className="bg-ui-bg-subtle shadow-elevation-card-rest my-2 rounded-xl ">
       <div className="flex flex-col items-center gap-x-2 gap-y-2 border-b p-3 text-sm md:flex-row">
@@ -67,18 +75,26 @@ function ClaimOutboundItem({
                         {...field}
                         className="bg-ui-bg-base txt-small w-[67px] rounded-lg"
                         min={1}
-                        // TODO: add max available inventory quantity if present
-                        // max={previewItem.quantity}
+                        max={hasInventoryLimit ? availableInventoryQuantity : undefined}
                         type="number"
                         onBlur={(e) => {
                           const val = e.target.value
                           const payload = val === "" ? null : Number(val)
 
-                          field.onChange(payload)
+                          if (payload === null) {
+                            field.onChange(payload)
 
-                          if (payload) {
-                            onUpdate({ quantity: payload })
+                            return
                           }
+
+                          const normalizedPayload =
+                            hasInventoryLimit && typeof availableInventoryQuantity === "number"
+                              ? Math.min(payload, availableInventoryQuantity)
+                              : payload
+
+                          field.onChange(normalizedPayload)
+
+                          onUpdate({ quantity: normalizedPayload })
                         }}
                       />
                     </Form.Control>

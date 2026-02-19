@@ -256,9 +256,16 @@ export const ExchangeOutboundSection = ({
           return true
         }
 
-        return inventoryMap[item.variant_id]?.find(
-          (l) => l.location_id === locationId
-        )
+        return inventoryMap[item.variant_id]?.some((l) => {
+          if (l.location_id !== locationId) {
+            return false
+          }
+
+          const availableQuantity =
+            l.available_quantity ?? l.stocked_quantity ?? 0
+
+          return availableQuantity > 0
+        })
       })
       .every(Boolean)
 
@@ -285,7 +292,8 @@ export const ExchangeOutboundSection = ({
       ).variants
 
       variants.forEach((variant) => {
-        ret[variant.id] = variant.inventory?.[0]?.location_levels || []
+        ret[variant.id] =
+          variant.inventory?.flatMap((inventory) => inventory.location_levels || []) || []
       })
 
       return ret

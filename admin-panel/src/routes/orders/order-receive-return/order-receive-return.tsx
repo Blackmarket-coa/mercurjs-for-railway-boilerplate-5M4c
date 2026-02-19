@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { Heading, toast } from "@medusajs/ui"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 
 import { useOrder, useOrderPreview } from "../../../hooks/api/orders"
 import { RouteDrawer } from "../../../components/modals"
@@ -27,7 +27,9 @@ export function OrderReceiveReturn() {
   const { order: preview } = useOrderPreview(id!)
   const { return: orderReturn } = useReturn(return_id, {
     fields: "*items.item,*items.item.variant,*items.item.variant.product",
-  }) // TODO: fix API needs to return 404 if return not exists and not an empty object
+  })
+
+  const hasHandledMissingReturn = useRef(false)
 
   /**
    * MUTATIONS
@@ -40,8 +42,20 @@ export function OrderReceiveReturn() {
 
   const { mutateAsync: addReceiveItems } = useAddReceiveItems(return_id, id)
 
+
   useEffect(() => {
-    ;(async function () {
+    if (!orderReturn || orderReturn.id || hasHandledMissingReturn.current) {
+      return
+    }
+
+    hasHandledMissingReturn.current = true
+
+    toast.error("Return not found")
+    navigate(`/orders/${id}`, { replace: true })
+  }, [orderReturn, navigate, id])
+
+  useEffect(() => {
+    const syncReceiveItems = async () => {
       if (IS_REQUEST_RUNNING || !preview) {
         return
       }
@@ -70,10 +84,12 @@ export function OrderReceiveReturn() {
       } finally {
         IS_REQUEST_RUNNING = false
       }
-    })()
+    }
+
+    syncReceiveItems()
   }, [preview])
 
-  const ready = order && orderReturn && preview
+  const ready = order && orderReturn?.id && preview
 
   return (
     <RouteDrawer>

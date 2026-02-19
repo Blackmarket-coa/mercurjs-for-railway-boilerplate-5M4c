@@ -28,6 +28,7 @@ export const AddClaimOutboundItemsTable = ({
   const [rowSelection, setRowSelection] = useState<RowSelectionState>(
     selectedItems.reduce((acc, id) => {
       acc[id] = true
+
       return acc
     }, {} as RowSelectionState)
   )
@@ -60,9 +61,15 @@ export const AddClaimOutboundItemsTable = ({
     enablePagination: true,
     getRowId: (row) => row.id,
     pageSize: PAGE_SIZE,
-    enableRowSelection: (_row) => {
-      // TODO: Check inventory here. Check if other validations needs to be made
-      return true
+    enableRowSelection: (row) => {
+      const { manage_inventory, allow_backorder, inventory_quantity } =
+        row.original
+
+      if (!manage_inventory || allow_backorder) {
+        return true
+      }
+
+      return (inventory_quantity ?? 0) > 0
     },
     rowSelection: {
       state: rowSelection,
