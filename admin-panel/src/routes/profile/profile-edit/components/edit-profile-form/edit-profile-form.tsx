@@ -145,7 +145,7 @@ export const EditProfileForm = ({ user }: EditProfileProps) => {
                 </Form.Item>
               )}
             />
-            {/* TODO: Do we want to implement usage insights in V2? */}
+            {/* NOTE: Evaluate usage insights support for V2 */}
             {/* <Form.Field
               control={form.control}
               name="usage_insights"
@@ -172,7 +172,7 @@ export const EditProfileForm = ({ user }: EditProfileProps) => {
                           <a
                             key="hint-link"
                             className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover transition-fg underline"
-                            // TODO change link once docs are public
+                            // NOTE: Change link once docs are public
                             href="https://medusa-resources-git-docs-v2-medusajs.vercel.app/resources/usage#admin-analytics"
                             target="_blank"
                             rel="noopener noreferrer"

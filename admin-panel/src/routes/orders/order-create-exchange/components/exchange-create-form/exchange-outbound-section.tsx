@@ -60,7 +60,7 @@ export const ExchangeOutboundSection = ({
    */
   const { shipping_options = [] } = useOrderShippingOptions(order.id)
 
-  // TODO: filter in the API when boolean filter is supported and fulfillment module support partial rule SO filtering
+  // NOTE: Filter in API once boolean filter and partial-rule SO filtering are supported
   const outboundShippingOptions = shipping_options.filter(
     (so) =>
       !so.rules?.find((r) => r.attribute === "is_return" && r.value === "true")

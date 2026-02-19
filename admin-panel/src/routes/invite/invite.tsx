@@ -37,7 +37,7 @@ const CreateAccountSchema = z
     }
   })
 
-// TODO: Update to V2 format
+// NOTE: Update to V2 format
 type DecodedInvite = {
   id: string
   jti: any

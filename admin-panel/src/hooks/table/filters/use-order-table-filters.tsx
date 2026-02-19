@@ -144,7 +144,7 @@ export const useOrderTableFilters = (): Filter[] => {
 
   filters = [
     ...filters,
-    // TODO: enable when Payment, Fulfillments <> Orders are linked
+    // NOTE: Enable when Payment and Fulfillments are linked to Orders
     // paymentStatusFilter,
     // fulfillmentStatusFilter,
     ...dateFilters,

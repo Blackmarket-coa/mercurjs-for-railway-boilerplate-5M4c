@@ -76,7 +76,7 @@ export const useUpdateOrder = (
         queryKey: ordersQueryKeys.changes(id),
       })
 
-      // TODO: enable when needed
+      // NOTE: Keep disabled until this filter is supported
       // queryClient.invalidateQueries({
       //   queryKey: ordersQueryKeys.lists(),
       // })

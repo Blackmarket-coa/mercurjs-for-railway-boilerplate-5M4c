@@ -88,7 +88,7 @@ export const ProductCreateForm = ({
   }, [regions])
 
   /**
-   * TODO: Important to revisit this - use variants watch so high in the tree can cause needless rerenders of the entire page
+   * NOTE: Revisit this; a high-level variants watch can cause unnecessary page rerenders
    * which is suboptimal when rerenders are caused by bulk editor changes
    */
 

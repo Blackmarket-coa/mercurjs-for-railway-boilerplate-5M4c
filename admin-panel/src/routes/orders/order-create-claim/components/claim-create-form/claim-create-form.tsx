@@ -105,14 +105,14 @@ export const ClaimCreateForm = ({
   /**
    * MUTATIONS
    */
-  // TODO: implement confirm claim request
+  // NOTE: Confirm claim request is not implemented yet
   const { mutateAsync: confirmClaimRequest, isPending: isConfirming } =
     useClaimConfirmRequest(claim.id, order.id)
 
   const { mutateAsync: cancelClaimRequest, isPending: isCanceling } =
     useCancelClaimRequest(claim.id, order.id)
 
-  // TODO: implement update claim request
+  // NOTE: Update claim request is not implemented yet
 
   const { mutateAsync: updateReturn, isPending: isUpdating } = useUpdateReturn(
     preview?.order_change?.return_id!,

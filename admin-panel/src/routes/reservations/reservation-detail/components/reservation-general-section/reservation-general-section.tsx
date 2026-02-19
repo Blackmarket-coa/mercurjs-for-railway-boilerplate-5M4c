@@ -63,7 +63,7 @@ export const ReservationGeneralSection = ({
       </div>
       <SectionRow
         title={t("inventory.reservation.lineItemId")}
-        value={reservation.line_item_id} // TODO fetch order instead + add link
+        value={reservation.line_item_id} // NOTE: Fetch order and add link when endpoint support is available
       />
       <SectionRow
         title={t("inventory.reservation.description")}
