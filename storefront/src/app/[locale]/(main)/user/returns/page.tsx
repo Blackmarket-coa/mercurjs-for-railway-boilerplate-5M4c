@@ -1,7 +1,14 @@
+import type { Metadata } from "next"
 import { AccountLoadingState, LoginForm, UserNavigation } from "@/components/molecules"
 import { OrderReturnRequests } from "@/components/sections/OrderReturnRequests/OrderReturnRequests"
 import { retrieveCustomerContext } from "@/lib/data/customer"
 import { getReturns, retrieveReturnReasons } from "@/lib/data/orders"
+
+
+export const metadata: Metadata = {
+  title: "Your Returns",
+  description: "Track and manage your return requests.",
+}
 
 export default async function ReturnsPage({
   searchParams,

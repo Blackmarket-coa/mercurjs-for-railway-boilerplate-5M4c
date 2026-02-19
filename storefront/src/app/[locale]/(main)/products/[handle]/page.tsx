@@ -2,6 +2,7 @@ import { ProductDetailsPage } from "@/components/sections"
 import { listProducts } from "@/lib/data/products"
 import { generateProductMetadata } from "@/lib/helpers/seo"
 import type { Metadata } from "next"
+import { notFound } from "next/navigation"
 
 export async function generateMetadata({
   params,
@@ -25,6 +26,16 @@ export default async function ProductPage({
   params: Promise<{ handle: string; locale: string }>
 }) {
   const { handle, locale } = await params
+
+  const prod = await listProducts({
+    countryCode: locale,
+    queryParams: { handle: [handle], limit: 1 },
+    forceCache: true,
+  }).then(({ response }) => response.products[0])
+
+  if (!prod) {
+    return notFound()
+  }
 
   return (
     <main className="container">

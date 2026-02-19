@@ -17,6 +17,9 @@ This checklist maps directly to the Immediate Sprint launch gates in `docs/WEBSI
 - [ ] Homepage does not show a blocking empty state while data is loading.
 - [ ] Discovery module appears above the fold in standard desktop viewport.
 
+## QA/release route checks
+- [ ] Run `pnpm --dir storefront qa:routes` and verify there are no unmatched hard-coded internal links.
+
 ## Instrumentation baseline window
 - [ ] Capture at least 7 days of baseline metrics before/after release comparison.
 - [ ] Segment event analysis by `deviceType` (`desktop`/`mobile`).

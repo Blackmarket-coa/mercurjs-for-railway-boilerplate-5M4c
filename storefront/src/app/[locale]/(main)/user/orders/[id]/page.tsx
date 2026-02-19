@@ -1,12 +1,19 @@
+import type { Metadata } from "next"
 import { AccountLoadingState, UserNavigation } from "@/components/molecules"
 import { retrieveCustomerContext } from "@/lib/data/customer"
 import { Button } from "@/components/atoms"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { ArrowLeftIcon } from "@/icons"
 import { redirect } from "next/navigation"
+import { notFound } from "next/navigation"
 import { format } from "date-fns"
 import { retrieveOrderSet } from "@/lib/data/orders"
 import { OrderDetailsSection } from "@/components/sections/OrderDetailsSection/OrderDetailsSection"
+
+export const metadata: Metadata = {
+  title: "Order Details",
+  description: "Review order details, status updates, and shipment information.",
+}
 
 export default async function UserPage({
   params,
@@ -23,6 +30,10 @@ export default async function UserPage({
   }
 
   const orderSet = await retrieveOrderSet(id)
+
+  if (!orderSet) {
+    return notFound()
+  }
 
   return (
     <main className="container">

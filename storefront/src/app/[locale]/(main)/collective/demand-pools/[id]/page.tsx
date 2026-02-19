@@ -1,7 +1,14 @@
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { getDemandPool } from "@/lib/data/collective"
 import JoinDemandPoolForm from "./join-form"
+
+
+export const metadata: Metadata = {
+  title: "Demand Pool",
+  description: "Track collective demand pool progress and join this purchase group.",
+}
 
 type PageProps = {
   params: Promise<{ id: string }>

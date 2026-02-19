@@ -1,6 +1,13 @@
+import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { createDemandPool, publishDemandPool } from "@/lib/data/collective"
+
+
+export const metadata: Metadata = {
+  title: "Create Demand Pool",
+  description: "Start a new collective demand pool and invite community participation.",
+}
 
 type PageProps = {
   params: Promise<{ locale: string }>

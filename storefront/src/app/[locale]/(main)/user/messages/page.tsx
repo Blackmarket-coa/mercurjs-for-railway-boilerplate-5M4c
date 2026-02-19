@@ -1,6 +1,13 @@
+import type { Metadata } from "next"
 import { AccountLoadingState, LoginForm, UserNavigation } from "@/components/molecules"
 import { UserMessagesSection } from "@/components/sections/UserMessagesSection/UserMessagesSection"
 import { retrieveCustomerContext } from "@/lib/data/customer"
+
+
+export const metadata: Metadata = {
+  title: "Your Messages",
+  description: "View and manage your marketplace conversations.",
+}
 
 export default async function MessagesPage() {
   const { customer, isAuthenticated } = await retrieveCustomerContext()

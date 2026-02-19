@@ -1,6 +1,13 @@
+import type { Metadata } from "next"
 import { AccountLoadingState, LoginForm, ProfileDetails, UserNavigation } from "@/components/molecules"
 import { ProfilePassword } from "@/components/molecules/ProfileDetails/ProfilePassword"
 import { retrieveCustomerContext } from "@/lib/data/customer"
+
+
+export const metadata: Metadata = {
+  title: "Account Settings",
+  description: "Update your profile, password, and account preferences.",
+}
 
 export default async function ReviewsPage() {
   const { customer, isAuthenticated } = await retrieveCustomerContext()

@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { AccountLoadingState } from "@/components/molecules"
 import { OrderReturnSection } from "@/components/sections/OrderReturnSection/OrderReturnSection"
 import { retrieveCustomerContext } from "@/lib/data/customer"
@@ -7,6 +8,11 @@ import {
   retriveReturnMethods,
 } from "@/lib/data/orders"
 import { redirect } from "next/navigation"
+
+export const metadata: Metadata = {
+  title: "Request a Return",
+  description: "Submit a return request for your order.",
+}
 
 export default async function ReturnOrderPage({
   params,

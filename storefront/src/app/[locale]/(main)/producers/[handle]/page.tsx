@@ -1,5 +1,6 @@
 import { ProducerDetailPage } from "@/components/sections/ProducerDetailPage/ProducerDetailPage"
 import type { Metadata } from "next"
+import { notFound } from "next/navigation"
 
 export async function generateMetadata({
   params,
@@ -42,6 +43,14 @@ export default async function ProducerPage({
   params: Promise<{ handle: string; locale: string }>
 }) {
   const { handle, locale } = await params
+  const backendUrl = process.env.MEDUSA_BACKEND_URL || "http://localhost:9000"
+  const response = await fetch(`${backendUrl}/store/producers/${handle}`, {
+    next: { revalidate: 60 },
+  })
+
+  if (!response.ok) {
+    return notFound()
+  }
 
   return (
     <main className="container py-8">
