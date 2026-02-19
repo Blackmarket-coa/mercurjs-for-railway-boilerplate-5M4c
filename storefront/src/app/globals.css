@@ -5,6 +5,40 @@
 @tailwind components;
 @tailwind utilities;
 
+
+@layer base {
+  body {
+    font-family: var(--font-solarpunk-body), ui-sans-serif, system-ui, sans-serif;
+    background-color: rgb(var(--neutral-0));
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .font-heading {
+    font-family: var(--font-solarpunk-heading), var(--font-solarpunk-body), sans-serif;
+    letter-spacing: -0.01em;
+  }
+}
+
+.solarpunk-atmosphere {
+  background-image:
+    radial-gradient(circle at 18% 12%, rgba(var(--brand-300), 0.22) 0%, rgba(var(--brand-300), 0) 42%),
+    radial-gradient(circle at 82% 4%, rgba(var(--amber-200), 0.36) 0%, rgba(var(--amber-200), 0) 35%),
+    radial-gradient(circle at 50% 110%, rgba(var(--brand-500), 0.14) 0%, rgba(var(--brand-500), 0) 45%),
+    linear-gradient(180deg, rgba(var(--neutral-25), 1) 0%, rgba(var(--neutral-0), 1) 48%, rgba(var(--brand-25), 1) 100%);
+  background-attachment: fixed;
+}
+
+/* Give app icons a unified organic tint unless overridden */
+[class*="Icon"] svg,
+svg.solarpunk-icon {
+  color: rgb(var(--brand-700));
+}
+
 /* Typography */
 .text-xl {
   @apply font-light tracking-normal;

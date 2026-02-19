@@ -1,13 +1,19 @@
 import type { Metadata } from "next"
-import { Funnel_Display } from "next/font/google"
+import { Exo_2, Urbanist } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "@medusajs/ui"
 import Head from "next/head"
 import { retrieveCart } from "@/lib/data/cart"
 import { Providers } from "./providers"
 
-const funnelDisplay = Funnel_Display({
-  variable: "--font-funnel-sans",
+const exo2 = Exo_2({
+  variable: "--font-solarpunk-heading",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+})
+
+const urbanist = Urbanist({
+  variable: "--font-solarpunk-body",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600"],
 })
@@ -103,7 +109,7 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="https://api.mercurjs.com" />
       </Head>
       <body
-        className={`${funnelDisplay.className} antialiased bg-primary text-secondary relative`}
+        className={`${exo2.variable} ${urbanist.variable} ${urbanist.className} antialiased bg-primary text-secondary relative solarpunk-atmosphere`}
       >
         <Providers cart={cart}>{children}</Providers>
         <Toaster position="top-right" />
