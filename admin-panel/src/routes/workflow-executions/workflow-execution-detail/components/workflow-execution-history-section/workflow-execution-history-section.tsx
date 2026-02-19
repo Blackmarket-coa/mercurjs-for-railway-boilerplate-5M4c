@@ -200,7 +200,7 @@ const Event = ({
                   snippets={[
                     {
                       code: JSON.stringify(
-                        // TODO: Apply resolve value: packages/core/workflows-sdk/src/utils/composer/helpers/resolve-value.ts
+                        // NOTE: Apply resolve-value helper from workflows SDK
                         stepInvokeContext?.output?.output ?? {},
                         null,
                         2
@@ -224,7 +224,7 @@ const Event = ({
                   <CodeBlock
                     snippets={[
                       {
-                        // TODO: Apply resolve value: packages/core/workflows-sdk/src/utils/composer/helpers/resolve-value.ts
+                        // NOTE: Apply resolve-value helper from workflows SDK
                         code: JSON.stringify(
                           stepInvokeContext?.output?.compensateInput ?? {},
                           null,

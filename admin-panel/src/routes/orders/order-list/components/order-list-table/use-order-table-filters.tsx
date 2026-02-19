@@ -54,7 +54,7 @@ export const useOrderTableFilters = () => {
       )
     }
 
-    // TODO: Add payment and fulfillment status filters when they are properly linked to orders
+    // NOTE: Add payment and fulfillment status filters when linked to orders
     // Note: These filters are commented out in the legacy implementation as well
 
     return filters

@@ -15,7 +15,7 @@ export const FulfillmentStatusCell = ({
   const { t } = useTranslation()
 
   if (!status) {
-    // TODO: remove this once fulfillment<>order link is added
+    // NOTE: Remove once fulfillment<>order link is added
     return "-"
   }
 

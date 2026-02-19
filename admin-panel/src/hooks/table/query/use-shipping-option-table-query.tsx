@@ -44,7 +44,7 @@ export const useShippingOptionTableQuery = ({
     // TODO: We don't allow region_id in the API yet
     // region_id: regionId,
 
-    // TODO: not supported
+    // NOTE: not supported
     // is_return: is_return ? is_return === "true" : undefined,
     // admin_only: admin_only ? admin_only === "true" : undefined,
     q,

@@ -16,7 +16,7 @@ type ExchangeOutboundItemProps = {
   index: number
 
   onRemove: () => void
-  // TODO: create a payload type for outbound updates
+  // NOTE: Consider extracting a payload type for outbound updates
   onUpdate: (payload: HttpTypes.AdminUpdateReturnItems) => void
 
   form: UseFormReturn<CreateExchangeSchemaType>

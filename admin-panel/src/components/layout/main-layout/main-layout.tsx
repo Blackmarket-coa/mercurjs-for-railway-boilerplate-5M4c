@@ -189,7 +189,7 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
       label: t("orders.domain"),
       to: "/orders",
       items: [
-        // TODO: Enable when domin is introduced
+        // NOTE: Enable when domain support is introduced
         // {
         //   label: t("draftOrders.domain"),
         //   to: "/draft-orders",
@@ -209,7 +209,7 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
           label: t("categories.domain"),
           to: "/categories",
         },
-        // TODO: Enable when domin is introduced
+        // NOTE: Enable when domain support is introduced
         // {
         //   label: t("giftCards.domain"),
         //   to: "/gift-cards",

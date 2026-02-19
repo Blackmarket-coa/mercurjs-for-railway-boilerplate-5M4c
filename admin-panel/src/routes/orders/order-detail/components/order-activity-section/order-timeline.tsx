@@ -673,7 +673,7 @@ const OrderActivityCollapsible = ({
 }
 
 /**
- * TODO: Add once notes are supported.
+ * NOTE: Add once notes are supported.
  */
 // const NoteBody = ({ note }: { note: Note }) => {
 //   const { t } = useTranslation()
@@ -791,7 +791,7 @@ const ReturnBody = ({
   }
 
   const numberOfItems = orderReturn.items.reduce((acc, item) => {
-    return acc + (isReceived ? item.received_quantity : item.quantity) // TODO: revisit when we add dismissed quantity on ReturnItem
+    return acc + (isReceived ? item.received_quantity : item.quantity) // NOTE: Revisit when ReturnItem supports dismissed quantity
   }, 0)
 
   return (

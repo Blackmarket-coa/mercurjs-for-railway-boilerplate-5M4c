@@ -62,7 +62,7 @@ export const ProfileGeneralSection = ({ user }: ProfileGeneralSectionProps) => {
             ?.display_name || "-"}
         </Text>
       </div>
-      {/* TODO: Do we want to implement usage insights in V2? */}
+      {/* NOTE: Evaluate usage insights support for V2 */}
       {/* <div className="grid grid-cols-2 items-center px-6 py-4">
         <Text size="small" leading="compact" weight="plus">
           {t("profile.fields.usageInsightsLabel")}

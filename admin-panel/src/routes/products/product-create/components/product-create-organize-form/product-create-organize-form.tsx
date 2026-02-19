@@ -5,6 +5,7 @@ import { FormExtensionZone } from "../../../../../dashboard-app"
 import { useExtension } from "../../../../../providers/extension-provider"
 import { ProductCreateSchemaType } from "../../types"
 import { ProductCreateOrganizationSection } from "./components/product-create-organize-section"
+import { ProductCreateAttributeSection } from "./components/product-create-organize-attribute-section/product-create-details-attribute-section"
 import { ProductCreateSalesChannelStackedModal } from "./components/product-create-sales-channel-stacked-modal"
 import { SC_STACKED_MODAL_ID } from "./constants"
 
@@ -22,9 +23,7 @@ export const ProductCreateOrganizeForm = ({ form }: ProductAttributesProps) => {
         <div className="flex w-full max-w-[720px] flex-col gap-y-8">
           <ProductCreateOrganizationSection form={form} />
           <FormExtensionZone fields={fields} form={form} />
-          {/* TODO: WHERE DO WE SET PRODUCT ATTRIBUTES? -> the plan is to moved that to Inventory UI */}
-          {/* <Divider />*/}
-          {/* <ProductCreateAttributeSection form={form} />*/}
+          <ProductCreateAttributeSection form={form} />
         </div>
       </div>
       <ProductCreateSalesChannelStackedModal form={form} />
