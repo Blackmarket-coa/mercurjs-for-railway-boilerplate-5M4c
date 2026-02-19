@@ -2,9 +2,9 @@
 
 Generated from in-code `TODO`/`FIXME` markers in `admin-panel/src`, `storefront/src`, and `vendor-panel/src`.
 
-**Open items:** 63
+**Open items:** 60
 
-## admin-panel (63)
+## admin-panel (60)
 
 | Status | File | Line | Note |
 |---|---|---:|---|
@@ -21,7 +21,6 @@ Generated from in-code `TODO`/`FIXME` markers in `admin-panel/src`, `storefront/
 | ⬜ | `admin-panel/src/hooks/table/query/use-shipping-option-table-query.tsx` | 47 | // TODO: not supported |
 | ⬜ | `admin-panel/src/hooks/use-date.tsx` | 7 | // TODO: We rely on the current language to determine the date locale. This is not ideal, as we use en-US for the english translation. |
 | ⬜ | `admin-panel/src/routes/customers/customer-detail/components/customer-order-section/customer-order-section.tsx` | 66 | {/*TODO: ENABLE WHEN DRAFT ORDERS ARE DONE*/} |
-| ⬜ | `admin-panel/src/routes/digital-products/page.tsx` | 68 | {/* Replace the TODO with the following */} |
 | ⬜ | `admin-panel/src/routes/invite/invite.tsx` | 40 | // TODO: Update to V2 format |
 | ⬜ | `admin-panel/src/routes/locations/location-edit/components/edit-location-form/edit-location-form.tsx` | 27 | phone: zod.string().optional(), // TODO: Add validation |
 | ⬜ | `admin-panel/src/routes/locations/location-list/constants.ts` | 1 | // TODO: change this when RQ is fixed (address is not joined when *address) |
@@ -39,8 +38,6 @@ Generated from in-code `TODO`/`FIXME` markers in `admin-panel/src`, `storefront/
 | ⬜ | `admin-panel/src/routes/orders/order-create-claim/components/claim-create-form/claim-outbound-section.tsx` | 260 | // TODO: Ensure inventory validation occurs correctly |
 | ⬜ | `admin-panel/src/routes/orders/order-create-claim/components/claim-create-form/schema.ts` | 14 | item_id: z.string(), // TODO: variant id? |
 | ⬜ | `admin-panel/src/routes/orders/order-create-edit/components/add-order-edit-items-table/add-order-edit-items-table.tsx` | 57 | // TODO: Check inventory here. Check if other validations needs to be made |
-| ⬜ | `admin-panel/src/routes/orders/order-create-edit/components/order-edit-create-form/order-edit-create-form.tsx` | 52 | note: "", // TODO: add note when update edit route is added |
-| ⬜ | `admin-panel/src/routes/orders/order-create-edit/components/order-edit-create-form/order-edit-create-form.tsx` | 53 | send_notification: false, // TODO: not supported in the API ATM |
 | ⬜ | `admin-panel/src/routes/orders/order-create-exchange/components/add-exchange-outbound-items-table/add-exchange-outbound-items-table.tsx` | 64 | // TODO: Check inventory here. Check if other validations needs to be made |
 | ⬜ | `admin-panel/src/routes/orders/order-create-exchange/components/exchange-create-form/exchange-outbound-item.tsx` | 19 | // TODO: create a payload type for outbound updates |
 | ⬜ | `admin-panel/src/routes/orders/order-create-exchange/components/exchange-create-form/exchange-outbound-item.tsx` | 70 | // TODO: add max available inventory quantity if present |

@@ -1,8 +1,5 @@
 import { z } from "zod"
 
-export const OrderEditCreateSchema = z.object({
-  note: z.string().optional(),
-  send_notification: z.boolean().optional(),
-})
+export const OrderEditCreateSchema = z.object({})
 
 export type CreateOrderEditSchemaType = z.infer<typeof OrderEditCreateSchema>
