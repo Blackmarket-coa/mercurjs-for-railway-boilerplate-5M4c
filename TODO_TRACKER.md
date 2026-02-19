@@ -2,7 +2,7 @@
 
 Generated from in-code `TODO`/`FIXME` markers in `admin-panel/src`, `storefront/src`, and `vendor-panel/src`.
 
-**Open items:** 14
+**Open items:** 17 *(14 code markers + 3 audit-derived manual follow-ups)*
 
 ## Summary by area and severity
 
@@ -71,3 +71,8 @@ The following open issues were identified in the storefront routes/links/pages a
 - Remove the row once merged if you prefer a compact tracker.
 - Re-generate by re-running: `rg -n "TODO|FIXME" admin-panel/src storefront/src vendor-panel/src`.
 - Severity buckets are heuristic and based on TODO/FIXME comment text.
+
+## Last refreshed
+
+- Code marker scan command run: `rg -n "TODO|FIXME" admin-panel/src storefront/src vendor-panel/src`
+- Result: 14 in-code TODO/FIXME markers (admin-panel only) + 3 manual storefront audit follow-ups.
