@@ -428,13 +428,15 @@ Ship a homepage conversion foundation release with instrumentation, improved dis
 
 ## Remaining Work After This Next Step
 
-After the immediate sprint ships, the following items remain from the broader plan:
+After implementation follow-up review, several originally listed items are now complete in production code.
 
+### Newly Completed Since Initial Draft
 1. Full feature matrix publication and nav integration.
-2. Vendor dashboard public showcase with annotated real screenshots.
-3. “Beyond Selling” page and “Why We Exist” page content + linking.
-4. Expanded onboarding flow (4-step visual + optional advanced tools panel).
-5. Open-source trust and reliability messaging rollout in footer/about/signup surfaces.
-6. Cross-page taxonomy normalization (Goods / Services / Community Programs).
-7. Ongoing KPI review and iteration cycle across conversion metrics.
+2. “Beyond Selling” page and “Why We Exist” page content + linking.
+3. Expanded onboarding flow (4-step visual + optional advanced tools panel).
+4. Open-source trust and reliability messaging rollout in footer/about/signup surfaces.
+5. Cross-page taxonomy normalization (Goods / Services / Community Programs).
 
+### Still In Progress / Remaining
+1. Vendor dashboard public showcase with annotated **real** screenshots (section exists; replace placeholder/non-representative images with production UI captures).
+2. Ongoing KPI review and iteration cycle across conversion metrics.
