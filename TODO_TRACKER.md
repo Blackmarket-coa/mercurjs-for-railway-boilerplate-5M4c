@@ -2,23 +2,23 @@
 
 Generated from in-code `TODO`/`FIXME` markers in `admin-panel/src`, `storefront/src`, and `vendor-panel/src`.
 
-**Open items:** 55
+**Open items:** 47
 
 ## Summary by area and severity
 
 | App | Open Items | High | Medium | Low | Top Areas |
 |---|---:|---:|---:|---:|---|
-| admin-panel | 55 | 13 | 26 | 16 | `routes/orders` (28), `routes/products` (4), `hooks/table` (3) |
+| admin-panel | 47 | 5 | 26 | 16 | `routes/orders` (20), `routes/products` (4), `hooks/table` (3) |
 | storefront | 0 | 0 | 0 | 0 | — |
 | vendor-panel | 0 | 0 | 0 | 0 | — |
 
-## admin-panel (55)
+## admin-panel (47)
 
 ### Area breakdown
 
 | Area | Count |
 |---|---:|
-| `routes/orders` | 28 |
+| `routes/orders` | 20 |
 | `routes/products` | 4 |
 | `hooks/table` | 3 |
 | `routes/profile` | 3 |
@@ -42,15 +42,7 @@ Generated from in-code `TODO`/`FIXME` markers in `admin-panel/src`, `storefront/
 |---|---|---|---|---:|---|
 | ⬜ | High | `components/search` | `admin-panel/src/components/search/use-search-results.tsx` | 142 | // TODO: Remove the OR condition once the list endpoint does not throw when q equals an empty string |
 | ⬜ | High | `routes/locations` | `admin-panel/src/routes/locations/location-service-zone-shipping-option-pricing/components/create-shipping-options-form/edit-shipping-options-pricing-form.tsx` | 171 | * TODO: If we try to update an existing region price the API throws an error. |
-| ✅ | High | `routes/orders` | `admin-panel/src/routes/orders/order-create-claim/components/add-claim-outbound-items-table/add-claim-outbound-items-table.tsx` | 64 | Inventory-based row selection validation implemented. |
-| ✅ | High | `routes/orders` | `admin-panel/src/routes/orders/order-create-claim/components/claim-create-form/claim-create-form.tsx` | 538 | Inventory-level mapping now aggregates all kit/location levels. |
-| ✅ | High | `routes/orders` | `admin-panel/src/routes/orders/order-create-claim/components/claim-create-form/claim-outbound-item.tsx` | 70 | Max quantity now respects available managed inventory when present. |
-| ✅ | High | `routes/orders` | `admin-panel/src/routes/orders/order-create-claim/components/claim-create-form/claim-outbound-section.tsx` | 260 | Location validation now requires positive available stock at the selected location. |
-| ✅ | High | `routes/orders` | `admin-panel/src/routes/orders/order-create-edit/components/add-order-edit-items-table/add-order-edit-items-table.tsx` | 57 | Inventory-based row selection validation implemented. |
-| ✅ | High | `routes/orders` | `admin-panel/src/routes/orders/order-create-exchange/components/add-exchange-outbound-items-table/add-exchange-outbound-items-table.tsx` | 64 | Inventory-based row selection validation implemented. |
-| ✅ | High | `routes/orders` | `admin-panel/src/routes/orders/order-create-exchange/components/exchange-create-form/exchange-outbound-item.tsx` | 70 | Max quantity now respects available managed inventory when present. |
 | ⬜ | High | `routes/orders` | `admin-panel/src/routes/orders/order-create-fulfillment/components/order-create-fulfillment-form/order-create-fulfillment-form.tsx` | 91 | // is_return: false, // TODO: 500 when enabled |
-| ✅ | High | `routes/orders` | `admin-panel/src/routes/orders/order-receive-return/order-receive-return.tsx` | 30 | Added client-side fallback: invalid return payload now redirects to order with an error toast. |
 | ⬜ | High | `routes/products` | `admin-panel/src/routes/products/product-create/components/product-create-organize-form/product-create-organize-form.tsx` | 25 | {/* TODO: WHERE DO WE SET PRODUCT ATTRIBUTES? -> the plan is to moved that to Inventory UI */} |
 | ⬜ | High | `routes/tax-regions` | `admin-panel/src/routes/tax-regions/tax-region-metadata/tax-region-metadata.tsx` | 8 | * TODO: Tax region update endpoint is missing |
 | ⬜ | Medium | `components/layout` | `admin-panel/src/components/layout/main-layout/main-layout.tsx` | 192 | // TODO: Enable when domin is introduced |
