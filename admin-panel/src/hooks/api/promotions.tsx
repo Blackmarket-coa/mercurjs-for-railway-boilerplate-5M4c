@@ -15,7 +15,6 @@ import { campaignsQueryKeys } from "./campaigns"
 const PROMOTIONS_QUERY_KEY = "promotions" as const
 export const promotionsQueryKeys = {
   ...queryKeysFactory(PROMOTIONS_QUERY_KEY),
-  // TODO: handle invalidations properly
   listRules: (
     id: string | null,
     ruleType: string,
@@ -235,7 +234,11 @@ export const usePromotionAddRules = (
     mutationFn: (payload) =>
       sdk.admin.promotion.addRules(id, ruleType, payload),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all })
+      queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.detail(id) })
+      queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.lists() })
+      queryClient.invalidateQueries({
+        queryKey: promotionsQueryKeys.listRules(id, ruleType),
+      })
 
       options?.onSuccess?.(data, variables, context)
     },
@@ -256,7 +259,11 @@ export const usePromotionRemoveRules = (
     mutationFn: (payload) =>
       sdk.admin.promotion.removeRules(id, ruleType, payload),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all })
+      queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.detail(id) })
+      queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.lists() })
+      queryClient.invalidateQueries({
+        queryKey: promotionsQueryKeys.listRules(id, ruleType),
+      })
 
       options?.onSuccess?.(data, variables, context)
     },
@@ -277,7 +284,11 @@ export const usePromotionUpdateRules = (
     mutationFn: (payload) =>
       sdk.admin.promotion.updateRules(id, ruleType, payload),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all })
+      queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.detail(id) })
+      queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.lists() })
+      queryClient.invalidateQueries({
+        queryKey: promotionsQueryKeys.listRules(id, ruleType),
+      })
 
       options?.onSuccess?.(data, variables, context)
     },

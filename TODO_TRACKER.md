@@ -2,33 +2,33 @@
 
 Generated from in-code `TODO`/`FIXME` markers in `admin-panel/src`, `storefront/src`, and `vendor-panel/src`.
 
-**Open items:** 59
+**Open items:** 55
 
 ## Summary by area and severity
 
 | App | Open Items | High | Medium | Low | Top Areas |
 |---|---:|---:|---:|---:|---|
-| admin-panel | 59 | 17 | 26 | 16 | `routes/orders` (30), `routes/products` (4), `routes/locations` (3) |
+| admin-panel | 55 | 13 | 26 | 16 | `routes/orders` (28), `routes/products` (4), `hooks/table` (3) |
 | storefront | 0 | 0 | 0 | 0 | — |
 | vendor-panel | 0 | 0 | 0 | 0 | — |
 
-## admin-panel (59)
+## admin-panel (55)
 
 ### Area breakdown
 
 | Area | Count |
 |---|---:|
-| `routes/orders` | 30 |
+| `routes/orders` | 28 |
 | `routes/products` | 4 |
 | `hooks/table` | 3 |
-| `routes/locations` | 3 |
 | `routes/profile` | 3 |
 | `components/layout` | 2 |
 | `components/table` | 2 |
-| `hooks/api` | 2 |
+| `routes/locations` | 2 |
 | `routes/workflow-executions` | 2 |
 | `components/data-grid` | 1 |
 | `components/search` | 1 |
+| `hooks/api` | 1 |
 | `hooks/use-date.tsx` | 1 |
 | `routes/customers` | 1 |
 | `routes/invite` | 1 |
@@ -41,8 +41,6 @@ Generated from in-code `TODO`/`FIXME` markers in `admin-panel/src`, `storefront/
 | Status | Severity | Area | File | Line | Note |
 |---|---|---|---|---:|---|
 | ⬜ | High | `components/search` | `admin-panel/src/components/search/use-search-results.tsx` | 142 | // TODO: Remove the OR condition once the list endpoint does not throw when q equals an empty string |
-| ⬜ | High | `hooks/api` | `admin-panel/src/hooks/api/promotions.tsx` | 18 | // TODO: handle invalidations properly |
-| ⬜ | High | `routes/locations` | `admin-panel/src/routes/locations/location-edit/components/edit-location-form/edit-location-form.tsx` | 27 | phone: zod.string().optional(), // TODO: Add validation |
 | ⬜ | High | `routes/locations` | `admin-panel/src/routes/locations/location-service-zone-shipping-option-pricing/components/create-shipping-options-form/edit-shipping-options-pricing-form.tsx` | 171 | * TODO: If we try to update an existing region price the API throws an error. |
 | ⬜ | High | `routes/orders` | `admin-panel/src/routes/orders/order-create-claim/components/add-claim-outbound-items-table/add-claim-outbound-items-table.tsx` | 64 | // TODO: Check inventory here. Check if other validations needs to be made |
 | ⬜ | High | `routes/orders` | `admin-panel/src/routes/orders/order-create-claim/components/claim-create-form/claim-create-form.tsx` | 538 | // TODO: fix this for inventory kits |
@@ -52,8 +50,6 @@ Generated from in-code `TODO`/`FIXME` markers in `admin-panel/src`, `storefront/
 | ⬜ | High | `routes/orders` | `admin-panel/src/routes/orders/order-create-exchange/components/add-exchange-outbound-items-table/add-exchange-outbound-items-table.tsx` | 64 | // TODO: Check inventory here. Check if other validations needs to be made |
 | ⬜ | High | `routes/orders` | `admin-panel/src/routes/orders/order-create-exchange/components/exchange-create-form/exchange-outbound-item.tsx` | 70 | // TODO: add max available inventory quantity if present |
 | ⬜ | High | `routes/orders` | `admin-panel/src/routes/orders/order-create-fulfillment/components/order-create-fulfillment-form/order-create-fulfillment-form.tsx` | 91 | // is_return: false, // TODO: 500 when enabled |
-| ⬜ | High | `routes/orders` | `admin-panel/src/routes/orders/order-create-shipment/components/order-create-shipment-form/constants.ts` | 7 | // TODO: this 2 are not optional in the API |
-| ⬜ | High | `routes/orders` | `admin-panel/src/routes/orders/order-receive-return/components/order-receive-return-form/dismissed-quantity.tsx` | 63 | // TODO: if out of bounds prevent sending and notify user |
 | ⬜ | High | `routes/orders` | `admin-panel/src/routes/orders/order-receive-return/order-receive-return.tsx` | 30 | }) // TODO: fix API needs to return 404 if return not exists and not an empty object |
 | ⬜ | High | `routes/products` | `admin-panel/src/routes/products/product-create/components/product-create-organize-form/product-create-organize-form.tsx` | 25 | {/* TODO: WHERE DO WE SET PRODUCT ATTRIBUTES? -> the plan is to moved that to Inventory UI */} |
 | ⬜ | High | `routes/tax-regions` | `admin-panel/src/routes/tax-regions/tax-region-metadata/tax-region-metadata.tsx` | 8 | * TODO: Tax region update endpoint is missing |
