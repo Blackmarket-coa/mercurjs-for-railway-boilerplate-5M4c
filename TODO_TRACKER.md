@@ -104,6 +104,17 @@ Generated from in-code `TODO`/`FIXME` markers in `admin-panel/src`, `storefront/
 
 - No open TODO/FIXME markers.
 
+
+## Audit-derived storefront follow-ups (manual)
+
+The following open issues were identified in the storefront routes/links/pages audit and should be tracked until resolved:
+
+| Status | Severity | Area | Item | Source |
+|---|---|---|---|---|
+| ⬜ | High | `storefront/routes` | Add route metadata to 20 pages missing `generateMetadata`/`metadata` exports (including `/sell`, `/collections/[handle]`, `/collective/demand-pools/[id]`, and account/password pages). | `storefront/docs/storefront-pages-audit.md` |
+| ⬜ | High | `storefront/routes` | Add explicit `notFound()` handling to 10 dynamic routes missing fallback behavior (including `/collections/[handle]`, `/products/[handle]`, and `/user/orders/[id]` paths). | `storefront/docs/storefront-pages-audit.md` |
+| ⬜ | Medium | `storefront/qa` | Add recurring static internal-link route validation in QA/release checks to detect unmatched hard-coded hrefs before release. | `storefront/docs/storefront-pages-audit.md` |
+
 ## Usage
 
 - Check an item (`⬜` → `✅`) when completed.

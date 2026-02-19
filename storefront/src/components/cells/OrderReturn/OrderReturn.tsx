@@ -11,7 +11,7 @@ export const OrderReturn = ({ order }: { order: any }) => {
         <p className="text-secondary label-md max-w-sm">
           Once you receive your order, you will have [14] days to return items.
           Find out more about{" "}
-          <Link href="/returns" className="underline">
+          <Link href="/user/returns" className="underline">
             returns and refunds
           </Link>
           .
