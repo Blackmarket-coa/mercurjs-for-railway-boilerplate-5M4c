@@ -50,7 +50,7 @@ Generated from in-code `TODO`/`FIXME` markers in `admin-panel/src`, `storefront/
 | ✅ | High | `routes/orders` | `admin-panel/src/routes/orders/order-create-exchange/components/add-exchange-outbound-items-table/add-exchange-outbound-items-table.tsx` | 64 | Inventory-based row selection validation implemented. |
 | ✅ | High | `routes/orders` | `admin-panel/src/routes/orders/order-create-exchange/components/exchange-create-form/exchange-outbound-item.tsx` | 70 | Max quantity now respects available managed inventory when present. |
 | ⬜ | High | `routes/orders` | `admin-panel/src/routes/orders/order-create-fulfillment/components/order-create-fulfillment-form/order-create-fulfillment-form.tsx` | 91 | // is_return: false, // TODO: 500 when enabled |
-| ⬜ | High | `routes/orders` | `admin-panel/src/routes/orders/order-receive-return/order-receive-return.tsx` | 30 | }) // TODO: fix API needs to return 404 if return not exists and not an empty object |
+| ✅ | High | `routes/orders` | `admin-panel/src/routes/orders/order-receive-return/order-receive-return.tsx` | 30 | Added client-side fallback: invalid return payload now redirects to order with an error toast. |
 | ⬜ | High | `routes/products` | `admin-panel/src/routes/products/product-create/components/product-create-organize-form/product-create-organize-form.tsx` | 25 | {/* TODO: WHERE DO WE SET PRODUCT ATTRIBUTES? -> the plan is to moved that to Inventory UI */} |
 | ⬜ | High | `routes/tax-regions` | `admin-panel/src/routes/tax-regions/tax-region-metadata/tax-region-metadata.tsx` | 8 | * TODO: Tax region update endpoint is missing |
 | ⬜ | Medium | `components/layout` | `admin-panel/src/components/layout/main-layout/main-layout.tsx` | 192 | // TODO: Enable when domin is introduced |
