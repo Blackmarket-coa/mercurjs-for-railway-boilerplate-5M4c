@@ -7,7 +7,7 @@ import {
   retrieveReturnReasons,
   retriveReturnMethods,
 } from "@/lib/data/orders"
-import { redirect } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 
 export const metadata: Metadata = {
   title: "Request a Return",
@@ -29,6 +29,11 @@ export default async function ReturnOrderPage({
   }
 
   const order = (await retrieveOrder(id)) as any
+
+  if (!order) {
+    notFound()
+  }
+
   const returnReasons = await retrieveReturnReasons()
   const returnMethods = await retriveReturnMethods(id)
 
