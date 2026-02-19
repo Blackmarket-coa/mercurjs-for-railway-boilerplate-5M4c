@@ -48,14 +48,15 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
   )
 
   const filteredItems = useMemo(() => {
+    const searchTerm = filterTerm.trim().toLowerCase()
+
     return itemsToAllocate.filter(
       (i) =>
-        i.variant_title.toLowerCase().includes(filterTerm) ||
-        i.product_title.toLowerCase().includes(filterTerm)
+        i.variant_title.toLowerCase().includes(searchTerm) ||
+        i.product_title.toLowerCase().includes(searchTerm)
     )
   }, [itemsToAllocate, filterTerm])
 
-  // TODO - empty state UI
   const noItemsToAllocate = !itemsToAllocate.length
 
   const form = useForm<zod.infer<typeof AllocateItemsSchema>>({
@@ -288,15 +289,21 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
                     )}
 
                     <div className="flex flex-col gap-y-1">
-                      {filteredItems.map((item) => (
-                        <OrderAllocateItemsItem
-                          key={item.id}
-                          form={form}
-                          item={item}
-                          locationId={selectedLocationId}
-                          onQuantityChange={onQuantityChange}
-                        />
-                      ))}
+                      {noItemsToAllocate ? (
+                        <Alert variant="info">
+                          {t("orders.fulfillment.error.noItems")}
+                        </Alert>
+                      ) : (
+                        filteredItems.map((item) => (
+                          <OrderAllocateItemsItem
+                            key={item.id}
+                            form={form}
+                            item={item}
+                            locationId={selectedLocationId}
+                            onQuantityChange={onQuantityChange}
+                          />
+                        ))
+                      )}
                     </div>
                   </Form.Item>
                 </div>
@@ -315,7 +322,7 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
               size="small"
               type="submit"
               isLoading={isMutating}
-              disabled={!selectedLocationId || disableSubmit}
+              disabled={!selectedLocationId || disableSubmit || noItemsToAllocate}
             >
               {t("orders.allocateItems.action")}
             </Button>
