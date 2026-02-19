@@ -65,7 +65,6 @@ const DigitalProductsPage = () => {
   return (
     <Container>
       <div className="flex justify-between items-center mb-4">
-        {/* Replace the TODO with the following */}
         <Heading level="h2">Digital Products</Heading>
         <Drawer open={open} onOpenChange={(openChanged) => setOpen(openChanged)}>
           <Drawer.Trigger 

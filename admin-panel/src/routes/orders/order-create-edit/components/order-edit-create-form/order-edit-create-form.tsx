@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { AdminOrder, AdminOrderPreview } from "@medusajs/types"
-import { Button, Heading, Input, Switch, toast, usePrompt } from "@medusajs/ui"
+import { Button, Heading, toast, usePrompt } from "@medusajs/ui"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -9,7 +9,6 @@ import {
   useRouteModal,
 } from "../../../../../components/modals"
 
-import { Form } from "../../../../../components/common/form"
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import {
   useCancelOrderEdit,
@@ -47,18 +46,12 @@ export const OrderEditCreateForm = ({
    * FORM
    */
   const form = useForm<CreateOrderEditSchemaType>({
-    defaultValues: () => {
-      return Promise.resolve({
-        note: "", // TODO: add note when update edit route is added
-        send_notification: false, // TODO: not supported in the API ATM
-      })
-    },
     resolver: zodResolver(OrderEditCreateSchema),
   })
 
   const prompt = usePrompt()
 
-  const handleSubmit = form.handleSubmit(async (data) => {
+  const handleSubmit = form.handleSubmit(async () => {
     try {
       const res = await prompt({
         title: t("general.areYouSure"),
@@ -141,65 +134,6 @@ export const OrderEditCreateForm = ({
                   )}
                 </span>
               </div>
-            </div>
-
-            {/* NOTE*/}
-            <Form.Field
-              control={form.control}
-              name="note"
-              render={({ field }) => {
-                return (
-                  <Form.Item>
-                    <div className="mt-8 flex">
-                      <div className="block flex-1">
-                        <Form.Label>{t("fields.note")}</Form.Label>
-                        <Form.Hint className="!mt-1">
-                          {t("orders.edits.noteHint")}
-                        </Form.Hint>
-                      </div>
-                      <div className="w-full flex-1 flex-grow">
-                        <Form.Control>
-                          <Input {...field} placeholder={t("fields.note")} />
-                        </Form.Control>
-                      </div>
-                    </div>
-                  </Form.Item>
-                )
-              }}
-            />
-
-            {/* SEND NOTIFICATION*/}
-            <div className="bg-ui-bg-field mt-8 rounded-lg border py-2 pl-2 pr-4">
-              <Form.Field
-                control={form.control}
-                name="send_notification"
-                render={({ field: { onChange, value, ...field } }) => {
-                  return (
-                    <Form.Item>
-                      <div className="flex items-center">
-                        <Form.Control className="mr-4 self-start">
-                          <Switch
-                            dir="ltr"
-                            className="mt-[2px] rtl:rotate-180"
-                            checked={!!value}
-                            onCheckedChange={onChange}
-                            {...field}
-                          />
-                        </Form.Control>
-                        <div className="block">
-                          <Form.Label>
-                            {t("orders.returns.sendNotification")}
-                          </Form.Label>
-                          <Form.Hint className="!mt-1">
-                            {t("orders.returns.sendNotificationHint")}
-                          </Form.Hint>
-                        </div>
-                      </div>
-                      <Form.ErrorMessage />
-                    </Form.Item>
-                  )
-                }}
-              />
             </div>
 
             <div className="p-8" />
