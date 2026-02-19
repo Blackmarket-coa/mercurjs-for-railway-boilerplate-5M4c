@@ -139,7 +139,6 @@ const useDynamicSearchResults = (
 
   const categoryResponse = useProductCategories(
     {
-      // TODO: Remove the OR condition once the list endpoint does not throw when q equals an empty string
       q: debouncedSearch || undefined,
       limit,
       fields: "id,name",

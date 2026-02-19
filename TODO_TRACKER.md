@@ -2,49 +2,42 @@
 
 Generated from in-code `TODO`/`FIXME` markers in `admin-panel/src`, `storefront/src`, and `vendor-panel/src`.
 
-**Open items:** 47
+**Open items:** 42
 
 ## Summary by area and severity
 
 | App | Open Items | High | Medium | Low | Top Areas |
 |---|---:|---:|---:|---:|---|
-| admin-panel | 47 | 5 | 26 | 16 | `routes/orders` (20), `routes/products` (4), `hooks/table` (3) |
+| admin-panel | 42 | 0 | 26 | 16 | `routes/orders` (19), `hooks/table` (3), `routes/profile` (3) |
 | storefront | 0 | 0 | 0 | 0 | — |
 | vendor-panel | 0 | 0 | 0 | 0 | — |
 
-## admin-panel (47)
+## admin-panel (42)
 
 ### Area breakdown
 
 | Area | Count |
 |---|---:|
-| `routes/orders` | 20 |
-| `routes/products` | 4 |
+| `routes/orders` | 19 |
 | `hooks/table` | 3 |
 | `routes/profile` | 3 |
+| `routes/products` | 3 |
 | `components/layout` | 2 |
 | `components/table` | 2 |
-| `routes/locations` | 2 |
 | `routes/workflow-executions` | 2 |
 | `components/data-grid` | 1 |
-| `components/search` | 1 |
 | `hooks/api` | 1 |
 | `hooks/use-date.tsx` | 1 |
 | `routes/customers` | 1 |
 | `routes/invite` | 1 |
+| `routes/locations` | 1 |
 | `routes/product-variants` | 1 |
 | `routes/reservations` | 1 |
-| `routes/tax-regions` | 1 |
 
 ### Items (sorted by severity → area → file)
 
 | Status | Severity | Area | File | Line | Note |
 |---|---|---|---|---:|---|
-| ⬜ | High | `components/search` | `admin-panel/src/components/search/use-search-results.tsx` | 142 | // TODO: Remove the OR condition once the list endpoint does not throw when q equals an empty string |
-| ⬜ | High | `routes/locations` | `admin-panel/src/routes/locations/location-service-zone-shipping-option-pricing/components/create-shipping-options-form/edit-shipping-options-pricing-form.tsx` | 171 | * TODO: If we try to update an existing region price the API throws an error. |
-| ⬜ | High | `routes/orders` | `admin-panel/src/routes/orders/order-create-fulfillment/components/order-create-fulfillment-form/order-create-fulfillment-form.tsx` | 91 | // is_return: false, // TODO: 500 when enabled |
-| ⬜ | High | `routes/products` | `admin-panel/src/routes/products/product-create/components/product-create-organize-form/product-create-organize-form.tsx` | 25 | {/* TODO: WHERE DO WE SET PRODUCT ATTRIBUTES? -> the plan is to moved that to Inventory UI */} |
-| ⬜ | High | `routes/tax-regions` | `admin-panel/src/routes/tax-regions/tax-region-metadata/tax-region-metadata.tsx` | 8 | * TODO: Tax region update endpoint is missing |
 | ⬜ | Medium | `components/layout` | `admin-panel/src/components/layout/main-layout/main-layout.tsx` | 192 | // TODO: Enable when domin is introduced |
 | ⬜ | Medium | `components/layout` | `admin-panel/src/components/layout/main-layout/main-layout.tsx` | 212 | // TODO: Enable when domin is introduced |
 | ⬜ | Medium | `components/table` | `admin-panel/src/components/table/table-cells/order/fulfillment-status-cell/fulfillment-status-cell.tsx` | 18 | // TODO: remove this once fulfillment<>order link is added |

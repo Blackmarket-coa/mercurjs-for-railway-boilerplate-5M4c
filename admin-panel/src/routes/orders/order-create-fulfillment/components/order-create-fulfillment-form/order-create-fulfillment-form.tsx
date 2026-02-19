@@ -88,7 +88,7 @@ export function OrderCreateFulfillmentForm({
   const { shipping_options = [], isLoading: isShippingOptionsLoading } =
     useShippingOptions({
       stock_location_id: selectedLocationId,
-      // is_return: false, // TODO: 500 when enabled
+      is_return: false,
       fields: "+service_zone.fulfillment_set.location.id",
     })
 

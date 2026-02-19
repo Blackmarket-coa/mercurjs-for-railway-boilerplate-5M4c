@@ -167,10 +167,6 @@ export function EditShippingOptionsPricingForm({
       }))
     )
 
-    /**
-     * TODO: If we try to update an existing region price the API throws an error.
-     * Instead we re-create region prices.
-     */
     const regionPrices = Object.entries(data.region_prices)
       .map(([region_id, value]) => {
         if (!value || !regions?.some((region) => region.id === region_id)) {
@@ -180,6 +176,14 @@ export function EditShippingOptionsPricingForm({
         const priceRecord: PriceRecord = {
           region_id,
           amount: castNumber(value),
+        }
+
+        const existingPrice = shippingOption.prices.find(
+          (p) => p.region_id === region_id && !p.price_rules?.length
+        )
+
+        if (existingPrice) {
+          priceRecord.id = existingPrice.id
         }
 
         return priceRecord
