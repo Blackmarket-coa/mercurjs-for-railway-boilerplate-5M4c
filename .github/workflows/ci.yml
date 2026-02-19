@@ -117,6 +117,10 @@ jobs:
         working-directory: vendor-panel
         run: pnpm lint
 
+      - name: Run vendor panel tests
+        working-directory: vendor-panel
+        run: pnpm test
+
       - name: Typecheck vendor panel (non-blocking)
         working-directory: vendor-panel
         run: pnpm typecheck

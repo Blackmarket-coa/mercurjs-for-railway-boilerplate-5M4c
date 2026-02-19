@@ -1,0 +1,71 @@
+name: Vendor extension key implementation
+description: Track a new or modified VendorFeatures / ALL_EXTENSION_OPTIONS key from declaration through runtime + tests
+title: "[Vendor Extension] <key>: <short summary>"
+labels:
+  - enhancement
+  - vendor-panel
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template when adding or changing an extension key in `VendorFeatures` / `ALL_EXTENSION_OPTIONS`.
+
+        Reference checklist source:
+        - `docs/VENDOR_EXTENSION_DEFINITION_OF_DONE.md`
+
+  - type: input
+    id: extension_key
+    attributes:
+      label: Extension key
+      description: Exact key name (e.g., `hasSeasons`)
+      placeholder: hasExample
+    validations:
+      required: true
+
+  - type: textarea
+    id: user_value
+    attributes:
+      label: User value
+      description: What end-user problem does this key solve?
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: dod_checklist
+    attributes:
+      label: Definition of Done checklist
+      description: All items are required before merge.
+      options:
+        - label: Key declaration added/updated in `VendorFeatures` + `ALL_EXTENSION_OPTIONS` (`vendor-type-context.tsx`)
+          required: true
+        - label: Default mapping added/updated in `getFeaturesByType(...)` for all vendor types
+          required: true
+        - label: `buildFeaturesFromExtensions(...)` updated for persisted `enabled_extensions` behavior
+          required: true
+        - label: Runtime behavior wired in navigation/dashboard (`use-vendor-navigation.tsx` and/or `dashboard-config.ts`)
+          required: true
+        - label: Settings wiring verified in `routes/settings/extensions/extensions.tsx`
+          required: true
+        - label: Enabled and disabled state tests added/updated
+          required: true
+        - label: `pnpm check:vendor-completeness` passed
+          required: true
+
+  - type: textarea
+    id: validation_output
+    attributes:
+      label: Validation commands + output
+      description: Paste commands executed and key results.
+      placeholder: |
+        pnpm check:vendor-completeness
+        pnpm --dir vendor-panel test -- src/hooks/navigation/use-vendor-navigation.spec.ts src/routes/dashboard/config/dashboard-config.spec.ts
+    validations:
+      required: true
+
+  - type: textarea
+    id: rollout_notes
+    attributes:
+      label: Rollout / migration notes
+      description: Include any migration or comms impact. If none, write "N/A".
+    validations:
+      required: true
