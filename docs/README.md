@@ -26,6 +26,7 @@ This index organizes project docs by purpose.
 - `docs/VENDOR_PANEL_PRODUCTS_DISPLAY_REVIEW.md`
 - `docs/STOREFRONT_PRODUCTS_DISPLAY_REVIEW.md`
 - `docs/vendor-panel-workflow-audit.md`
+- `docs/vendor-portal-links-pages-audit.md`
 
 ## Domain Analysis
 
