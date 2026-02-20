@@ -26,6 +26,7 @@ export const ProductListing = async ({
   conditions,
   minPrice,
   maxPrice,
+  query,
 }: {
   category_id?: string
   collection_id?: string
@@ -43,6 +44,7 @@ export const ProductListing = async ({
   conditions?: string[]
   minPrice?: number
   maxPrice?: number
+  query?: string
 }) => {
   const [result, { categories: availableCategories }, availableProductTypes, availableSalesChannels] =
     await Promise.all([
@@ -63,6 +65,7 @@ export const ProductListing = async ({
         conditions,
         minPrice,
         maxPrice,
+        query,
         sortBy: "created_at",
       }),
       listCategories(),
