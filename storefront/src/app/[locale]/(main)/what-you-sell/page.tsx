@@ -157,6 +157,41 @@ const gettingStartedTips = [
   "Add one seasonal product every month to stay discoverable and relevant.",
 ]
 
+const launchChecklists = [
+  {
+    title: "Physical goods",
+    items: [
+      "Pick your first 5 products and define weekly inventory limits.",
+      "Set one fulfillment mode first (pickup, delivery, or shipping).",
+      "Create a packaging checklist so every order is consistent.",
+    ],
+  },
+  {
+    title: "Services",
+    items: [
+      "Create 2–3 clear service packages with starting prices.",
+      "Document scope boundaries, turnaround time, and revision policy.",
+      "Use intake questions so every inquiry has the same baseline details.",
+    ],
+  },
+  {
+    title: "Subscriptions & CSA",
+    items: [
+      "Define your cadence (weekly/biweekly/monthly) and subscriber cap.",
+      "Plan substitutions ahead of time for weather and supply changes.",
+      "Publish delivery and pickup calendar dates before launch.",
+    ],
+  },
+  {
+    title: "Events, rentals, and programs",
+    items: [
+      "Set attendance limits and clear check-in instructions.",
+      "Include cancellation and reschedule rules directly in listings.",
+      "Collect one feedback metric to improve each next session.",
+    ],
+  },
+]
+
 const freeSeedResources = [
   {
     name: "American Seed Swap",
@@ -188,6 +223,7 @@ export default function WhatYouSellPage() {
           <p className="uppercase tracking-wide text-green-300 text-sm font-semibold">Vendor entry points</p>
           <h1 className="text-4xl md:text-5xl font-bold mt-2 mb-4">What Are You Selling?</h1>
           <p className="text-lg text-green-100 max-w-3xl">Find the path that matches your business model and launch with the same 3% fee and 97% vendor payout.</p>
+          <p className="text-base text-green-100/90 mt-3 max-w-3xl">Whether you are a food producer, educator, creative, organizer, or neighborhood collective, this page helps you choose a model and start with a realistic first offer.</p>
         </div>
       </section>
 
@@ -340,6 +376,23 @@ export default function WhatYouSellPage() {
         </article>
 
         <article className="rounded-2xl border p-6">
+          <h3 className="text-xl font-semibold">Launch checklists by model</h3>
+          <p className="mt-2 text-sm text-gray-600">Use one checklist for your first 30 days to stay focused and consistent.</p>
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            {launchChecklists.map((checklist) => (
+              <div key={checklist.title} className="rounded-xl border bg-gray-50 p-4">
+                <p className="font-semibold text-gray-900">{checklist.title}</p>
+                <ul className="mt-2 list-disc list-inside text-sm text-gray-700 space-y-1">
+                  {checklist.items.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </article>
+
+        <article className="rounded-2xl border p-6">
           <h3 className="text-xl font-semibold">Free seed resources</h3>
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             {freeSeedResources.map((resource) => (
@@ -356,6 +409,14 @@ export default function WhatYouSellPage() {
             ))}
           </div>
         </article>
+
+        <div className="rounded-2xl border bg-green-50 border-green-200 p-6 flex flex-wrap justify-between items-center gap-4">
+          <div>
+            <p className="font-medium text-green-900">Ready to choose your vendor setup?</p>
+            <p className="text-sm text-green-800 mt-1">Start with one selling model now and expand once your workflow is stable.</p>
+          </div>
+          <Link href="/sell" className="px-4 py-2 rounded-lg bg-green-700 text-white text-sm font-medium">Start selling</Link>
+        </div>
       </section>
     </div>
   )
