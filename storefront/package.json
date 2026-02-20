@@ -10,7 +10,8 @@
     "start": "pnpm run launcher start",
     "lint": "next lint",
     "qa:routes": "node qa/validate-static-routes.mjs",
-    "release:check": "pnpm lint && pnpm qa:routes"
+    "qa:internal-links": "pnpm qa:routes",
+    "release:check": "pnpm lint && pnpm qa:internal-links"
   },
   "resolutions": {
     "glob": ">=10.5.0",
