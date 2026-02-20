@@ -112,6 +112,30 @@ const starterIdeas = {
     "Shelf-stable sauces and syrups",
     "Cookies, breads, and brownies",
   ],
+  communityGardenIdeas: [
+    "Rentable garden plots with monthly memberships",
+    "Seedling starts and transplant sales in spring",
+    "Compost pickup + soil-building workshops",
+    "Garden classes for kids, schools, and elders",
+    "Community-supported flower and herb bundles",
+    "Volunteer days with sponsor-backed produce shares",
+  ],
+  communityKitchenIdeas: [
+    "Hourly kitchen station rentals for local cooks",
+    "Shared prep packages (off-peak discounted blocks)",
+    "Certified food-handler training cohorts",
+    "Batch prep + cold storage add-on services",
+    "Pop-up dinner and tasting night hosting",
+    "Photography corner + content creation for food brands",
+  ],
+  missedOpportunities: [
+    "Event tickets for classes, tastings, and tours",
+    "Rental listings (tools, kitchen equipment, canopy setups)",
+    "Memberships/subscriptions for weekly staples",
+    "Sponsored community boxes (buy one, fund one)",
+    "Wholesale packs for local cafes and schools",
+    "Corporate wellness or gifting bundles for offices",
+  ],
 }
 
 const frozenFoodSteps = [
@@ -268,6 +292,24 @@ export default function WhatYouSellPage() {
               ))}
             </ul>
           </article>
+
+          <article className="rounded-2xl border p-6">
+            <h3 className="text-xl font-semibold">Community garden ideas</h3>
+            <ul className="mt-3 list-disc list-inside text-sm text-gray-700 space-y-1">
+              {starterIdeas.communityGardenIdeas.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </article>
+
+          <article className="rounded-2xl border p-6">
+            <h3 className="text-xl font-semibold">Community kitchen ideas</h3>
+            <ul className="mt-3 list-disc list-inside text-sm text-gray-700 space-y-1">
+              {starterIdeas.communityKitchenIdeas.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </article>
         </div>
 
         <article className="rounded-2xl border border-blue-200 bg-blue-50 p-6">
@@ -277,6 +319,15 @@ export default function WhatYouSellPage() {
               <li key={step}>{step}</li>
             ))}
           </ol>
+        </article>
+
+        <article className="rounded-2xl border p-6">
+          <h3 className="text-xl font-semibold">Things you might have missed</h3>
+          <ul className="mt-3 list-disc list-inside text-sm text-gray-700 space-y-1">
+            {starterIdeas.missedOpportunities.map((tip) => (
+              <li key={tip}>{tip}</li>
+            ))}
+          </ul>
         </article>
 
         <article className="rounded-2xl border p-6">
