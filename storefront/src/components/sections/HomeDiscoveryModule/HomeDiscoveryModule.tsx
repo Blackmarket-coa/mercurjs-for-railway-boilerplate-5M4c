@@ -75,7 +75,7 @@ export const HomeDiscoveryModule = () => {
 
         <div className="flex flex-wrap gap-3 text-sm">
           <Link
-            href="/collections?sort=trending"
+            href="/feed?mode=trending"
             className="rounded-lg bg-slate-900 text-white px-4 py-3 min-h-11 inline-flex items-center"
             onClick={() => emitWebsiteEvent("homepage_primary_cta_clicked", { cta: "shop_trending" })}
             data-progress-target="trending"
@@ -83,7 +83,7 @@ export const HomeDiscoveryModule = () => {
             Shop Trending
           </Link>
           <Link
-            href="/collections?sort=best-sellers"
+            href="/feed?mode=featured"
             className="rounded-lg border border-slate-300 px-4 py-3 min-h-11 inline-flex items-center"
             onClick={() => emitWebsiteEvent("homepage_secondary_cta_clicked", { cta: "browse_best_sellers" })}
             data-progress-target="best_sellers"
