@@ -74,5 +74,6 @@ The following open issues were identified in the storefront routes/links/pages a
 
 ## Last refreshed
 
+- Refreshed on: 2026-02-19.
 - Code marker scan command run: `rg -n "TODO|FIXME" admin-panel/src storefront/src vendor-panel/src`
 - Result: 14 in-code TODO/FIXME markers (admin-panel only) + 1 open manual storefront audit follow-up (2 high-priority follow-ups completed).
