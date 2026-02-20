@@ -115,6 +115,7 @@ async function Category({
     condition,
     min_price,
     max_price,
+    query,
   } = await searchParams
   const page = Number(pageParam) || 1
 
@@ -225,6 +226,7 @@ async function Category({
             conditions={toList(condition)}
             minPrice={toNumber(min_price)}
             maxPrice={toNumber(max_price)}
+            query={typeof query === "string" ? query : undefined}
           />
         ) : bot || !ALGOLIA_ID || !ALGOLIA_SEARCH_KEY ? (
           <ProductListing
@@ -241,6 +243,7 @@ async function Category({
             conditions={toList(condition)}
             minPrice={toNumber(min_price)}
             maxPrice={toNumber(max_price)}
+            query={typeof query === "string" ? query : undefined}
           />
         ) : (
           <AlgoliaProductsListing
