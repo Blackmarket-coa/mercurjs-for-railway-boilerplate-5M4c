@@ -31,45 +31,17 @@ Scope: storefront route files in `storefront/src/app/[locale]/**/page.tsx` and i
 - `pnpm --dir storefront lint` passes with no ESLint errors.
 - Non-blocking warning observed from Next.js about multiple lockfiles and inferred workspace root.
 
-### 2) Metadata coverage remains incomplete
+### 2) Metadata coverage is now complete
 
-20/47 routes still do not define route metadata (`generateMetadata` or `metadata` export):
+All 47/47 routes now define route metadata (`generateMetadata` or `metadata` export).
 
-- `/collections/[handle]`
-- `/collective/demand-pools/[id]`
-- `/collective/demand-pools/new`
-- `/sell`
-- `/sellers/[handle]/reviews`
-- `/user`
-- `/user/orders`
-- `/user/orders/[id]`
-- `/user/orders/[id]/return`
-- `/user/orders/[id]/request-success`
-- `/user/wishlist`
-- `/user/addresses`
-- `/user/messages`
-- `/user/settings`
-- `/user/reviews`
-- `/user/reviews/written`
-- `/user/returns`
-- `/user/register`
-- `/forgot-password`
-- `/reset-password`
+- Previously missing routes (including `/sell`, `/collections/[handle]`, `/collective/demand-pools/[id]`, and account/password pages) are now covered.
 
-### 3) Dynamic-route fallback handling is still inconsistent
+### 3) Dynamic-route fallback handling is now consistent
 
-10 dynamic page routes do not currently use explicit `notFound()` fallback handling:
+All 13/13 dynamic page routes now use explicit `notFound()` fallback handling.
 
-- `/collections/[handle]`
-- `/gardens/[handle]`
-- `/kitchens/[handle]`
-- `/producers/[handle]`
-- `/products/[handle]`
-- `/sellers/[handle]`
-- `/sellers/[handle]/reviews`
-- `/user/orders/[id]`
-- `/user/orders/[id]/return`
-- `/user/orders/[id]/request-success`
+- This includes the previously missing routes such as `/collections/[handle]`, `/products/[handle]`, and `/user/orders/[id]` paths.
 
 ### 4) Internal link mismatch found and remediated
 
@@ -83,6 +55,5 @@ This was present in the order-return UI copy and has been corrected to the exist
 
 ## Recommended follow-up
 
-1. Add metadata to high-traffic public routes first (`/sell`, `/collections/[handle]`, `/collective/demand-pools/[id]`, `/sellers/[handle]/reviews`).
-2. Standardize dynamic route not-found handling to improve consistent UX/status behavior.
-3. Continue periodic static link audits to catch route drift as new pages are added.
+1. Continue periodic static link audits to catch route drift as new pages are added.
+2. Keep metadata/fallback checks as part of recurring release validation so future routes maintain coverage.
