@@ -5,6 +5,8 @@ on:
     branches: [main, develop, 'release/**']
   pull_request:
     branches: [main, develop, 'release/**']
+  schedule:
+    - cron: '0 5 * * 1'
 
 env:
   NODE_VERSION: '20'
@@ -48,6 +50,10 @@ jobs:
       - name: Lint storefront
         working-directory: storefront
         run: pnpm lint
+
+      - name: Validate storefront internal links against routes
+        working-directory: storefront
+        run: pnpm qa:internal-links
 
       - name: TypeScript check
         working-directory: backend
