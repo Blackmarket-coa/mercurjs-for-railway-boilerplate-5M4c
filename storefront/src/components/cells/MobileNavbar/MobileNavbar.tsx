@@ -223,7 +223,7 @@ export const MobileNavbar = ({
                         <div className='bg-gray-50 border-t'>
                           {/* View All Link */}
                           <LocalizedClientLink
-                            href={`/type/${type.handle}`}
+                            href={`/categories?type=${type.handle}`}
                             onClick={closeMenuHandler}
                             className='block px-4 py-3 text-sm font-medium text-green-700 hover:bg-gray-100 border-b border-gray-200'
                           >
@@ -237,7 +237,7 @@ export const MobileNavbar = ({
                             .map((category: CmsCategory) => (
                               <LocalizedClientLink
                                 key={category.id}
-                                href={`/category/${category.handle}`}
+                                href={`/categories?category=${category.handle}`}
                                 onClick={closeMenuHandler}
                                 className='block px-4 py-3 text-sm hover:bg-gray-100 transition-colors'
                               >

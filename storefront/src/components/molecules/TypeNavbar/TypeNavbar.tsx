@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { cn } from "@/lib/utils"
 import { CollapseIcon } from "@/icons"
@@ -25,6 +25,7 @@ export const TypeNavbar = ({
   onClose?: (state: boolean) => void
 }) => {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const dropdownRefs = useRef<Map<string, HTMLDivElement>>(new Map())
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -60,11 +61,11 @@ export const TypeNavbar = ({
   }
 
   const isTypeActive = (typeHandle: string) => {
-    return pathname?.includes(`/type/${typeHandle}`)
+    return pathname?.includes("/categories") && searchParams?.getAll("type").includes(typeHandle)
   }
 
   const isCategoryActive = (categoryHandle: string) => {
-    return pathname?.includes(`/category/${categoryHandle}`)
+    return pathname?.includes("/categories") && searchParams?.getAll("category").includes(categoryHandle)
   }
 
   const getShortName = (type: CmsType) => {
@@ -130,7 +131,7 @@ export const TypeNavbar = ({
               {/* Type Header - always show even without categories */}
               <div className="px-4 py-2 border-b border-gray-100">
                 <LocalizedClientLink
-                  href={`/type/${type.handle}`}
+                  href={`/categories?type=${type.handle}`}
                   onClick={() => {
                     setOpenDropdown(null)
                     onClose?.(false)
@@ -151,7 +152,7 @@ export const TypeNavbar = ({
                     .map((category: CmsCategory) => (
                       <LocalizedClientLink
                         key={category.id}
-                        href={`/category/${category.handle}`}
+                        href={`/categories?category=${category.handle}`}
                         onClick={() => {
                           setOpenDropdown(null)
                           onClose?.(false)
