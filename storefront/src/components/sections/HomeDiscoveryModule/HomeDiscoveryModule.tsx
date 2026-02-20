@@ -6,10 +6,10 @@ import { FormEvent, useState } from "react"
 import { emitWebsiteEvent } from "@/lib/analytics/events"
 
 const quickFilters = [
-  { label: "Category", value: "category:goods" },
-  { label: "Price under $50", value: "price:<50" },
-  { label: "Local pickup", value: "pickup:local" },
-  { label: "Vendor type", value: "vendor:community" },
+  { label: "Category", value: "category:all", href: "/categories" },
+  { label: "Price under $50", value: "max_price:50", href: "/categories?max_price=50" },
+  { label: "Local pickup", value: "sales_channel:local_pickup", href: "/categories?sales_channel=local_pickup" },
+  { label: "Vendor type", value: "vendor_type:producer", href: "/categories?vendor_type=producer" },
 ]
 
 export const HomeDiscoveryModule = () => {
@@ -21,14 +21,14 @@ export const HomeDiscoveryModule = () => {
 
     const params = new URLSearchParams()
     if (query.trim()) {
-      params.set("q", query.trim())
+      params.set("query", query.trim())
     }
 
     emitWebsiteEvent("homepage_search_submitted", {
       query: query.trim() || "all",
     })
 
-    router.push(`/collections${params.toString() ? `?${params.toString()}` : ""}`)
+    router.push(`/categories${params.toString() ? `?${params.toString()}` : ""}`)
   }
 
   const onFilterClick = (filter: string) => {
@@ -64,7 +64,7 @@ export const HomeDiscoveryModule = () => {
           {quickFilters.map((filter) => (
             <Link
               key={filter.value}
-              href={`/collections?${new URLSearchParams({ filter: filter.value }).toString()}`}
+              href={filter.href}
               className="rounded-full border border-slate-300 px-3 py-2 text-sm leading-none hover:border-green-500 hover:bg-green-50 min-h-11 inline-flex items-center" aria-label={`Filter by ${filter.label}`}
               onClick={() => onFilterClick(filter.value)}
             >
@@ -75,7 +75,7 @@ export const HomeDiscoveryModule = () => {
 
         <div className="flex flex-wrap gap-3 text-sm">
           <Link
-            href="/collections?sort=trending"
+            href="/feed?mode=trending"
             className="rounded-lg bg-slate-900 text-white px-4 py-3 min-h-11 inline-flex items-center"
             onClick={() => emitWebsiteEvent("homepage_primary_cta_clicked", { cta: "shop_trending" })}
             data-progress-target="trending"
@@ -83,7 +83,7 @@ export const HomeDiscoveryModule = () => {
             Shop Trending
           </Link>
           <Link
-            href="/collections?sort=best-sellers"
+            href="/feed?mode=featured"
             className="rounded-lg border border-slate-300 px-4 py-3 min-h-11 inline-flex items-center"
             onClick={() => emitWebsiteEvent("homepage_secondary_cta_clicked", { cta: "browse_best_sellers" })}
             data-progress-target="best_sellers"

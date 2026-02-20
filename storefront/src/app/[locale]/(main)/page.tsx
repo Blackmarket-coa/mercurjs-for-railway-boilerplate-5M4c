@@ -26,7 +26,7 @@ const vendorTypeCards = [
   { label: "Digital Products", href: "/what-you-sell#digital-products", emoji: "💻" },
   { label: "Event Tickets", href: "/what-you-sell#event-tickets", emoji: "🎟️" },
   { label: "Rentals", href: "/what-you-sell#rentals", emoji: "🧰" },
-  { label: "Community Programs", href: "/what-you-sell#community-programs", emoji: "🤝" },
+  { label: "Community Programs", href: "/community-resources", emoji: "🤝" },
 ]
 
 export async function generateMetadata({
@@ -132,7 +132,7 @@ export default async function Home({
     {
       title: "Shop products",
       description: "Browse curated goods from independent vendors.",
-      href: "/collections",
+      href: "/categories",
     },
     {
       title: "Meet vendors",
@@ -142,7 +142,7 @@ export default async function Home({
     {
       title: "Community programs",
       description: "Find local initiatives, events, and mutual-aid offerings.",
-      href: "/what-you-sell#community-programs",
+      href: "/community-resources",
     },
     {
       title: "Sell on the coalition",
@@ -195,7 +195,7 @@ export default async function Home({
         buttons={[
           {
             label: "Explore the Marketplace",
-            path: "/collections",
+            path: "/categories",
             eventName: "homepage_primary_cta_clicked",
             eventLabel: "explore_marketplace",
             progressTarget: "product_discovery",
@@ -219,7 +219,7 @@ export default async function Home({
           <p className="text-gray-600 mb-6">The homepage highlights marketplace discovery first, while vendor setup resources are grouped into a single guided path.</p>
           <div className="mb-6 flex flex-wrap gap-3">
             <Link
-              href="/collections"
+              href="/categories"
               className="rounded-lg bg-green-700 px-4 py-2 text-white text-sm font-semibold hover:bg-green-800"
               data-event="homepage_primary_cta_clicked"
               data-event-label="start_shopping"
